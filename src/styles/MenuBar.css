@@ -1,0 +1,99 @@
+@media (min-aspect-ratio: 1/1) {
+  #menu-bar {
+    position: fixed;
+    /* top: 0; */
+    left: 0;
+    /* width: 5%; */
+    height: 100%;
+    background-color: #1976d2;
+    color: white;
+    text-align: center;
+    /* padding-top: 1em; */
+    /* padding-left: 5vw; */
+  }  
+}
+
+#input {
+	width: 0.1px;
+	height: 0.1px;
+	opacity: 0;
+	overflow: hidden;
+	position: absolute;
+  z-index: -1; 
+}
+
+.icon {
+  /* min-width: 32px; */
+  /* min-height: 32px; */
+  color: white;
+  margin: 20px;
+  margin-bottom: 0px;
+  cursor: pointer; /* "hand" cursor */
+}
+
+.iconLabel {
+  font-size: 0.8em;
+  /* margin-left: 7px; */
+  margin-bottom: 20px;
+}
+
+/* Maximum aspect ratio */
+@media (max-aspect-ratio: 1/1) {
+  #topbar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    /* height: 100%; */
+    background-color: #1976d2;
+    color: white;
+    z-index: 999;
+    
+    /* text-align: center; */
+    /* padding-top: 1em; */
+    /* padding-left: 5vw; */
+  }
+  #topbar p {
+    display: none;
+    /* display: inline-block; */
+  }
+  #topbar div {
+    display: inline-block;
+  }
+
+  .icon {
+    margin: 20px;
+    /* margin-bottom: 0px; */
+    cursor: pointer; /* "hand" cursor */
+  }
+
+  .evaluatorSpace, .macroSpace {
+    padding-top: 12em;
+    margin-left: 1vw;
+    height: 70vh;
+  }
+
+  .editorContainer {
+    bottom: 1px;
+    width: 98vw;
+    left: 1vw;
+  }
+  
+  .editorSettings {
+    position: fixed;
+    top: 80px;
+    left: 0;
+    /* margin-left: 10px; */
+    margin-top: 0vh;
+    padding-left: 10px;
+
+  }
+
+  .evaluatorSpace, .macroSpace {
+    width: 97vw;
+  }
+
+  .box {
+    padding-right: 10px;
+  }
+}
