@@ -1,9 +1,9 @@
 @media (min-aspect-ratio: 1/1) {
   #menu-bar {
     position: fixed;
-    /* top: 0; */
+    top: 0;
     left: 0;
-    /* width: 5%; */
+    width: 5%;
     height: 100%;
     background-color: #1976d2;
     color: white;

@@ -5,10 +5,13 @@ import React, { useContext } from 'react'
 // import Note from './Note'
 // import { MacroTableContext } from './EvaluatorSpace'
 // import { SetBoxContext } from './BoxSpace'
-// import { BoxState, BoxType, EvaluationState, MacroDefinitionState, NoteState } from '../AppTypes'
+import { BoxState, BoxType, MacroDefinitionState, NoteState } from '../AppTypes'
 
+import { EvaluationState } from '../untyped-lambda-integration/AppTypes'
 
-import { BoxState } from '../AppTypes'
+import EvaluatorIntegration from '../untyped-lambda-integration/ExpressionBox'
+
+// import { BoxState } from '../AppTypes'
 
 interface BoxProperties {
   state : BoxState
@@ -25,21 +28,28 @@ export default function Box (props : BoxProperties) : JSX.Element {
   // const setBoxState = useContext(SetBoxContext)
 
 
-  // if (type === BoxType.LAMBDA) {
+  if (type === BoxType.LAMBDA) {
     return (
-      <div className=''>
+      <div className='box'>
+        { state.__key }
         <p>Hello Box world</p>
-        {/* TODO: misto tohohle bude asi komponenta Integrace
-        <Evaluator
+        <EvaluatorIntegration
           state={ state as EvaluationState }
           isActive={ isActive }
           macroTable={ macroTable }
           
           setBoxState={ setBoxState }
-        /> */}
+        />
       </div>
     )
-  // }
+  }
+  else {
+    return (
+      <div>
+        Uknown BOX
+      </div>
+    )
+  }
 
   // if (type === BoxType.MACRO) {
   //   return (
