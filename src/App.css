@@ -1,38 +1,62 @@
-.App {
+.UL {
+  padding: 0px;
+}
+
+.LI {
+  list-style: none;
+}
+/* CSS RESET */
+
+
+.mainSpace {
+  margin-left: 5%;
+}
+
+.boxList, .UL {
+  margin-right: 5%;
+  padding-left: 40px;
+}
+
+.box {
+  position: relative;
+  border-top: none;
+  padding-left: 10px;
+  padding-top: 10px;
+  padding-bottom: 5px;
+  font-size: 1.5em;
+
+  -webkit-box-shadow: 6px 7px 16px -7px rgba(64,64,64,0.87);
+  -moz-box-shadow: 6px 7px 16px -7px rgba(64,64,64,0.87);
+  box-shadow: 6px 7px 16px -7px rgba(64,64,64,0.87);
+}
+
+
+.addButtons {
+  margin: auto;
   text-align: center;
+  width: 5%;
+  background-color: rgb(243, 243, 243);
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
+.addBoxArea .plusBtn {
+  color: rgb(143, 143, 143);
+  cursor: pointer;
+  padding-right: 10px;
+  margin: 0;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
+.addButtons .plusBtn:hover {
+  background-color: rgb(194, 194, 194);
 }
 
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
-}
+.addBoxArea {
+  width: 100%;
+  margin-top: 10px;
+  margin-bottom: 10px;
+  padding-top: 10px;
+  padding-bottom: 10px;
 
-.App-link {
-  color: #61dafb;
-}
-
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+  border-radius: 0.25rem;
+  text-align: center;
+  background-color: rgb(243, 243, 243);
 }
