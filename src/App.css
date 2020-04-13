@@ -62,3 +62,21 @@
   background-color: rgb(243, 243, 243);
   border: 1px dashed gray;
 }
+
+
+
+.removeBox {
+  position: absolute;
+  right: 25px;
+  top: 10px;
+  color: grey;
+}
+
+.inactiveBox .removeBox {
+  display: none;
+}
+
+.box:hover .removeBox {
+  display: block;
+  color: black;
+}
