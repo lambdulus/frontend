@@ -46,7 +46,7 @@ export default class App extends Component<Props, AppState> {
                   { <CreateBox addNew={ (box : BoxState) => this.insertBefore(i, box) } /> }
                 </div>
                 
-                <Box state={ box } isActive={ i === this.state.activeBoxIndex } />
+                <Box state={ box } isActive={ i === this.state.activeBoxIndex } removeBox={ () => this.removeBox(i) } />
               </li>
             ) }
 
@@ -70,5 +70,21 @@ export default class App extends Component<Props, AppState> {
 
   setScreen (screen : Screen) : void {
     this.setState({ currentScreen : screen })
+  }
+
+  removeBox (index : number) : void {
+    const { boxList, activeBoxIndex } = this.state
+    
+    const nearestValidIndex = (i : number) => {
+      if (activeBoxIndex !== i) return activeBoxIndex
+      if (boxList.length === 1) return NaN
+      if (i === 0) return i
+      return i - 1
+    }
+
+    const newIndex : number = nearestValidIndex(index)
+
+    boxList.splice(index, 1)
+    this.setState({ boxList : boxList, activeBoxIndex : newIndex })
   }
 }

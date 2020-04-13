@@ -54,6 +54,7 @@ export interface EvaluationProperties {
   // macroTable : MacroMap
 
   setBoxState (state : UntypedLambdaState) : void
+  removeBox () : void
 }
 
 export default class ExpressionBox extends PureComponent<EvaluationProperties> {
@@ -74,7 +75,7 @@ export default class ExpressionBox extends PureComponent<EvaluationProperties> {
   }
 
   render () : JSX.Element {
-    const { state, isActive } : EvaluationProperties = this.props
+    const { state, isActive, removeBox } : EvaluationProperties = this.props
     const {
       history,
       breakpoints,
@@ -99,6 +100,7 @@ export default class ExpressionBox extends PureComponent<EvaluationProperties> {
           onContent={ this.onContent }
           onEnter={ this.onEnter }
           onExecute={ this.onExecute }
+          removeBox={ removeBox }
         />
       )
     }
