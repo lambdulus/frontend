@@ -1,5 +1,7 @@
+import { UntypedLambdaState } from "./untyped-lambda-integration/AppTypes"
+
 export enum BoxType {
-  LAMBDA,
+  UNTYPED_LAMBDA,
   LISP,
   MARKDOWN,
 }
@@ -9,23 +11,27 @@ export interface Box {
   __key : number, 
 }
 
-export interface LambdaBox extends Box {
-  // some data
-}
-
 export interface LispBox extends Box {
   // some data
 }
 
-export type BoxState = LambdaBox | LispBox | NoteState // or other things in the future
+export type BoxState = UntypedLambdaState | LispBox | NoteState // or other things in the future
 
 export interface AppState {
   boxList : Array<BoxState>,
   activeBoxIndex : number,
+  currentScreen : Screen,
 }
 
-
-
+export enum Screen {
+  MAIN,
+  HELP,
+  MACROLIST,
+  // NOTEBOOKS,
+}
+///////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////
+// TODO: move to specific integration
 export interface MacroDefinitionState {
   __key : string
   type : BoxType
@@ -40,6 +46,7 @@ export interface MacroDefinitionState {
   }
 }
 
+// TODO: move to specific integration
 export interface NoteState {
   __key : string
   type : BoxType
