@@ -7,7 +7,7 @@ import React, { useContext } from 'react'
 // import { SetBoxContext } from './BoxSpace'
 import { BoxState, BoxType, MacroDefinitionState, NoteState } from '../AppTypes'
 
-import { EvaluationState } from '../untyped-lambda-integration/AppTypes'
+import { UntypedLambdaState } from '../untyped-lambda-integration/AppTypes'
 
 import EvaluatorIntegration from '../untyped-lambda-integration/ExpressionBox'
 
@@ -28,19 +28,15 @@ export default function Box (props : BoxProperties) : JSX.Element {
   // const setBoxState = useContext(SetBoxContext)
 
 
-  if (type === BoxType.LAMBDA) {
+  if (type === BoxType.UNTYPED_LAMBDA) {
     return (
-      <div className='box'>
-        { state.__key }
-        <p>Hello Box world</p>
-        <EvaluatorIntegration
-          state={ state as EvaluationState }
-          isActive={ isActive }
-          macroTable={ macroTable }
-          
-          setBoxState={ setBoxState }
-        />
-      </div>
+      <EvaluatorIntegration
+        state={ state as UntypedLambdaState }
+        isActive={ isActive }
+        // macroTable={ macroTable }
+        
+        setBoxState={ (box : UntypedLambdaState) => void 0 }
+      />
     )
   }
   else {
