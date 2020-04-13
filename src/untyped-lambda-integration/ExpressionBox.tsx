@@ -88,6 +88,7 @@ export default class ExpressionBox extends PureComponent<EvaluationProperties> {
     const { isNormalForm } = history.length ? history[history.length - 1] : { isNormalForm : false }
 
     if (expression === '') {
+      console.log('empty boxik')
       return (
         <EmptyEvaluator
           className={ className }
@@ -106,7 +107,10 @@ export default class ExpressionBox extends PureComponent<EvaluationProperties> {
       className += ' boxExercise'
     }
 
+    // TODO: Maybe I will take this out
+    // Frontend may take care of that
     if ( ! isActive) {
+      console.log('inactive boxik')
       return (
         <InactiveEvaluator
           className={ className }
