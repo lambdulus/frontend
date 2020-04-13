@@ -54,3 +54,28 @@ export interface UntypedLambdaState {
 }
 
 export type Evaluator = NormalEvaluator | ApplicativeEvaluator | OptimizeEvaluator
+
+
+export function createNewUntypedLambda () : UntypedLambdaState {
+  return {
+    __key : Date.now().toString(),
+    type : BoxType.UNTYPED_LAMBDA,
+    expression : "",
+    ast : null,
+    history : [],
+    isRunning : false,
+    breakpoints : [],
+    timeoutID : undefined,
+    timeout : 5,
+    isExercise : false,
+    strategy : EvaluationStrategy.NORMAL,
+    singleLetterNames : false,
+    standalones : false,
+    editor : {
+      placeholder : "placeholder",
+      content : "",
+      caretPosition : 0,
+      syntaxError : null,
+    }
+  }
+}

@@ -1,0 +1,92 @@
+/* .box {
+  position: relative;
+  border-top: none;
+  padding-left: 10px;
+  padding-top: 10px;
+  padding-bottom: 5px;
+  font-size: 1.5em;
+
+  border: 1px solid rgb(199, 199, 199);
+  border-radius: .25rem;
+} */
+
+.boxEval {
+  border-left: 5px solid cornflowerblue;
+}
+
+.boxEval.inactiveBox {
+  border: 1px solid rgb(235, 235, 235);
+  border-left: 5px solid rgb(160, 186, 238);
+}
+
+.boxEval.inactiveBox:hover {
+  border: 1px solid rgb(214, 214, 214);
+  border-left: 5px solid rgb(124, 166, 250);
+}
+
+.boxEval.inactiveBox:hover .inactiveMessage {
+  color: rgb(59, 59, 59);
+}
+
+.boxMacro {
+  border-left: 5px solid rgb(11, 92, 184);
+
+}
+
+.inactiveStep {
+  color: gray;
+}
+
+.hiddenIcon, .hiddenMacroIcon {
+  margin-left: 0.75em;
+  display: none;
+}
+
+li:hover > .step > .inlineblock > .hiddenIcon {
+  display: inline;
+  color: black;
+}
+
+li:hover .hiddenMacroIcon {
+  color: black;
+  display: inline;
+}
+
+.controlBtn {
+  --mdc-theme-primary: #1976d2;
+  display: inline-block;
+  font-size: 0.5em;
+  margin-right: 1em;
+
+}
+
+.badge {
+  padding: 5px;
+  padding-left: 10px;
+  padding-right: 10px;
+  border: 2px solid black;
+  border-radius: 1rem;
+  display: inline-block;
+  font-size: 0.6em;
+  margin-right: 1em;
+}
+
+.makeBadge {
+  cursor: pointer;
+}
+
+.makeBadge:hover {
+  background-color: #BDBDBD;
+}
+
+.inactiveMessage {
+  color: gray;
+  font-size: 0.6em;
+  margin-left: 0;
+}
+
+.emptyStep {
+  margin-top: 0;
+  /* margin-bottom: -20px; */
+  /* font-size: 0.7em; */
+}
