@@ -20,7 +20,7 @@ import {
   NormalAbstractionEvaluator,
 } from "@lambdulus/core"
 
-import '../styles/EvaluatorBox.css'
+import './styles/EvaluatorBox.css'
 
 import { BoxType } from '../AppTypes'
 
@@ -51,7 +51,7 @@ export function strategyToEvaluator (strategy : EvaluationStrategy) : Evaluator 
 export interface EvaluationProperties {
   state : UntypedLambdaState
   isActive : boolean
-  macroTable : MacroMap
+  // macroTable : MacroMap
 
   setBoxState (state : UntypedLambdaState) : void
 }
@@ -147,7 +147,7 @@ export default class ExpressionBox extends PureComponent<EvaluationProperties> {
     const { ast } = stepRecord
 
     return {
-      type : BoxType.LAMBDA,
+      type : BoxType.UNTYPED_LAMBDA,
       __key : Date.now().toString(),
       expression : ast.toString(),
       ast : ast.clone(),
@@ -553,12 +553,12 @@ export default class ExpressionBox extends PureComponent<EvaluationProperties> {
 
   // THROWS Exceptions
   parseExpression (expression : string) : AST {
-    const { macroTable } = this.props
+    // const { macroTable } = this.props
 
     const { singleLetterNames : singleLetterVars } = this.props.state
 
     const tokens : Array<Token> = tokenize(expression, { lambdaLetters : ['λ'], singleLetterVars })
-    const ast : AST = parse(tokens, macroTable)
+    const ast : AST = parse(tokens, {}) // macroTable
 
     return ast
   }
