@@ -18,10 +18,11 @@ interface BoxProperties {
   isActive : boolean
 
   removeBox () : void
+  updateBoxState (box : BoxState) : void
 }
 
 export default function Box (props : BoxProperties) : JSX.Element {
-  const { state, isActive, removeBox } : BoxProperties = props
+  const { state, isActive, removeBox, updateBoxState } : BoxProperties = props
   const { type } = state
 
   // const macroTable = useContext(MacroTableContext)
@@ -35,7 +36,7 @@ export default function Box (props : BoxProperties) : JSX.Element {
         isActive={ isActive }
         // macroTable={ macroTable }
         
-        setBoxState={ (box : UntypedLambdaState) => void 0 }
+        setBoxState={ updateBoxState }
         removeBox={ removeBox }
       />
     )

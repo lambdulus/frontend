@@ -22,6 +22,7 @@ export default class App extends Component<Props, AppState> {
 
     this.insertBefore = this.insertBefore.bind(this)
     this.setScreen = this.setScreen.bind(this)
+    this.removeBox = this.removeBox.bind(this)
 
     // TODO: implement Class Keyboard Controller -> handling all keyboard events and firing events -> invoking handlers from this class
     // document.addEventListener('keydown', (event : KeyboardEvent) => {
@@ -46,7 +47,12 @@ export default class App extends Component<Props, AppState> {
                   { <CreateBox addNew={ (box : BoxState) => this.insertBefore(i, box) } /> }
                 </div>
                 
-                <Box state={ box } isActive={ i === this.state.activeBoxIndex } removeBox={ () => this.removeBox(i) } />
+                <Box
+                  state={ box }
+                  isActive={ i === this.state.activeBoxIndex }
+                  removeBox={ () => this.removeBox(i) }
+                  updateBoxState={ (box : BoxState) => this.updateBoxState(i, box) }
+                />
               </li>
             ) }
 
@@ -86,5 +92,12 @@ export default class App extends Component<Props, AppState> {
 
     boxList.splice(index, 1)
     this.setState({ boxList : boxList, activeBoxIndex : newIndex })
+  }
+
+  updateBoxState (index : number, box : BoxState) : void {
+    const { boxList } = this.state
+    boxList[index] = box
+
+    this.setState({ boxList })
   }
 }

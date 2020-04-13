@@ -28,11 +28,6 @@
   color: rgb(59, 59, 59);
 }
 
-.boxMacro {
-  border-left: 5px solid rgb(11, 92, 184);
-
-}
-
 .inactiveStep {
   color: gray;
 }
