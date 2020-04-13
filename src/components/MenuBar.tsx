@@ -1,15 +1,8 @@
-// TODO:
-// hydratace a dehydratace kompletniho statu
-//
-//
-
 import React, { ChangeEvent } from 'react'
-// import { AST, tokenize, parse, Token, MacroMap, None } from '@lambdulus/core'
+import { AST, tokenize, parse, Token, MacroMap, None } from '@lambdulus/core'
 
-// import { AppState, Screen, BoxState, BoxType, EvaluationState } from '../AppTypes'
+import { AppState, Screen, BoxState, BoxType } from '../AppTypes'
 
-
-import { AppState } from '../AppTypes'
 
 import '../styles/MenuBar.css'
 // import { reportEvent } from '../misc'; // later
@@ -17,7 +10,7 @@ import '../styles/MenuBar.css'
 interface MenuBarProperties {
   state : AppState
   // onImport (state : AppState) : void
-  // onScreenChange (screen : Screen) : void
+  onScreenChange (screen : Screen) : void
 }
 
 export default function MenuBar (props : MenuBarProperties) : JSX.Element {
@@ -120,8 +113,8 @@ export default function MenuBar (props : MenuBarProperties) : JSX.Element {
 //   const { type } : BoxState = box
   
 //   if (type === BoxType.EXPRESSION) {
-//     const { singleLetterNames } = box as EvaluationState
-//     const ast : AST = parseExpression((box as EvaluationState).expression, { macroTable, singleLetterNames })
+//     const { singleLetterNames } = box as UntypedLambdaState
+//     const ast : AST = parseExpression((box as UntypedLambdaState).expression, { macroTable, singleLetterNames })
 
 //     return {
 //       ...box,
