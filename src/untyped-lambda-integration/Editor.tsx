@@ -1,6 +1,6 @@
 import React, { ChangeEvent, KeyboardEvent } from 'react'
 
-// import '../styles/Editor.css'
+import './styles/Editor.css'
 
 // import { EvaluationStrategy } from '../App'
 

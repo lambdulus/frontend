@@ -8,6 +8,7 @@ import Editor from './Editor'
 // import { DeleteBox } from './BoxSpace'
 // import { AddBoxContext } from './MethodInjector'
 import { mapLeftFromTo } from '../misc'
+import BoxTopBar from './BoxTopBar'
 
 
 interface EvaluatorProps {
@@ -29,6 +30,7 @@ interface EvaluatorProps {
   onContent (content : string, caretPosition : number) : void
   onEnter () : void
   onExecute () : void
+  removeBox () : void
 }
 
 export default class Expression extends PureComponent<EvaluatorProps> {
@@ -39,7 +41,7 @@ export default class Expression extends PureComponent<EvaluatorProps> {
   }
 
   render () : JSX.Element {
-    const { className, isExercise, state, editor } = this.props
+    const { className, isExercise, state, editor, removeBox } = this.props
 
     const {
       placeholder,
@@ -75,14 +77,16 @@ export default class Expression extends PureComponent<EvaluatorProps> {
         /> */}
         {/* <DeleteBox.Consumer>
           {
-           (deleteBox : () => void) =>
-            <i className='removeBox far fa-trash-alt' onClick={ deleteBox } title='Remove this Box' />
-          }
-        </DeleteBox.Consumer> */}
+           (deleteBox : () => void) => */}
+           <BoxTopBar removeBox={ removeBox } />
+            {/* <i className='removeBox far fa-trash-alt' onClick={ deleteBox } title='Remove this Box' /> */}
+        {/*   }
+         </DeleteBox.Consumer>
+          */}
 
         {/* <AddBoxContext.Consumer>
           {
-            (addBox : (boxState : BoxState) => void) =>
+            (addBox : (boxState : BoxState) => void) => */}
             <ul className='UL'>
               {
                 mapLeftFromTo(0, this.props.history.length - 2, this.props.history, (stepRecord : StepRecord, i : Number) =>
@@ -96,7 +100,7 @@ export default class Expression extends PureComponent<EvaluatorProps> {
                       <i
                         className="hiddenIcon fas fa-pencil-alt"
                         title='Copy this to new box'
-                        onClick={ () => addBox(this.props.createBoxFrom(stepRecord)) }
+                        // onClick={ () => addBox(this.props.createBoxFrom(stepRecord)) }
                       />
                     </Step>
                   </li>)
@@ -111,12 +115,12 @@ export default class Expression extends PureComponent<EvaluatorProps> {
                     <i
                       className="hiddenIcon fas fa-pencil-alt"
                       title='Copy this to new box'
-                      onClick={ () => addBox(this.props.createBoxFrom(this.props.history[this.props.history.length - 1])) }
+                      // onClick={ () => addBox(this.props.createBoxFrom(this.props.history[this.props.history.length - 1])) }
                     />
                 </Step>
               </li>
             </ul>
-          }
+          {/* }
         </AddBoxContext.Consumer> */}
 
         {

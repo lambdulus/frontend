@@ -1,0 +1,143 @@
+.step {
+  /* font-size: 2em; */
+  word-wrap: anywhere;
+}
+
+.left.redex {
+  border-bottom: 2px solid #81c784;
+}
+
+.substitutedArg {
+  background-color: #81c784;
+  padding-left: 1px;
+  padding-right: 1px;
+  border-radius: 2px;
+}
+
+.variable.alpha.substitutedArg {
+  background-color: #c07ddf;
+}
+
+.argument.alpha.substitutedArg {
+  background-color: #c07ddf;
+}
+
+.right.redex {
+/*  background-color: #ffa4a2; /* #ec407a */
+  border: 2px solid #81c784;
+  border-radius: 5px;
+  /* color: white; */
+  /* padding: 1px; */
+}
+
+.argument.substitutedArg {
+  background-color: #539b57;
+}
+
+.argument.substitutedArg.breakpoint {
+  border: 2px solid #ff6090;
+}
+
+.activeStep .macro, .activeStep .argument, .activeStep .churchnumeral {
+  cursor: pointer;
+}
+
+.macro.redex {
+  background-color: #80d8ff;
+  border-radius: 5px;
+}
+
+.macro.redex.abstraction {
+  background-color: #1decff;
+  border-radius: 5px;
+}
+
+.churchnumeral.redex {
+  background-color: #82b1ff;
+  border-radius: 5px;
+  /* padding: 1px; */
+}
+
+.application.redex.abstraction.argument,
+.churchnumeral.redex.abstraction.argument,
+.macro.redex.abstraction.argument {
+  background-color: #97fff1;
+  border-radius: 5px;
+  /* padding: 1px; */
+}
+
+.breakpoint {
+  /* border-bottom: 3px solid black; */
+  background-color: #ff6090;
+  border-radius: 5px;
+}
+
+.breakpoint.churchnumeral.redex, .breakpoint.macro.redex {
+  border: 2px solid #ff6090;
+}
+
+/* .breakpoint::after {
+  /* border-bottom: 3px solid black;
+  content: "";
+  background-color: #ff1744;
+  border: 0.5px solid gray;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  display: inline-block;
+  position: relative;
+  top: -0.5em;
+} */
+
+/* .application, .function, .variable, .macro, .churchnumeral {
+  padding: 10px;
+} */
+
+.lastReduction {
+  color: gray;
+  font-size: 0.7em;
+  margin: 0;
+  margin-left: 1.5em;
+}
+
+.stepNumber {
+  /* display: none; */
+  color: gray;
+  display: inline-block;
+  margin: 0;
+  font-size: 0.5em;
+  margin-right: 1em;
+}
+
+.stepMessage {
+  /* color: gray; */
+  /* display: inline-block; */
+  /* margin: 0; */
+  font-size: 0.8em;
+  margin-left: 1.5em;
+  font-weight: 600;
+}
+
+.stepMessage.correct {
+  color: rgb(23, 131, 23);
+}
+
+.stepMessage.incorrect {
+  color: rgb(218, 2, 2);
+}
+
+.incorrect .userInput {
+  color: gray;
+}
+
+.inlineblock {
+  display: inline-block;
+}
+
+.boxExercise .activeStep .substitutedArg,
+.boxExercise .activeStep .redex,
+.boxExercise .churchnumeral.redex.argument.abstraction {
+  border: none;
+  background-color: white;
+  padding: 0;
+}

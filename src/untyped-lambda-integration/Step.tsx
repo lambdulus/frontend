@@ -1,7 +1,7 @@
 import React, { memo } from 'react'
 import { ASTReduction } from '@lambdulus/core'
 
-// import '../styles/Step.css'
+import './styles/Step.css'
 
 import { strategyToEvaluator } from './ExpressionBox'
 import ReactPrinter from './ReactPrinter'

@@ -139,6 +139,7 @@ export default class ExpressionBox extends PureComponent<EvaluationProperties> {
         onContent={ this.onContent }
         onEnter={ this.onEnter }
         onExecute={ this.onExecute }
+        removeBox={ removeBox }
       />
     )
   }
