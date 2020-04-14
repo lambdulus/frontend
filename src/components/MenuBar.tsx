@@ -37,7 +37,12 @@ export default function MenuBar (props : MenuBarProperties) : JSX.Element {
             (notebook : NotebookState, index : number) =>
             <li className={ `LI${ currentNotebook === index ? ' current' : '' }` } key={ notebook.__key }>
               <div className='notebookIconWrapper'>
-                <i className="removeNtb far fa-times-circle" onClick={ () => onDeleteNotebook(index) } />
+                {
+                  notebookList.length === 1 ?
+                  null
+                  :
+                  <i className="removeNtb far fa-times-circle" onClick={ () => onDeleteNotebook(index) } />
+                }
                 <div className='notebookIcon' onClick={ () => props.onSelectNotebook(index) }>
                   { index }
                 </div>
