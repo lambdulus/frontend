@@ -19,10 +19,11 @@ interface BoxProperties {
 
   removeBox () : void
   updateBoxState (box : BoxState) : void
+  addBox (box : BoxState) : void
 }
 
 export default function Box (props : BoxProperties) : JSX.Element {
-  const { state, isActive, removeBox, updateBoxState } : BoxProperties = props
+  const { state, isActive, removeBox, updateBoxState, addBox } : BoxProperties = props
   const { type } = state
 
   // const macroTable = useContext(MacroTableContext)
@@ -38,6 +39,7 @@ export default function Box (props : BoxProperties) : JSX.Element {
         
         setBoxState={ updateBoxState }
         removeBox={ removeBox }
+        addBox={ addBox }
       />
     )
   }

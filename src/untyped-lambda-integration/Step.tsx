@@ -7,6 +7,7 @@ import { strategyToEvaluator } from './ExpressionBox'
 import ReactPrinter from './ReactPrinter'
 // import ReductionMessage from './ReductionMessage'
 import { EvaluationStrategy, StepRecord, Breakpoint, Evaluator } from './AppTypes'
+import ReductionMessage from './ReductionMessage'
 // import { StrategyContext } from './DataInjector'
 
 
@@ -62,7 +63,7 @@ function Step (props : StepProperties) : JSX.Element | null {
 
   return (
     <span className='step'>
-      {/* <ReductionMessage lastReduction={ lastReduction } /> */}
+      <ReductionMessage lastReduction={ lastReduction } />
       <div className='inlineblock' >
         <p className='stepNumber' >
           { step } :

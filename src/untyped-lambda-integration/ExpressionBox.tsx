@@ -22,7 +22,7 @@ import {
 
 import './styles/EvaluatorBox.css'
 
-import { BoxType } from '../AppTypes'
+import { BoxType, BoxState } from '../AppTypes'
 
 import { TreeComparator } from './TreeComparator'
 import EmptyEvaluator from './EmptyExpression'
@@ -55,6 +55,7 @@ export interface EvaluationProperties {
 
   setBoxState (state : UntypedLambdaState) : void
   removeBox () : void
+  addBox (box : BoxState) : void
 }
 
 export default class ExpressionBox extends PureComponent<EvaluationProperties> {
@@ -75,7 +76,7 @@ export default class ExpressionBox extends PureComponent<EvaluationProperties> {
   }
 
   render () : JSX.Element {
-    const { state, isActive, removeBox } : EvaluationProperties = this.props
+    const { state, isActive, removeBox, addBox } : EvaluationProperties = this.props
     const {
       history,
       breakpoints,
@@ -140,6 +141,7 @@ export default class ExpressionBox extends PureComponent<EvaluationProperties> {
         onEnter={ this.onEnter }
         onExecute={ this.onExecute }
         removeBox={ removeBox }
+        addBox={ addBox }
       />
     )
   }
@@ -152,19 +154,14 @@ export default class ExpressionBox extends PureComponent<EvaluationProperties> {
       standalones,
     } : UntypedLambdaState = state
     const { ast } = stepRecord
+    const content = ast.toString()
 
     return {
       type : BoxType.UNTYPED_LAMBDA,
       __key : Date.now().toString(),
-      expression : ast.toString(),
-      ast : ast.clone(),
-      history : [ {
-        ast : ast.clone(),
-        lastReduction : null,
-        step : 0,
-        message : '',
-        isNormalForm : false,
-      } ],
+      expression : "",
+      ast : null,
+      history : [],
       isRunning : false,
       breakpoints : [],
       timeoutID : undefined,
@@ -175,8 +172,8 @@ export default class ExpressionBox extends PureComponent<EvaluationProperties> {
       standalones,
       editor : {
         placeholder : PromptPlaceholder.EVAL_MODE,
-        content : '',
-        caretPosition : 0,
+        content,
+        caretPosition : content.length,
         syntaxError : null,
       }
     }

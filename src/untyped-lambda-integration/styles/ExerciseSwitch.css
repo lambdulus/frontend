@@ -1,0 +1,47 @@
+#controls {
+  position: absolute;
+  top: 5px;
+  right: 70px;
+  margin-bottom: 10px;
+}
+
+.boxNoteEditor  #controls {
+  right: 70px;
+}
+
+.enabled {
+  cursor: pointer;
+}
+
+.disabled {
+  cursor: auto;
+  color: grey;
+}
+
+#controls i {
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+.badge > .strategies {
+  display: none;
+}
+
+.badge:hover > .strategies {
+  display: inline-block;
+  border: none;
+}
+
+.badge:hover > .strategyName {
+  min-width: 11em;
+}
+
+.badge .strategies {
+  padding: 0;
+  margin-top: 0px;
+  padding: 0px;
+}
+
+.exerciseSwitch {
+  font-size: 0.8em;
+}
