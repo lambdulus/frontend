@@ -25,11 +25,28 @@ export default function MenuBar (props : MenuBarProperties) : JSX.Element {
 
   // const dehydrated : object = dehydrate(state)
 
-  // const serialized : string = JSON.stringify(dehydrated)
-  // const link : string = createURL(serialized)
+  const serialized : string = JSON.stringify(state)
+  const link : string = createURL(serialized)
 
   return (
     <div id="menu-bar">
+      <ul className='notebooks UL'>
+        {
+          notebookList.map(
+            (notebook : NotebookState, index : number) =>
+            <li className={ `LI${ currentNotebook === index ? ' current' : '' }` } key={ index }>
+              <div className='notebookIcon' onClick={ () => props.onSelectNotebook(index) }>
+                { index }
+              </div>
+            </li>
+          )
+        }
+        <div className='addNotebook' onClick={ () => props.onAddNotebook({ boxList : [], activeBoxIndex : NaN }) } >
+          +
+        </div>
+      </ul>
+
+
       <div title='Show help!'>
         {
           // screen === Screen.main ?
@@ -59,51 +76,33 @@ export default function MenuBar (props : MenuBarProperties) : JSX.Element {
         <p className='iconLabel'>Macros</p>
       </div>         */}
         
-      {/* <div title='Download this notebook'>
+      <div title='Download this notebook'>
         <a
           className='export'
           href={ link }
           download="notebook_lambdulus.json"
-          onClick={ () => setTimeout(() => {
-            window.URL.revokeObjectURL(link)
-            reportEvent('Export notebook', `Notebook: ${serialized}`, '')
-          }, 10) }
+          // onClick={ () => setTimeout(() => {
+          //   window.URL.revokeObjectURL(link)
+          //   reportEvent('Export notebook', `Notebook: ${serialized}`, '')
+          // }, 10) }
         >
           <i id='download' className="icon fas fa-cloud-download-alt fa-2x" />
         </a>
         <p className='iconLabel'>Export</p>
-      </div> */}
+      </div>
       
-      {/* <div title='Open exported notebook'>
+      <div title='Open exported notebook'>
         <input type="file" accept="application/json" id="input" onChange={ (e) => onFiles(e, onImport) } />
         <label htmlFor="input"><i className="icon fas fa-cloud-upload-alt fa-2x"></i></label>
         <p className='iconLabel'>Import</p>
-      </div> */}
+      </div>
 
-      {/* <div title='Report a bug or request new feature'>
-        <a href='https://github.com/lambdulus/frontend/issues' target="_blank">
+      <div title='Report a bug or request new feature'>
+        <a href='https://github.com/lambdulus/new-frontend/issues' target="_blank">
           <i className="icon fas fa-bug fa-2x"></i>
         </a>
         <p className='iconLabel'>Issues</p>
-      </div>      */}
-
-      <ul className='notebooks UL'>
-        {
-          notebookList.map(
-            (notebook : NotebookState, index : number) =>
-            <li className={ `LI${ currentNotebook === index ? ' current' : '' }` } key={ index }>
-              <div className='notebookIcon' onClick={ () => props.onSelectNotebook(index) }>
-                { index }
-              </div>
-            </li>
-          )
-        }
-        <div className='addNotebook' onClick={ () => props.onAddNotebook({ boxList : [], activeBoxIndex : NaN }) } >
-          +
-        </div>
-      </ul>
-
-
+      </div>
     </div>
   )
 }
@@ -174,28 +173,28 @@ export default function MenuBar (props : MenuBarProperties) : JSX.Element {
 //   return ast
 // }
 
-// function onFiles (event : ChangeEvent<HTMLInputElement>, onImport : (state : AppState) => void) : void {
-//   const { target : { files } } = event
-//   if (files === null) {
-//     return
-//   }
+function onFiles (event : ChangeEvent<HTMLInputElement>, onImport : (state : AppState) => void) : void {
+  const { target : { files } } = event
+  if (files === null) {
+    return
+  }
 
-//   const file : File = files[0]
-//   const reader : FileReader = new FileReader
-//   reader.onload = (event : Event) => {
-//     const state : AppState = JSON.parse(reader.result as string)
+  const file : File = files[0]
+  const reader : FileReader = new FileReader
+  reader.onload = (event : Event) => {
+    const state : AppState = JSON.parse(reader.result as string)
 
-//     onImport(hydrate(state))
-//     reportEvent('Import notebook', `Notebook named ${ file.name }`, '')
-//   }
+    // onImport(hydrate(state))
+    // reportEvent('Import notebook', `Notebook named ${ file.name }`, '')
+  }
 
-//   reader.readAsText(file) 
-// }
+  reader.readAsText(file) 
+}
 
-// function createURL (content : string) : string {
-//   const data = new Blob([ content ], {
-//     type: 'application/json'
-//   })
+function createURL (content : string) : string {
+  const data = new Blob([ content ], {
+    type: 'application/json'
+  })
 
-//   return window.URL.createObjectURL(data);
-// }
+  return window.URL.createObjectURL(data);
+}

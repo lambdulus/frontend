@@ -22,8 +22,6 @@ export default class Notebook extends PureComponent<Props> {
     const { state } = this.props
     const { activeBoxIndex, boxList } = state
 
-    console.log(activeBoxIndex)
-  
     return (
       <div className="mainSpace">
         {/* TODO: This will be refactore out to standalone component. */}
