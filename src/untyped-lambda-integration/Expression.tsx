@@ -9,6 +9,7 @@ import Editor from './Editor'
 // import { AddBoxContext } from './MethodInjector'
 import { mapLeftFromTo } from '../misc'
 import BoxTopBar from './BoxTopBar'
+import Controls from './ExerciseSwitch'
 
 
 interface EvaluatorProps {
@@ -31,6 +32,7 @@ interface EvaluatorProps {
   onEnter () : void
   onExecute () : void
   removeBox () : void
+  addBox (box : UntypedLambdaState) : void
 }
 
 export default class Expression extends PureComponent<EvaluatorProps> {
@@ -52,7 +54,7 @@ export default class Expression extends PureComponent<EvaluatorProps> {
 
     return (
       <div className={ className }>
-        {/* <Controls
+        <Controls
           isExercise={ isExercise }
           makeExercise={ () =>
             this.props.setBoxState({
@@ -74,7 +76,7 @@ export default class Expression extends PureComponent<EvaluatorProps> {
               },
             })
           }
-        /> */}
+        />
         {/* <DeleteBox.Consumer>
           {
            (deleteBox : () => void) => */}
@@ -100,7 +102,7 @@ export default class Expression extends PureComponent<EvaluatorProps> {
                       <i
                         className="hiddenIcon fas fa-pencil-alt"
                         title='Copy this to new box'
-                        // onClick={ () => addBox(this.props.createBoxFrom(stepRecord)) }
+                        onClick={ () => this.props.addBox(this.props.createBoxFrom(stepRecord)) }
                       />
                     </Step>
                   </li>)
@@ -115,7 +117,7 @@ export default class Expression extends PureComponent<EvaluatorProps> {
                     <i
                       className="hiddenIcon fas fa-pencil-alt"
                       title='Copy this to new box'
-                      // onClick={ () => addBox(this.props.createBoxFrom(this.props.history[this.props.history.length - 1])) }
+                      onClick={ () => this.props.addBox(this.props.createBoxFrom(this.props.history[this.props.history.length - 1])) }
                     />
                 </Step>
               </li>

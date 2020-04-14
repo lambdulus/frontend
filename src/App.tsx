@@ -37,6 +37,8 @@ export default class App extends Component<Props, AppState> {
         <MenuBar state={ this.state } onScreenChange={ this.setScreen } />
 
         <div className="mainSpace">
+
+          {/* TODO: This will be refactore out to standalone component. */}
           <ul className="boxList UL">
             { this.state.boxList.map(
               (box : BoxState, i : number) =>
@@ -52,6 +54,7 @@ export default class App extends Component<Props, AppState> {
                   isActive={ i === this.state.activeBoxIndex }
                   removeBox={ () => this.removeBox(i) }
                   updateBoxState={ (box : BoxState) => this.updateBoxState(i, box) }
+                  addBox={ (box : BoxState) => this.insertBefore(i + 1, box) }
                 />
               </li>
             ) }
