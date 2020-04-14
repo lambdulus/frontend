@@ -1,4 +1,4 @@
-import React, { useContext } from 'react'
+import React, { useContext, ReactNode } from 'react'
 
 import Step from './Step'
 // import { AddBoxContext } from './MethodInjector'
@@ -24,9 +24,6 @@ export default function InactiveExpression (props : InactiveExpressionProps) : J
     <div className={ className + ' inactiveBox' }
     // onDoubleClick={ makeActive }
     >
-      <i className='removeBox far fa-trash-alt'
-      // onClick={ deleteBox }
-      />
       <ul className='UL'>
         <li key={ 0 } className='activeStep LI'>
           <Step

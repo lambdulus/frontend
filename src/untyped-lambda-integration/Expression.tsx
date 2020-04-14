@@ -1,4 +1,4 @@
- import React, { PureComponent } from 'react'
+ import React, { PureComponent, ReactNode } from 'react'
 
 // import Controls from './Controls' // TODO: Controls are gonna be imported from the Frontend app - or maybe not even imported just passed as children
 import Step from './Step'
@@ -31,7 +31,6 @@ interface EvaluatorProps {
   onContent (content : string, caretPosition : number) : void
   onEnter () : void
   onExecute () : void
-  removeBox () : void
   addBox (box : UntypedLambdaState) : void
 }
 
@@ -43,7 +42,7 @@ export default class Expression extends PureComponent<EvaluatorProps> {
   }
 
   render () : JSX.Element {
-    const { className, isExercise, state, editor, removeBox } = this.props
+    const { className, isExercise, state, editor } = this.props
 
     const {
       placeholder,
@@ -80,7 +79,6 @@ export default class Expression extends PureComponent<EvaluatorProps> {
         {/* <DeleteBox.Consumer>
           {
            (deleteBox : () => void) => */}
-           <BoxTopBar removeBox={ removeBox } />
             {/* <i className='removeBox far fa-trash-alt' onClick={ deleteBox } title='Remove this Box' /> */}
         {/*   }
          </DeleteBox.Consumer>

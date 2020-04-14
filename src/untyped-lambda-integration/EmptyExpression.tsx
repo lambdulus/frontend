@@ -1,4 +1,4 @@
-import React, { useContext } from 'react'
+import React, { useContext, ReactNode } from 'react'
 
 import Editor from './Editor'
 import BoxTopBar from './BoxTopBar'
@@ -19,12 +19,11 @@ interface EmptyExpressionProps {
   onContent (content : string, caretPosition : number) : void
   onEnter () : void
   onExecute () : void
-  removeBox () : void
 }
 
 
 export default function EmptyExpression(props : EmptyExpressionProps) : JSX.Element{
-  const { className, isActive, editor, removeBox } = props
+  const { className, isActive, editor } = props
   const {
     placeholder,
     content,
@@ -40,7 +39,6 @@ export default function EmptyExpression(props : EmptyExpressionProps) : JSX.Elem
       className={ `${className} ${isActive ? '' : ' inactiveBox'}` }
       // onDoubleClick={ makeActive }
     >
-      <BoxTopBar removeBox={ removeBox } />
       {
         isActive ? <p className='emptyStep'>Empty expression box.</p> : null
       }

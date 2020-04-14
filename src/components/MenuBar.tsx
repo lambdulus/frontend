@@ -1,7 +1,7 @@
 import React, { ChangeEvent } from 'react'
 import { AST, tokenize, parse, Token, MacroMap, None } from '@lambdulus/core'
 
-import { AppState, Screen, BoxState, BoxType } from '../AppTypes'
+import { AppState, Screen, BoxState, BoxType, NotebookState } from '../AppTypes'
 
 
 import '../styles/MenuBar.css'
@@ -9,12 +9,18 @@ import '../styles/MenuBar.css'
 
 interface MenuBarProperties {
   state : AppState
-  // onImport (state : AppState) : void
+  onImport (state : AppState) : void
   onScreenChange (screen : Screen) : void
+  onNotebookChange (index : number) : void
+  onAddNotebook (notebook : NotebookState) : void
+  onSelectNotebook (index : number) : void
 }
 
 export default function MenuBar (props : MenuBarProperties) : JSX.Element {
-  // const { state, onImport, onScreenChange } : MenuBarProperties = props
+  const { state, onImport, onScreenChange, onNotebookChange } : MenuBarProperties = props
+  const { notebookList, currentNotebook } = state
+
+  console.log('current notebook ', currentNotebook)
   // const { screen } = state
 
   // const dehydrated : object = dehydrate(state)
@@ -80,6 +86,24 @@ export default function MenuBar (props : MenuBarProperties) : JSX.Element {
         </a>
         <p className='iconLabel'>Issues</p>
       </div>      */}
+
+      <ul className='notebooks UL'>
+        {
+          notebookList.map(
+            (notebook : NotebookState, index : number) =>
+            <li className={ `LI${ currentNotebook === index ? ' current' : '' }` } key={ index }>
+              <div className='notebookIcon' onClick={ () => props.onSelectNotebook(index) }>
+                { index }
+              </div>
+            </li>
+          )
+        }
+        <div className='addNotebook' onClick={ () => props.onAddNotebook({ boxList : [], activeBoxIndex : NaN }) } >
+          +
+        </div>
+      </ul>
+
+
     </div>
   )
 }

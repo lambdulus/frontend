@@ -1,4 +1,4 @@
-import React, { PureComponent } from 'react'
+import React, { PureComponent, ReactNode } from 'react'
 
 import {
   AST,
@@ -54,7 +54,6 @@ export interface EvaluationProperties {
   // macroTable : MacroMap
 
   setBoxState (state : UntypedLambdaState) : void
-  removeBox () : void
   addBox (box : BoxState) : void
 }
 
@@ -76,7 +75,7 @@ export default class ExpressionBox extends PureComponent<EvaluationProperties> {
   }
 
   render () : JSX.Element {
-    const { state, isActive, removeBox, addBox } : EvaluationProperties = this.props
+    const { state, isActive, addBox } : EvaluationProperties = this.props
     const {
       history,
       breakpoints,
@@ -101,7 +100,6 @@ export default class ExpressionBox extends PureComponent<EvaluationProperties> {
           onContent={ this.onContent }
           onEnter={ this.onEnter }
           onExecute={ this.onExecute }
-          removeBox={ removeBox }
         />
       )
     }
@@ -140,7 +138,6 @@ export default class ExpressionBox extends PureComponent<EvaluationProperties> {
         onContent={ this.onContent }
         onEnter={ this.onEnter }
         onExecute={ this.onExecute }
-        removeBox={ removeBox }
         addBox={ addBox }
       />
     )
