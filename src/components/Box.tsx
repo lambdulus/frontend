@@ -1,4 +1,4 @@
-import React, { useContext } from 'react'
+import React, { useContext, ReactNode } from 'react'
 
 // import Evaluator from './ExpressionBox'
 // import MacroDefinition from './MacroDefinition'
@@ -17,13 +17,12 @@ interface BoxProperties {
   state : BoxState
   isActive : boolean
 
-  removeBox () : void
   updateBoxState (box : BoxState) : void
   addBox (box : BoxState) : void
 }
 
 export default function Box (props : BoxProperties) : JSX.Element {
-  const { state, isActive, removeBox, updateBoxState, addBox } : BoxProperties = props
+  const { state, isActive, updateBoxState, addBox } : BoxProperties = props
   const { type } = state
 
   // const macroTable = useContext(MacroTableContext)
@@ -38,7 +37,6 @@ export default function Box (props : BoxProperties) : JSX.Element {
         // macroTable={ macroTable }
         
         setBoxState={ updateBoxState }
-        removeBox={ removeBox }
         addBox={ addBox }
       />
     )

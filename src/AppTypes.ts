@@ -18,9 +18,14 @@ export interface LispBox extends Box {
 export type BoxState = UntypedLambdaState | LispBox | NoteState // or other things in the future
 
 export interface AppState {
-  boxList : Array<BoxState>,
-  activeBoxIndex : number,
+  notebookList : Array<NotebookState>,
+  currentNotebook : number,
   currentScreen : Screen,
+}
+
+export interface NotebookState {
+  boxList : Array<BoxState>,
+  activeBoxIndex : number
 }
 
 export enum Screen {
