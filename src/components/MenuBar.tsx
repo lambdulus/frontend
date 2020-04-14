@@ -14,10 +14,11 @@ interface MenuBarProperties {
   onNotebookChange (index : number) : void
   onAddNotebook (notebook : NotebookState) : void
   onSelectNotebook (index : number) : void
+  onDeleteNotebook (index : number) : void
 }
 
 export default function MenuBar (props : MenuBarProperties) : JSX.Element {
-  const { state, onImport, onScreenChange, onNotebookChange } : MenuBarProperties = props
+  const { state, onImport, onScreenChange, onNotebookChange, onDeleteNotebook } : MenuBarProperties = props
   const { notebookList, currentNotebook } = state
 
   console.log('current notebook ', currentNotebook)
@@ -34,14 +35,17 @@ export default function MenuBar (props : MenuBarProperties) : JSX.Element {
         {
           notebookList.map(
             (notebook : NotebookState, index : number) =>
-            <li className={ `LI${ currentNotebook === index ? ' current' : '' }` } key={ index }>
-              <div className='notebookIcon' onClick={ () => props.onSelectNotebook(index) }>
-                { index }
+            <li className={ `LI${ currentNotebook === index ? ' current' : '' }` } key={ notebook.__key }>
+              <div className='notebookIconWrapper'>
+                <i className="removeNtb far fa-times-circle" onClick={ () => onDeleteNotebook(index) } />
+                <div className='notebookIcon' onClick={ () => props.onSelectNotebook(index) }>
+                  { index }
+                </div>
               </div>
             </li>
           )
         }
-        <div className='addNotebook' onClick={ () => props.onAddNotebook({ boxList : [], activeBoxIndex : NaN }) } >
+        <div className='addNotebook' onClick={ () => props.onAddNotebook({ boxList : [], activeBoxIndex : NaN, __key : Date.now().toString() }) } >
           +
         </div>
       </ul>

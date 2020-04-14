@@ -14,7 +14,7 @@ export default class App extends Component<Props, AppState> {
     super(props)
 
     this.state = {
-      notebookList : [{ boxList : [], activeBoxIndex : NaN }],
+      notebookList : [{ boxList : [], activeBoxIndex : NaN, __key : Date.now().toString() }],
       currentNotebook : 0,
       currentScreen : Screen.MAIN,
     }
@@ -41,9 +41,13 @@ export default class App extends Component<Props, AppState> {
           onScreenChange={ this.setScreen }
           onImport={ () => void 0 }
           onNotebookChange={ this.changeNotebook }
-          onAddNotebook={ (notebook : NotebookState) => this.setState({ notebookList : [ ...this.state.notebookList, notebook ] }) }
+          onAddNotebook={
+            (notebook : NotebookState) =>
+              this.setState({ notebookList : [ ...this.state.notebookList, notebook ], currentNotebook : this.state.currentNotebook + 1 })
+          }
           // TODO: there are gonna be all kinds of Notebooks - I need to take care of that
           onSelectNotebook={ (index : number) => this.setState({ currentNotebook : index }) }
+          onDeleteNotebook={ (index : number) => this.removeNotebook(index) }
         />
         <Notebook state={ state } updateNotebook={ this.updateNotebook } />
       </div>
@@ -64,5 +68,26 @@ export default class App extends Component<Props, AppState> {
 
   changeNotebook (index : number) : void {
     this.setState({ currentNotebook : index })
+  }
+
+  removeNotebook (index : number) : void {
+    // if (index === 0) return
+
+    const { notebookList, currentNotebook } = this.state
+    
+    const nearestValidIndex = (i : number) => {
+      if (i < currentNotebook) return currentNotebook - 1
+      if (i > currentNotebook) return currentNotebook
+      if (notebookList.length === 1) return NaN
+      if (i === 0) return i
+      return i - 1
+    }
+    
+    const newIndex : number = nearestValidIndex(index)
+    
+    if (Number.isNaN(newIndex)) return
+
+    notebookList.splice(index, 1)
+    this.setState({ notebookList, currentNotebook : newIndex })
   }
 }

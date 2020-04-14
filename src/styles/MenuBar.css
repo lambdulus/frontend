@@ -97,3 +97,20 @@
     padding-right: 10px;
   }
 }
+
+.notebookIconWrapper {
+  position: relative;
+}
+
+.removeNtb {
+  position: absolute;
+  top: -0.5em;
+  right: -0.5em;
+  /* font-size: 1em; */
+  cursor: pointer;
+  color: white;
+}
+
+.notebookIconWrapper:hover .removeNtb {
+  color: rgb(255, 8, 8);
+}
