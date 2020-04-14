@@ -32,7 +32,7 @@
 }
 
 .mainSpace {
-  margin-left: 5%;
+  margin-left: 7em;
 }
 
 .boxList, .UL {
@@ -99,11 +99,11 @@
 /*  */
 
 .notebookIcon {
-  padding-top: 0.5em;
-  padding-bottom: 0.5em;
+  padding-top: 0.6em;
+  padding-bottom: 0.6em;
   /* height: 2em; */
   background-color: #016ad2;
-  font-size: 1.5em;
+  font-size: 1.6em;
   /* margin: auto; */
   border-radius: 0.25em;
   cursor: pointer;
@@ -126,10 +126,10 @@
 
 .addNotebook {
   width: 80%;
-  font-size: 1.5em;
+  font-size: 1.6em;
   margin: auto;
-  padding-top: 0.5em;
-  padding-bottom: 0.5em;
+  padding-top: 0.6em;
+  padding-bottom: 0.6em;
   background-color: #016ad2;
   border-radius: 0.25em;
   cursor: pointer;
