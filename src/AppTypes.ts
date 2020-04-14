@@ -26,6 +26,7 @@ export interface AppState {
 export interface NotebookState {
   boxList : Array<BoxState>,
   activeBoxIndex : number
+  __key : string
 }
 
 export enum Screen {

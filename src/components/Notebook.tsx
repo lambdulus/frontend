@@ -67,7 +67,8 @@ export default class Notebook extends PureComponent<Props> {
     const { boxList, activeBoxIndex } = this.props.state
     
     const nearestValidIndex = (i : number) => {
-      if (activeBoxIndex !== i) return activeBoxIndex
+      if (i < activeBoxIndex) return activeBoxIndex - 1
+      if (i > activeBoxIndex) return activeBoxIndex
       if (boxList.length === 1) return NaN
       if (i === 0) return i
       return i - 1
