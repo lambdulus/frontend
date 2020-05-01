@@ -1,7 +1,7 @@
 import React, { ChangeEvent } from 'react'
 import { AST, tokenize, parse, Token, MacroMap, None } from '@lambdulus/core'
 
-import { AppState, Screen, BoxState, BoxType, NotebookState } from '../AppTypes'
+import { AppState, Screen, BoxState, BoxType, NotebookState, ANY_BOX } from '../AppTypes'
 
 
 import '../styles/MenuBar.css'
@@ -50,7 +50,7 @@ export default function MenuBar (props : MenuBarProperties) : JSX.Element {
             </li>
           )
         }
-        <div className='addNotebook' onClick={ () => props.onAddNotebook({ boxList : [], activeBoxIndex : NaN, __key : Date.now().toString() }) } >
+        <div className='addNotebook' onClick={ () => props.onAddNotebook({ boxList : [], activeBoxIndex : NaN, allowedBoxes : ANY_BOX, __key : Date.now().toString() }) } >
           +
         </div>
       </ul>

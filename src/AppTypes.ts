@@ -6,6 +6,14 @@ export enum BoxType {
   MARKDOWN,
 }
 
+export type AnyBox = -1
+export const ANY_BOX = -1
+
+export type NoBox = -2
+export const NO_BOX = -2
+
+export type BoxesWhitelist = Array<BoxType> | AnyBox | NoBox
+
 export interface Box {
   type : BoxType,
   __key : number, 
@@ -25,7 +33,8 @@ export interface AppState {
 
 export interface NotebookState {
   boxList : Array<BoxState>,
-  activeBoxIndex : number
+  activeBoxIndex : number,
+  allowedBoxes : BoxesWhitelist,
   __key : string
 }
 

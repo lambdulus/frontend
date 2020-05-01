@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 
 import './App.css'
 
-import { AppState, Screen, NotebookState } from './AppTypes'
+import { AppState, Screen, NotebookState, BoxesWhitelist, ANY_BOX, NO_BOX } from './AppTypes'
 
 import MenuBar from './components/MenuBar'
 import Notebook from './components/Notebook'
@@ -14,7 +14,7 @@ export default class App extends Component<Props, AppState> {
     super(props)
 
     this.state = {
-      notebookList : [{ boxList : [], activeBoxIndex : NaN, __key : Date.now().toString() }],
+      notebookList : [{ boxList : [], activeBoxIndex : NaN, allowedBoxes : ANY_BOX, __key : Date.now().toString() }],
       currentNotebook : 0,
       currentScreen : Screen.MAIN,
     }
@@ -43,7 +43,10 @@ export default class App extends Component<Props, AppState> {
           onNotebookChange={ this.changeNotebook }
           onAddNotebook={
             (notebook : NotebookState) =>
-              this.setState({ notebookList : [ ...this.state.notebookList, notebook ], currentNotebook : this.state.currentNotebook + 1 })
+              this.setState(
+                { notebookList : [ ...this.state.notebookList, notebook ],
+                  currentNotebook : this.state.currentNotebook + 1
+                })
           }
           // TODO: there are gonna be all kinds of Notebooks - I need to take care of that
           onSelectNotebook={ (index : number) => this.setState({ currentNotebook : index }) }

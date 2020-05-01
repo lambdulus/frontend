@@ -1,5 +1,10 @@
+// This component needs to be able to specify which Boxes are allowed inside
+// It will also have other settings - maybe something like lock - if it's locked, you can not modify it
+// Exam mode will feature the build of the Frontend which will not import any of the Evaluation Boxes
+
+
 import React, { PureComponent } from 'react'
-import { BoxState, NotebookState } from '../AppTypes'
+import { BoxState, NotebookState, BoxesWhitelist } from '../AppTypes'
 import { CreateBox } from './CreateBox'
 import BoxTopBar from '../untyped-lambda-integration/BoxTopBar'
 import Box from './Box'
@@ -20,7 +25,7 @@ export default class Notebook extends PureComponent<Props> {
 
   render () {
     const { state } = this.props
-    const { activeBoxIndex, boxList } = state
+    const { activeBoxIndex, boxList, allowedBoxes } = state
 
     return (
       <div className="mainSpace">
@@ -30,10 +35,7 @@ export default class Notebook extends PureComponent<Props> {
             (box : BoxState, i : number) =>
             <li className="LI" key={ box.__key }>
               
-              {/* TODO: This will be refactored out to standalone component. */}
-              <div className='addBoxArea'>
-                <CreateBox addNew={ (box : BoxState) => this.insertBefore(i, box) } />
-              </div>
+              <CreateBox addNew={ (box : BoxState) => this.insertBefore(i, box) } whiteList={ allowedBoxes } />
               
               <div className={ `boxContainer${ i === activeBoxIndex ? ' active' : ' inactive' }` } >
                 <BoxTopBar removeBox={ () => this.removeBox(i) } />
@@ -46,10 +48,7 @@ export default class Notebook extends PureComponent<Props> {
             </li>
           ) }
   
-          {/* TODO: This will be refactored out to standalone component. */}
-          <div className='addBoxArea'>
-            <CreateBox addNew={ (box : BoxState) => this.insertBefore(state.boxList.length, box) } />
-          </div>
+          <CreateBox addNew={ (box : BoxState) => this.insertBefore(state.boxList.length, box) } whiteList={ allowedBoxes } />
   
         </ul>
       </div>

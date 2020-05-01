@@ -2,6 +2,8 @@ import { MacroMap, AST, ASTReduction, NormalEvaluator, ApplicativeEvaluator, Opt
 
 import { BoxType } from '../AppTypes'
 
+export const ADD_BOX_LABEL = '+λ'
+
 export enum PromptPlaceholder {
   INIT = 'Type λ (as \\) expression and hit enter',
   EVAL_MODE = 'Hit enter for next step',
