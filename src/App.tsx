@@ -8,6 +8,15 @@ import MenuBar from './components/MenuBar'
 import Notebook from './components/Notebook'
 
 
+/**
+ * This is the main Application
+ * in the future - when building Exam Mode - I will need to replace some part of the application components
+ * if it's only some component at the top, it can be done easily
+ * if it's gonna replace some deeper stuff I will need to implement some Namespace FROM which app and integrations
+ * will inport parts and this Namespace will take care of that
+ */
+
+
 interface Props {}
 export default class App extends Component<Props, AppState> {
   constructor (props : Props) {
