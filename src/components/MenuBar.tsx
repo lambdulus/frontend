@@ -22,7 +22,7 @@ export default function MenuBar (props : MenuBarProperties) : JSX.Element {
   const { notebookList, currentNotebook } = state
 
   console.log('current notebook ', currentNotebook)
-  // const { screen } = state
+  const { currentScreen } = state
 
   // const dehydrated : object = dehydrate(state)
 
@@ -58,18 +58,23 @@ export default function MenuBar (props : MenuBarProperties) : JSX.Element {
 
       <div title='Show help!'>
         {
-          // screen === Screen.main ?
+          currentScreen === Screen.MAIN ?
             <i
               className="icon far fa-question-circle fa-2x"
-              // onClick={ () => onScreenChange(Screen.help) }
+              onClick={ () => onScreenChange(Screen.HELP) }
             />
-            // :
-            // screen === Screen.help ?
-            //   <i className="icon far fa-window-close fa-2x" onClick={ () => onScreenChange(Screen.main) } />
-            //   :
-            //   <i className="icon far fa-question-circle fa-2x" onClick={ () => onScreenChange(Screen.help) } />
+            :
+            currentScreen === Screen.HELP ?
+              <i className="icon far fa-window-close fa-2x" onClick={ () => onScreenChange(Screen.MAIN) } />
+              :
+              <i className="icon far fa-question-circle fa-2x" onClick={ () => onScreenChange(Screen.HELP) } />
         }
-        <p className='iconLabel'>Help</p>
+        {
+          currentScreen === Screen.HELP ?
+            <p className='iconLabel'>Notebook</p>
+            :
+            <p className='iconLabel'>Help</p>
+        }
       </div>
 
       {/* <div title='List all defined macros' >
