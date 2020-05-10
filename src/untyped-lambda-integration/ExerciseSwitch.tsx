@@ -21,7 +21,7 @@ export default function ExerciseSwitch (props : ControlsProps) : JSX.Element {
   } : ControlsProps = props
 
   return (
-    <div id="controls">
+    <div className="controls">
       <div title='Write the next step yourself'>
         <Switch
           className='control'

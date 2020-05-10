@@ -1,6 +1,6 @@
 import React, { useContext, ReactNode } from 'react'
 
-import Editor from './Editor'
+import Editor from '../components/Editor'
 import BoxTopBar from './BoxTopBar'
 // import { MakeActiveContext, DeleteBox } from './BoxSpace'
 import { StepRecord } from './AppTypes'
@@ -37,11 +37,7 @@ export default function EmptyExpression(props : EmptyExpressionProps) : JSX.Elem
   return (
     <div
       className={ `${className} ${isActive ? '' : ' inactiveBox'}` }
-      // onDoubleClick={ makeActive }
     >
-      {
-        isActive ? <p className='emptyStep'>Empty expression box.</p> : null
-      }
       {
         isActive ?
           (
