@@ -6,6 +6,7 @@ import { AppState, Screen, NotebookState, BoxesWhitelist, ANY_BOX, NO_BOX } from
 
 import MenuBar from './components/MenuBar'
 import Notebook from './components/Notebook'
+import Help from './components/Help'
 
 
 /**
@@ -41,7 +42,7 @@ export default class App extends Component<Props, AppState> {
 
 
   render () {
-    const { notebookList, currentNotebook } = this.state
+    const { notebookList, currentNotebook, currentScreen } = this.state
     const state = notebookList[currentNotebook]
 
     return (
@@ -62,7 +63,15 @@ export default class App extends Component<Props, AppState> {
           onSelectNotebook={ (index : number) => this.setState({ currentNotebook : index }) }
           onDeleteNotebook={ (index : number) => this.removeNotebook(index) }
         />
-        <Notebook state={ state } updateNotebook={ this.updateNotebook } />
+        {
+          (() => {
+            if (currentScreen === Screen.MAIN)
+              return <Notebook state={ state } updateNotebook={ this.updateNotebook } />
+            if (currentScreen === Screen.HELP)
+              return <Help/>
+          })()
+        }
+        
       </div>
     )
   }
