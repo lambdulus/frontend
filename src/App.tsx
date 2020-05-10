@@ -7,6 +7,7 @@ import { AppState, Screen, NotebookState, BoxesWhitelist, ANY_BOX, NO_BOX } from
 import MenuBar from './components/MenuBar'
 import Notebook from './screens/Notebook'
 import Help from './screens/Help'
+import Settings from './screens/Settings'
 
 
 /**
@@ -69,6 +70,8 @@ export default class App extends Component<Props, AppState> {
               return <Notebook state={ state } updateNotebook={ this.updateNotebook } />
             if (currentScreen === Screen.HELP)
               return <Help/>
+            if (currentScreen === Screen.SETTINGS)
+              return <Settings state={ state } />
           })()
         }
         
