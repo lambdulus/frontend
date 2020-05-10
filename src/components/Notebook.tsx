@@ -6,7 +6,7 @@
 import React, { PureComponent } from 'react'
 import { BoxState, NotebookState, BoxesWhitelist } from '../AppTypes'
 import { CreateBox } from './CreateBox'
-import BoxTopBar from '../untyped-lambda-integration/BoxTopBar'
+import BoxTitleBar from './BoxTitleBar'
 import Box from './Box'
 
 interface Props {
@@ -21,6 +21,7 @@ export default class Notebook extends PureComponent<Props> {
     this.insertBefore = this.insertBefore.bind(this)
     this.removeBox = this.removeBox.bind(this)
     this.updateBoxState = this.updateBoxState.bind(this)
+    this.makeActive = this.makeActive.bind(this)
   }
 
   render () {
@@ -37,13 +38,22 @@ export default class Notebook extends PureComponent<Props> {
               
               <CreateBox addNew={ (box : BoxState) => this.insertBefore(i, box) } whiteList={ allowedBoxes } />
               
-              <div className={ `boxContainer${ i === activeBoxIndex ? ' active' : ' inactive' }` } >
-                <BoxTopBar removeBox={ () => this.removeBox(i) } />
+              <div
+                className={ `boxContainer${ i === activeBoxIndex ? ' active' : ' inactive' }` }
+                onDoubleClick={ () => this.makeActive(i) }
+              >
+                <BoxTitleBar
+                  state={ box }
+                  isActive={ i === activeBoxIndex }
+                  removeBox={ () => this.removeBox(i) }
+                  updateBoxState={ (box : BoxState) => this.updateBoxState(i, box) }
+                />
                 <Box
-                state={ box }
-                isActive={ i === activeBoxIndex }
-                updateBoxState={ (box : BoxState) => this.updateBoxState(i, box) }
-                addBox={ (box : BoxState) => this.insertBefore(i + 1, box) } />
+                  state={ box }
+                  isActive={ i === activeBoxIndex }
+                  updateBoxState={ (box : BoxState) => this.updateBoxState(i, box) }
+                  addBox={ (box : BoxState) => this.insertBefore(i + 1, box) }
+                />
               </div>             
             </li>
           ) }
@@ -79,10 +89,20 @@ export default class Notebook extends PureComponent<Props> {
     this.props.updateNotebook({ ...this.props.state, boxList : boxList, activeBoxIndex : newIndex })
   }
 
+  /**
+   * This function is pathing; not overriding
+   * @param index 
+   * @param box 
+   */
   updateBoxState (index : number, box : BoxState) : void {
     const { boxList } = this.props.state
     boxList[index] = box
 
     this.props.updateNotebook({ ...this.props.state, boxList })
+  }
+
+  makeActive (index : number) : void {
+    if (index !== this.props.state.activeBoxIndex)
+      this.props.updateNotebook({ ...this.props.state, activeBoxIndex : index })
   }
 }

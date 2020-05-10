@@ -4,12 +4,12 @@
 import Step from './Step'
 import { BoxState } from '../AppTypes'
 import { PromptPlaceholder, UntypedLambdaState, Breakpoint, StepRecord } from './AppTypes'
-import Editor from './Editor'
+import Editor from '../components/Editor'
 // import { DeleteBox } from './BoxSpace'
 // import { AddBoxContext } from './MethodInjector'
 import { mapLeftFromTo } from '../misc'
-import BoxTopBar from './BoxTopBar'
-import Controls from './ExerciseSwitch'
+// import BoxTopBar from './BoxTopBar'
+// import Controls from './ExerciseSwitch'
 
 
 interface EvaluatorProps {
@@ -53,76 +53,39 @@ export default class Expression extends PureComponent<EvaluatorProps> {
 
     return (
       <div className={ className }>
-        <Controls
-          isExercise={ isExercise }
-          makeExercise={ () =>
-            this.props.setBoxState({
-              ...state,
-              isExercise : true,
-              editor: {
-                ...state.editor,
-                placeholder : PromptPlaceholder.VALIDATE_MODE,
-              },
-            })
-          }
-          endExercise={ () =>
-            this.props.setBoxState({
-              ...state,
-              isExercise : false,
-              editor: {
-                ...state.editor,
-                placeholder : PromptPlaceholder.EVAL_MODE,
-              },
-            })
-          }
-        />
-        {/* <DeleteBox.Consumer>
+        <ul className='UL'>
           {
-           (deleteBox : () => void) => */}
-            {/* <i className='removeBox far fa-trash-alt' onClick={ deleteBox } title='Remove this Box' /> */}
-        {/*   }
-         </DeleteBox.Consumer>
-          */}
-
-        {/* <AddBoxContext.Consumer>
-          {
-            (addBox : (boxState : BoxState) => void) => */}
-            <ul className='UL'>
-              {
-                mapLeftFromTo(0, this.props.history.length - 2, this.props.history, (stepRecord : StepRecord, i : Number) =>
-                  <li key={ i.toString() } className='inactiveStep LI' >
-                    <Step
-                      breakpoints={ this.props.breakpoints }
-                      addBreakpoint={ () => {} }
-                      stepRecord={ stepRecord }
-                      lastStep={ false }
-                    >
-                      <i
-                        className="hiddenIcon fas fa-pencil-alt"
-                        title='Copy this to new box'
-                        onClick={ () => this.props.addBox(this.props.createBoxFrom(stepRecord)) }
-                      />
-                    </Step>
-                  </li>)
-              }
-              <li key={this.props.history.length - 1} className='activeStep LI'>
+            mapLeftFromTo(0, this.props.history.length - 2, this.props.history, (stepRecord : StepRecord, i : Number) =>
+              <li key={ i.toString() } className='inactiveStep LI' >
                 <Step
                   breakpoints={ this.props.breakpoints }
-                  addBreakpoint={ this.addBreakpoint }
-                  stepRecord={ this.props.history[this.props.history.length - 1] }
-                  lastStep={ true }
+                  addBreakpoint={ () => {} }
+                  stepRecord={ stepRecord }
+                  lastStep={ false }
                 >
-                    <i
-                      className="hiddenIcon fas fa-pencil-alt"
-                      title='Copy this to new box'
-                      onClick={ () => this.props.addBox(this.props.createBoxFrom(this.props.history[this.props.history.length - 1])) }
-                    />
+                  <i
+                    className="hiddenIcon fas fa-pencil-alt"
+                    title='Copy this to new box'
+                    onClick={ () => this.props.addBox(this.props.createBoxFrom(stepRecord)) }
+                  />
                 </Step>
-              </li>
-            </ul>
-          {/* }
-        </AddBoxContext.Consumer> */}
-
+              </li>)
+          }
+          <li key={this.props.history.length - 1} className='activeStep LI'>
+            <Step
+              breakpoints={ this.props.breakpoints }
+              addBreakpoint={ this.addBreakpoint }
+              stepRecord={ this.props.history[this.props.history.length - 1] }
+              lastStep={ true }
+            >
+                <i
+                  className="hiddenIcon fas fa-pencil-alt"
+                  title='Copy this to new box'
+                  onClick={ () => this.props.addBox(this.props.createBoxFrom(this.props.history[this.props.history.length - 1])) }
+                />
+            </Step>
+          </li>
+        </ul>
         {
           this.props.isNormalForm ?
           null

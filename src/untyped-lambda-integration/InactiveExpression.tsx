@@ -21,8 +21,8 @@ export default function InactiveExpression (props : InactiveExpressionProps) : J
   // const makeActive = useContext(MakeActiveContext)
 
   return (
-    <div className={ className + ' inactiveBox' }
-    // onDoubleClick={ makeActive }
+    <div
+      className={ className + ' inactiveBox' }
     >
       <ul className='UL'>
         <li key={ 0 } className='activeStep LI'>

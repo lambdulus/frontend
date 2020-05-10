@@ -31,6 +31,7 @@ export default class App extends Component<Props, AppState> {
     this.setScreen = this.setScreen.bind(this)
     this.updateNotebook = this.updateNotebook.bind(this)
     this.changeNotebook = this.changeNotebook.bind(this)
+    this.removeNotebook = this.removeNotebook.bind(this)
 
     // TODO: implement Class Keyboard Controller -> handling all keyboard events and firing events -> invoking handlers from this class
     // document.addEventListener('keydown', (event : KeyboardEvent) => {
