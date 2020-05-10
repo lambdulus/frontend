@@ -5,8 +5,8 @@ import './App.css'
 import { AppState, Screen, NotebookState, BoxesWhitelist, ANY_BOX, NO_BOX } from './AppTypes'
 
 import MenuBar from './components/MenuBar'
-import Notebook from './components/Notebook'
-import Help from './components/Help'
+import Notebook from './screens/Notebook'
+import Help from './screens/Help'
 
 
 /**
