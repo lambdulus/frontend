@@ -4,7 +4,7 @@ export default `# User guide
 #### To write lambda expression you simply type in the prompt.
 
 ## Typing λ symbol
-#### If you want to write \`λ\` symbol you simple type \`\\\` and Lambdulus will take care of the rest.
+#### If you want to write \`λ\` symbol you simply type \`\\\` and Lambdulus will take care of the rest.
 
 ## Multiple expressions
 #### You can also have many submitted expressions. To submit another expression you need to open new empty \`expression box\` by clicking on the \`λ\` inside the \`+λ +Macro +MD\` panel at the end of the notebook.

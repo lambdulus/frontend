@@ -5,9 +5,9 @@
 
 import React, { PureComponent } from 'react'
 import { BoxState, NotebookState, BoxesWhitelist } from '../AppTypes'
-import { CreateBox } from './CreateBox'
-import BoxTitleBar from './BoxTitleBar'
-import Box from './Box'
+import { CreateBox } from '../components/CreateBox'
+import BoxTitleBar from '../components/BoxTitleBar'
+import Box from '../components/Box'
 
 interface Props {
   state : NotebookState
