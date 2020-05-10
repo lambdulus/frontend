@@ -55,27 +55,41 @@ export default function MenuBar (props : MenuBarProperties) : JSX.Element {
         </div>
       </ul>
 
+      {
+        currentScreen === Screen.HELP ?
+        <div title='Back to Notebook'>
+          <i
+            className="icon far fa-window-close fa-2x"
+            onClick={ () => onScreenChange(Screen.MAIN) } />
+          <p className='iconLabel'>Notebook</p>
+        </div>
+          :
+        <div title='Show help'>
+          <i
+            className="icon far fa-question-circle fa-2x"
+            onClick={ () => onScreenChange(Screen.HELP) }
+          />
+          <p className='iconLabel'>Help</p>
+        </div>
+      }
 
-      <div title='Show help!'>
-        {
-          currentScreen === Screen.MAIN ?
-            <i
-              className="icon far fa-question-circle fa-2x"
-              onClick={ () => onScreenChange(Screen.HELP) }
-            />
-            :
-            currentScreen === Screen.HELP ?
-              <i className="icon far fa-window-close fa-2x" onClick={ () => onScreenChange(Screen.MAIN) } />
-              :
-              <i className="icon far fa-question-circle fa-2x" onClick={ () => onScreenChange(Screen.HELP) } />
-        }
-        {
-          currentScreen === Screen.HELP ?
-            <p className='iconLabel'>Notebook</p>
-            :
-            <p className='iconLabel'>Help</p>
-        }
-      </div>
+      {
+        currentScreen === Screen.SETTINGS ?
+        <div title='Back to Notebook'>
+          <i
+            className="icon far fa-window-close fa-2x"
+            onClick={ () => onScreenChange(Screen.MAIN) } />
+          <p className='iconLabel'>Notebook</p>
+        </div>
+          :
+        <div title='Go to Settings'>
+          <i
+            className="icon fas fa-cogs fa-2x"
+            onClick={ () => onScreenChange(Screen.SETTINGS) }
+          />
+          <p className='iconLabel'>Settings</p>
+        </div>
+      }
 
       {/* <div title='List all defined macros' >
         {
