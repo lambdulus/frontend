@@ -2,6 +2,7 @@ import React from 'react'
 
 import { BoxState, BoxType, BoxesWhitelist, ANY_BOX, NO_BOX } from '../AppTypes'
 import { createNewUntypedLambda, ADD_BOX_LABEL } from '../untyped-lambda-integration/AppTypes'
+import { createNewMarkdown } from '../markdown-integration/AppTypes'
 
 
 interface Props {
@@ -43,7 +44,7 @@ export function CreateBox (props : Props) : JSX.Element {
       <p
         className='plusBtn'
         title='Create new Lisp box'
-        onClick={ () => props.addNew({type : BoxType.UNTYPED_LAMBDA, __key : Date.now()}) }
+        onClick={ () => props.addNew({} as BoxState) }
       >
         <i>+ Lisp</i>
       </p>
@@ -56,7 +57,7 @@ export function CreateBox (props : Props) : JSX.Element {
     <p
       className='plusBtn'
       title='Create new MarkDown box'
-      onClick={ () => props.addNew({type : BoxType.UNTYPED_LAMBDA, __key : Date.now()}) }
+      onClick={ () => props.addNew(createNewMarkdown()) }
     >
       <i>+ MD</i>
     </p>

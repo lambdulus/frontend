@@ -5,11 +5,14 @@ import React, { useContext, ReactNode } from 'react'
 // import Note from './Note'
 // import { MacroTableContext } from './EvaluatorSpace'
 // import { SetBoxContext } from './BoxSpace'
-import { BoxState, BoxType, MacroDefinitionState, NoteState } from '../AppTypes'
+import { BoxState, BoxType, MacroDefinitionState } from '../AppTypes'
 
 import { UntypedLambdaState } from '../untyped-lambda-integration/AppTypes'
 
 import EvaluatorIntegration from '../untyped-lambda-integration/ExpressionBox'
+
+import { NoteState } from '../markdown-integration/AppTypes'
+import Note from '../markdown-integration/Note'
 
 // import { BoxState } from '../AppTypes'
 
@@ -38,6 +41,16 @@ export default function Box (props : BoxProperties) : JSX.Element {
         
         setBoxState={ updateBoxState }
         addBox={ addBox }
+      />
+    )
+  }
+  if (type === BoxType.MARKDOWN) {
+    return (
+      <Note
+        state={ state as NoteState }
+        isActive={ isActive }
+
+        setBoxState={ updateBoxState }
       />
     )
   }
