@@ -2,12 +2,13 @@ import React, { Component } from 'react'
 
 import './App.css'
 
-import { AppState, Screen, NotebookState, BoxesWhitelist, ANY_BOX, NO_BOX } from './AppTypes'
+import { AppState, Screen, NotebookState, BoxesWhitelist, ANY_BOX, NO_BOX, Settings, GlobalSettings } from './AppTypes'
 
 import MenuBar from './components/MenuBar'
 import Notebook from './screens/Notebook'
 import Help from './screens/Help'
-import Settings from './screens/Settings'
+import SettingsScreen, { loadSettingsFromStorage, updateSettingsInStorage } from './screens/Settings'
+
 
 
 /**
@@ -25,7 +26,13 @@ export default class App extends Component<Props, AppState> {
     super(props)
 
     this.state = {
-      notebookList : [{ boxList : [], activeBoxIndex : NaN, allowedBoxes : ANY_BOX, __key : Date.now().toString() }],
+      notebookList : [{
+        boxList : [],
+        activeBoxIndex : NaN,
+        allowedBoxes : ANY_BOX,
+        __key : Date.now().toString(),
+        settings : loadSettingsFromStorage()
+      }],
       currentNotebook : 0,
       currentScreen : Screen.MAIN,
     }
@@ -34,6 +41,7 @@ export default class App extends Component<Props, AppState> {
     this.updateNotebook = this.updateNotebook.bind(this)
     this.changeNotebook = this.changeNotebook.bind(this)
     this.removeNotebook = this.removeNotebook.bind(this)
+    this.updateSettings = this.updateSettings.bind(this)
 
     // TODO: implement Class Keyboard Controller -> handling all keyboard events and firing events -> invoking handlers from this class
     // document.addEventListener('keydown', (event : KeyboardEvent) => {
@@ -45,6 +53,7 @@ export default class App extends Component<Props, AppState> {
   render () {
     const { notebookList, currentNotebook, currentScreen } = this.state
     const state = notebookList[currentNotebook]
+    const { settings } = state
 
     return (
       <div id='app'>
@@ -71,7 +80,7 @@ export default class App extends Component<Props, AppState> {
             if (currentScreen === Screen.HELP)
               return <Help/>
             if (currentScreen === Screen.SETTINGS)
-              return <Settings state={ state } />
+              return <SettingsScreen settings={ settings } updateSettings={ this.updateSettings } />
           })()
         }
         
@@ -114,5 +123,13 @@ export default class App extends Component<Props, AppState> {
 
     notebookList.splice(index, 1)
     this.setState({ notebookList, currentNotebook : newIndex })
+  }
+
+  updateSettings (newSettings : GlobalSettings) : void {
+    const { currentNotebook, notebookList } = this.state
+    notebookList[currentNotebook].settings = newSettings
+
+    this.setState({ notebookList })
+    updateSettingsInStorage(newSettings)
   }
 }

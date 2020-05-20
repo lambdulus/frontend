@@ -1,4 +1,4 @@
-import { UntypedLambdaState } from "./untyped-lambda-integration/AppTypes"
+import { UntypedLambdaState, UntypedLambdaSettings } from "./untyped-lambda-integration/AppTypes"
 
 export enum BoxType {
   UNTYPED_LAMBDA,
@@ -16,14 +16,24 @@ export type BoxesWhitelist = Array<BoxType> | AnyBox | NoBox
 
 export interface Box {
   type : BoxType,
-  __key : number, 
+  __key : string, 
+}
+
+export interface AbstractSettings {
+  type : BoxType
 }
 
 export interface LispBox extends Box {
-  // some data
+  // TODO: delete this placeholder and implement it
+}
+
+export interface LispSettings extends AbstractSettings {
+  // TODO: delete this placeholder and implement it
 }
 
 export type BoxState = UntypedLambdaState | LispBox | NoteState // or other things in the future
+
+export type Settings = UntypedLambdaSettings | LispSettings // or other things in the future
 
 export interface AppState {
   notebookList : Array<NotebookState>,
@@ -31,10 +41,17 @@ export interface AppState {
   currentScreen : Screen,
 }
 
+export interface GlobalSettings {
+  [key : string] : Settings
+}
+
 export interface NotebookState {
   boxList : Array<BoxState>,
   activeBoxIndex : number,
   allowedBoxes : BoxesWhitelist,
+
+  settings : GlobalSettings // TODO: refactor to use the Dictionary
+
   __key : string
 }
 
