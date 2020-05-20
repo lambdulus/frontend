@@ -1,4 +1,5 @@
 import { UntypedLambdaState, UntypedLambdaSettings } from "./untyped-lambda-integration/AppTypes"
+import { NoteState } from "./markdown-integration/AppTypes"
 
 export enum BoxType {
   UNTYPED_LAMBDA,
@@ -71,20 +72,6 @@ export interface MacroDefinitionState {
   macroName : string
   macroExpression : string
   singleLetterNames : boolean
-  editor : {
-    placeholder : string
-    content : string
-    caretPosition : number
-    syntaxError : Error | null
-  }
-}
-
-// TODO: move to specific integration
-export interface NoteState {
-  __key : string
-  type : BoxType
-  note : string
-  isEditing : boolean
   editor : {
     placeholder : string
     content : string
