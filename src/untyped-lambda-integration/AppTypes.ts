@@ -1,6 +1,6 @@
 import { MacroMap, AST, ASTReduction, NormalEvaluator, ApplicativeEvaluator, OptimizeEvaluator } from "@lambdulus/core"
 
-import { BoxType } from '../AppTypes'
+import { BoxType, AbstractSettings, BoxState, Box } from '../AppTypes'
 
 export const ADD_BOX_LABEL = '+λ'
 
@@ -33,7 +33,7 @@ export enum EvaluationStrategy {
   ABSTRACTION = 'Abstraction / Simplified Evaluation'
 }
 
-export interface UntypedLambdaState {
+export interface UntypedLambdaState extends Box {
   __key : string
   type : BoxType
   expression : string
@@ -44,15 +44,25 @@ export interface UntypedLambdaState {
   timeoutID : number | undefined
   timeout : number
   isExercise : boolean
+  
   strategy : EvaluationStrategy
   singleLetterNames : boolean
   standalones : boolean
+  
   editor : {
     placeholder : string
     content : string
     caretPosition : number
     syntaxError : Error | null
   }
+}
+
+export const CODE_NAME = 'UNTYPED_LAMBDA_CALCULUS'
+
+export interface UntypedLambdaSettings extends AbstractSettings {
+  SLI : boolean
+  expandStandalones : boolean
+  strategy : EvaluationStrategy
 }
 
 export type Evaluator = NormalEvaluator | ApplicativeEvaluator | OptimizeEvaluator
@@ -70,9 +80,11 @@ export function createNewUntypedLambda () : UntypedLambdaState {
     timeoutID : undefined,
     timeout : 5,
     isExercise : false,
+    
     strategy : EvaluationStrategy.NORMAL,
     singleLetterNames : false,
     standalones : false,
+    
     editor : {
       placeholder : "placeholder",
       content : "",

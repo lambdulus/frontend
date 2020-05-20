@@ -5,6 +5,7 @@ import { AppState, Screen, BoxState, BoxType, NotebookState, ANY_BOX } from '../
 
 
 import '../styles/MenuBar.css'
+import { loadSettingsFromStorage } from '../screens/Settings'
 // import { reportEvent } from '../misc'; // later
 
 interface MenuBarProperties {
@@ -50,7 +51,7 @@ export default function MenuBar (props : MenuBarProperties) : JSX.Element {
             </li>
           )
         }
-        <div className='addNotebook' onClick={ () => props.onAddNotebook({ boxList : [], activeBoxIndex : NaN, allowedBoxes : ANY_BOX, __key : Date.now().toString() }) } >
+        <div className='addNotebook' onClick={ () => props.onAddNotebook(createNewNotebook()) } >
           +
         </div>
       </ul>
@@ -200,6 +201,16 @@ export default function MenuBar (props : MenuBarProperties) : JSX.Element {
 
 //   return ast
 // }
+
+function createNewNotebook () : NotebookState {
+  return {
+    boxList : [],
+    activeBoxIndex : NaN,
+    allowedBoxes : ANY_BOX,
+    __key : Date.now().toString(),
+    settings : loadSettingsFromStorage()
+  }
+}
 
 function onFiles (event : ChangeEvent<HTMLInputElement>, onImport : (state : AppState) => void) : void {
   const { target : { files } } = event
