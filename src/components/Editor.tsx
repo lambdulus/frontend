@@ -18,7 +18,7 @@ interface EditorProperties {
   content : string
   caretPosition : number
   syntaxError : Error | null
-  isMarkDown : boolean
+  submitOnEnter : boolean
   
   onContent (content : string, caretPosition : number) : void
   onEnter () : void
@@ -32,7 +32,7 @@ export default function Editor (props : EditorProperties) : JSX.Element {
     content,
     caretPosition,
     syntaxError,
-    isMarkDown,
+    submitOnEnter,
 
     onContent,
     onEnter,
@@ -53,18 +53,18 @@ export default function Editor (props : EditorProperties) : JSX.Element {
   const onKeyDown = (event : KeyboardEvent<HTMLTextAreaElement>) => {
     if ( ! event.shiftKey && ! event.ctrlKey && event.key === 'Enter') {
       
-      if (isMarkDown) {
-        return
+      if (submitOnEnter) {
+        event.preventDefault()
+        onEnter()
       }
 
-      event.preventDefault()
-      onEnter()
+      return
     }
 
-    if (event.shiftKey && event.key === 'Enter' && isMarkDown) {
-      event.preventDefault()
-      onEnter()
-    }
+    // if (event.shiftKey && event.key === 'Enter' && isMarkDown) {
+    //   event.preventDefault()
+    //   onEnter()
+    // }
     if (event.ctrlKey && event.key === 'Enter') {
       event.preventDefault()
       onExecute()

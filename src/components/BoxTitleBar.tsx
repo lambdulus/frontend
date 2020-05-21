@@ -3,6 +3,9 @@ import { BoxState, BoxType } from '../AppTypes'
 import UntypedLambdaBTB from '../untyped-lambda-integration/BoxTopBar'
 import { UntypedLambdaState } from '../untyped-lambda-integration/AppTypes'
 
+import MarkdownBTB from '../markdown-integration/BoxTopBar'
+import { NoteState } from '../markdown-integration/AppTypes'
+
 
 interface Props {
   state : BoxState
@@ -21,6 +24,16 @@ export default function BoxTitleBar (props : Props) : JSX.Element {
     return (
       <UntypedLambdaBTB
         state={ state as UntypedLambdaState }
+        isActive={ isActive }
+        removeBox={ removeBox }
+        updateBoxState={ updateBoxState }
+      />
+    )
+  }
+  if (type === BoxType.MARKDOWN) {
+    return (
+      <MarkdownBTB
+        state={ state as NoteState }
         isActive={ isActive }
         removeBox={ removeBox }
         updateBoxState={ updateBoxState }
