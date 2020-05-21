@@ -47,7 +47,7 @@ export default function EmptyExpression(props : EmptyExpressionProps) : JSX.Elem
                 content={ content } // data
                 caretPosition={ caretPosition } // data
                 syntaxError={ syntaxError } // data
-                isMarkDown={ false } // data
+                submitOnEnter={ true } // data
 
                 onContent={ props.onContent } // fn
                 onEnter={ props.onEnter } // fn // tohle asi bude potreba

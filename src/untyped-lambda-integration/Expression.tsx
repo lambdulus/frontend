@@ -95,7 +95,7 @@ export default class Expression extends PureComponent<EvaluatorProps> {
             content={ content } // data
             caretPosition={ caretPosition } // data
             syntaxError={ syntaxError } // data
-            isMarkDown={ false } // data
+            submitOnEnter={ true } // data
 
             onContent={ this.props.onContent } // fn
             onEnter={ this.props.onEnter } // fn // tohle asi bude potreba
