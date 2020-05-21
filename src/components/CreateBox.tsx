@@ -1,13 +1,14 @@
 import React from 'react'
 
-import { BoxState, BoxType, BoxesWhitelist, ANY_BOX, NO_BOX } from '../AppTypes'
-import { createNewUntypedLambda, ADD_BOX_LABEL } from '../untyped-lambda-integration/AppTypes'
+import { BoxState, BoxType, BoxesWhitelist, ANY_BOX, NO_BOX, GlobalSettings } from '../AppTypes'
+import { createNewUntypedLambda, ADD_BOX_LABEL, UntypedLambdaSettings, CODE_NAME as UNTYPED_CODE_NAME } from '../untyped-lambda-integration/AppTypes'
 import { createNewMarkdown } from '../markdown-integration/AppTypes'
 
 
 interface Props {
   addNew : (box : BoxState) => void,
   whiteList : BoxesWhitelist,
+  settings : GlobalSettings
 }
 
 function anyBoxAllowed (whitelist : BoxesWhitelist) : boolean {
@@ -24,14 +25,16 @@ function isAllowed (type : BoxType, whitelist : BoxesWhitelist) : boolean {
 }
 
 export function CreateBox (props : Props) : JSX.Element {
-  const { addNew, whiteList } : Props = props
+  const { addNew, whiteList, settings } : Props = props
+
+  const untLSettings : UntypedLambdaSettings = settings[UNTYPED_CODE_NAME]
 
   const addLambdaBoxIfAllowed = (allowed : boolean) => (
     allowed ?
       <p
         className='plusBtn'
         title='Create new λ box'
-        onClick={ () => props.addNew(createNewUntypedLambda()) } // TODO: some imported function from the Integration -- like Integration.CreateNewBox()
+        onClick={ () => props.addNew(createNewUntypedLambda(untLSettings)) } // TODO: some imported function from the Integration -- like Integration.CreateNewBox()
       >
         <i>{ ADD_BOX_LABEL }</i>
       </p>
