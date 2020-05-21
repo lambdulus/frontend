@@ -1,4 +1,4 @@
-import { UntypedLambdaState, UntypedLambdaSettings } from "./untyped-lambda-integration/AppTypes"
+import { UntypedLambdaState, UntypedLambdaSettings, CODE_NAME as UNTYPED_CODE_NAME } from "./untyped-lambda-integration/AppTypes"
 import { NoteState } from "./markdown-integration/AppTypes"
 
 export enum BoxType {
@@ -42,7 +42,9 @@ export interface AppState {
   currentScreen : Screen,
 }
 
+// TODO: this needs to be reconsidered
 export interface GlobalSettings {
+  [UNTYPED_CODE_NAME] : UntypedLambdaSettings
   [key : string] : Settings
 }
 

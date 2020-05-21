@@ -4,13 +4,15 @@
 
 
 import React, { PureComponent } from 'react'
-import { BoxState, NotebookState, BoxesWhitelist } from '../AppTypes'
+import { BoxState, NotebookState, BoxesWhitelist, GlobalSettings } from '../AppTypes'
 import { CreateBox } from '../components/CreateBox'
 import BoxTitleBar from '../components/BoxTitleBar'
 import Box from '../components/Box'
 
 interface Props {
   state : NotebookState
+  settings : GlobalSettings
+
   updateNotebook (notebook : NotebookState) : void
 }
 
@@ -25,7 +27,7 @@ export default class Notebook extends PureComponent<Props> {
   }
 
   render () {
-    const { state } = this.props
+    const { state, settings } = this.props
     const { activeBoxIndex, boxList, allowedBoxes } = state
 
     return (
@@ -36,7 +38,11 @@ export default class Notebook extends PureComponent<Props> {
             (box : BoxState, i : number) =>
             <li className="LI" key={ box.__key }>
               
-              <CreateBox addNew={ (box : BoxState) => this.insertBefore(i, box) } whiteList={ allowedBoxes } />
+              <CreateBox
+                addNew={ (box : BoxState) => this.insertBefore(i, box) }
+                whiteList={ allowedBoxes }
+                settings={ settings }
+                />
               
               <div
                 className={ `boxContainer${ i === activeBoxIndex ? ' active' : ' inactive' }` }
@@ -58,7 +64,11 @@ export default class Notebook extends PureComponent<Props> {
             </li>
           ) }
   
-          <CreateBox addNew={ (box : BoxState) => this.insertBefore(state.boxList.length, box) } whiteList={ allowedBoxes } />
+          <CreateBox
+            addNew={ (box : BoxState) => this.insertBefore(state.boxList.length, box) }
+            whiteList={ allowedBoxes }
+            settings={ settings }
+          />
   
         </ul>
       </div>
@@ -90,7 +100,7 @@ export default class Notebook extends PureComponent<Props> {
   }
 
   /**
-   * This function is pathing; not overriding
+   * This function is patching; not overriding
    * @param index 
    * @param box 
    */

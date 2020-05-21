@@ -4,9 +4,10 @@
   margin-bottom: 10px;
 }
 
-.boxNoteEditor .controls {
-  right: 70px;
-}
+/* this does not belong here */
+/* .boxNoteEditor .controls {
+  right: 70px; */
+/* } */
 
 .enabled {
   cursor: pointer;

@@ -16,7 +16,6 @@ interface Props {
 export default function BoxTopBar (props : Props) : JSX.Element {
   const { state, isActive, removeBox, updateBoxState } = props
   const { isExercise, editor, expression } = state
-  // const {  } = editor
 
   return (
     <div className='boxTopBar'>
@@ -54,9 +53,6 @@ export default function BoxTopBar (props : Props) : JSX.Element {
         onClick={ removeBox }
         title='Remove this Box'
       />
-      {
-        isActive ? <p className='emptyStep'>Empty expression box.</p> : null
-      }
     </div>
   )
 }

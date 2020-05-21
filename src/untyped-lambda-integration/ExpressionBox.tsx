@@ -145,8 +145,8 @@ export default class ExpressionBox extends PureComponent<EvaluationProperties> {
     const { state } : EvaluationProperties = this.props
     const {
       strategy,
-      singleLetterNames,
-      standalones,
+      SLI,
+      expandStandalones,
     } : UntypedLambdaState = state
     const { ast } = stepRecord
     const content = ast.toString()
@@ -163,8 +163,8 @@ export default class ExpressionBox extends PureComponent<EvaluationProperties> {
       timeout : 10,
       isExercise : false,
       strategy,
-      singleLetterNames,
-      standalones,
+      SLI,
+      expandStandalones,
       editor : {
         placeholder : PromptPlaceholder.EVAL_MODE,
         content,
@@ -334,7 +334,7 @@ export default class ExpressionBox extends PureComponent<EvaluationProperties> {
 
   onStep () : void {
     const { state, setBoxState } = this.props
-    const { strategy, standalones, history, editor : { content } } = state
+    const { strategy, history, editor : { content } } = state
     const stepRecord = history[history.length - 1]
     const { isNormalForm, step } = stepRecord
     let { ast, lastReduction } = stepRecord
@@ -554,7 +554,7 @@ export default class ExpressionBox extends PureComponent<EvaluationProperties> {
   parseExpression (expression : string) : AST {
     // const { macroTable } = this.props
 
-    const { singleLetterNames : singleLetterVars } = this.props.state
+    const { SLI : singleLetterVars } = this.props.state
 
     const tokens : Array<Token> = tokenize(expression, { lambdaLetters : ['λ'], singleLetterVars })
     const ast : AST = parse(tokens, {}) // macroTable

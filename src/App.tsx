@@ -76,7 +76,7 @@ export default class App extends Component<Props, AppState> {
         {
           (() => {
             if (currentScreen === Screen.MAIN)
-              return <Notebook state={ state } updateNotebook={ this.updateNotebook } />
+              return <Notebook state={ state } updateNotebook={ this.updateNotebook } settings={ settings } />
             if (currentScreen === Screen.HELP)
               return <Help/>
             if (currentScreen === Screen.SETTINGS)

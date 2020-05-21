@@ -46,8 +46,8 @@ export interface UntypedLambdaState extends Box {
   isExercise : boolean
   
   strategy : EvaluationStrategy
-  singleLetterNames : boolean
-  standalones : boolean
+  SLI : boolean
+  expandStandalones : boolean
   
   editor : {
     placeholder : string
@@ -68,8 +68,9 @@ export interface UntypedLambdaSettings extends AbstractSettings {
 export type Evaluator = NormalEvaluator | ApplicativeEvaluator | OptimizeEvaluator
 
 
-export function createNewUntypedLambda () : UntypedLambdaState {
+export function createNewUntypedLambda (defaultSettings : UntypedLambdaSettings) : UntypedLambdaState {
   return {
+    ...defaultSettings,
     __key : Date.now().toString(),
     type : BoxType.UNTYPED_LAMBDA,
     expression : "",
@@ -81,9 +82,9 @@ export function createNewUntypedLambda () : UntypedLambdaState {
     timeout : 5,
     isExercise : false,
     
-    strategy : EvaluationStrategy.NORMAL,
-    singleLetterNames : false,
-    standalones : false,
+    // strategy : EvaluationStrategy.NORMAL,
+    // singleLetterNames : false,
+    // standalones : false,
     
     editor : {
       placeholder : "placeholder",
