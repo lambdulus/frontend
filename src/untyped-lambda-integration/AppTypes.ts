@@ -1,7 +1,7 @@
 import { MacroMap, AST, ASTReduction, NormalEvaluator, ApplicativeEvaluator, OptimizeEvaluator } from "@lambdulus/core"
 
-import { AbstractSettings, Box } from '../AppTypes'
-import { BoxType } from '../Types'
+import { AbstractSettings } from '../AppTypes'
+import { BoxType, AbstractBoxState } from '../Types'
 
 export const ADD_BOX_LABEL = '+λ'
 
@@ -34,7 +34,7 @@ export enum EvaluationStrategy {
   ABSTRACTION = 'Abstraction / Simplified Evaluation'
 }
 
-export interface UntypedLambdaState extends Box {
+export interface UntypedLambdaState extends AbstractBoxState {
   __key : string
   type : BoxType
   expression : string
