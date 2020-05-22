@@ -2,16 +2,10 @@ import { UntypedLambdaState, UntypedLambdaSettings, CODE_NAME as UNTYPED_CODE_NA
 import { defaultSettings as UntypedLambdaDefaultSettings } from './untyped-lambda-integration/AppTypes'
 
 import { NoteState } from "./markdown-integration/AppTypes"
-import { BoxType } from "./Types"
+import { BoxType, Screen } from "./Types"
 import { tokenize, Token, parse, AST } from "@lambdulus/core"
 
-export enum Screen {
-  MAIN,
-  HELP,
-  MACROLIST,
-  SETTINGS,
-  // NOTEBOOKS,
-}
+
 
 export const ALL_BOX_TYPES = [ BoxType.UNTYPED_LAMBDA, BoxType.LISP, BoxType.MARKDOWN ]
 
