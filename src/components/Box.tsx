@@ -5,7 +5,8 @@ import React, { useContext, ReactNode } from 'react'
 // import Note from './Note'
 // import { MacroTableContext } from './EvaluatorSpace'
 // import { SetBoxContext } from './BoxSpace'
-import { BoxState, BoxType, MacroDefinitionState } from '../AppTypes'
+import { BoxState, MacroDefinitionState } from '../AppTypes'
+import { BoxType } from '../Types'
 
 import { UntypedLambdaState } from '../untyped-lambda-integration/AppTypes'
 

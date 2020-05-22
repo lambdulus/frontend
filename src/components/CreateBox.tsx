@@ -1,7 +1,8 @@
 import React from 'react'
 
-import { BoxState, BoxType, BoxesWhitelist, ANY_BOX, NO_BOX, GlobalSettings } from '../AppTypes'
-import { createNewUntypedLambda, ADD_BOX_LABEL, UntypedLambdaSettings, CODE_NAME as UNTYPED_CODE_NAME } from '../untyped-lambda-integration/AppTypes'
+import { BoxState, BoxesWhitelist, ANY_BOX, NO_BOX, GlobalSettings } from '../AppTypes'
+import { BoxType } from '../Types'
+import { createNewUntypedLambda, ADD_BOX_LABEL, UntypedLambdaSettings, CODE_NAME as UNTYPED_CODE_NAME, UntypedLambdaState } from '../untyped-lambda-integration/AppTypes'
 import { createNewMarkdown } from '../markdown-integration/AppTypes'
 
 
@@ -27,7 +28,7 @@ function isAllowed (type : BoxType, whitelist : BoxesWhitelist) : boolean {
 export function CreateBox (props : Props) : JSX.Element {
   const { addNew, whiteList, settings } : Props = props
 
-  const untLSettings : UntypedLambdaSettings = settings[UNTYPED_CODE_NAME]
+  const untLSettings : UntypedLambdaSettings = settings[UNTYPED_CODE_NAME] as UntypedLambdaState
 
   const addLambdaBoxIfAllowed = (allowed : boolean) => (
     allowed ?

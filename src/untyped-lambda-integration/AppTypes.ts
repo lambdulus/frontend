@@ -1,6 +1,7 @@
 import { MacroMap, AST, ASTReduction, NormalEvaluator, ApplicativeEvaluator, OptimizeEvaluator } from "@lambdulus/core"
 
-import { BoxType, AbstractSettings, BoxState, Box } from '../AppTypes'
+import { AbstractSettings, Box } from '../AppTypes'
+import { BoxType } from '../Types'
 
 export const ADD_BOX_LABEL = '+λ'
 
@@ -63,6 +64,13 @@ export interface UntypedLambdaSettings extends AbstractSettings {
   SLI : boolean
   expandStandalones : boolean
   strategy : EvaluationStrategy
+}
+
+export const defaultSettings : UntypedLambdaSettings = {
+  type : BoxType.UNTYPED_LAMBDA,
+  SLI : false,
+  expandStandalones : false,
+  strategy : EvaluationStrategy.NORMAL
 }
 
 export type Evaluator = NormalEvaluator | ApplicativeEvaluator | OptimizeEvaluator

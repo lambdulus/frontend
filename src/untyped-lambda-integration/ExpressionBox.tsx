@@ -22,7 +22,8 @@ import {
 
 import './styles/EvaluatorBox.css'
 
-import { BoxType, BoxState } from '../AppTypes'
+import { BoxState } from '../AppTypes'
+import { BoxType } from '../Types'
 
 import { TreeComparator } from './TreeComparator'
 import EmptyEvaluator from './EmptyExpression'

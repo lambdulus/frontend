@@ -2,12 +2,12 @@ import React, { Component } from 'react'
 
 import './App.css'
 
-import { AppState, Screen, NotebookState, BoxesWhitelist, ANY_BOX, NO_BOX, Settings, GlobalSettings } from './AppTypes'
+import { AppState, Screen, NotebookState, BoxesWhitelist, ANY_BOX, NO_BOX, Settings, GlobalSettings, updateSettingsInStorage, EmptyAppState, loadAppStateFromStorage, updateAppStateToStorage } from './AppTypes'
 
 import MenuBar from './components/MenuBar'
 import Notebook from './screens/Notebook'
 import Help from './screens/Help'
-import SettingsScreen, { loadSettingsFromStorage, updateSettingsInStorage } from './screens/Settings'
+import SettingsScreen from './screens/Settings'
 
 
 
@@ -25,17 +25,7 @@ export default class App extends Component<Props, AppState> {
   constructor (props : Props) {
     super(props)
 
-    this.state = {
-      notebookList : [{
-        boxList : [],
-        activeBoxIndex : NaN,
-        allowedBoxes : ANY_BOX,
-        __key : Date.now().toString(),
-        settings : loadSettingsFromStorage()
-      }],
-      currentNotebook : 0,
-      currentScreen : Screen.MAIN,
-    }
+    this.state = loadAppStateFromStorage()
 
     this.setScreen = this.setScreen.bind(this)
     this.updateNotebook = this.updateNotebook.bind(this)
@@ -98,6 +88,8 @@ export default class App extends Component<Props, AppState> {
     notebookList[currentNotebook] = notebook
 
     this.setState({ notebookList })
+    updateAppStateToStorage({ ...this.state })
+    // NOTE: Carefuly around here - I kinda rely on the mutation of this.state.notebookList
   }
 
   changeNotebook (index : number) : void {

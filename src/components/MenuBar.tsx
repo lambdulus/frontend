@@ -1,11 +1,11 @@
 import React, { ChangeEvent } from 'react'
 import { AST, tokenize, parse, Token, MacroMap, None } from '@lambdulus/core'
 
-import { AppState, Screen, BoxState, BoxType, NotebookState, ANY_BOX } from '../AppTypes'
+import { AppState, Screen, BoxState, NotebookState, ANY_BOX, loadSettingsFromStorage } from '../AppTypes'
+import { BoxType } from '../Types'
 
 
 import '../styles/MenuBar.css'
-import { loadSettingsFromStorage } from '../screens/Settings'
 // import { reportEvent } from '../misc'; // later
 
 interface MenuBarProperties {
