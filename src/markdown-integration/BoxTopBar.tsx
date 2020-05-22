@@ -1,10 +1,10 @@
 import React, { Component, ChangeEvent } from 'react'
-import { BoxState } from '../AppTypes'
 
 import { NoteState, PromptPlaceholder } from './AppTypes'
 
 import 'pretty-checkbox'
 import './styles/EditingSwitch.css'
+import { BoxState } from '../Types'
 
 const { Switch } = require('pretty-checkbox-react')
 

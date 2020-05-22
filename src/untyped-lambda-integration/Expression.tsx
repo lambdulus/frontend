@@ -2,7 +2,6 @@
 
 // import Controls from './Controls' // TODO: Controls are gonna be imported from the Frontend app - or maybe not even imported just passed as children
 import Step from './Step'
-import { BoxState } from '../AppTypes'
 import { PromptPlaceholder, UntypedLambdaState, Breakpoint, StepRecord } from './AppTypes'
 import Editor from '../components/Editor'
 // import { DeleteBox } from './BoxSpace'
