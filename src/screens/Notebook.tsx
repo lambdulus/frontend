@@ -11,6 +11,7 @@ import Box from '../components/Box'
 import { BoxType } from '../Types'
 
 import { onMarkDownBlur, NoteState } from '../markdown-integration/AppTypes'
+import { BoxContainer } from '../components/BoxContainer'
 
 interface Props {
   state : NotebookState
@@ -47,23 +48,14 @@ export default class Notebook extends PureComponent<Props> {
                 settings={ settings }
                 />
               
-              <div
-                className={ `boxContainer${ i === activeBoxIndex ? ' active' : ' inactive' }` }
-                onDoubleClick={ () => this.makeActive(i) }
-              >
-                <BoxTitleBar
-                  state={ box }
-                  isActive={ i === activeBoxIndex }
-                  removeBox={ () => this.removeBox(i) }
-                  updateBoxState={ (box : BoxState) => this.updateBoxState(i, box) }
-                />
-                <Box
-                  state={ box }
-                  isActive={ i === activeBoxIndex }
-                  updateBoxState={ (box : BoxState) => this.updateBoxState(i, box) }
-                  addBox={ (box : BoxState) => this.insertBefore(i + 1, box) }
-                />
-              </div>             
+              <BoxContainer
+                box={ box}
+                isActiveBox={ activeBoxIndex === i}
+                insertBefore={ (box : BoxState) => this.insertBefore(i, box) }
+                makeActive={ () => this.makeActive(i) }
+                removeBox={ () => this.removeBox(i) }
+                updateBoxState={ (box : BoxState) => this.updateBoxState(i, box) }
+              />          
             </li>
           ) }
   
