@@ -2,7 +2,7 @@ import { UntypedLambdaState, UntypedLambdaSettings, CODE_NAME as UNTYPED_CODE_NA
 import { defaultSettings as UntypedLambdaDefaultSettings } from './untyped-lambda-integration/AppTypes'
 
 import { NoteState } from "./markdown-integration/AppTypes"
-import { BoxType, Screen, BoxesWhitelist, AbstractBoxState } from "./Types"
+import { BoxType, Screen, BoxesWhitelist, AbstractBoxState, AbstractSettings } from "./Types"
 import { tokenize, Token, parse, AST } from "@lambdulus/core"
 
 
@@ -28,9 +28,6 @@ export function mapBoxTypeToStr (type : BoxType) : string {
   }
 }
 
-export interface AbstractSettings {
-  type : BoxType,
-}
 
 export interface LispBox extends AbstractBoxState {
   // TODO: delete this placeholder and implement it

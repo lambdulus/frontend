@@ -23,3 +23,7 @@ export interface AbstractBoxState {
   __key : string, 
   title : String,
 }
+
+export interface AbstractSettings {
+  type : BoxType,
+}

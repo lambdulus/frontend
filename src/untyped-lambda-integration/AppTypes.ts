@@ -1,6 +1,6 @@
 import { MacroMap, AST, ASTReduction, NormalEvaluator, ApplicativeEvaluator, OptimizeEvaluator } from "@lambdulus/core"
 
-import { AbstractSettings } from '../AppTypes'
+import { AbstractSettings } from '../Types'
 import { BoxType, AbstractBoxState } from '../Types'
 
 export const ADD_BOX_LABEL = '+λ'
