@@ -154,6 +154,7 @@ export default class ExpressionBox extends PureComponent<EvaluationProperties> {
     return {
       type : BoxType.UNTYPED_LAMBDA,
       __key : Date.now().toString(),
+      title : "",
       expression : "",
       ast : null,
       history : [],
