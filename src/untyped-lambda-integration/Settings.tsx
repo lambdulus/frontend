@@ -1,16 +1,7 @@
 import React, { ChangeEvent } from 'react'
 import { UntypedLambdaSettings, EvaluationStrategy } from './AppTypes'
-import { BoxType } from '../AppTypes'
 
 const { Switch, Radio } = require('pretty-checkbox-react')
-
-
-export const defaultSettings : UntypedLambdaSettings = {
-  type : BoxType.UNTYPED_LAMBDA,
-  SLI : false,
-  expandStandalones : false,
-  strategy : EvaluationStrategy.NORMAL
-}
 
 
 interface Props {

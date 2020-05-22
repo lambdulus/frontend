@@ -1,5 +1,6 @@
 import React from 'react'
-import { BoxState, BoxType } from '../AppTypes'
+import { BoxState } from '../AppTypes'
+import { BoxType } from '../Types'
 import UntypedLambdaBTB from '../untyped-lambda-integration/BoxTopBar'
 import { UntypedLambdaState } from '../untyped-lambda-integration/AppTypes'
 
