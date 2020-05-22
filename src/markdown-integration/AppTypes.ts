@@ -1,7 +1,7 @@
-import { BoxType } from "../Types"
+import { BoxType, AbstractBoxState } from "../Types"
 
 
-export interface NoteState {
+export interface NoteState extends AbstractBoxState {
   __key : string
   type : BoxType
   note : string
@@ -18,6 +18,7 @@ export function createNewMarkdown () : NoteState {
   return {
     __key : Date.now().toString(),
     type : BoxType.MARKDOWN,
+    title : 'Click Here to Change the Title',
     note : '',
     isEditing : true,
     editor : {
