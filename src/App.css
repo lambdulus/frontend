@@ -35,6 +35,10 @@
   border-left: 5px solid white;
 }
 
+.boxContainer.markDownBox:hover {
+  border-left: 5px solid white;
+}
+
 .mainSpace, .helpSpace, .settingsSpace {
   margin-left: 7em;
   padding-top: 10px;
