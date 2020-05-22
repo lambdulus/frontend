@@ -5,13 +5,14 @@ import { BoxType, Screen, BoxesWhitelist, AppState, GlobalSettings, NotebookStat
 import { tokenize, Token, parse, AST } from "@lambdulus/core"
 
 
+// TODO: when building `Exam Mode` simply leave only non-evaluative BoxTypes
 export const ALL_BOX_TYPES : Array<BoxType> = [ BoxType.UNTYPED_LAMBDA, BoxType.LISP, BoxType.MARKDOWN ]
 
 export const ANY_BOX = -1
 
 export const NO_BOX = -2
 
-export const DEFAULT_WHITELIST : BoxesWhitelist = [BoxType.UNTYPED_LAMBDA, BoxType.LISP, BoxType.MARKDOWN]
+export const DEFAULT_WHITELIST : BoxesWhitelist = ALL_BOX_TYPES
 
 
 export function mapBoxTypeToStr (type : BoxType) : string {
@@ -123,10 +124,13 @@ function stripSteps (state : AppState) : AppState {
       if (box.type === BoxType.UNTYPED_LAMBDA) {
         const b : UntypedLambdaState = box as UntypedLambdaState
 
+        if (b.expression === '') {
+          return b
+        }
         
         const tokens : Array<Token> = tokenize(b.expression, { lambdaLetters : ['λ'], singleLetterVars : b.SLI })
         const ast : AST = parse(tokens, {}) // macroTable
-        
+
         b.ast = ast
         b.history = [{
           ast : ast,
