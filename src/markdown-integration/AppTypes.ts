@@ -1,4 +1,4 @@
-import { BoxType } from "../AppTypes";
+import { BoxType } from "../Types"
 
 
 export interface NoteState {
@@ -30,3 +30,10 @@ export function createNewMarkdown () : NoteState {
 }
 
 export const PromptPlaceholder : string = 'Note in MarkDown'
+
+export function onMarkDownBlur (state : NoteState) : NoteState {
+  return {
+    ...state,
+    isEditing: false,
+  }
+}

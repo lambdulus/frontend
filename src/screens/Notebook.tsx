@@ -8,6 +8,9 @@ import { BoxState, NotebookState, BoxesWhitelist, GlobalSettings } from '../AppT
 import { CreateBox } from '../components/CreateBox'
 import BoxTitleBar from '../components/BoxTitleBar'
 import Box from '../components/Box'
+import { BoxType } from '../Types'
+
+import { onMarkDownBlur, NoteState } from '../markdown-integration/AppTypes'
 
 interface Props {
   state : NotebookState
@@ -112,7 +115,24 @@ export default class Notebook extends PureComponent<Props> {
   }
 
   makeActive (index : number) : void {
-    if (index !== this.props.state.activeBoxIndex)
-      this.props.updateNotebook({ ...this.props.state, activeBoxIndex : index })
+    const { activeBoxIndex, boxList } = this.props.state
+
+    const currentType : BoxType = boxList[activeBoxIndex].type
+
+    switch (currentType) {
+      case BoxType.UNTYPED_LAMBDA:
+        // boxList[activeBoxIndex] = onUntypedLambdaBlur(boxList[activeBoxIndex])
+        break
+      
+      case BoxType.MARKDOWN:
+        boxList[activeBoxIndex] = onMarkDownBlur(boxList[activeBoxIndex] as NoteState)
+        break
+
+      default:
+        break
+    }
+
+    if (index !== activeBoxIndex)
+      this.props.updateNotebook({ ...this.props.state, activeBoxIndex : index, boxList })
   }
 }
