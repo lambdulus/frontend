@@ -1,7 +1,7 @@
 import React from 'react'
 
-import { BoxState, BoxesWhitelist, ANY_BOX, NO_BOX, GlobalSettings } from '../AppTypes'
-import { BoxType } from '../Types'
+import { BoxState, ANY_BOX, NO_BOX, GlobalSettings } from '../AppTypes'
+import { BoxType, BoxesWhitelist } from '../Types'
 import { createNewUntypedLambda, ADD_BOX_LABEL, UntypedLambdaSettings, CODE_NAME as UNTYPED_CODE_NAME, UntypedLambdaState } from '../untyped-lambda-integration/AppTypes'
 import { createNewMarkdown } from '../markdown-integration/AppTypes'
 

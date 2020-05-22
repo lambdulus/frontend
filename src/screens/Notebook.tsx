@@ -4,7 +4,7 @@
 
 
 import React, { PureComponent } from 'react'
-import { BoxState, NotebookState, BoxesWhitelist, GlobalSettings } from '../AppTypes'
+import { BoxState, NotebookState, GlobalSettings } from '../AppTypes'
 import { CreateBox } from '../components/CreateBox'
 import BoxTitleBar from '../components/BoxTitleBar'
 import Box from '../components/Box'
