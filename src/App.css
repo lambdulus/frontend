@@ -31,6 +31,10 @@
   border-left: 5px solid rgb(124, 166, 250);
 }
 
+.boxContainer.markDownBox {
+  border-left: 5px solid white;
+}
+
 .mainSpace, .helpSpace, .settingsSpace {
   margin-left: 7em;
   padding-top: 10px;
