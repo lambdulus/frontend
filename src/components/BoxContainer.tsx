@@ -2,7 +2,7 @@ import React from 'react'
 import { mapBoxTypeToStr } from '../AppTypes'
 import Box from './Box'
 import BoxTitleBar from './BoxTitleBar'
-import { BoxType, BoxState } from '../Types'
+import { BoxState } from '../Types'
 
 
 interface Props {
