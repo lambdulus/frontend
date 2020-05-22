@@ -1,7 +1,6 @@
 import React, { useContext, ReactNode } from 'react'
 
 import Editor from '../components/Editor'
-import BoxTopBar from './BoxTopBar'
 // import { MakeActiveContext, DeleteBox } from './BoxSpace'
 import { StepRecord } from './AppTypes'
 
