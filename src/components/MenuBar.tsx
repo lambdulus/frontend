@@ -1,8 +1,8 @@
 import React, { ChangeEvent } from 'react'
 import { AST, tokenize, parse, Token, MacroMap, None } from '@lambdulus/core'
 
-import { AppState, Screen, BoxState, NotebookState, ANY_BOX, loadSettingsFromStorage } from '../AppTypes'
-import { BoxType } from '../Types'
+import { AppState, BoxState, NotebookState, ANY_BOX, loadSettingsFromStorage } from '../AppTypes'
+import { BoxType, Screen } from '../Types'
 
 
 import '../styles/MenuBar.css'

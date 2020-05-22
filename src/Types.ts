@@ -3,3 +3,11 @@ export enum BoxType {
   LISP,
   MARKDOWN,
 }
+
+export enum Screen {
+  MAIN,
+  HELP,
+  MACROLIST,
+  SETTINGS,
+  // NOTEBOOKS,
+}
