@@ -18,10 +18,11 @@ export type BoxesWhitelist = Array<BoxType> | AnyBox | NoBox
 export interface Box {
   type : BoxType,
   __key : string, 
+  title : String,
 }
 
 export interface AbstractSettings {
-  type : BoxType
+  type : BoxType,
 }
 
 export interface LispBox extends Box {
