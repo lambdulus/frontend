@@ -11,3 +11,9 @@ export enum Screen {
   SETTINGS,
   // NOTEBOOKS,
 }
+
+export type AnyBox = -1
+
+export type NoBox = -2
+
+export type BoxesWhitelist = Array<BoxType> | AnyBox | NoBox

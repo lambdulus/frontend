@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 
 import './App.css'
 
-import { AppState, NotebookState, BoxesWhitelist, ANY_BOX, NO_BOX, Settings, GlobalSettings, updateSettingsInStorage, EmptyAppState, loadAppStateFromStorage, updateAppStateToStorage } from './AppTypes'
+import { AppState, NotebookState, ANY_BOX, NO_BOX, Settings, GlobalSettings, updateSettingsInStorage, EmptyAppState, loadAppStateFromStorage, updateAppStateToStorage } from './AppTypes'
 
 import MenuBar from './components/MenuBar'
 import Notebook from './screens/Notebook'
