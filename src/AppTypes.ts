@@ -2,7 +2,7 @@ import { UntypedLambdaState, UntypedLambdaSettings, CODE_NAME as UNTYPED_CODE_NA
 import { defaultSettings as UntypedLambdaDefaultSettings } from './untyped-lambda-integration/AppTypes'
 
 import { NoteState } from "./markdown-integration/AppTypes"
-import { BoxType, Screen, BoxesWhitelist } from "./Types"
+import { BoxType, Screen, BoxesWhitelist, AbstractBoxState } from "./Types"
 import { tokenize, Token, parse, AST } from "@lambdulus/core"
 
 
@@ -15,11 +15,6 @@ export const NO_BOX = -2
 
 export const DEFAULT_WHITELIST : BoxesWhitelist = [BoxType.UNTYPED_LAMBDA, BoxType.LISP, BoxType.MARKDOWN]
 
-export interface Box {
-  type : BoxType,
-  __key : string, 
-  title : String,
-}
 
 export function mapBoxTypeToStr (type : BoxType) : string {
   switch (type) {
@@ -37,7 +32,7 @@ export interface AbstractSettings {
   type : BoxType,
 }
 
-export interface LispBox extends Box {
+export interface LispBox extends AbstractBoxState {
   // TODO: delete this placeholder and implement it
 }
 
