@@ -19,10 +19,13 @@ interface Props {
 
 export default function BoxTopBar (props : Props) : JSX.Element {
   const { state, isActive, removeBox, updateBoxState } = props
-  const { note, isEditing } = state
+  const { note, isEditing, title } = state
 
   return (
     <div className='boxTopBar'>
+      <div className='topBarTitle' contentEditable={ true } onBlur={ (e) => updateBoxState({ ...state, title : e.target.textContent || "" }) }>
+        { title === "" ? "Click Here to Change the Title" : title }
+      </div>
       <div className='controls' title='Edit as Markdown'>
         <Switch
             className='control'
