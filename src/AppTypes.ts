@@ -1,10 +1,8 @@
-import { UntypedLambdaState, UntypedLambdaSettings, CODE_NAME as UNTYPED_CODE_NAME } from "./untyped-lambda-integration/AppTypes"
+import { UntypedLambdaState, CODE_NAME as UNTYPED_CODE_NAME } from "./untyped-lambda-integration/AppTypes"
 import { defaultSettings as UntypedLambdaDefaultSettings } from './untyped-lambda-integration/AppTypes'
 
-import { NoteState } from "./markdown-integration/AppTypes"
-import { BoxType, Screen, BoxesWhitelist, AbstractBoxState, AbstractSettings } from "./Types"
+import { BoxType, Screen, BoxesWhitelist, AppState, GlobalSettings, NotebookState, BoxState } from "./Types"
 import { tokenize, Token, parse, AST } from "@lambdulus/core"
-
 
 
 export const ALL_BOX_TYPES : Array<BoxType> = [ BoxType.UNTYPED_LAMBDA, BoxType.LISP, BoxType.MARKDOWN ]
@@ -29,24 +27,6 @@ export function mapBoxTypeToStr (type : BoxType) : string {
 }
 
 
-export interface LispBox extends AbstractBoxState {
-  // TODO: delete this placeholder and implement it
-}
-
-export interface LispSettings extends AbstractSettings {
-  // TODO: delete this placeholder and implement it
-}
-
-export type BoxState = UntypedLambdaState | LispBox | NoteState // or other things in the future
-
-export type Settings = UntypedLambdaSettings | LispSettings // or other things in the future
-
-export interface AppState {
-  notebookList : Array<NotebookState>,
-  currentNotebook : number,
-  currentScreen : Screen,
-}
-
 export const EmptyAppState : AppState = {
   notebookList : [{
     boxList : [],
@@ -59,40 +39,6 @@ export const EmptyAppState : AppState = {
   currentScreen : Screen.MAIN,
 }
 
-// TODO: this needs to be reconsidered
-export interface GlobalSettings {
-  // [UNTYPED_CODE_NAME] : UntypedLambdaSettings
-  [key : string] : Settings
-}
-
-export interface NotebookState {
-  boxList : Array<BoxState>,
-  activeBoxIndex : number,
-  allowedBoxes : BoxesWhitelist,
-
-  settings : GlobalSettings // TODO: refactor to use the Dictionary
-
-  __key : string
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////////////////////////
-// TODO: move to specific integration
-export interface MacroDefinitionState {
-  __key : string
-  type : BoxType
-  macroName : string
-  macroExpression : string
-  singleLetterNames : boolean
-  editor : {
-    placeholder : string
-    content : string
-    caretPosition : number
-    syntaxError : Error | null
-  }
-}
-
-//////////////////////
 
 export function updateSettingsInStorage (settings : GlobalSettings) : void {
   window.localStorage.setItem('global-settings', JSON.stringify(settings))
@@ -148,6 +94,7 @@ export function loadSettingsFromStorage () : GlobalSettings {
 
   return deserialized
 }
+
 
 export function loadAppStateFromStorage () : AppState {
   const maybeState : string | null = localStorage.getItem('AppState')

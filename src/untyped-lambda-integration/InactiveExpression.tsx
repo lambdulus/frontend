@@ -2,7 +2,6 @@ import React, { useContext, ReactNode } from 'react'
 
 import Step from './Step'
 // import { AddBoxContext } from './MethodInjector'
-import { BoxState } from '../AppTypes'
 import { Breakpoint, StepRecord, UntypedLambdaState } from './AppTypes'
 // import { DeleteBox, MakeActiveContext } from './BoxSpace'
 

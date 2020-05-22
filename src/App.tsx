@@ -2,13 +2,13 @@ import React, { Component } from 'react'
 
 import './App.css'
 
-import { AppState, NotebookState, ANY_BOX, NO_BOX, Settings, GlobalSettings, updateSettingsInStorage, EmptyAppState, loadAppStateFromStorage, updateAppStateToStorage } from './AppTypes'
+import { updateSettingsInStorage, loadAppStateFromStorage, updateAppStateToStorage } from './AppTypes'
 
 import MenuBar from './components/MenuBar'
 import Notebook from './screens/Notebook'
 import Help from './screens/Help'
 import SettingsScreen from './screens/Settings'
-import { Screen } from './Types'
+import { Screen, AppState, NotebookState, GlobalSettings } from './Types'
 
 
 

@@ -1,8 +1,8 @@
 import React, { Component } from 'react'
-import { BoxState } from '../AppTypes'
 
 import Controls from './ExerciseSwitch'
 import { UntypedLambdaState, PromptPlaceholder } from './AppTypes'
+import { BoxState } from '../Types'
 
 
 interface Props {
