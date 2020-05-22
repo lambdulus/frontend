@@ -19,6 +19,7 @@ export type AnyBox = -1
 
 export type NoBox = -2
 
+// TODO: when building `Exam Mode`  allow only Array<BoxType> or NoBox
 export type BoxesWhitelist = Array<BoxType> | AnyBox | NoBox
 
 export interface AbstractBoxState {
