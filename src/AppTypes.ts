@@ -1,8 +1,8 @@
-import { UntypedLambdaState, CODE_NAME as UNTYPED_CODE_NAME } from "./untyped-lambda-integration/AppTypes"
+import { UntypedLambdaState, CODE_NAME as UNTYPED_CODE_NAME, StepRecord } from "./untyped-lambda-integration/AppTypes"
 import { defaultSettings as UntypedLambdaDefaultSettings } from './untyped-lambda-integration/AppTypes'
 
 import { BoxType, Screen, BoxesWhitelist, AppState, GlobalSettings, NotebookState, BoxState } from "./Types"
-import { tokenize, Token, parse, AST } from "@lambdulus/core"
+import { tokenize, Token, parse, AST, decode } from "@lambdulus/core"
 
 
 // TODO: when building `Exam Mode` simply leave only non-evaluative BoxTypes
@@ -132,13 +132,13 @@ function stripSteps (state : AppState) : AppState {
         const ast : AST = parse(tokens, {}) // macroTable
 
         b.ast = ast
-        b.history = [{
-          ast : ast,
-          lastReduction : null,
-          step : 0,
-          message : "",
-          isNormalForm : false,
-        }]
+        b.history = b.history.map((step : StepRecord) => {
+          
+        return {
+          ...step,
+          ast : decode(step.ast) as AST, // TODO: as AST this is unsafe
+        }
+        })
         return b
       }
       return box
