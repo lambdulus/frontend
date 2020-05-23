@@ -32,7 +32,8 @@ export default function MenuBar (props : MenuBarProperties) : JSX.Element {
 
   return (
     <div id="menu-bar">
-      <ul className='notebooks UL'>
+      {/* TODO: SOLVE WHERE TO MOVE NOTEBOOKS TABS */}
+      {/* <ul className='notebooks UL'>
         {
           notebookList.map(
             (notebook : NotebookState, index : number) =>
@@ -54,58 +55,58 @@ export default function MenuBar (props : MenuBarProperties) : JSX.Element {
         <div className='addNotebook' onClick={ () => props.onAddNotebook(createNewNotebook()) } >
           +
         </div>
-      </ul>
+      </ul> */}
 
-      {
-        currentScreen === Screen.HELP ?
-        <div title='Back to Notebook'>
-          <i
-            className="icon far fa-window-close fa-2x"
-            onClick={ () => onScreenChange(Screen.MAIN) } />
-          <p className='iconLabel'>Notebook</p>
-        </div>
-          :
-        <div title='Show help'>
-          <i
-            className="icon far fa-question-circle fa-2x"
-            onClick={ () => onScreenChange(Screen.HELP) }
-          />
-          <p className='iconLabel'>Help</p>
-        </div>
-      }
+      <div
+        className={ currentScreen === Screen.MAIN ? 'currentTab tab' : 'tab' }
+        title='Notebook Content'
+        onClick={ () => onScreenChange(Screen.MAIN) }
+      >
+        <i
+          className="icon far fa-file-alt"
+        />
+          {/* <p className='iconLabel'>Notebook</p> */}
+      </div>
 
-      {
-        currentScreen === Screen.SETTINGS ?
-        <div title='Back to Notebook'>
-          <i
-            className="icon far fa-window-close fa-2x"
-            onClick={ () => onScreenChange(Screen.MAIN) } />
-          <p className='iconLabel'>Notebook</p>
-        </div>
-          :
-        <div title='Go to Settings'>
-          <i
-            className="icon fas fa-cogs fa-2x"
-            onClick={ () => onScreenChange(Screen.SETTINGS) }
-          />
-          <p className='iconLabel'>Settings</p>
-        </div>
-      }
+      <div
+        className={ currentScreen === Screen.HELP ? 'currentTab tab' : 'tab' }
+        title='Show help'
+        onClick={ () => onScreenChange(Screen.HELP) }
+      >
+        <i
+          className="icon far fa-question-circle"
+        />
+        {/* <p className='iconLabel'>Help</p> */}
+      </div>
+
+      <div
+        className={ currentScreen === Screen.SETTINGS ? 'currentTab tab' : 'tab' }
+        title='Go to Settings'
+        onClick={ () => onScreenChange(Screen.SETTINGS) }
+      >
+        <i
+          className="icon fas fa-cogs"
+        />
+        {/* <p className='iconLabel'>Settings</p> */}
+      </div>
 
       {/* <div title='List all defined macros' >
         {
           screen === Screen.main ?
-            <i className="icon fas fa-list-ul fa-2x" onClick={ () => onScreenChange(Screen.macrolist) } />
+            <i className="icon fas fa-list-ul" onClick={ () => onScreenChange(Screen.macrolist) } />
             :
             screen === Screen.macrolist ?
-              <i className="icon far fa-window-close fa-2x" onClick={ () => onScreenChange(Screen.main) } />
+              <i className="icon far fa-window-close" onClick={ () => onScreenChange(Screen.main) } />
               :
-              <i className="icon fas fa-list-ul fa-2x" onClick={ () => onScreenChange(Screen.macrolist) } />
+              <i className="icon fas fa-list-ul" onClick={ () => onScreenChange(Screen.macrolist) } />
         }
         <p className='iconLabel'>Macros</p>
       </div>         */}
-        
-      <div title='Download this notebook'>
+
+      {/* TODO: SOLVE WHERE TO MOVE IMPORT/EXPORT */}
+      {/* <div
+        className='tab'
+        title='Download this notebook'>
         <a
           className='export'
           href={ link }
@@ -115,23 +116,28 @@ export default function MenuBar (props : MenuBarProperties) : JSX.Element {
           //   reportEvent('Export notebook', `Notebook: ${serialized}`, '')
           // }, 10) }
         >
-          <i id='download' className="icon fas fa-cloud-download-alt fa-2x" />
+          <i id='download' className="icon fas fa-cloud-download-alt" />
         </a>
         <p className='iconLabel'>Export</p>
       </div>
       
-      <div title='Open exported notebook'>
+      <div
+        className='tab'
+        title='Open exported notebook'>
         <input type="file" accept="application/json" id="input" onChange={ (e) => onFiles(e, onImport) } />
-        <label htmlFor="input"><i className="icon fas fa-cloud-upload-alt fa-2x"></i></label>
+        <label htmlFor="input"><i className="icon fas fa-cloud-upload-alt"></i></label>
         <p className='iconLabel'>Import</p>
-      </div>
+      </div> */}
 
-      <div title='Report a bug or request new feature'>
+      {/* TODO: SOLVE WHERE TO MOVE FEEDBACK/BUGS/ISSUES */}
+      {/* <div
+        className='tab'
+        title='Report a bug or request new feature'>
         <a href='https://github.com/lambdulus/new-frontend/issues' target="_blank">
-          <i className="icon fas fa-bug fa-2x"></i>
+          <i className="icon fas fa-bug"></i>
         </a>
-        <p className='iconLabel'>Issues</p>
-      </div>
+        <p className='iconLabel'>Feedback</p>
+      </div>  */}
     </div>
   )
 }
