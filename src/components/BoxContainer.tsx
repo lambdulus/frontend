@@ -10,20 +10,22 @@ interface Props {
   box : BoxState
 
   makeActive : () => void
+  onBlur : () => void
   updateBoxState : (state : BoxState) => void
   removeBox : () => void
   insertBefore : (state : BoxState) => void
 }
 
 export function BoxContainer (props : Props) : JSX.Element {
-  const { isActiveBox, box, makeActive, updateBoxState, insertBefore, removeBox } : Props = props
+  const { isActiveBox, box, makeActive, onBlur, updateBoxState, insertBefore, removeBox } : Props = props
 
   const boxTypeClassName : string = mapBoxTypeToStr(box.type)
 
   return (
     <div
       className={ `boxContainer ${ isActiveBox ? 'active' : 'inactive' } ${boxTypeClassName}` }
-      onDoubleClick={ () => makeActive() }
+      onClick={ () => makeActive() }
+      onBlur={ onBlur }
     >
       <BoxTitleBar
         state={ box }

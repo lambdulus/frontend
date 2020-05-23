@@ -37,7 +37,7 @@ export default function Note (props : NoteProperties) : JSX.Element {
     // this.updateURL(expression) // tohle musim nejak vyresit - mozna ta metoda setBoxState v APP bude checkovat propisovat do URL
   }
 
-  if (isEditing && isActive) {
+    if (isActive) {
     return (
       <div className='box boxNoteEditor'>
         <Editor
@@ -58,7 +58,15 @@ export default function Note (props : NoteProperties) : JSX.Element {
 
 
   return (
-    <div className='box boxNote'>
+    <div
+      onClick={ () => 
+        isActive &&
+        setBoxState({
+        ...props.state,
+        isEditing : true,
+      }) }
+      className='box boxNote'
+    >
       <ReactMarkdown className='markdown-body' source={ note } />
     </div>
   )

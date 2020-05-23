@@ -23,10 +23,10 @@ export default function BoxTopBar (props : Props) : JSX.Element {
 
   return (
     <div className='boxTopBar'>
-      <div className='topBarTitle' contentEditable={ true } onBlur={ (e) => updateBoxState({ ...state, title : e.target.textContent || "" }) }>
+      {/* <div className='topBarTitle' contentEditable={ true } onBlur={ (e) => updateBoxState({ ...state, title : e.target.textContent || "" }) }>
         { title === "" ? "Click Here to Change the Title" : title }
-      </div>
-      <div className='controls' title='Edit as Markdown'>
+      </div> */}
+      {/* <div className='controls' title='Edit as Markdown'>
         <Switch
             className='control'
             checked={ isEditing }
@@ -37,7 +37,7 @@ export default function BoxTopBar (props : Props) : JSX.Element {
           >
             Editing
           </Switch>
-      </div>
+      </div> */}
 
       <i
         className='removeBox far fa-trash-alt'

@@ -25,6 +25,7 @@ export default class Notebook extends PureComponent<Props> {
     this.removeBox = this.removeBox.bind(this)
     this.updateBoxState = this.updateBoxState.bind(this)
     this.makeActive = this.makeActive.bind(this)
+    this.onBlur = this.onBlur.bind(this)
   }
 
   render () {
@@ -52,6 +53,7 @@ export default class Notebook extends PureComponent<Props> {
                 makeActive={ () => this.makeActive(i) }
                 removeBox={ () => this.removeBox(i) }
                 updateBoxState={ (box : BoxState) => this.updateBoxState(i, box) }
+                onBlur={ () => this.onBlur(i) }
               />          
             </li>
           ) }
@@ -69,12 +71,16 @@ export default class Notebook extends PureComponent<Props> {
 
   insertBefore (index : number, box : BoxState) : void {
     const { boxList } = this.props.state
+
+    console.log("adding - so now current index is? ", index)
     
     boxList.splice(index, 0, box)
     this.props.updateNotebook({ ...this.props.state, boxList : boxList, activeBoxIndex : index })
   }
 
   removeBox (index : number) : void {
+    // this allows to remove last Box and not correctly changing activeBoxIndex
+    // TODO: fix the bug
     const { boxList, activeBoxIndex } = this.props.state
     
     const nearestValidIndex = (i : number) => {
@@ -123,5 +129,31 @@ export default class Notebook extends PureComponent<Props> {
 
     if (index !== activeBoxIndex)
       this.props.updateNotebook({ ...this.props.state, activeBoxIndex : index, boxList })
+  }
+
+  onBlur (index : number) : void {
+    const { boxList, activeBoxIndex } = this.props.state
+
+    if (activeBoxIndex !== index) {
+      return
+    }
+
+    const currentType : BoxType = boxList[index].type
+
+    switch (currentType) {
+      case BoxType.UNTYPED_LAMBDA:
+        // boxList[activeBoxIndex] = onUntypedLambdaBlur(boxList[activeBoxIndex])
+        break
+      
+      case BoxType.MARKDOWN:
+        console.log('bluring ', index)
+        boxList[index] = onMarkDownBlur(boxList[index] as NoteState)
+        break
+
+      default:
+        break
+    }
+
+    this.props.updateNotebook({ ...this.props.state, boxList })
   }
 }
