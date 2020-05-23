@@ -2,7 +2,7 @@ import { UntypedLambdaState, CODE_NAME as UNTYPED_CODE_NAME, StepRecord } from "
 import { defaultSettings as UntypedLambdaDefaultSettings } from './untyped-lambda-integration/AppTypes'
 
 import { BoxType, Screen, BoxesWhitelist, AppState, GlobalSettings, NotebookState, BoxState } from "./Types"
-import { tokenize, Token, parse, AST, decode } from "@lambdulus/core"
+import { AST, decodeFast as decodeUntypedLambdaFast, ASTReduction } from "@lambdulus/core"
 
 
 // TODO: when building `Exam Mode` simply leave only non-evaluative BoxTypes
@@ -105,43 +105,81 @@ export function loadAppStateFromStorage () : AppState {
     return EmptyAppState
   }
   else {
-    // TODO: recursively decode AST Nodes from simple Objects
-    return stripSteps(JSON.parse(maybeState))
+    try {
+      return decode(JSON.parse(maybeState))
+    }
+    catch (e) {
+      return EmptyAppState
+    }
   }
 }
 
-// TODO: this function needs to somehow take care of serialization OR I will need to take care of
-// deserialization in the future - you see - AST needs to be instantiated as class
-// thus simple JSON.parse won't cut it
 export function updateAppStateToStorage (state : AppState) : void {
   localStorage.setItem('AppState', JSON.stringify(state))
 }
 
 // TODO: This function is going to be replaced with correct implementation of decoding
-function stripSteps (state : AppState) : AppState {
+// this slowly becomes better and better base for the final implementation
+/**
+ * This function THROWS Error in case of invalid argument
+ * @param state : Deserialized form of AppState
+ */
+function decode (state : AppState) : AppState | never {
   const notebookList : Array<NotebookState> = state.notebookList.map((notebook : NotebookState) => {
-    const boxList : Array<BoxState> = notebook.boxList.map((box : BoxState) => {
-      if (box.type === BoxType.UNTYPED_LAMBDA) {
-        const b : UntypedLambdaState = box as UntypedLambdaState
+    const boxList : Array<BoxState> = notebook.boxList.map((box : BoxState, index : number, arr : Array<BoxState>) => {
+      switch (box.type) {
+        case BoxType.UNTYPED_LAMBDA: {
+          const untypedLambdaBox : UntypedLambdaState = box as UntypedLambdaState
 
-        if (b.expression === '') {
-          return b
-        }
-        
-        const tokens : Array<Token> = tokenize(b.expression, { lambdaLetters : ['λ'], singleLetterVars : b.SLI })
-        const ast : AST = parse(tokens, {}) // macroTable
-
-        b.ast = ast
-        b.history = b.history.map((step : StepRecord) => {
+          if (untypedLambdaBox.expression === '') {
+            return untypedLambdaBox
+          }
           
-        return {
-          ...step,
-          ast : decode(step.ast) as AST, // TODO: as AST this is unsafe
+          const decodedFirst : AST | null = decodeUntypedLambdaFast(untypedLambdaBox.ast)
+
+          if (decodedFirst === null) {
+            // TODO: repair:
+            // parse expression
+            // replace untypedLambdaBox.ast with parsed AST
+            // for now - throw error
+            throw "ROOT AST IS NOT DECODABLE"
+          }
+
+          untypedLambdaBox.ast = decodedFirst
+          untypedLambdaBox.history = untypedLambdaBox.history.map((step : StepRecord, iindex : number) => {
+            let decodedNth : AST | null = decodeUntypedLambdaFast(step.ast) as AST
+
+            if (decodedNth === null) {
+              // TODO: repair:
+              // try to take previous Step.ast and do the evaluation
+              // though - remember this Step.step (number) may not be + 1 of the previous one
+              // you will need to do the steps as long as need to be
+              // replace decodedNth with parsed AST
+              // for throw
+              throw "CURRENT STEP IS NOT DECODABLE " + index
+            }
+
+            // TODO: maybe instead of this theatre just use the Core . Evalautor
+            // and get real instance of ASTReduction
+            let reduction : ASTReduction | undefined | null = step.lastReduction
+
+            if (step.lastReduction === undefined) {
+              reduction = null
+            }
+
+            return {
+              ...step,
+              lastReduction : reduction,
+              ast : decodedNth, // TODO: as AST this is unsafe
+            }
+          })
+
+          return untypedLambdaBox
         }
-        })
-        return b
+      
+        default:
+          return box
       }
-      return box
     })
 
     return {

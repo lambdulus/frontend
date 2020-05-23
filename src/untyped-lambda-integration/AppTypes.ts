@@ -1,4 +1,4 @@
-import { MacroMap, AST, ASTReduction, NormalEvaluator, ApplicativeEvaluator, OptimizeEvaluator } from "@lambdulus/core"
+import { MacroMap, AST, ASTReduction, NormalEvaluator, ApplicativeEvaluator, OptimizeEvaluator, ASTReductionType } from "@lambdulus/core"
 
 import { AbstractSettings } from '../Types'
 import { BoxType, AbstractBoxState } from '../Types'
@@ -14,7 +14,7 @@ export enum PromptPlaceholder {
 }
 
 export type Breakpoint = {
-  type : ASTReduction,
+  type : ASTReductionType,
   context : AST,
   broken : Set<AST>,
 }

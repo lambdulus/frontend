@@ -1,5 +1,5 @@
 import React from 'react'
-import { ASTReduction, Beta, Alpha, Expansion, Gama } from '@lambdulus/core' // , Eta
+import { ASTReduction, Beta, Alpha, Expansion, Gama, ASTReductionType } from '@lambdulus/core' // , Eta
 
 
 interface ReductionMessageProperties {
@@ -13,7 +13,7 @@ export default function ReductionMessage (props : ReductionMessageProperties) : 
     return null as any
   }
 
-  if (lastReduction instanceof Beta) {
+  if (lastReduction.type === ASTReductionType.BETA) {
     return (
       <p className='lastReduction'>
         β reduction
@@ -21,7 +21,7 @@ export default function ReductionMessage (props : ReductionMessageProperties) : 
     )
   }
 
-  if (lastReduction instanceof Alpha) {
+  if (lastReduction.type === ASTReductionType.ALPHA) {
     return (
       <p className='lastReduction'>
         α conversion
@@ -29,7 +29,7 @@ export default function ReductionMessage (props : ReductionMessageProperties) : 
     )
   }
 
-  if (lastReduction instanceof Expansion) {
+  if (lastReduction.type === ASTReductionType.EXPANSION) {
     return (
       <p className='lastReduction'>
         Macro expansion
@@ -37,7 +37,7 @@ export default function ReductionMessage (props : ReductionMessageProperties) : 
     )
   }
 
-  // if (lastReduction instanceof Eta) {
+  // if (lastReduction.type === ASTReductionType.ETA) {
   //   return (
   //     <p className='lastReduction'>
   //       η conversion
@@ -45,7 +45,7 @@ export default function ReductionMessage (props : ReductionMessageProperties) : 
   //   )
   // }
 
-  if (lastReduction instanceof Gama) {
+  if (lastReduction.type === ASTReductionType.GAMA) {
     return (
       <p className='lastReduction'>
         Simplified Application
