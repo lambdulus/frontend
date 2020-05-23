@@ -221,7 +221,7 @@ export default class ExpressionBox extends PureComponent<EvaluationProperties> {
         expression : content,
         history : [ {
           ast : ast.clone(),
-          lastReduction : None,
+          lastReduction : new None,
           step : 0,
           message : '',
           isNormalForm : false
@@ -518,13 +518,13 @@ export default class ExpressionBox extends PureComponent<EvaluationProperties> {
 
   // TODO: breakpointy se pak jeste musi predelat
   shouldBreak (breakpoint : Breakpoint, reduction : ASTReduction) : boolean {
-    // if (reduction instanceof (breakpoint.type as any)
+    // if (reduction.type === breakpoint.type
     //     && reduction instanceof Beta && breakpoint.context instanceof Lambda
     //     && reduction.target.identifier === breakpoint.context.body.identifier
     //   ) {
     //     return true
     // }
-    if (reduction instanceof (breakpoint.type as any)
+    if (reduction.type === breakpoint.type
         && reduction instanceof Beta && breakpoint.context instanceof Variable
         && reduction.redex.left instanceof Lambda
         && reduction.redex.left.argument.identifier === breakpoint.context.identifier
@@ -533,14 +533,14 @@ export default class ExpressionBox extends PureComponent<EvaluationProperties> {
       return true
     }
 
-    if (reduction instanceof (breakpoint.type as any)
+    if (reduction.type === breakpoint.type
         && reduction instanceof Expansion && breakpoint.context instanceof ChurchNumeral
         && reduction.target.identifier === breakpoint.context.identifier
         && ! breakpoint.broken.has(reduction.target)
     ) {
       return true
     }
-    if (reduction instanceof (breakpoint.type as any)
+    if (reduction.type === breakpoint.type
         && reduction instanceof Expansion && breakpoint.context instanceof Macro
         && reduction.target.identifier === breakpoint.context.identifier
         && ! breakpoint.broken.has(reduction.target)
