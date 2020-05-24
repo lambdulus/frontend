@@ -21,7 +21,6 @@ function noBoxAllowed (whitelist : BoxesWhitelist) : boolean {
 }
 
 function isAllowed (type : BoxType, whitelist : BoxesWhitelist) : boolean {
-  console.log(whitelist)
   return anyBoxAllowed(whitelist) || (whitelist as Array<BoxType>).includes(type)
 }
 

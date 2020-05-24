@@ -8,6 +8,7 @@ const ReactMarkdown = require('react-markdown')
 export interface NoteProperties {
   state : NoteState
   isActive : boolean
+  isFocused : boolean
 
   setBoxState (state : NoteState) : void
 }
@@ -20,6 +21,7 @@ export default function Note (props : NoteProperties) : JSX.Element {
       isEditing,
     },
     isActive,
+    isFocused,
     setBoxState,
   } = props
   
@@ -37,7 +39,7 @@ export default function Note (props : NoteProperties) : JSX.Element {
     // this.updateURL(expression) // tohle musim nejak vyresit - mozna ta metoda setBoxState v APP bude checkovat propisovat do URL
   }
 
-    if (isActive) {
+    if (isFocused) {
     return (
       <div className='box boxNoteEditor'>
         <Editor

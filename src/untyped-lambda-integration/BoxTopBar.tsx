@@ -1,4 +1,4 @@
-import React, { Component } from 'react'
+import React, { Component, MouseEvent } from 'react'
 
 import Controls from './ExerciseSwitch'
 import { UntypedLambdaState, PromptPlaceholder } from './AppTypes'
@@ -8,7 +8,7 @@ import { BoxState } from '../Types'
 interface Props {
   state : UntypedLambdaState
   isActive : boolean
-  removeBox : () => void
+  removeBox : (e : MouseEvent) => void
   updateBoxState : (box : BoxState) => void
 }
 

@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { MouseEvent } from 'react'
 import { BoxType, BoxState } from '../Types'
 import UntypedLambdaBTB from '../untyped-lambda-integration/BoxTopBar'
 import { UntypedLambdaState } from '../untyped-lambda-integration/AppTypes'
@@ -10,7 +10,8 @@ import { NoteState } from '../markdown-integration/AppTypes'
 interface Props {
   state : BoxState
   isActive : boolean
-  removeBox : () => void
+  isFocused : boolean
+  removeBox : (e : MouseEvent) => void
   updateBoxState : (box : BoxState) => void
 }
 
