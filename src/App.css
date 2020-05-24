@@ -70,11 +70,6 @@
   background-color: rgb(243, 243, 243);
 }
 
-.addBoxArea:hover {
-  top: 0;
-  position: sticky;
-}
-
 .addBoxArea .plusBtn {
   color: rgb(143, 143, 143);
   cursor: pointer;
