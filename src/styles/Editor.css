@@ -1,4 +1,4 @@
-.prompt {
+/* .prompt {
   width: 100%;
   font-size: 3em;
   border: none;
@@ -6,9 +6,9 @@
   outline: none;
   resize: none;
   border-style: none;
-}
+} */
 
-.editorContainer {
+/* .editorContainer {
   position: fixed;
   bottom: 1px;
   width: 93vw;
@@ -18,24 +18,24 @@
 
   border-left: 5px solid cornflowerblue;
   border-radius: .25rem;
-}
+} */
 
-.box .editorContainer {
+/* .box .editorContainer { */
   /* background-color: gray; */
-  position: relative;
+  /* position: relative; */
 
   /* bottom: 1px; */
-  width: 99%;
-  left: 0;
-  border: 1px solid gray;
-  border-radius: 5px;
+  /* width: 99%; */
+  /* left: 0; */
+  /* border: 1px solid gray; */
+  /* border-radius: 5px; */
 
   /* border-top: 5px solid cornflowerblue; */
-  border-radius: .25rem;
+  /* border-radius: .25rem; */
   /* margin-top: 35px; */
-}
+/* } */
 
-.box .prompt {
+/* .box .prompt {
   background-color: rgb(243, 243, 243);
   font-size: 1em;
   border: none;
@@ -43,21 +43,22 @@
   outline: none;
   resize: none;
   border-style: none;
-}
+} */
 
 .box .editorError {
-  font-size: 0.5em;
+  font-size: 0.9em;
   margin: 5px;
+  color: rgb(194, 65, 65);
 }
 
-.editor {
+/* .editor {
   position: relative;
   bottom: 0;
   width: 100%;
   display: flex;
   align-items: flex-end;
   justify-content: space-between;
-}
+} */
 
 #editorSplitDropBtn {
   vertical-align: baseline;

@@ -1,4 +1,5 @@
 import React, { ChangeEvent, KeyboardEvent } from 'react'
+import MonacoEditor from 'react-monaco-editor'
 
 import '../styles/Editor.css'
 
@@ -40,9 +41,9 @@ export default function Editor (props : EditorProperties) : JSX.Element {
   } : EditorProperties = props
   const lines : number = content.split('\n').length
 
-  const onChange = (event : ChangeEvent<HTMLTextAreaElement>) => {
-    let { target : { value : content } } : { target : { value : string } } = event
-    const caretPosition : number = event.target.selectionEnd
+  const onChange = (content : string) => {
+    // let { target : { value : content } } : { target : { value : string } } = event
+    // const caretPosition : number = event.target.selectionEnd
 
     content = content.replace(/\\/g, 'λ')
 
@@ -50,10 +51,11 @@ export default function Editor (props : EditorProperties) : JSX.Element {
   }
 
   // TODO: Editor should not decide that - it should only implement onEnter onShiftEnter onCtrlEnter
-  const onKeyDown = (event : KeyboardEvent<HTMLTextAreaElement>) => {
+  const onKeyDown = (event : KeyboardEvent<HTMLDivElement>) => {
     if ( ! event.shiftKey && ! event.ctrlKey && event.key === 'Enter') {
       
       if (submitOnEnter) {
+        event.stopPropagation()
         event.preventDefault()
         onEnter()
       }
@@ -94,7 +96,8 @@ export default function Editor (props : EditorProperties) : JSX.Element {
           content={ content }
           lines={ lines }
           caretPosition={ caretPosition }
-          onChange={ onChange }
+          // onChange={ onChange }
+          onContent={ (content : string) => onChange(content) }
           onKeyDown={ onKeyDown }
         />
       </div>
@@ -107,33 +110,28 @@ interface InputProps {
   content : string
   lines : number
   caretPosition : number
-  onChange (event : ChangeEvent<HTMLTextAreaElement>) : void
-  onKeyDown (event : KeyboardEvent<HTMLTextAreaElement>) : void
+  // onChange (event : ChangeEvent<HTMLTextAreaElement>) : void
+  onContent (content : string) : void
+  onKeyDown (event : KeyboardEvent<HTMLDivElement>) : void
 }
 
 function InputField (props : InputProps) : JSX.Element {
-  const { placeholder, content, lines, onChange, onKeyDown, caretPosition } : InputProps = props
+  const { placeholder, content, lines, onKeyDown, caretPosition, onContent } : InputProps = props
 
   return (
-    <textarea
-      className='prompt'
-      onKeyDown={ onKeyDown }
-      onChange={ onChange }
-      value={ content }
-      placeholder={ placeholder }
-      wrap='hard'
-      autoComplete="off"
-      autoCorrect="off"
-      autoCapitalize="off"
-      spellCheck={ false }
-      rows={ Math.max(lines, 1) } 
-      ref={ (element : HTMLTextAreaElement) => {
-        if (element !== null) {
-          element.selectionStart = caretPosition
-          element.selectionEnd = caretPosition
-          element.focus()
-        }
-      } }
-    />
+    <div
+      onKeyDownCapture={ onKeyDown }
+    >
+      <MonacoEditor
+        // width="800"
+        height={10 * 19} // 10 lines by default
+        language="markdown"
+        theme="vs-light"
+        value={ content }
+        options={ { formatOnPaste : true, minimap : { enabled : false} } }
+        onChange={ (content : string) => onContent(content) }
+        // editorDidMount={ ::this.editorDidMount }
+      />
+    </div>
   )
 }
