@@ -51,6 +51,7 @@ export function strategyToEvaluator (strategy : EvaluationStrategy) : Evaluator 
 export interface EvaluationProperties {
   state : UntypedLambdaState
   isActive : boolean
+  isFocused : boolean
   // macroTable : MacroMap
 
   setBoxState (state : UntypedLambdaState) : void
@@ -306,7 +307,7 @@ export default class ExpressionBox extends PureComponent<EvaluationProperties> {
       else {
         // TODO: say user it was incorrect
         // TODO: na to se pouzije uvnitr EvaluatorState prop messages nebo tak neco
-        console.log('Incorrect step')
+        // console.log('Incorrect step')
         message = `Incorrect step. ${content}`
 
         reportEvent('Exercise Step', 'Invalid Step', content)

@@ -32,6 +32,7 @@ export const EmptyAppState : AppState = {
   notebookList : [{
     boxList : [],
     activeBoxIndex : NaN,
+    focusedBoxIndex : undefined,
     allowedBoxes : ANY_BOX,
     __key : Date.now().toString(),
     settings : getDefaultSettings(DEFAULT_WHITELIST)

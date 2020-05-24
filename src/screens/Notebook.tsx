@@ -30,10 +30,43 @@ export default class Notebook extends PureComponent<Props> {
 
   render () {
     const { state, settings } = this.props
-    const { activeBoxIndex, boxList, allowedBoxes } = state
+    const { activeBoxIndex, focusedBoxIndex, boxList, allowedBoxes } = state
 
     return (
       <div className="mainSpace">
+        <div className='importExportSpace'>
+          <div className='portContainer'>
+            {/* TODO: SOLVE WHERE TO MOVE IMPORT/EXPORT */}
+            <div
+              className='exportButton'
+              title='Download this notebook'>
+              <a
+                className='export'
+                // href={ link }
+                download="notebook_lambdulus.json"
+                // onClick={ () => setTimeout(() => {
+                //   window.URL.revokeObjectURL(link)
+                //   reportEvent('Export notebook', `Notebook: ${serialized}`, '')
+                // }, 10) }
+              >
+                <i id='download' className="icon dark fas fa-cloud-download-alt" />
+              </a>
+              <p className='iconLabel'>Export</p>
+            </div>
+            
+            <div
+              className='importButton'
+              title='Open exported notebook'>
+              <input type="file" accept="application/json" id="input"
+              // onChange={ (e) => onFiles(e, onImport) }
+              />
+              <label htmlFor="input"><i className="icon dark fas fa-cloud-upload-alt"></i></label>
+              <p className='iconLabel'>Import</p>
+            </div>
+          </div>
+        </div>
+
+
         {/* TODO: This will be refactore out to standalone component. */}
         <ul className="boxList UL">
           { boxList.map(
@@ -44,11 +77,12 @@ export default class Notebook extends PureComponent<Props> {
                 addNew={ (box : BoxState) => this.insertBefore(i, box) }
                 whiteList={ allowedBoxes }
                 settings={ settings }
-                />
+              />
               
               <BoxContainer
                 box={ box}
                 isActiveBox={ activeBoxIndex === i}
+                isFocusedBox={ focusedBoxIndex === i }
                 insertBefore={ (box : BoxState) => this.insertBefore(i, box) }
                 makeActive={ () => this.makeActive(i) }
                 removeBox={ () => this.removeBox(i) }
@@ -70,17 +104,14 @@ export default class Notebook extends PureComponent<Props> {
   }
 
   insertBefore (index : number, box : BoxState) : void {
+    console.log("              INSERT BEFORE " + index)
     const { boxList } = this.props.state
 
-    console.log("adding - so now current index is? ", index)
-    
     boxList.splice(index, 0, box)
-    this.props.updateNotebook({ ...this.props.state, boxList : boxList, activeBoxIndex : index })
+    this.props.updateNotebook({ ...this.props.state, boxList : boxList, activeBoxIndex : index, focusedBoxIndex : index })
   }
 
   removeBox (index : number) : void {
-    // this allows to remove last Box and not correctly changing activeBoxIndex
-    // TODO: fix the bug
     const { boxList, activeBoxIndex } = this.props.state
     
     const nearestValidIndex = (i : number) => {
@@ -110,7 +141,8 @@ export default class Notebook extends PureComponent<Props> {
   }
 
   makeActive (index : number) : void {
-    const { activeBoxIndex, boxList } = this.props.state
+    console.log("               MAKE ACTIVE " + index)
+    const { activeBoxIndex, focusedBoxIndex, boxList } = this.props.state
 
     const currentType : BoxType = boxList[activeBoxIndex].type
 
@@ -119,19 +151,22 @@ export default class Notebook extends PureComponent<Props> {
         // boxList[activeBoxIndex] = onUntypedLambdaBlur(boxList[activeBoxIndex])
         break
       
-      case BoxType.MARKDOWN:
+      case BoxType.MARKDOWN: {
         boxList[activeBoxIndex] = onMarkDownBlur(boxList[activeBoxIndex] as NoteState)
         break
+      }
 
       default:
         break
     }
 
-    if (index !== activeBoxIndex)
-      this.props.updateNotebook({ ...this.props.state, activeBoxIndex : index, boxList })
+    if (index !== activeBoxIndex || index !== focusedBoxIndex) {
+      this.props.updateNotebook({ ...this.props.state, activeBoxIndex : index, focusedBoxIndex : index, boxList })
+    }
   }
 
   onBlur (index : number) : void {
+    console.log("                  BLUR " + index)
     const { boxList, activeBoxIndex } = this.props.state
 
     if (activeBoxIndex !== index) {
@@ -145,15 +180,15 @@ export default class Notebook extends PureComponent<Props> {
         // boxList[activeBoxIndex] = onUntypedLambdaBlur(boxList[activeBoxIndex])
         break
       
-      case BoxType.MARKDOWN:
-        console.log('bluring ', index)
+      case BoxType.MARKDOWN: {
         boxList[index] = onMarkDownBlur(boxList[index] as NoteState)
         break
+      }
 
       default:
         break
     }
 
-    this.props.updateNotebook({ ...this.props.state, boxList })
+    this.props.updateNotebook({ ...this.props.state, boxList, focusedBoxIndex : undefined })
   }
 }

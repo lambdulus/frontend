@@ -51,9 +51,10 @@ export interface GlobalSettings {
 }
 
 export interface NotebookState {
-  boxList : Array<BoxState>,
-  activeBoxIndex : number,
-  allowedBoxes : BoxesWhitelist,
+  boxList : Array<BoxState>
+  activeBoxIndex : number
+  focusedBoxIndex : number | undefined
+  allowedBoxes : BoxesWhitelist
 
   settings : GlobalSettings // TODO: refactor to use the Dictionary
 

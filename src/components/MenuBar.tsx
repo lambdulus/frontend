@@ -22,7 +22,6 @@ export default function MenuBar (props : MenuBarProperties) : JSX.Element {
   const { state, onImport, onScreenChange, onNotebookChange, onDeleteNotebook } : MenuBarProperties = props
   const { notebookList, currentNotebook } = state
 
-  console.log('current notebook ', currentNotebook)
   const { currentScreen } = state
 
   // const dehydrated : object = dehydrate(state)
@@ -102,32 +101,6 @@ export default function MenuBar (props : MenuBarProperties) : JSX.Element {
         }
         <p className='iconLabel'>Macros</p>
       </div>         */}
-
-      {/* TODO: SOLVE WHERE TO MOVE IMPORT/EXPORT */}
-      {/* <div
-        className='tab'
-        title='Download this notebook'>
-        <a
-          className='export'
-          href={ link }
-          download="notebook_lambdulus.json"
-          // onClick={ () => setTimeout(() => {
-          //   window.URL.revokeObjectURL(link)
-          //   reportEvent('Export notebook', `Notebook: ${serialized}`, '')
-          // }, 10) }
-        >
-          <i id='download' className="icon fas fa-cloud-download-alt" />
-        </a>
-        <p className='iconLabel'>Export</p>
-      </div>
-      
-      <div
-        className='tab'
-        title='Open exported notebook'>
-        <input type="file" accept="application/json" id="input" onChange={ (e) => onFiles(e, onImport) } />
-        <label htmlFor="input"><i className="icon fas fa-cloud-upload-alt"></i></label>
-        <p className='iconLabel'>Import</p>
-      </div> */}
 
       {/* TODO: SOLVE WHERE TO MOVE FEEDBACK/BUGS/ISSUES */}
       {/* <div
@@ -212,6 +185,7 @@ function createNewNotebook () : NotebookState {
   return {
     boxList : [],
     activeBoxIndex : NaN,
+    focusedBoxIndex : undefined,
     allowedBoxes : ANY_BOX,
     __key : Date.now().toString(),
     settings : loadSettingsFromStorage()

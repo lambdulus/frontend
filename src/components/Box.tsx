@@ -19,13 +19,14 @@ import Note from '../markdown-integration/Note'
 interface BoxProperties {
   state : BoxState
   isActive : boolean
+  isFocused : boolean
 
   updateBoxState (box : BoxState) : void
   addBox (box : BoxState) : void
 }
 
 export default function Box (props : BoxProperties) : JSX.Element {
-  const { state, isActive, updateBoxState, addBox } : BoxProperties = props
+  const { state, isActive, isFocused, updateBoxState, addBox } : BoxProperties = props
   const { type } = state
 
   // const macroTable = useContext(MacroTableContext)
@@ -37,6 +38,7 @@ export default function Box (props : BoxProperties) : JSX.Element {
       <EvaluatorIntegration
         state={ state as UntypedLambdaState }
         isActive={ isActive }
+        isFocused={ isFocused }
         // macroTable={ macroTable }
         
         setBoxState={ updateBoxState }
@@ -49,6 +51,7 @@ export default function Box (props : BoxProperties) : JSX.Element {
       <Note
         state={ state as NoteState }
         isActive={ isActive }
+        isFocused={ isFocused }
 
         setBoxState={ updateBoxState }
       />

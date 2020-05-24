@@ -16,9 +16,9 @@
 .boxContainer {
   position: relative;
   padding-left: 10px;
-  padding-top: 10px;
-  padding-bottom: 5px;
-  font-size: 1.5em;
+  padding-top: 5px; /* NOTE: just trying more minimal design - less white space around boxes */
+  /* padding-bottom: 5px; */ /* NOTE: just trying more minimal design - less white space around boxes */
+  font-size: 1.3em; /* NOTE: It may be better with smaller font-size */
 
   /* -webkit-box-shadow: 6px 7px 16px -7px rgba(64,64,64,0.87);
   -moz-box-shadow: 6px 7px 16px -7px rgba(64,64,64,0.87);
@@ -45,7 +45,9 @@
 }
 
 .mainSpace, .helpSpace, .settingsSpace {
-  margin-left: 6em;
+  width: 75%;
+  margin: auto;
+  /* margin-left: 6em; */
   padding-top: 10px;
 }
 
@@ -66,6 +68,11 @@
   text-align: center;
   width: 5%;
   background-color: rgb(243, 243, 243);
+}
+
+.addBoxArea:hover {
+  top: 0;
+  position: sticky;
 }
 
 .addBoxArea .plusBtn {
@@ -97,7 +104,7 @@
 .removeBox {
   position: absolute;
   right: 25px;
-  top: 10px;
+  /* top: 10px; */
   color: grey;
   cursor: pointer;
 }
@@ -149,3 +156,51 @@
   border-radius: 0.25em;
   cursor: pointer;
 }
+
+.importExportSpace {
+  position: fixed;
+  /* left: 5em; */
+  right: 20px;
+  width: 10em;
+  top: 25px;
+  
+}
+
+.portContainer {
+  width: 100%;
+}
+
+.exportButton {
+  float: left;
+  width: 40%;
+  background-color: #b4daff;
+  border-radius: 5px;
+  margin-right: 10px;
+  padding-bottom: 10px;
+}
+
+.exportButton:hover {
+  background-color: #8bc5ff;
+  cursor: pointer;
+}
+
+.importButton {
+  width: 40%;
+  float: left;
+  background-color: #b4daff;
+  border-radius: 5px;
+  padding-bottom: 10px;
+}
+
+.importButton:hover {
+  background-color: #8bc5ff;
+  cursor: pointer;
+}
+
+.icon.dark {
+  color: #5391cf;
+}
+
+/* .exportButton:hover .icon, .importButton:hover .icon {
+  color: #125da8;
+} */

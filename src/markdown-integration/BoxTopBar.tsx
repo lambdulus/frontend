@@ -1,4 +1,4 @@
-import React, { Component, ChangeEvent } from 'react'
+import React, { Component, ChangeEvent, MouseEvent } from 'react'
 
 import { NoteState, PromptPlaceholder } from './AppTypes'
 
@@ -12,7 +12,7 @@ const { Switch } = require('pretty-checkbox-react')
 interface Props {
   state : NoteState
   isActive : boolean
-  removeBox : () => void
+  removeBox : (e : MouseEvent) => void
   updateBoxState : (box : BoxState) => void
 }
 

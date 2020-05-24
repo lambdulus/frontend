@@ -81,9 +81,9 @@ export function reportEvent (category : string, action : string, label : string)
   }
   catch (exception) {
     // instead of printing to the console - show notification on the web
-    console.log("")
-    console.log('PLEASE DISABLE YOUR ADBLOCKER OR ALLOW GOOGLE ANALYTICS FOR THIS SITE')
-    console.log("")
-    console.error(exception)
+    // console.log("")
+    // console.log('PLEASE DISABLE YOUR ADBLOCKER OR ALLOW GOOGLE ANALYTICS FOR THIS SITE')
+    // console.log("")
+    // console.error(exception)
   }
 }
