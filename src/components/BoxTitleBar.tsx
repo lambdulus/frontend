@@ -6,6 +6,7 @@ import { UntypedLambdaState } from '../untyped-lambda-integration/AppTypes'
 import MarkdownBTB from '../markdown-integration/BoxTopBar'
 import { NoteState } from '../markdown-integration/AppTypes'
 
+import EmptyBTB from '../empty-integration/BoxTopBar'
 
 interface Props {
   state : BoxState
@@ -43,9 +44,7 @@ export default function BoxTitleBar (props : Props) : JSX.Element {
   }
   else {
     return (
-      <div>
-        Uknown BOX
-      </div>
+      <EmptyBTB />
     )
   }
 
