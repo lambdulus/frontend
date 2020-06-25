@@ -1,6 +1,6 @@
 {
   "name": "new-frontend",
-  "homepage": "https://lambdulus.github.io/new-frontend",
+  "homepage": "https://lambdulus.github.io/new-frontend/2020-06-25",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
@@ -24,7 +24,8 @@
   },
   "scripts": {
     "start": "react-scripts start",
-    "build": "rm -rf docs ; react-scripts build ; mv build docs",
+    "build" : "react-scripts build ; mv build \"./docs/$BUILD_NUMBER/\"",
+    "deploy": "rm -rf docs ; react-scripts build ; mv build docs ; git commit -m 'deploy build' ; git push",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },
