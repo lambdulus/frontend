@@ -64,7 +64,7 @@ export default function MenuBar (props : MenuBarProperties) : JSX.Element {
         <i
           className="icon far fa-file-alt"
         />
-          {/* <p className='iconLabel'>Notebook</p> */}
+        <p className='iconLabel'>Notebook</p>
       </div>
 
       <div
@@ -75,7 +75,7 @@ export default function MenuBar (props : MenuBarProperties) : JSX.Element {
         <i
           className="icon far fa-question-circle"
         />
-        {/* <p className='iconLabel'>Help</p> */}
+        <p className='iconLabel'>Help</p>
       </div>
 
       <div
@@ -86,7 +86,7 @@ export default function MenuBar (props : MenuBarProperties) : JSX.Element {
         <i
           className="icon fas fa-cogs"
         />
-        {/* <p className='iconLabel'>Settings</p> */}
+        <p className='iconLabel'>Settings</p>
       </div>
 
       {/* <div title='List all defined macros' >
