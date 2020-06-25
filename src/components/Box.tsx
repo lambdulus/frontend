@@ -14,6 +14,8 @@ import EvaluatorIntegration from '../untyped-lambda-integration/ExpressionBox'
 import { NoteState } from '../markdown-integration/AppTypes'
 import Note from '../markdown-integration/Note'
 
+import Empty from '../empty-integration'
+
 // import { BoxState } from '../AppTypes'
 
 interface BoxProperties {
@@ -59,9 +61,7 @@ export default function Box (props : BoxProperties) : JSX.Element {
   }
   else {
     return (
-      <div>
-        Uknown BOX
-      </div>
+      <Empty />
     )
   }
 
