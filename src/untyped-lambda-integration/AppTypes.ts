@@ -81,6 +81,7 @@ export function createNewUntypedLambda (defaultSettings : UntypedLambdaSettings)
     ...defaultSettings,
     __key : Date.now().toString(),
     title : "",
+    minimized : false,
     type : BoxType.UNTYPED_LAMBDA,
     expression : "",
     ast : null,

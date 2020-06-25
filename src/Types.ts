@@ -26,6 +26,7 @@ export interface AbstractBoxState {
   type : BoxType,
   __key : string, 
   title : String,
+  minimized : Boolean
 }
 
 export interface AbstractSettings {

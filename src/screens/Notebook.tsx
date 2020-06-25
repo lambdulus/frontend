@@ -160,7 +160,9 @@ export default class Notebook extends PureComponent<Props> {
         break
     }
 
-    if (index !== activeBoxIndex || index !== focusedBoxIndex) {
+    if (index !== activeBoxIndex || index !== focusedBoxIndex || boxList[index].minimized === true) {
+      boxList[index].minimized = false;
+
       this.props.updateNotebook({ ...this.props.state, activeBoxIndex : index, focusedBoxIndex : index, boxList })
     }
   }

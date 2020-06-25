@@ -58,7 +58,7 @@ export default function EmptyExpression(props : EmptyExpressionProps) : JSX.Elem
           (
             <div>
               <p className='inactiveMessage'>
-                Collapsing { Math.max(0, props.history.length - 1) } { props.history.length === 2 ? 'step' : 'steps' }. Double click to activate this box.
+                Collapsing { Math.max(0, props.history.length - 1) } { props.history.length === 2 ? 'step' : 'steps' }. Click to activate this box.
               </p>
               </div>
           )

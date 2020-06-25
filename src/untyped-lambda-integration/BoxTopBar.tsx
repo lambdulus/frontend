@@ -56,6 +56,27 @@ export default function BoxTopBar (props : Props) : JSX.Element {
         onClick={ removeBox }
         title='Remove this Box'
       />
+
+      {
+        state.minimized ?
+          <i
+            className="imizeBox fas fa-sort-up"
+            onClick={ (e : MouseEvent) => {
+              e.stopPropagation()
+              updateBoxState({ ...state, minimized : false })
+            } }
+            title='Expand this Box'
+          />
+          :
+          <i
+            className="imizeBox fas fa-sort-down"
+            onClick={ (e : MouseEvent) => {
+              e.stopPropagation()
+              updateBoxState({ ...state, minimized : true })
+            } }
+            title='Collapse this Box'
+          />
+      }
     </div>
   )
 }

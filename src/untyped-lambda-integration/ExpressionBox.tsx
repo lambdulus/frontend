@@ -78,6 +78,7 @@ export default class ExpressionBox extends PureComponent<EvaluationProperties> {
   render () : JSX.Element {
     const { state, isActive, addBox } : EvaluationProperties = this.props
     const {
+      minimized,
       history,
       breakpoints,
       isExercise,
@@ -110,7 +111,7 @@ export default class ExpressionBox extends PureComponent<EvaluationProperties> {
 
     // TODO: Maybe I will take this out
     // Frontend may take care of that
-    if ( ! isActive) {
+    if (minimized) {
       return (
         <InactiveEvaluator
           className={ className }
@@ -155,7 +156,8 @@ export default class ExpressionBox extends PureComponent<EvaluationProperties> {
     return {
       type : BoxType.UNTYPED_LAMBDA,
       __key : Date.now().toString(),
-      title : "",
+      title : state.title,
+      minimized : false,
       expression : "",
       ast : null,
       history : [],
