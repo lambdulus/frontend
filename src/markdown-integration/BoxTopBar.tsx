@@ -26,18 +26,18 @@ export default function BoxTopBar (props : Props) : JSX.Element {
       {/* <div className='topBarTitle' contentEditable={ true } onBlur={ (e) => updateBoxState({ ...state, title : e.target.textContent || "" }) }>
         { title === "" ? "Click Here to Change the Title" : title }
       </div> */}
-      {/* <div className='controls' title='Edit as Markdown'>
+      <div className='controls' title='Edit as Markdown'>
         <Switch
             className='control'
-            checked={ isEditing }
+            checked={ ! isEditing }
             onChange={ (e : ChangeEvent<HTMLInputElement>) =>
-              updateBoxState({ ...state, isEditing : e.target.checked })
+              updateBoxState({ ...state, isEditing : ! e.target.checked })
             }
             shape="fill"
           >
-            Editing
+            Preview
           </Switch>
-      </div> */}
+      </div>
 
       <i
         className='removeBox far fa-trash-alt'

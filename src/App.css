@@ -94,23 +94,35 @@
   border: 1px dashed gray;
 }
 
-
-
-.removeBox {
+.imizeBox {
   position: absolute;
-  right: 25px;
-  /* top: 10px; */
+  right: 15px;
+  /* top: 2px; */
   color: grey;
   cursor: pointer;
 }
 
-.inactiveBoxContainer .removeBox {
-  display: none;
+.imizeBox:hover {
+  color: black;
 }
 
-.boxContainer:hover .removeBox {
-  display: block;
+/*  nejradsi bych tyhle 3 dal do toho Box menu - |...| menu  */
+
+.removeBox {
+  position: absolute;
+  right: 65px;
+  top: 5px;
+  cursor: pointer;
+}
+
+.inactive .removeBox {
+  /* display: none; */
+  color: grey;
+}
+
+.removeBox:hover {
   color: black;
+  /* background-color: rgb(143, 143, 143); */
 }
 
 /*  */

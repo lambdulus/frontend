@@ -35,7 +35,7 @@ export default function InactiveExpression (props : InactiveExpressionProps) : J
             {/* <AddBoxContext.Consumer>
               {
                 (addBox : (boxState : BoxState) => void) => <i
-                  className="hiddenIcon fas fa-pencil-alt"
+                  className="hiddenIcon far fa-clone"
                   onClick={ () => addBox(props.createBoxFrom(props.history[0])) }
                 />
               }
@@ -45,7 +45,7 @@ export default function InactiveExpression (props : InactiveExpressionProps) : J
         </li>
       </ul>
       <p className='inactiveMessage'>
-        Collapsing { props.history.length - 1 } { props.history.length === 2 ? 'step' : 'steps' }. Double click to activate this box.
+        Collapsing { props.history.length - 1 } { props.history.length === 2 ? 'step' : 'steps' }. Click to activate this box.
       </p>
     </div>
   )
