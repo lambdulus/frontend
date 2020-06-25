@@ -24,7 +24,7 @@
   },
   "scripts": {
     "start": "react-scripts start",
-    "build" : "react-scripts build ; mv build \"./docs/$BUILD_NUMBER/\"",
+    "build" : "react-scripts build ; mv build/* \"./docs/$BUILD_NUMBER/\"",
     "deploy": "rm -rf docs ; react-scripts build ; mv build docs ; git commit -m 'deploy build' ; git push",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
