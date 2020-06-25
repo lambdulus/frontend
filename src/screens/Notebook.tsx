@@ -34,39 +34,6 @@ export default class Notebook extends PureComponent<Props> {
 
     return (
       <div className="mainSpace">
-        <div className='importExportSpace'>
-          <div className='portContainer'>
-            {/* TODO: SOLVE WHERE TO MOVE IMPORT/EXPORT */}
-            <div
-              className='exportButton'
-              title='Download this notebook'>
-              <a
-                className='export'
-                // href={ link }
-                download="notebook_lambdulus.json"
-                // onClick={ () => setTimeout(() => {
-                //   window.URL.revokeObjectURL(link)
-                //   reportEvent('Export notebook', `Notebook: ${serialized}`, '')
-                // }, 10) }
-              >
-                <i id='download' className="icon dark fas fa-cloud-download-alt" />
-              </a>
-              <p className='iconLabel'>Export</p>
-            </div>
-            
-            <div
-              className='importButton'
-              title='Open exported notebook'>
-              <input type="file" accept="application/json" id="input"
-              // onChange={ (e) => onFiles(e, onImport) }
-              />
-              <label htmlFor="input"><i className="icon dark fas fa-cloud-upload-alt"></i></label>
-              <p className='iconLabel'>Import</p>
-            </div>
-          </div>
-        </div>
-
-
         {/* TODO: This will be refactore out to standalone component. */}
         <ul className="boxList UL">
           { boxList.map(
