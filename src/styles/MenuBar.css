@@ -14,9 +14,14 @@
 }
 
 .tab {
-  padding-bottom: 10px;
+  padding-bottom: 13px;
   border-radius: 5px;
   margin-bottom: 2em;
+}
+
+.tab:hover {
+  background-color: #1561ad;
+  cursor: pointer;
 }
 
 .tab:first-of-type {
