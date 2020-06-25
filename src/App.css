@@ -164,50 +164,11 @@
   cursor: pointer;
 }
 
-.importExportSpace {
-  position: fixed;
-  /* left: 5em; */
-  right: 20px;
-  width: 10em;
-  top: 25px;
-  
+.separator {
+  width: 85%;
+  margin: auto;
+  border-bottom: 3px solid white;
+  border-radius: 0.5em;
+  margin-top: 4em;
+  margin-bottom: 3em;
 }
-
-.portContainer {
-  width: 100%;
-}
-
-.exportButton {
-  float: left;
-  width: 40%;
-  background-color: #b4daff;
-  border-radius: 5px;
-  margin-right: 10px;
-  padding-bottom: 10px;
-}
-
-.exportButton:hover {
-  background-color: #8bc5ff;
-  cursor: pointer;
-}
-
-.importButton {
-  width: 40%;
-  float: left;
-  background-color: #b4daff;
-  border-radius: 5px;
-  padding-bottom: 10px;
-}
-
-.importButton:hover {
-  background-color: #8bc5ff;
-  cursor: pointer;
-}
-
-.icon.dark {
-  color: #5391cf;
-}
-
-/* .exportButton:hover .icon, .importButton:hover .icon {
-  color: #125da8;
-} */

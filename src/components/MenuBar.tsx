@@ -111,6 +111,41 @@ export default function MenuBar (props : MenuBarProperties) : JSX.Element {
         </a>
         <p className='iconLabel'>Feedback</p>
       </div>  */}
+
+      <div className='separator'>
+
+      </div>
+
+      {/* Export Notebook */}
+      <div
+        className='tab'
+        title='Download this Notebook'
+      >
+        <a
+          className='export'
+          // href={ link }
+          download="notebook_lambdulus.json"
+          // onClick={ () => setTimeout(() => {
+          //   window.URL.revokeObjectURL(link)
+          //   reportEvent('Export notebook', `Notebook: ${serialized}`, '')
+          // }, 10) }
+        >
+          <i id='download' className="icon fas fa-cloud-download-alt" />
+        </a>
+        <p className='iconLabel'>Export</p>
+      </div>
+
+      {/* Import Notebook */}
+      <div
+        className='tab'
+        title='Import Notebook from Computer'
+      >
+        <input type="file" accept=".lus" id="input"
+        // onChange={ (e) => onFiles(e, onImport) }
+        />
+        <label htmlFor="input"><i className="icon fas fa-cloud-upload-alt"></i></label>
+        <p className='iconLabel'>Import</p>
+      </div>
     </div>
   )
 }
