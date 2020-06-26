@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 
 import './App.css'
 
-import { updateSettingsInStorage, loadAppStateFromStorage, updateAppStateToStorage } from './AppTypes'
+import { updateSettingsInStorage, loadAppStateFromStorage, updateAppStateToStorage, CLEAR_WORKSPACE_CONFIRMATION } from './AppTypes'
 
 import MenuBar from './components/MenuBar'
 import Notebook from './screens/Notebook'
@@ -34,6 +34,7 @@ export default class App extends Component<Props, AppState> {
     this.removeNotebook = this.removeNotebook.bind(this)
     this.updateSettings = this.updateSettings.bind(this)
     this.importWorkspace = this.importWorkspace.bind(this)
+    this.clearWorkspace = this.clearWorkspace.bind(this)
 
     // TODO: implement Class Keyboard Controller -> handling all keyboard events and firing events -> invoking handlers from this class
     // document.addEventListener('keydown', (event : KeyboardEvent) => {
@@ -53,6 +54,7 @@ export default class App extends Component<Props, AppState> {
           state={ this.state }
           onScreenChange={ this.setScreen }
           onImport={ this.importWorkspace }
+          onClearWorkspace={ this.clearWorkspace }
           onNotebookChange={ this.changeNotebook }
           onAddNotebook={
             (notebook : NotebookState) =>
@@ -130,5 +132,13 @@ export default class App extends Component<Props, AppState> {
   importWorkspace (state : AppState) : void {
     this.setState(state)
     updateAppStateToStorage(state)
+  }
+
+  clearWorkspace () : void {
+    if (window.confirm(CLEAR_WORKSPACE_CONFIRMATION)) {
+      localStorage.removeItem('AppState')
+
+      this.setState(loadAppStateFromStorage())
+    }
   }
 }

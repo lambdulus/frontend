@@ -25,7 +25,7 @@
 }
 
 .tab:first-of-type {
-  margin-top: 10vh;
+  margin-top: 2vh;
 }
 
 .currentTab::before {
