@@ -33,6 +33,7 @@ export default class App extends Component<Props, AppState> {
     this.changeNotebook = this.changeNotebook.bind(this)
     this.removeNotebook = this.removeNotebook.bind(this)
     this.updateSettings = this.updateSettings.bind(this)
+    this.importWorkspace = this.importWorkspace.bind(this)
 
     // TODO: implement Class Keyboard Controller -> handling all keyboard events and firing events -> invoking handlers from this class
     // document.addEventListener('keydown', (event : KeyboardEvent) => {
@@ -51,7 +52,7 @@ export default class App extends Component<Props, AppState> {
         <MenuBar
           state={ this.state }
           onScreenChange={ this.setScreen }
-          onImport={ () => void 0 }
+          onImport={ this.importWorkspace }
           onNotebookChange={ this.changeNotebook }
           onAddNotebook={
             (notebook : NotebookState) =>
@@ -124,5 +125,10 @@ export default class App extends Component<Props, AppState> {
 
     this.setState({ notebookList })
     updateSettingsInStorage(newSettings)
+  }
+
+  importWorkspace (state : AppState) : void {
+    this.setState(state)
+    updateAppStateToStorage(state)
   }
 }

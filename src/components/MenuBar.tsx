@@ -1,7 +1,7 @@
 import React, { ChangeEvent } from 'react'
 import { AST, tokenize, parse, Token, MacroMap, None } from '@lambdulus/core'
 
-import { ANY_BOX, loadSettingsFromStorage } from '../AppTypes'
+import { ANY_BOX, loadSettingsFromStorage, decode } from '../AppTypes'
 import { BoxType, Screen, AppState, NotebookState } from '../Types'
 
 
@@ -55,6 +55,20 @@ export default function MenuBar (props : MenuBarProperties) : JSX.Element {
           +
         </div>
       </ul> */}
+
+      <div
+        className='tab'
+        title='Get Info about this Tool'
+        onClick={ () => void 0 }
+      >
+        <i
+          className="icon fas fa-info-circle"
+        />
+        <p className='iconLabel'>Info</p>
+      </div>
+
+      <div className='separator' />
+
 
       <div
         className={ currentScreen === Screen.MAIN ? 'currentTab tab' : 'tab' }
@@ -112,9 +126,7 @@ export default function MenuBar (props : MenuBarProperties) : JSX.Element {
         <p className='iconLabel'>Feedback</p>
       </div>  */}
 
-      <div className='separator'>
-
-      </div>
+      <div className='separator' />
 
       {/* Export Notebook */}
       <div
@@ -123,12 +135,12 @@ export default function MenuBar (props : MenuBarProperties) : JSX.Element {
       >
         <a
           className='export'
-          // href={ link }
-          download="notebook_lambdulus.json"
-          // onClick={ () => setTimeout(() => {
-          //   window.URL.revokeObjectURL(link)
-          //   reportEvent('Export notebook', `Notebook: ${serialized}`, '')
-          // }, 10) }
+          href={ link }
+          download="notebook_lambdulus.lus" // TODO: change the name according to the notebook name
+          onClick={ () => setTimeout(() => {
+            window.URL.revokeObjectURL(link)
+            // reportEvent('Export notebook', `Notebook: ${serialized}`, '') // TODO: report event
+          }, 10) }
         >
           <i id='download' className="icon fas fa-cloud-download-alt" />
         </a>
@@ -141,7 +153,7 @@ export default function MenuBar (props : MenuBarProperties) : JSX.Element {
         title='Import Notebook from Computer'
       >
         <input type="file" accept=".lus" id="input"
-        // onChange={ (e) => onFiles(e, onImport) }
+        onChange={ (e) => onFiles(e, onImport) }
         />
         <label htmlFor="input"><i className="icon fas fa-cloud-upload-alt"></i></label>
         <p className='iconLabel'>Import</p>
@@ -237,6 +249,8 @@ function onFiles (event : ChangeEvent<HTMLInputElement>, onImport : (state : App
   const reader : FileReader = new FileReader
   reader.onload = (event : Event) => {
     const state : AppState = JSON.parse(reader.result as string)
+
+    onImport(decode(state))
 
     // onImport(hydrate(state))
     // reportEvent('Import notebook', `Notebook named ${ file.name }`, '')
