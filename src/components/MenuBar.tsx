@@ -84,13 +84,13 @@ export default function MenuBar (props : MenuBarProperties) : JSX.Element {
 
       <div
         className={ currentScreen === Screen.HELP ? 'currentTab tab' : 'tab' }
-        title='Show help'
+        title='Show the Manual'
         onClick={ () => onScreenChange(Screen.HELP) }
       >
         <i
           className="icon far fa-question-circle"
         />
-        <p className='iconLabel'>Help</p>
+        <p className='iconLabel'>Manual</p>
       </div>
 
       <div
