@@ -60,7 +60,7 @@ export default function BoxTopBar (props : Props) : JSX.Element {
       {
         state.minimized ?
           <i
-            className="imizeBox fas fa-sort-up"
+            className="imizeBox fas fa-sort-down"
             onClick={ (e : MouseEvent) => {
               e.stopPropagation()
               updateBoxState({ ...state, minimized : false })
@@ -69,7 +69,7 @@ export default function BoxTopBar (props : Props) : JSX.Element {
           />
           :
           <i
-            className="imizeBox fas fa-sort-down"
+            className="imizeBox fas fa-sort-up"
             onClick={ (e : MouseEvent) => {
               e.stopPropagation()
               updateBoxState({ ...state, minimized : true })
