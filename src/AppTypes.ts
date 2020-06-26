@@ -125,7 +125,7 @@ export function updateAppStateToStorage (state : AppState) : void {
  * This function THROWS Error in case of invalid argument
  * @param state : Deserialized form of AppState
  */
-function decode (state : AppState) : AppState | never {
+export function decode (state : AppState) : AppState | never {
   const notebookList : Array<NotebookState> = state.notebookList.map((notebook : NotebookState) => {
     const boxList : Array<BoxState> = notebook.boxList.map((box : BoxState, index : number, arr : Array<BoxState>) => {
       switch (box.type) {

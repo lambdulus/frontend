@@ -34,7 +34,7 @@ export function CreateBox (props : Props) : JSX.Element {
       <p
         className='plusBtn'
         title='Create new λ box'
-        onClick={ () => props.addNew(createNewUntypedLambda(untLSettings)) } // TODO: some imported function from the Integration -- like Integration.CreateNewBox()
+        onClick={ () => addNew(createNewUntypedLambda(untLSettings)) } // TODO: some imported function from the Integration -- like Integration.CreateNewBox()
       >
         <i>{ ADD_BOX_LABEL }</i>
       </p>
@@ -47,7 +47,7 @@ export function CreateBox (props : Props) : JSX.Element {
       <p
         className='plusBtn'
         title='Create new Lisp box'
-        onClick={ () => props.addNew({} as BoxState) }
+        onClick={ () => addNew({__key : Date.now().toString()} as BoxState) } // NOTE: just for now
       >
         <i>+ Lisp</i>
       </p>
@@ -60,7 +60,7 @@ export function CreateBox (props : Props) : JSX.Element {
     <p
       className='plusBtn'
       title='Create new MarkDown box'
-      onClick={ () => props.addNew(createNewMarkdown()) }
+      onClick={ () => addNew(createNewMarkdown()) }
     >
       <i>+ MD</i>
     </p>
