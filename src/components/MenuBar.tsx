@@ -11,6 +11,7 @@ import '../styles/MenuBar.css'
 interface MenuBarProperties {
   state : AppState
   onImport (state : AppState) : void
+  onClearWorkspace () : void
   onScreenChange (screen : Screen) : void
   onNotebookChange (index : number) : void
   onAddNotebook (notebook : NotebookState) : void
@@ -19,7 +20,7 @@ interface MenuBarProperties {
 }
 
 export default function MenuBar (props : MenuBarProperties) : JSX.Element {
-  const { state, onImport, onScreenChange, onNotebookChange, onDeleteNotebook } : MenuBarProperties = props
+  const { state, onImport, onClearWorkspace, onScreenChange, onNotebookChange, onDeleteNotebook } : MenuBarProperties = props
   const { notebookList, currentNotebook } = state
 
   const { currentScreen } = state
@@ -158,6 +159,20 @@ export default function MenuBar (props : MenuBarProperties) : JSX.Element {
         <label htmlFor="input"><i className="icon fas fa-cloud-upload-alt"></i></label>
         <p className='iconLabel'>Import</p>
       </div>
+
+      {/* Clear the Whole Workspace */}
+
+      <div
+        className='tab'
+        title='Clear the Whole Workspace'
+        onClick={ onClearWorkspace }
+      >
+        <i
+          className="icon fas fa-eraser"
+        />
+        <p className='iconLabel'>Clear All</p>
+      </div>
+
     </div>
   )
 }

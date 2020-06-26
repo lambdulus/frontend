@@ -5,6 +5,11 @@ import { BoxType, Screen, BoxesWhitelist, AppState, GlobalSettings, NotebookStat
 import { AST, decodeFast as decodeUntypedLambdaFast, ASTReduction } from "@lambdulus/core"
 
 
+export const CLEAR_WORKSPACE_CONFIRMATION : string =
+`This will delete this whole Notebook as well as every other Notebook stored in your browser.
+
+                                                              Are you sure?`
+
 // TODO: when building `Exam Mode` simply leave only non-evaluative BoxTypes
 export const ALL_BOX_TYPES : Array<BoxType> = [ BoxType.UNTYPED_LAMBDA, BoxType.LISP, BoxType.MARKDOWN ]
 
