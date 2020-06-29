@@ -80,7 +80,7 @@ export function createNewUntypedLambda (defaultSettings : UntypedLambdaSettings)
   return {
     ...defaultSettings,
     __key : Date.now().toString(),
-    title : "",
+    title : "Untyped λ Expression",
     minimized : false,
     type : BoxType.UNTYPED_LAMBDA,
     expression : "",

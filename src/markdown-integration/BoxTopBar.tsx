@@ -23,20 +23,28 @@ export default function BoxTopBar (props : Props) : JSX.Element {
 
   return (
     <div className='boxTopBar'>
-      {/* <div className='topBarTitle' contentEditable={ true } onBlur={ (e) => updateBoxState({ ...state, title : e.target.textContent || "" }) }>
+      {
+      // TODO: Remove This
+      /* <div className='topBarTitle' contentEditable={ true } onBlur={ (e) => updateBoxState({ ...state, title : e.target.textContent || "" }) }>
         { title === "" ? "Click Here to Change the Title" : title }
       </div> */}
-      <div className='controls' title='Edit as Markdown'>
-        <Switch
-            className='control'
-            checked={ ! isEditing }
-            onChange={ (e : ChangeEvent<HTMLInputElement>) =>
-              updateBoxState({ ...state, isEditing : ! e.target.checked })
-            }
-            shape="fill"
+      <div className='markdown-controls' title='Edit as Markdown'>
+        
+        {/* This will be separated into it's own component */}
+        <div className='markdown-editing'>
+          <span
+            className={ `markdown-write ${isEditing ? 'markdown-selected' : ''}` }
+            onClick={ () => updateBoxState({ ...state, isEditing : true}) }
+          >
+            Write
+          </span>
+          <span
+            className={ `markdown-preview ${isEditing ? '' : 'markdown-selected'}` }
+            onClick={ () => updateBoxState({ ...state, isEditing : false}) }
           >
             Preview
-          </Switch>
+          </span>
+        </div>
       </div>
 
       <i

@@ -18,7 +18,7 @@ export function createNewMarkdown () : NoteState {
   return {
     __key : Date.now().toString(),
     type : BoxType.MARKDOWN,
-    title : 'Click Here to Change the Title',
+    title : 'Markdown Box',
     minimized : false,
     note : '',
     isEditing : true,

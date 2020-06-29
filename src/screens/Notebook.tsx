@@ -95,16 +95,12 @@ export default class Notebook extends PureComponent<Props> {
     this.props.updateNotebook({ ...this.props.state, boxList : boxList, activeBoxIndex : newIndex })
   }
 
-  /**
-   * This function is patching; not overriding
-   * @param index 
-   * @param box 
-   */
   updateBoxState (index : number, box : BoxState) : void {
     const { boxList } = this.props.state
-    boxList[index] = box
+    boxList[index] = { ...box }
 
-    this.props.updateNotebook({ ...this.props.state, boxList })
+
+    this.props.updateNotebook({ ...this.props.state, boxList : [...boxList] })
   }
 
   makeActive (index : number) : void {
@@ -135,6 +131,10 @@ export default class Notebook extends PureComponent<Props> {
   }
 
   onBlur (index : number) : void {
+    // TODO: I may not need onBlur handling in the future
+    // I am thinking - right now all it does is this:
+    // it un-focuses currently focused Box
+    // if this is not really needed - then maybe I should not have this feature
     console.log("                  BLUR " + index)
     const { boxList, activeBoxIndex } = this.props.state
 
@@ -150,8 +150,8 @@ export default class Notebook extends PureComponent<Props> {
         break
       
       case BoxType.MARKDOWN: {
-        boxList[index] = onMarkDownBlur(boxList[index] as NoteState)
-        break
+        // boxList[index] = onMarkDownBlur(boxList[index] as NoteState)
+        return // TODO: just for now
       }
 
       default:
