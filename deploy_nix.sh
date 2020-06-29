@@ -26,9 +26,13 @@ rm -rf build/*
 rm package.json
 mv package.old.json package.json
 
+
+echo "___________________________"
 echo ""
 echo "Half-way through! Hold on!"
 echo ""
+echo "___________________________"
+
 
 # now to build to the root url for easier acces to the latest build
 
@@ -53,12 +57,20 @@ rm package.json
 mv package.old.json package.json
 
 
+echo "___________________________"
 echo ""
 echo "BUILD WENT OK - EVERYTHING DONE"
 echo ""
+echo "___________________________"
 
 
 # finally - commit and push
-echo "Commiting and Pushing to the Upstream"
+echo "___________________________"
+echo ""
+echo "Adding, Commiting, and Pushing to the Upstream"
+echo ""
+echo "___________________________"
+
+git add docs
 git commit -m "deploy build ver. $BUILD_VERSION"
 git push
