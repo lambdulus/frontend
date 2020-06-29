@@ -125,7 +125,7 @@ export default class App extends Component<Props, AppState> {
     const { currentNotebook, notebookList } = this.state
     notebookList[currentNotebook].settings = newSettings
 
-    this.setState({ notebookList })
+    this.setState({ notebookList : [...notebookList] })
     updateSettingsInStorage(newSettings)
   }
 

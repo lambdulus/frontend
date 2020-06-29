@@ -39,7 +39,7 @@ export default function Note (props : NoteProperties) : JSX.Element {
     // this.updateURL(expression) // tohle musim nejak vyresit - mozna ta metoda setBoxState v APP bude checkovat propisovat do URL
   }
 
-    if (isFocused) {
+    if (isEditing) { // TODO: isFocused removed just for now
     return (
       <div className='box boxNoteEditor'>
         <Editor

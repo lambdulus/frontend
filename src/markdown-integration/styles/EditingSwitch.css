@@ -1,0 +1,24 @@
+.markdown-write {
+  margin-right: 15px;
+}
+
+.markdown-write, .markdown-preview {
+  padding: 5px;
+  cursor: pointer;
+}
+
+.markdown-selected {
+  background-color: #1976d2;
+  border-radius: 2px;
+  color: white;
+}
+
+.markdown-editing {
+  margin-right: 30px;
+}
+
+/* this shoudl go else where */
+
+.boxNote {
+  margin-top: 0;
+}
