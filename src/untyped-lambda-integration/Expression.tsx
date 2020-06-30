@@ -65,7 +65,10 @@ export default class Expression extends PureComponent<EvaluatorProps> {
                   <i
                     className="hiddenIcon far fa-clone"
                     title='Clone this expression to the new box'
-                    onClick={ () => this.props.addBox(this.props.createBoxFrom(stepRecord)) }
+                    onClick={ (e : any) => {
+                      e.preventDefault()
+                      this.props.addBox(this.props.createBoxFrom(stepRecord))
+                    } }
                   />
                 </Step>
               </li>)
@@ -80,7 +83,13 @@ export default class Expression extends PureComponent<EvaluatorProps> {
                 <i
                   className="hiddenIcon far fa-clone"
                   title='Clone this expression to the new box'
-                  onClick={ () => this.props.addBox(this.props.createBoxFrom(this.props.history[this.props.history.length - 1])) }
+                  onClick={ (e : any) => {
+                    e.preventDefault() // TODO: maybe I shouldn't do this
+                    // maybe instead I should drop the `focusedBoxIndex` and stop caring if Box has been clicked
+                    // instead I could always render whole and complete Box if user does not collapsed it
+                    // I need to think this through
+                    this.props.addBox(this.props.createBoxFrom(this.props.history[this.props.history.length - 1]))
+                   } }
                 />
             </Step>
           </li>
