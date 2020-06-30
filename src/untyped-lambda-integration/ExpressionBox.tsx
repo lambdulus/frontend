@@ -156,7 +156,7 @@ export default class ExpressionBox extends PureComponent<EvaluationProperties> {
     return {
       type : BoxType.UNTYPED_LAMBDA,
       __key : Date.now().toString(),
-      title : state.title,
+      title : `Copy of ${state.title}`,
       minimized : false,
       expression : "",
       ast : null,

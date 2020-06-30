@@ -22,6 +22,7 @@ export default class Notebook extends PureComponent<Props> {
     super(props)
 
     this.insertBefore = this.insertBefore.bind(this)
+    this.insertAfter = this.insertAfter.bind(this)
     this.removeBox = this.removeBox.bind(this)
     this.updateBoxState = this.updateBoxState.bind(this)
     this.makeActive = this.makeActive.bind(this)
@@ -50,7 +51,7 @@ export default class Notebook extends PureComponent<Props> {
                 box={ box}
                 isActiveBox={ activeBoxIndex === i}
                 isFocusedBox={ focusedBoxIndex === i }
-                insertBefore={ (box : BoxState) => this.insertBefore(i, box) }
+                insertBefore={ (box : BoxState) => this.insertAfter(i, box) }
                 makeActive={ () => this.makeActive(i) }
                 removeBox={ () => this.removeBox(i) }
                 updateBoxState={ (box : BoxState) => this.updateBoxState(i, box) }
@@ -76,6 +77,15 @@ export default class Notebook extends PureComponent<Props> {
 
     boxList.splice(index, 0, box)
     this.props.updateNotebook({ ...this.props.state, boxList : boxList, activeBoxIndex : index, focusedBoxIndex : index })
+  }
+
+  insertAfter (index : number, box : BoxState) : void {
+    console.log("              INSERT AFTER " + index)
+
+    const { boxList } = this.props.state
+
+    boxList.splice(index + 1, 0, box)
+    this.props.updateNotebook({ ...this.props.state, boxList : boxList, activeBoxIndex : index + 1, focusedBoxIndex : index + 1})
   }
 
   removeBox (index : number) : void {
