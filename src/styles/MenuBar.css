@@ -16,7 +16,7 @@
 .tab {
   padding-bottom: 13px;
   border-radius: 5px;
-  margin-bottom: 1em;
+  /* margin-bottom: 1em; */
 }
 
 .tab:hover {
