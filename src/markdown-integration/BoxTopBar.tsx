@@ -22,7 +22,7 @@ export default function BoxTopBar (props : Props) : JSX.Element {
   const { note, isEditing, title } = state
 
   return (
-    <div className='boxTopBar'>
+    <div className=''>
       {
       // TODO: Remove This
       /* <div className='topBarTitle' contentEditable={ true } onBlur={ (e) => updateBoxState({ ...state, title : e.target.textContent || "" }) }>
@@ -47,11 +47,11 @@ export default function BoxTopBar (props : Props) : JSX.Element {
         </div>
       </div>
 
-      <i
+      {/* <i
         className='removeBox far fa-trash-alt'
         onClick={ removeBox }
         title='Remove this Box'
-      />
+      /> */}
     </div>
   )
 }
