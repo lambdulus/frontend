@@ -68,7 +68,7 @@ export default function MenuBar (props : MenuBarProperties) : JSX.Element {
 
       <div className='separator' />
 
-
+      {/* NOTEBOOK */}
       <div
         className={ currentScreen === Screen.MAIN ? 'currentTab tab tab-hoverable' : 'tab tab-hoverable' }
         title='Notebook Content'
@@ -80,17 +80,7 @@ export default function MenuBar (props : MenuBarProperties) : JSX.Element {
         <p className='iconLabel'>Notebook</p>
       </div>
 
-      <div
-        className={ currentScreen === Screen.HELP ? 'currentTab tab tab-hoverable' : 'tab tab-hoverable' }
-        title='Show the Manual'
-        onClick={ () => onScreenChange(Screen.HELP) }
-      >
-        <i
-          className="icon far fa-question-circle"
-        />
-        <p className='iconLabel'>Manual</p>
-      </div>
-
+      {/* SETTINGS */}
       <div
         className={ currentScreen === Screen.SETTINGS ? 'currentTab tab tab-hoverable' : 'tab tab-hoverable' }
         title='Go to Settings'
@@ -100,6 +90,18 @@ export default function MenuBar (props : MenuBarProperties) : JSX.Element {
           className="icon fas fa-cogs"
         />
         <p className='iconLabel'>Settings</p>
+      </div>
+
+      {/* Clear the Whole Workspace */}
+      <div
+        className='tab tab-hoverable'
+        title='Clear the Whole Workspace'
+        onClick={ onClearWorkspace }
+      >
+        <i
+          className="icon fas fa-eraser"
+        />
+        <p className='iconLabel'>Clear All</p>
       </div>
 
       {/* <div title='List all defined macros' >
@@ -158,17 +160,18 @@ export default function MenuBar (props : MenuBarProperties) : JSX.Element {
         <p className='iconLabel'>Import</p>
       </div>
 
-      {/* Clear the Whole Workspace */}
+      <div className='separator' />
 
+      {/* MANUAL/HELP */}
       <div
-        className='tab tab-hoverable'
-        title='Clear the Whole Workspace'
-        onClick={ onClearWorkspace }
+        className={ currentScreen === Screen.HELP ? 'currentTab tab tab-hoverable' : 'tab tab-hoverable' }
+        title='Show the Manual'
+        onClick={ () => onScreenChange(Screen.HELP) }
       >
         <i
-          className="icon fas fa-eraser"
+          className="icon far fa-question-circle"
         />
-        <p className='iconLabel'>Clear All</p>
+        <p className='iconLabel'>Manual</p>
       </div>
 
     </div>
