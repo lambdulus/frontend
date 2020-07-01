@@ -62,17 +62,15 @@ export default function MenuBar (props : MenuBarProperties) : JSX.Element {
         title='Get Info about this Tool'
         onClick={ () => void 0 }
       >
-        <i
-          className="icon fas fa-info-circle"
-        />
-        <p className='iconLabel'>Info</p>
+        <span className='lambdulusIcon'>λ</span>
+        <p className='iconLabel'>Lambdulus</p>
       </div>
 
       <div className='separator' />
 
 
       <div
-        className={ currentScreen === Screen.MAIN ? 'currentTab tab' : 'tab' }
+        className={ currentScreen === Screen.MAIN ? 'currentTab tab tab-hoverable' : 'tab tab-hoverable' }
         title='Notebook Content'
         onClick={ () => onScreenChange(Screen.MAIN) }
       >
@@ -83,7 +81,7 @@ export default function MenuBar (props : MenuBarProperties) : JSX.Element {
       </div>
 
       <div
-        className={ currentScreen === Screen.HELP ? 'currentTab tab' : 'tab' }
+        className={ currentScreen === Screen.HELP ? 'currentTab tab tab-hoverable' : 'tab tab-hoverable' }
         title='Show the Manual'
         onClick={ () => onScreenChange(Screen.HELP) }
       >
@@ -94,7 +92,7 @@ export default function MenuBar (props : MenuBarProperties) : JSX.Element {
       </div>
 
       <div
-        className={ currentScreen === Screen.SETTINGS ? 'currentTab tab' : 'tab' }
+        className={ currentScreen === Screen.SETTINGS ? 'currentTab tab tab-hoverable' : 'tab tab-hoverable' }
         title='Go to Settings'
         onClick={ () => onScreenChange(Screen.SETTINGS) }
       >
@@ -131,7 +129,7 @@ export default function MenuBar (props : MenuBarProperties) : JSX.Element {
 
       {/* Export Notebook */}
       <div
-        className='tab'
+        className='tab tab-hoverable'
         title='Download this Notebook'
       >
         <a
@@ -150,7 +148,7 @@ export default function MenuBar (props : MenuBarProperties) : JSX.Element {
 
       {/* Import Notebook */}
       <div
-        className='tab'
+        className='tab tab-hoverable'
         title='Import Notebook from Computer'
       >
         <input type="file" accept=".lus" id="input"
@@ -163,7 +161,7 @@ export default function MenuBar (props : MenuBarProperties) : JSX.Element {
       {/* Clear the Whole Workspace */}
 
       <div
-        className='tab'
+        className='tab tab-hoverable'
         title='Clear the Whole Workspace'
         onClick={ onClearWorkspace }
       >

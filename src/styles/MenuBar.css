@@ -19,13 +19,13 @@
   /* margin-bottom: 1em; */
 }
 
-.tab:hover {
+.tab-hoverable:hover {
   background-color: #1561ad;
   cursor: pointer;
 }
 
 .tab:first-of-type {
-  margin-top: 2vh;
+  margin-top: 2em;
 }
 
 .currentTab::before {
@@ -141,4 +141,19 @@
 
 .notebookIconWrapper:hover .removeNtb {
   color: rgb(255, 8, 8);
+}
+
+.lambdulusIcon {
+  border: 2.5px solid white;
+  padding: 4%;
+  padding-left: 15%;
+  padding-right: 15%;
+
+  border-radius: 50%;
+  font-size: 2em;
+  font-family: Comfortaa;
+}
+
+.tab:hover > .lambdulusIcon {
+  background-color: #1976d2;
 }
