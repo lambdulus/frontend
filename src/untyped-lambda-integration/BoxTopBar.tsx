@@ -18,11 +18,8 @@ export default function BoxTopBar (props : Props) : JSX.Element {
   const { isExercise, editor, expression, title } = state
 
   return (
-    <div className='boxTopBar'>
-      <div className='topBarTitle' contentEditable={ true } onBlur={ (e) => updateBoxState({ ...state, title : e.target.textContent || "" }) }>
-        { title }
-      </div>
-      {
+    <div className=''>
+      {/* {
         expression === '' ?
           null
         :
@@ -49,15 +46,15 @@ export default function BoxTopBar (props : Props) : JSX.Element {
             })
           }
         />
-      }
+      } */}
 
-      <i
+      {/* <i
         className='removeBox far fa-trash-alt'
         onClick={ removeBox }
         title='Remove this Box'
-      />
+      /> */}
 
-      {
+      {/* {
         state.minimized ?
           <i
             className="imizeBox fas fa-sort-down"
@@ -76,7 +73,7 @@ export default function BoxTopBar (props : Props) : JSX.Element {
             } }
             title='Collapse this Box'
           />
-      }
+      } */}
     </div>
   )
 }

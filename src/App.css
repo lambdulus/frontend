@@ -63,7 +63,7 @@
 
 .box {
   position: relative;
-  margin-top: 1.2em;
+  margin-top: 0.5em;
   padding-top: 10px;
 }
 
@@ -99,21 +99,9 @@
   border: 1px dashed gray;
 }
 
-.imizeBox {
-  position: absolute;
-  right: 15px;
-  /* top: 2px; */
-  color: grey;
-  cursor: pointer;
-}
-
-.imizeBox:hover {
-  color: black;
-}
-
 /*  nejradsi bych tyhle 3 dal do toho Box menu - |...| menu  */
 
-.removeBox {
+/* .removeBox {
   position: absolute;
   right: 65px;
   top: 5px;
@@ -122,13 +110,13 @@
 
 .inactive .removeBox {
   /* display: none; */
-  color: grey;
-}
+  /* color: grey; */
+/* } */
 
-.removeBox:hover {
-  color: black;
+/* .removeBox:hover { */
+  /* color: black; */
   /* background-color: rgb(143, 143, 143); */
-}
+/* } */
 
 /*  */
 

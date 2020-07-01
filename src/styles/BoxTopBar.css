@@ -1,0 +1,86 @@
+.boxTopBar {
+  width: 100%;
+}
+
+.topBarTitle {
+  width: 30%;
+  /* float: left; */
+}
+
+
+.box-top-bar-custom {
+  position: absolute;
+  top: 5px;
+  right: 10%;
+}
+
+.box-top-bar-controls {
+  position: absolute;
+  right: 0;
+  top: 0px;
+  width: 10%;
+  /* margin-left: 80%; */
+}
+
+.box-top-bar--controls--settings {
+  padding-top: 5px;
+  padding-bottom: 5px;
+  text-align: center;
+  cursor: pointer;
+  float: left;
+  width: 33%;
+}
+
+.box-top-bar--controls--settings:hover {
+  background-color: rgb(221, 221, 221);
+  border-radius: 5px;
+}
+
+.box-top-bar--controls--menu {
+  padding-top: 5px;
+  padding-bottom: 5px;
+  text-align: center;
+  cursor: pointer;
+  float: left;
+  width: 33%;
+}
+
+.box-top-bar--controls--menu:hover {
+  background-color: rgb(221, 221, 221);
+  border-radius: 5px;
+}
+
+.box-top-bar--controls--remove {
+  padding-top: 5px;
+  padding-bottom: 5px;
+  text-align: center;
+  cursor: pointer;
+  float: left;
+  width: 33%;
+}
+
+.box-top-bar--controls--remove:hover {
+  background-color: rgb(221, 221, 221);
+  border-radius: 5px;
+}
+
+/* .imizeBox {
+  color: grey;
+  cursor: pointer;
+}
+
+.imizeBox:hover {
+
+  color: black;
+} */
+
+.box-top-bar-controls .icon {
+  color: black;
+  font-size: 1em;
+}
+
+
+.mini-icon {
+  cursor: pointer; /* "hand" cursor */
+  font-size: 1em; 
+}
