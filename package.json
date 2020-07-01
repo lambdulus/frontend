@@ -24,8 +24,8 @@
   },
   "scripts": {
     "start": "react-scripts start",
-    "build" : "react-scripts build",
-    "deploy" : "./deploy_nix.sh",
+    "build": "react-scripts build",
+    "deploy": "./deploy_nix.sh",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },
