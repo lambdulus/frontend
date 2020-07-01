@@ -83,7 +83,7 @@ export default function MenuBar (props : MenuBarProperties) : JSX.Element {
       {/* SETTINGS */}
       <div
         className={ currentScreen === Screen.SETTINGS ? 'currentTab tab tab-hoverable' : 'tab tab-hoverable' }
-        title='Go to Settings'
+        title='Go to the Settings'
         onClick={ () => onScreenChange(Screen.SETTINGS) }
       >
         <i
@@ -151,7 +151,7 @@ export default function MenuBar (props : MenuBarProperties) : JSX.Element {
       {/* Import Notebook */}
       <div
         className='tab tab-hoverable'
-        title='Import Notebook from Computer'
+        title='Import a Notebook from Computer'
       >
         <input type="file" accept=".lus" id="input"
         onChange={ (e) => onFiles(e, onImport) }
@@ -161,6 +161,20 @@ export default function MenuBar (props : MenuBarProperties) : JSX.Element {
       </div>
 
       <div className='separator' />
+
+      {/* Issues */}
+      <div
+        className='tab tab-hoverable'
+        title='Submit a Bug or a Feature Request'
+      >
+        <a
+        target="_blank"
+          href='https://github.com/lambdulus/new-frontend/issues'
+        >
+          <i className="icon fas fa-bug" />
+        </a>
+        <p className='iconLabel'>GH Issues</p>
+      </div>
 
       {/* MANUAL/HELP */}
       <div
