@@ -1,0 +1,8 @@
+.box-settings {
+  padding: 5px;
+  margin: auto;
+  margin-top: 10px;
+  /* width: 97%; */
+  height: 100px;
+  border-bottom: 2px solid black;
+}

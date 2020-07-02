@@ -23,7 +23,7 @@ interface Props {
 
 export default function BoxTitleBar (props : Props) : JSX.Element {
   const { state, isActive, updateBoxState, removeBox, addBoxBefore, addBoxAfter } : Props = props
-  const { type, title, menuOpen, minimized } = state
+  const { type, title, menuOpen, minimized, settingsOpen } = state
 
 
   return (
@@ -63,7 +63,6 @@ export default function BoxTitleBar (props : Props) : JSX.Element {
             )
         }
 
-
       </div>
       <div className='box-top-bar-controls'>
 
@@ -83,7 +82,13 @@ export default function BoxTitleBar (props : Props) : JSX.Element {
           }
         </div>      
 
-        <div className='box-top-bar--controls--settings'>
+        <div
+          className='box-top-bar--controls--settings'
+          onClick={ (e) => {
+            e.stopPropagation()
+            updateBoxState({ ...state, settingsOpen : ! settingsOpen })
+          } }
+        >
           <i className="mini-icon fas fa-cog" />
         </div>
 
@@ -93,28 +98,6 @@ export default function BoxTitleBar (props : Props) : JSX.Element {
         >
           <i className="mini-icon fas fa-ellipsis-v"></i>
         </div>
-        
-
-        {/* {
-          state.minimized ?
-            <i
-              className="imizeBox fas fa-sort-down"
-              onClick={ (e : MouseEvent) => {
-                e.stopPropagation()
-                updateBoxState({ ...state, minimized : false })
-              } }
-              title='Expand this Box'
-            />
-            :
-            <i
-              className="imizeBox fas fa-sort-up"
-              onClick={ (e : MouseEvent) => {
-                e.stopPropagation()
-                updateBoxState({ ...state, minimized : true })
-              } }
-              title='Collapse this Box'
-            />
-        } */}
       </div>
       
       {
