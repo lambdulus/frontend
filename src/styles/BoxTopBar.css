@@ -3,7 +3,7 @@
 }
 
 .topBarTitle {
-  width: 30%;
+  width: 40%;
   /* float: left; */
 }
 
@@ -11,7 +11,7 @@
 .box-top-bar-custom {
   position: absolute;
   top: 5px;
-  right: 10%;
+  right: 6em;
   /* right: 7%; */
   
 }
@@ -20,7 +20,7 @@
   position: absolute;
   right: 0;
   top: 0px;
-  width: 10%;
+  width: 5.5em;
   /* width: 7%; */
   /* margin-left: 80%; */
 }
