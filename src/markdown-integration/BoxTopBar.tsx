@@ -36,7 +36,7 @@ export default function BoxTopBar (props : Props) : JSX.Element {
             className={ `markdown-write ${isEditing ? 'markdown-selected' : ''}` }
             onClick={ () => updateBoxState({ ...state, isEditing : true}) }
           >
-            Write
+            Edit
           </span>
           <span
             className={ `markdown-preview ${isEditing ? '' : 'markdown-selected'}` }
