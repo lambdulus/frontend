@@ -7,6 +7,7 @@ import Editor from '../components/Editor'
 // import { DeleteBox } from './BoxSpace'
 // import { AddBoxContext } from './MethodInjector'
 import { mapLeftFromTo } from '../misc'
+import DebugControls from '../components/DebugControls'
 // import BoxTopBar from './BoxTopBar'
 // import Controls from './ExerciseSwitch'
 
@@ -31,6 +32,7 @@ interface EvaluatorProps {
   onEnter () : void
   onExecute () : void
   addBox (box : UntypedLambdaState) : void
+  shouldShowDebugControls : boolean
 }
 
 export default class Expression extends PureComponent<EvaluatorProps> {
@@ -41,7 +43,7 @@ export default class Expression extends PureComponent<EvaluatorProps> {
   }
 
   render () : JSX.Element {
-    const { className, isExercise, state, editor } = this.props
+    const { className, isExercise, state, editor, shouldShowDebugControls } = this.props
 
     const {
       placeholder,
@@ -95,20 +97,24 @@ export default class Expression extends PureComponent<EvaluatorProps> {
           </li>
         </ul>
         {
-          this.props.isNormalForm ?
-          null
-            :
-          <Editor
-            placeholder={ placeholder } // data
-            content={ content } // data
-            caretPosition={ caretPosition } // data
-            syntaxError={ syntaxError } // data
-            submitOnEnter={ true } // data
+          ( ! this.props.isNormalForm && shouldShowDebugControls) ?
+            <DebugControls
+              onStep={ this.props.onEnter }
+              onRun={ this.props.onExecute }
+            />
+          :
+            null
+          // <Editor
+          //   placeholder={ placeholder } // data
+          //   content={ content } // data
+          //   caretPosition={ caretPosition } // data
+          //   syntaxError={ syntaxError } // data
+          //   submitOnEnter={ true } // data
 
-            onContent={ this.props.onContent } // fn
-            onEnter={ this.props.onEnter } // fn // tohle asi bude potreba
-            onExecute={ this.props.onExecute } // fn // tohle asi bude potreba
-          />
+          //   onContent={ this.props.onContent } // fn
+          //   onEnter={ this.props.onEnter } // fn // tohle asi bude potreba
+          //   onExecute={ this.props.onExecute } // fn // tohle asi bude potreba
+          // />
         }
       </div>
     )

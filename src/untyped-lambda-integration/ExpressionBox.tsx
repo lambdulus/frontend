@@ -132,6 +132,7 @@ export default class ExpressionBox extends PureComponent<EvaluationProperties> {
         history={ history }
         editor={ editor }
         isNormalForm={ isNormalForm }
+        shouldShowDebugControls={ isActive }
 
         createBoxFrom={ this.createBoxFrom }
         setBoxState={ this.props.setBoxState }
