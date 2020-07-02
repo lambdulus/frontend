@@ -84,6 +84,7 @@ export function createNewUntypedLambda (defaultSettings : UntypedLambdaSettings)
     minimized : false,
     type : BoxType.UNTYPED_LAMBDA,
     menuOpen : false,
+    settingsOpen : false,
     expression : "",
     ast : null,
     history : [],

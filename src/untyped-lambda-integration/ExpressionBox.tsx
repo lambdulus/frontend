@@ -159,6 +159,7 @@ export default class ExpressionBox extends PureComponent<EvaluationProperties> {
       title : `Copy of ${state.title}`,
       minimized : false,
       menuOpen : false,
+      settingsOpen : false,
       expression : "",
       ast : null,
       history : [],

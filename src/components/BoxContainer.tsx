@@ -4,6 +4,8 @@ import Box from './Box'
 import BoxTitleBar from './BoxTitleBar'
 import { BoxState } from '../Types'
 
+import "../styles/BoxContainer.css"
+
 
 interface Props {
   isActiveBox : boolean
@@ -31,6 +33,8 @@ export function BoxContainer (props : Props) : JSX.Element {
     removeBox
   } : Props = props
 
+  const { settingsOpen } : BoxState = box
+
   const boxTypeClassName : string = mapBoxTypeToStr(box.type)
 
   return (
@@ -51,6 +55,16 @@ export function BoxContainer (props : Props) : JSX.Element {
         addBoxBefore={ addBoxBefore }
         addBoxAfter={ addBoxAfter }
       />
+      
+      {
+        settingsOpen ?
+          <div className='box-settings'>
+            Box Settings Override:
+          </div>
+        :
+          null
+      }
+      
       <Box
         state={ box }
         isActive={ isActiveBox }
