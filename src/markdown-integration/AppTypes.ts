@@ -20,6 +20,8 @@ export function createNewMarkdown () : NoteState {
     type : BoxType.MARKDOWN,
     title : 'Markdown Box',
     minimized : false,
+    menuOpen : false,
+    settingsOpen : false,
     note : '',
     isEditing : true,
     editor : {

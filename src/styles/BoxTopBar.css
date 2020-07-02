@@ -12,6 +12,8 @@
   position: absolute;
   top: 5px;
   right: 10%;
+  /* right: 7%; */
+  
 }
 
 .box-top-bar-controls {
@@ -19,7 +21,22 @@
   right: 0;
   top: 0px;
   width: 10%;
+  /* width: 7%; */
   /* margin-left: 80%; */
+}
+
+.box-top-bar--controls--imize {
+  padding-top: 5px;
+  padding-bottom: 5px;
+  text-align: center;
+  cursor: pointer;
+  float: left;
+  width: 33%;
+}
+
+.box-top-bar--controls--imize:hover {
+  background-color: rgb(221, 221, 221);
+  border-radius: 5px;
 }
 
 .box-top-bar--controls--settings {
@@ -43,6 +60,8 @@
   cursor: pointer;
   float: left;
   width: 33%;
+
+  /* width: 50%; */
 }
 
 .box-top-bar--controls--menu:hover {
@@ -50,19 +69,19 @@
   border-radius: 5px;
 }
 
-.box-top-bar--controls--remove {
+/* .box-top-bar--controls--remove {
   padding-top: 5px;
   padding-bottom: 5px;
   text-align: center;
   cursor: pointer;
   float: left;
   width: 33%;
-}
+} */
 
-.box-top-bar--controls--remove:hover {
+/* .box-top-bar--controls--remove:hover {
   background-color: rgb(221, 221, 221);
   border-radius: 5px;
-}
+} */
 
 /* .imizeBox {
   color: grey;
@@ -83,4 +102,30 @@
 .mini-icon {
   cursor: pointer; /* "hand" cursor */
   font-size: 1em; 
+}
+
+
+.box-top-bar--menu {
+  position: absolute;
+  top: 40px;
+  right: 5px;
+  border-radius: 3px;
+  z-index: 999;
+  background-color: white;
+  border: 1px solid black;
+
+  /* width: 150px; */
+  /* height: 250px; */
+  /* background-color: rgb(53, 133, 202); */
+}
+
+.box-top-bar--menu-item {
+  margin: 2px;
+  padding: 5px;
+  border-radius: 2px;
+  cursor: pointer;
+}
+
+.box-top-bar--menu-item:hover {
+  background-color: rgb(230, 230, 230);
 }

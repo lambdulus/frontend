@@ -51,7 +51,8 @@ export default class Notebook extends PureComponent<Props> {
                 box={ box}
                 isActiveBox={ activeBoxIndex === i}
                 isFocusedBox={ focusedBoxIndex === i }
-                insertBefore={ (box : BoxState) => this.insertAfter(i, box) }
+                addBoxBefore={ (box : BoxState) => this.insertBefore(i, box) }
+                addBoxAfter={ (box : BoxState) => this.insertAfter(i, box) }
                 makeActive={ () => this.makeActive(i) }
                 removeBox={ () => this.removeBox(i) }
                 updateBoxState={ (box : BoxState) => this.updateBoxState(i, box) }

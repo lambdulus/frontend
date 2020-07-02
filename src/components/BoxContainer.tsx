@@ -14,11 +14,22 @@ interface Props {
   onBlur : () => void
   updateBoxState : (state : BoxState) => void
   removeBox : () => void
-  insertBefore : (state : BoxState) => void
+  addBoxBefore : (state : BoxState) => void
+  addBoxAfter : (state : BoxState) => void
 }
 
 export function BoxContainer (props : Props) : JSX.Element {
-  const { isActiveBox, isFocusedBox, box, makeActive, onBlur, updateBoxState, insertBefore, removeBox } : Props = props
+  const {
+    isActiveBox,
+    isFocusedBox,
+    box,
+    makeActive,
+    onBlur,
+    updateBoxState,
+    addBoxBefore,
+    addBoxAfter,
+    removeBox
+  } : Props = props
 
   const boxTypeClassName : string = mapBoxTypeToStr(box.type)
 
@@ -37,13 +48,15 @@ export function BoxContainer (props : Props) : JSX.Element {
           removeBox()
          } }
         updateBoxState={ (box : BoxState) => updateBoxState(box) }
+        addBoxBefore={ addBoxBefore }
+        addBoxAfter={ addBoxAfter }
       />
       <Box
         state={ box }
         isActive={ isActiveBox }
         isFocused={ isFocusedBox }
         updateBoxState={ (box : BoxState) => updateBoxState(box) }
-        addBox={ (box : BoxState) => insertBefore(box) }
+        addBoxAfter={ addBoxAfter }
       />
     </div>
   )
