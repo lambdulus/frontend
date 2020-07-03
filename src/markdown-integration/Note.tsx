@@ -48,6 +48,7 @@ export default function Note (props : NoteProperties) : JSX.Element {
           caretPosition={ caretPosition } // data
           syntaxError={ syntaxError } // data
           submitOnEnter={ false } // data
+          shouldReplaceLambda={ false }
           
           onContent={ onContent } // fn
           onEnter={ () => void 0 } // fn
