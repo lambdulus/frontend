@@ -47,6 +47,7 @@ export default function EmptyExpression(props : EmptyExpressionProps) : JSX.Elem
                 caretPosition={ caretPosition } // data
                 syntaxError={ syntaxError } // data
                 submitOnEnter={ true } // data
+                shouldReplaceLambda={ true }
 
                 onContent={ props.onContent } // fn
                 onEnter={ props.onEnter } // fn // tohle asi bude potreba

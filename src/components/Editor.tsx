@@ -20,6 +20,7 @@ interface EditorProperties {
   caretPosition : number
   syntaxError : Error | null
   submitOnEnter : boolean
+  shouldReplaceLambda : boolean
   
   onContent (content : string, caretPosition : number) : void
   onEnter () : void
@@ -34,6 +35,7 @@ export default function Editor (props : EditorProperties) : JSX.Element {
     caretPosition,
     syntaxError,
     submitOnEnter,
+    shouldReplaceLambda,
 
     onContent,
     onEnter,
@@ -45,8 +47,10 @@ export default function Editor (props : EditorProperties) : JSX.Element {
     // let { target : { value : content } } : { target : { value : string } } = event
     // const caretPosition : number = event.target.selectionEnd
 
-    content = content.replace(/\\/g, 'λ')
-
+    if (shouldReplaceLambda) {
+      content = content.replace(/\\/g, 'λ')
+    }
+    
     onContent(content, caretPosition)
   }
 
