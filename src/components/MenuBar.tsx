@@ -1,8 +1,7 @@
 import React, { ChangeEvent } from 'react'
-import { AST, tokenize, parse, Token, MacroMap, None } from '@lambdulus/core'
 
-import { ANY_BOX, loadSettingsFromStorage, decode } from '../AppTypes'
-import { BoxType, Screen, AppState, NotebookState } from '../Types'
+import { decode } from '../AppTypes'
+import { Screen, AppState } from '../Types'
 
 
 import '../styles/MenuBar.css'
@@ -13,15 +12,10 @@ interface MenuBarProperties {
   onImport (state : AppState) : void
   onClearWorkspace () : void
   onScreenChange (screen : Screen) : void
-  onNotebookChange (index : number) : void
-  onAddNotebook (notebook : NotebookState) : void
-  onSelectNotebook (index : number) : void
-  onDeleteNotebook (index : number) : void
 }
 
 export default function MenuBar (props : MenuBarProperties) : JSX.Element {
-  const { state, onImport, onClearWorkspace, onScreenChange, onNotebookChange, onDeleteNotebook } : MenuBarProperties = props
-  const { notebookList, currentNotebook } = state
+  const { state, onImport, onClearWorkspace, onScreenChange } : MenuBarProperties = props
 
   const { currentScreen } = state
 
@@ -32,31 +26,6 @@ export default function MenuBar (props : MenuBarProperties) : JSX.Element {
 
   return (
     <div id="menu-bar">
-      {/* TODO: SOLVE WHERE TO MOVE NOTEBOOKS TABS */}
-      {/* <ul className='notebooks UL'>
-        {
-          notebookList.map(
-            (notebook : NotebookState, index : number) =>
-            <li className={ `LI${ currentNotebook === index ? ' current' : '' }` } key={ notebook.__key }>
-              <div className='notebookIconWrapper'>
-                {
-                  notebookList.length === 1 ?
-                  null
-                  :
-                  <i className="removeNtb far fa-times-circle" onClick={ () => onDeleteNotebook(index) } />
-                }
-                <div className='notebookIcon' onClick={ () => props.onSelectNotebook(index) }>
-                  { index }
-                </div>
-              </div>
-            </li>
-          )
-        }
-        <div className='addNotebook' onClick={ () => props.onAddNotebook(createNewNotebook()) } >
-          +
-        </div>
-      </ul> */}
-
       <div
         className='tab'
         title='Get Info about this Tool'
@@ -258,16 +227,6 @@ export default function MenuBar (props : MenuBarProperties) : JSX.Element {
 //   return ast
 // }
 
-function createNewNotebook () : NotebookState {
-  return {
-    boxList : [],
-    activeBoxIndex : NaN,
-    focusedBoxIndex : undefined,
-    allowedBoxes : ANY_BOX,
-    __key : Date.now().toString(),
-    settings : loadSettingsFromStorage()
-  }
-}
 
 function onFiles (event : ChangeEvent<HTMLInputElement>, onImport : (state : AppState) => void) : void {
   const { target : { files } } = event

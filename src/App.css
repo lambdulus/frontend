@@ -56,9 +56,91 @@
   padding-bottom: 5em;
 }
 
+.notebook-list {
+  position: fixed;
+  left: 5em;
+  width: 10%;
+  margin-top: 7.5em;
+  padding-top: 1em;
+  overflow-x: hidden;
+  color: white;
+  border-top-right-radius: 0.3rem;
+  border-bottom-right-radius: 0.3rem;
+  background-color: #1976d2;
+}
+
+.notebook-list--title {
+  padding-top: 1em;
+  padding-bottom: 1em;
+  padding-left: 15px;
+  margin-bottom: 10px;
+  font-weight: 500;
+}
+
+/* .notebooks-tabs {
+  width: 100%;
+  height: 3em;
+  margin-bottom: 3em;
+  overflow-x: scroll;
+} */
+
+.notebook-tab {
+  padding: 10px;
+  padding-left: 15px;
+  padding-right: 5px;
+  white-space: nowrap;
+  background-color: #0b83fb;
+  margin-bottom: 0;
+  /* border-bottom: 1px solid #3399ff; */
+}
+
+.current {
+  background-color: #4aa4ff;
+}
+
+.notebook-tab:first-of-type {
+  padding-top: 15px;
+}
+
+.notebook-tab:last-of-type {
+  padding-bottom: 15px;
+}
+
+.notebook-tab:hover {
+  cursor: pointer;
+  background-color: #2592ff;
+}
+
+.notebook-tab:hover.current {
+  background-color: #4aa4ff;
+}
+
+.removeNtb {
+  position: absolute;
+  top: -1.2em;
+  right: 0.5em;
+  cursor: pointer;
+  color: white;
+}
+
+.addNtb {
+  position: absolute;
+  top: -1em;
+  right: 0.5em;
+  cursor: pointer;
+  color: white;
+}
+
+.notebook-tab:hover .addNtb {
+  color: rgb(89, 255, 89);
+}
+
+.notebookIconWrapper:hover .removeNtb {
+  color: rgb(255, 8, 8);
+}
+
 .boxList, .UL {
   margin-right: 40px;
-  /* padding-left: 40px; */
 }
 
 .box {
@@ -129,10 +211,6 @@
   /* margin: auto; */
   border-radius: 0.25em;
   cursor: pointer;
-}
-
-.current .notebookIcon {
-  background-color: #4aa4ff;
 }
 
 .notebooks.UL {

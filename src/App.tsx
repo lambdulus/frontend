@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 
 import './App.css'
 
-import { updateSettingsInStorage, loadAppStateFromStorage, updateAppStateToStorage, CLEAR_WORKSPACE_CONFIRMATION } from './AppTypes'
+import { updateSettingsInStorage, loadAppStateFromStorage, updateAppStateToStorage, CLEAR_WORKSPACE_CONFIRMATION, loadSettingsFromStorage, ANY_BOX } from './AppTypes'
 
 import MenuBar from './components/MenuBar'
 import Notebook from './screens/Notebook'
@@ -31,6 +31,7 @@ export default class App extends Component<Props, AppState> {
     this.setScreen = this.setScreen.bind(this)
     this.updateNotebook = this.updateNotebook.bind(this)
     this.changeNotebook = this.changeNotebook.bind(this)
+    this.addNotebook = this.addNotebook.bind(this)
     this.removeNotebook = this.removeNotebook.bind(this)
     this.updateSettings = this.updateSettings.bind(this)
     this.importWorkspace = this.importWorkspace.bind(this)
@@ -55,18 +56,54 @@ export default class App extends Component<Props, AppState> {
           onScreenChange={ this.setScreen }
           onImport={ this.importWorkspace }
           onClearWorkspace={ this.clearWorkspace }
-          onNotebookChange={ this.changeNotebook }
-          onAddNotebook={
-            (notebook : NotebookState) =>
-              this.setState(
-                { notebookList : [ ...this.state.notebookList, notebook ],
-                  currentNotebook : this.state.currentNotebook + 1
-                })
-          }
-          // TODO: there are gonna be all kinds of Notebooks - I need to take care of that
-          onSelectNotebook={ (index : number) => this.setState({ currentNotebook : index }) }
-          onDeleteNotebook={ (index : number) => this.removeNotebook(index) }
         />
+        {
+          notebookList.length > 0 ?
+            <ul className='notebook-list UL'>
+              <div className='notebook-list--title'>
+                Notebook Explorer:
+              </div>
+              {
+                notebookList.map(
+                  (notebook : NotebookState, index : number) =>
+                  <li
+                    className={ `notebook-tab LI ${ currentNotebook === index ? 'current' : '' }` }
+                    key={ notebook.__key }
+                    title='Click to Select this Notebook'
+                    onClick={ () => this.changeNotebook(index) }
+                  >
+                    { `Notebook ${index}` }
+                    <div className='notebookIconWrapper'>
+                        {
+                          notebookList.length === 1 ?
+                          null
+                          :
+                          <i
+                            className="removeNtb mini-icon fas fa-trash-alt"
+                            title='Click to Remove this Notebook'
+                            onClick={ (event) => {
+                              event.stopPropagation()
+                              this.removeNotebook(index) } }
+                          />
+                        }
+                      </div>
+                  </li>
+                )
+              }
+              <li
+                className='notebook-tab LI'
+                title='Click to Add New Notebook'
+                onClick={ this.addNotebook }
+              >
+                Add New
+                <div className='notebookIconWrapper'>
+                  <i className="addNtb mini-icon fas fa-plus" />
+                  </div>
+              </li>
+            </ul>
+          :
+            null
+        }
         {
           (() => {
             if (currentScreen === Screen.MAIN)
@@ -98,6 +135,20 @@ export default class App extends Component<Props, AppState> {
 
   changeNotebook (index : number) : void {
     this.setState({ currentNotebook : index })
+    updateAppStateToStorage({ ...this.state, currentNotebook : index })
+  }
+
+  addNotebook () : void {
+    this.setState({
+      notebookList : [ ...this.state.notebookList, createNewNotebook() ],
+      currentNotebook : this.state.currentNotebook + 1
+    })
+
+    updateAppStateToStorage({
+      ...this.state,
+      notebookList : [ ...this.state.notebookList, createNewNotebook() ],
+      currentNotebook : this.state.currentNotebook + 1
+    })
   }
 
   removeNotebook (index : number) : void {
@@ -118,7 +169,13 @@ export default class App extends Component<Props, AppState> {
     if (Number.isNaN(newIndex)) return
 
     notebookList.splice(index, 1)
+
     this.setState({ notebookList, currentNotebook : newIndex })
+    updateAppStateToStorage({
+      ...this.state,
+      notebookList,
+      currentNotebook : newIndex,
+    })
   }
 
   updateSettings (newSettings : GlobalSettings) : void {
@@ -140,5 +197,16 @@ export default class App extends Component<Props, AppState> {
 
       this.setState(loadAppStateFromStorage())
     }
+  }
+}
+
+function createNewNotebook () : NotebookState {
+  return {
+    boxList : [],
+    activeBoxIndex : NaN,
+    focusedBoxIndex : undefined,
+    allowedBoxes : ANY_BOX,
+    __key : Date.now().toString(),
+    settings : loadSettingsFromStorage()
   }
 }
