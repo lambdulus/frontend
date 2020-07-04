@@ -341,6 +341,7 @@ export default class ExpressionBox extends PureComponent<EvaluationProperties> {
   }
 
   onStep () : void {
+    console.log('DOIN ONE STEP')
     const { state, setBoxState } = this.props
     const { strategy, history, editor : { content } } = state
     const stepRecord = history[history.length - 1]
@@ -356,6 +357,7 @@ export default class ExpressionBox extends PureComponent<EvaluationProperties> {
     lastReduction = normal.nextReduction
   
     if (normal.nextReduction instanceof None) {
+      console.log('NEXT IS NONE')
       stepRecord.isNormalForm = true
       stepRecord.message = 'Expression is in normal form.'
       
@@ -370,12 +372,20 @@ export default class ExpressionBox extends PureComponent<EvaluationProperties> {
   
     ast = normal.perform()
 
-    if (ast instanceof Macro || ast instanceof ChurchNumeral) {
-      stepRecord.isNormalForm = true
-      stepRecord.message = 'Expression is in normal form.'
+    // ANCHOR: #0023
+    // NOTE: This is completely crazy - it doesn't make any sense
+    // TODO: Investigate more - and fix the functionality
+    // it probably should check if the current AST Root is a Macro and next Reduction is Expansion of exactly this AST
+    // then it can say - it is in the Normal Form - if some settings enables it - not by default though
+    //
+    // if (ast instanceof Macro || ast instanceof ChurchNumeral) {
+    //   console.log('CURRENT IS MACRO OR NUMBER')
 
-      reportEvent('Evaluation Step', 'Step Normal Form Reached with Number or Macro', ast.toString())
-    }
+    //   stepRecord.isNormalForm = true
+    //   stepRecord.message = 'Expression is in normal form.'
+
+    //   reportEvent('Evaluation Step', 'Step Normal Form Reached with Number or Macro', ast.toString())
+    // }
   
     setBoxState({
       ...state,
@@ -498,11 +508,12 @@ export default class ExpressionBox extends PureComponent<EvaluationProperties> {
 
     history[history.length - 1] = { ast, lastReduction, step : step + 1, message : '', isNormalForm }
 
-    if (ast instanceof Macro || ast instanceof ChurchNumeral) {
-      history[history.length - 1] = { ast, lastReduction, step : step + 1, message : 'Expression is in normal form.', isNormalForm : true }
+    // NOTE: Same thing as #0023
+    // if (ast instanceof Macro || ast instanceof ChurchNumeral) {
+    //   history[history.length - 1] = { ast, lastReduction, step : step + 1, message : 'Expression is in normal form.', isNormalForm : true }
 
-      reportEvent('Evaluation Run Ended', 'Step Normal Form Reached with Number or Macro', ast.toString())
-    }
+    //   reportEvent('Evaluation Run Ended', 'Step Normal Form Reached with Number or Macro', ast.toString())
+    // }
     
     setBoxState({
       ...state,
