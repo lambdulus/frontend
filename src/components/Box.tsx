@@ -7,9 +7,9 @@ import React, { useContext, ReactNode } from 'react'
 // import { SetBoxContext } from './BoxSpace'
 import { BoxType, BoxState } from '../Types'
 
-import { UntypedLambdaState } from '../untyped-lambda-integration/AppTypes'
+import { UntypedLambdaState } from '../untyped-lambda-integration/Types'
 
-import EvaluatorIntegration from '../untyped-lambda-integration/ExpressionBox'
+import UntypedLambdaBox from '../untyped-lambda-integration/UntypedLambdaBox'
 
 import { NoteState } from '../markdown-integration/AppTypes'
 import Note from '../markdown-integration/Note'
@@ -37,7 +37,7 @@ export default function Box (props : BoxProperties) : JSX.Element {
 
   if (type === BoxType.UNTYPED_LAMBDA) {
     return (
-      <EvaluatorIntegration
+      <UntypedLambdaBox
         state={ state as UntypedLambdaState }
         isActive={ isActive }
         isFocused={ isFocused }

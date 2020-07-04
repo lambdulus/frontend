@@ -1,5 +1,5 @@
 import React, { ChangeEvent } from 'react'
-import { UntypedLambdaSettings, EvaluationStrategy } from './AppTypes'
+import { UntypedLambdaSettings, EvaluationStrategy } from './Types'
 
 const { Switch, Radio } = require('pretty-checkbox-react')
 

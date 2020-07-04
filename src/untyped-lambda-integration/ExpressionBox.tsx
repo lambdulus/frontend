@@ -28,7 +28,7 @@ import { TreeComparator } from './TreeComparator'
 import EmptyEvaluator from './EmptyExpression'
 import InactiveEvaluator from './InactiveExpression'
 import Expression from './Expression'
-import { EvaluationStrategy, PromptPlaceholder, UntypedLambdaState, Evaluator, StepRecord, Breakpoint } from './AppTypes'
+import { EvaluationStrategy, PromptPlaceholder, UntypedLambdaState, Evaluator, StepRecord, Breakpoint, UntypedLambdaType, UntypedLambdaExpressionState } from './Types'
 import { reportEvent } from '../misc'
 
 
@@ -49,13 +49,12 @@ export function strategyToEvaluator (strategy : EvaluationStrategy) : Evaluator 
 }
 
 export interface EvaluationProperties {
-  state : UntypedLambdaState
+  state : UntypedLambdaExpressionState
   isActive : boolean
   isFocused : boolean
-  // macroTable : MacroMap
 
-  setBoxState (state : UntypedLambdaState) : void
-  addBox (box : BoxState) : void
+  setBoxState (state : UntypedLambdaExpressionState) : void
+  addBox (box : UntypedLambdaState) : void
 }
 
 export default class ExpressionBox extends PureComponent<EvaluationProperties> {
@@ -81,11 +80,11 @@ export default class ExpressionBox extends PureComponent<EvaluationProperties> {
       minimized,
       history,
       breakpoints,
-      isExercise,
+      // isExercise,
       strategy,
       expression,
       editor,
-    } : UntypedLambdaState = state
+    } : UntypedLambdaExpressionState = state
 
     let className : string = 'box boxEval'
     const { isNormalForm } = history.length ? history[history.length - 1] : { isNormalForm : false }
@@ -105,9 +104,10 @@ export default class ExpressionBox extends PureComponent<EvaluationProperties> {
       )
     }
 
-    if (isExercise) {
-      className += ' boxExercise'
-    }
+    // NOTE: commenting now - Exercise Box will come later
+    // if (isExercise) {
+    //   className += ' boxExercise'
+    // }
 
     // TODO: Maybe I will take this out
     // Frontend may take care of that
@@ -126,7 +126,7 @@ export default class ExpressionBox extends PureComponent<EvaluationProperties> {
     return (
       <Expression
         className={ className }
-        isExercise={ isExercise }
+        // isExercise={ isExercise }
         state={ state }
         breakpoints={ breakpoints }
         history={ history }
@@ -150,13 +150,14 @@ export default class ExpressionBox extends PureComponent<EvaluationProperties> {
       strategy,
       SLI,
       expandStandalones,
-    } : UntypedLambdaState = state
+    } : UntypedLambdaExpressionState = state
     const { ast } = stepRecord
     const content = ast.toString()
 
     return {
-      type : BoxType.UNTYPED_LAMBDA,
       __key : Date.now().toString(),
+      type : BoxType.UNTYPED_LAMBDA,
+      subtype : UntypedLambdaType.ORDINARY,
       title : `Copy of ${state.title}`,
       minimized : false,
       menuOpen : false,
@@ -168,7 +169,7 @@ export default class ExpressionBox extends PureComponent<EvaluationProperties> {
       breakpoints : [],
       timeoutID : undefined,
       timeout : 10,
-      isExercise : false,
+      // isExercise : false,
       strategy,
       SLI,
       expandStandalones,
@@ -196,15 +197,15 @@ export default class ExpressionBox extends PureComponent<EvaluationProperties> {
   }
 
   onEnter () : void {
-    const { expression, isExercise, editor : { content } } = this.props.state
+    const { expression, editor : { content } } = this.props.state
 
     if (expression === '') {
       this.onSubmitExpression()
     }
-    else if (content !== '' && isExercise) {
+    else if (content !== '') { // && isExercise
       this.onExerciseStep()
     }
-    else if (content === '' && (! isExercise)) {
+    else if (content === '') { //  && (! isExercise)
       this.onStep()
     }
     else {
@@ -387,12 +388,12 @@ export default class ExpressionBox extends PureComponent<EvaluationProperties> {
 
   onExecute () : void {
     const { state, setBoxState } = this.props
-    const { isRunning, isExercise } = state
+    const { isRunning } = state
 
-    if (isExercise) {
-      // TODO: exercises can not be run - some message to user???
-      return
-    }
+    // if (isExercise) {
+    //   // TODO: exercises can not be run - some message to user???
+    //   return
+    // }
 
     if (isRunning) {
       this.onStop()

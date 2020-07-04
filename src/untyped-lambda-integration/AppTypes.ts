@@ -1,70 +1,11 @@
-import { MacroMap, AST, ASTReduction, NormalEvaluator, ApplicativeEvaluator, OptimizeEvaluator, ASTReductionType } from "@lambdulus/core"
+import { BoxType } from '../Types'
+import { EvaluationStrategy, UntypedLambdaState, UntypedLambdaSettings, UntypedLambdaType, StepRecord, UntypedLambdaExpressionState, UntypedLambdaMacroState, PromptPlaceholder } from "./Types"
+import { ASTReduction, AST, decodeFast as decodeUntypedLambdaFast } from '@lambdulus/core'
 
-import { AbstractSettings } from '../Types'
-import { BoxType, AbstractBoxState } from '../Types'
 
 export const ADD_BOX_LABEL = '+λ'
 
-export enum PromptPlaceholder {
-  INIT = 'Type λ (as \\) expression and hit enter',
-  EVAL_MODE = 'Hit enter for next step',
-  VALIDATE_MODE = 'Write next step and hit enter for validation',
-  MACRO = 'Define Macro like: `NAME := [λ expression]` and hit enter',
-  NOTE = 'Type note and hit shift enter'
-}
-
-export type Breakpoint = {
-  type : ASTReductionType,
-  context : AST,
-  broken : Set<AST>,
-}
-
-export interface StepRecord {
-  ast : AST
-  lastReduction : ASTReduction | null
-  step : number
-  message : string
-  isNormalForm : boolean
-}
-
-export enum EvaluationStrategy {
-  NORMAL = 'Normal Evaluation',
-  APPLICATIVE = 'Applicative Evaluation',
-  OPTIMISATION = 'Optimisation - η Conversion',
-  ABSTRACTION = 'Abstraction / Simplified Evaluation'
-}
-
-export interface UntypedLambdaState extends AbstractBoxState {
-  __key : string
-  type : BoxType
-  expression : string
-  ast : AST | null
-  history : Array<StepRecord>
-  isRunning : boolean
-  breakpoints : Array<Breakpoint>
-  timeoutID : number | undefined
-  timeout : number
-  isExercise : boolean
-  
-  strategy : EvaluationStrategy
-  SLI : boolean
-  expandStandalones : boolean
-  
-  editor : {
-    placeholder : string
-    content : string
-    caretPosition : number
-    syntaxError : Error | null
-  }
-}
-
 export const CODE_NAME = 'UNTYPED_LAMBDA_CALCULUS'
-
-export interface UntypedLambdaSettings extends AbstractSettings {
-  SLI : boolean
-  expandStandalones : boolean
-  strategy : EvaluationStrategy
-}
 
 export const defaultSettings : UntypedLambdaSettings = {
   type : BoxType.UNTYPED_LAMBDA,
@@ -73,16 +14,14 @@ export const defaultSettings : UntypedLambdaSettings = {
   strategy : EvaluationStrategy.NORMAL
 }
 
-export type Evaluator = NormalEvaluator | ApplicativeEvaluator | OptimizeEvaluator
-
-
-export function createNewUntypedLambda (defaultSettings : UntypedLambdaSettings) : UntypedLambdaState {
+export function createNewUntypedLambdaExpression (defaultSettings : UntypedLambdaSettings) : UntypedLambdaExpressionState {
   return {
     ...defaultSettings,
     __key : Date.now().toString(),
+    type : BoxType.UNTYPED_LAMBDA,
+    subtype : UntypedLambdaType.ORDINARY,
     title : "Untyped λ Expression",
     minimized : false,
-    type : BoxType.UNTYPED_LAMBDA,
     menuOpen : false,
     settingsOpen : false,
     expression : "",
@@ -92,7 +31,6 @@ export function createNewUntypedLambda (defaultSettings : UntypedLambdaSettings)
     breakpoints : [],
     timeoutID : undefined,
     timeout : 5,
-    isExercise : false,
     
     // strategy : EvaluationStrategy.NORMAL,
     // singleLetterNames : false,
@@ -105,4 +43,100 @@ export function createNewUntypedLambda (defaultSettings : UntypedLambdaSettings)
       syntaxError : null,
     }
   }
+}
+
+// TODO: Implement
+export function createNewUntypedLambdaExercise (defaultSettings : UntypedLambdaSettings) : UntypedLambdaState {
+  return null as any
+}
+
+// TODO: Implement
+export function createNewUntypedLambdaMacro (defaultSettings : UntypedLambdaSettings) : UntypedLambdaMacroState {
+  return (
+    {
+      ...defaultSettings,
+      __key : Date.now().toString(),
+      type : BoxType.UNTYPED_LAMBDA,
+      title : "Untyped λ Macro Expression",
+      minimized : false,
+      menuOpen : false,
+      settingsOpen : false,
+    
+      subtype : UntypedLambdaType.MACRO,
+      expression : '',
+      ast : null,
+      macroName : '',
+      macroExpression : '',
+      
+      editor : {
+        placeholder : PromptPlaceholder.MACRO,
+        content : '',
+        caretPosition : 0,
+        syntaxError : null
+      }
+    }
+  )
+}
+
+
+export function decodeUntypedLambdaState (box : UntypedLambdaState) : UntypedLambdaState {
+  switch (box.subtype) {
+    case UntypedLambdaType.ORDINARY:
+      return decodeUntypedLambdaExpression(box as UntypedLambdaExpressionState)
+      
+    case UntypedLambdaType.MACRO:
+      return box //TODO: implement
+
+    case UntypedLambdaType.EXERCISE:
+      return box //TODO: implement
+  }
+}
+
+function decodeUntypedLambdaExpression (box : UntypedLambdaExpressionState) : UntypedLambdaExpressionState {
+  const untypedLambdaBox : UntypedLambdaExpressionState = box as UntypedLambdaExpressionState
+
+  if (untypedLambdaBox.expression === '') {
+    return untypedLambdaBox
+  }
+  
+  const decodedFirst : AST | null = decodeUntypedLambdaFast(untypedLambdaBox.ast)
+
+  if (decodedFirst === null) {
+    // TODO: repair:
+    // parse expression
+    // replace untypedLambdaBox.ast with parsed AST
+    // for now - throw error
+    throw "ROOT AST IS NOT DECODABLE"
+  }
+
+  untypedLambdaBox.ast = decodedFirst
+  untypedLambdaBox.history = untypedLambdaBox.history.map((step : StepRecord, index : number) => {
+    let decodedNth : AST | null = decodeUntypedLambdaFast(step.ast) as AST
+
+    if (decodedNth === null) {
+      // TODO: repair:
+      // try to take previous Step.ast and do the evaluation
+      // though - remember this Step.step (number) may not be + 1 of the previous one
+      // you will need to do the steps as long as need to be
+      // replace decodedNth with parsed AST
+      // for throw
+      throw "CURRENT STEP IS NOT DECODABLE " + index
+    }
+
+    // TODO: maybe instead of this theatre just use the Core . Evalautor
+    // and get real instance of ASTReduction
+    let reduction : ASTReduction | undefined | null = step.lastReduction
+
+    if (step.lastReduction === undefined) {
+      reduction = null
+    }
+
+    return {
+      ...step,
+      lastReduction : reduction,
+      ast : decodedNth, // TODO: as AST this is unsafe
+    }
+  })
+
+  return untypedLambdaBox
 }

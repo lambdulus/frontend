@@ -1,8 +1,8 @@
-import { UntypedLambdaState, CODE_NAME as UNTYPED_CODE_NAME, StepRecord } from "./untyped-lambda-integration/AppTypes"
+import {  CODE_NAME as UNTYPED_CODE_NAME, decodeUntypedLambdaState } from './untyped-lambda-integration/AppTypes'
 import { defaultSettings as UntypedLambdaDefaultSettings } from './untyped-lambda-integration/AppTypes'
 
 import { BoxType, Screen, BoxesWhitelist, AppState, GlobalSettings, NotebookState, BoxState } from "./Types"
-import { AST, decodeFast as decodeUntypedLambdaFast, ASTReduction } from "@lambdulus/core"
+import { UntypedLambdaState } from './untyped-lambda-integration/Types'
 
 
 export const CLEAR_WORKSPACE_CONFIRMATION : string =
@@ -135,53 +135,10 @@ export function decode (state : AppState) : AppState | never {
     const boxList : Array<BoxState> = notebook.boxList.map((box : BoxState, index : number, arr : Array<BoxState>) => {
       switch (box.type) {
         case BoxType.UNTYPED_LAMBDA: {
-          const untypedLambdaBox : UntypedLambdaState = box as UntypedLambdaState
-
-          if (untypedLambdaBox.expression === '') {
-            return untypedLambdaBox
-          }
-          
-          const decodedFirst : AST | null = decodeUntypedLambdaFast(untypedLambdaBox.ast)
-
-          if (decodedFirst === null) {
-            // TODO: repair:
-            // parse expression
-            // replace untypedLambdaBox.ast with parsed AST
-            // for now - throw error
-            throw "ROOT AST IS NOT DECODABLE"
-          }
-
-          untypedLambdaBox.ast = decodedFirst
-          untypedLambdaBox.history = untypedLambdaBox.history.map((step : StepRecord, iindex : number) => {
-            let decodedNth : AST | null = decodeUntypedLambdaFast(step.ast) as AST
-
-            if (decodedNth === null) {
-              // TODO: repair:
-              // try to take previous Step.ast and do the evaluation
-              // though - remember this Step.step (number) may not be + 1 of the previous one
-              // you will need to do the steps as long as need to be
-              // replace decodedNth with parsed AST
-              // for throw
-              throw "CURRENT STEP IS NOT DECODABLE " + index
-            }
-
-            // TODO: maybe instead of this theatre just use the Core . Evalautor
-            // and get real instance of ASTReduction
-            let reduction : ASTReduction | undefined | null = step.lastReduction
-
-            if (step.lastReduction === undefined) {
-              reduction = null
-            }
-
-            return {
-              ...step,
-              lastReduction : reduction,
-              ast : decodedNth, // TODO: as AST this is unsafe
-            }
-          })
-
-          return untypedLambdaBox
+          decodeUntypedLambdaState(box as UntypedLambdaState)
         }
+
+        //TODO: implement for other Box Types
       
         default:
           return box

@@ -24,7 +24,7 @@ interface EditorProperties {
   
   onContent (content : string, caretPosition : number) : void
   onEnter () : void
-  onExecute () : void
+  onExecute () : void // TODO:delete
   // onReset () : void
 }
 

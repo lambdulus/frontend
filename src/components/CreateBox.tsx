@@ -2,7 +2,8 @@ import React from 'react'
 
 import { ANY_BOX, NO_BOX } from '../AppTypes'
 import { BoxType, BoxesWhitelist, BoxState, GlobalSettings } from '../Types'
-import { createNewUntypedLambda, ADD_BOX_LABEL, UntypedLambdaSettings, CODE_NAME as UNTYPED_CODE_NAME, UntypedLambdaState } from '../untyped-lambda-integration/AppTypes'
+import { createNewUntypedLambdaExercise, createNewUntypedLambdaExpression, createNewUntypedLambdaMacro, ADD_BOX_LABEL, CODE_NAME as UNTYPED_CODE_NAME } from '../untyped-lambda-integration/AppTypes'
+import { UntypedLambdaSettings, UntypedLambdaState } from '../untyped-lambda-integration/Types'
 import { createNewMarkdown } from '../markdown-integration/AppTypes'
 
 
@@ -24,6 +25,8 @@ function isAllowed (type : BoxType, whitelist : BoxesWhitelist) : boolean {
   return anyBoxAllowed(whitelist) || (whitelist as Array<BoxType>).includes(type)
 }
 
+// TODO: this needs to change
+// somehow I need to be able to delegate choosing the specific subtype of the Box
 export function CreateBox (props : Props) : JSX.Element {
   const { addNew, whiteList, settings } : Props = props
 
@@ -31,13 +34,23 @@ export function CreateBox (props : Props) : JSX.Element {
 
   const addLambdaBoxIfAllowed = (allowed : boolean) => (
     allowed ?
-      <p
-        className='plusBtn'
-        title='Create new λ box'
-        onClick={ () => addNew(createNewUntypedLambda(untLSettings)) } // TODO: some imported function from the Integration -- like Integration.CreateNewBox()
-      >
-        <i>{ ADD_BOX_LABEL }</i>
-      </p>
+      <div>
+        <p
+          className='plusBtn'
+          title='Create new λ box'
+          onClick={ () => addNew(createNewUntypedLambdaExpression(untLSettings)) } // TODO: some imported function from the Integration -- like Integration.CreateNewBox()
+        >
+          <i>{ ADD_BOX_LABEL }</i>
+        </p>
+
+        <p
+          className='plusBtn'
+          title='Create new λ Macro box'
+          onClick={ () => addNew(createNewUntypedLambdaMacro(untLSettings)) } // TODO: some imported function from the Integration -- like Integration.CreateNewBox()
+        >
+          <i>{ ADD_BOX_LABEL } Macro</i>
+        </p>
+      </div>
       :
       null
   )

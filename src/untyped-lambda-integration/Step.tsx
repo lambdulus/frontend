@@ -6,7 +6,7 @@ import './styles/Step.css'
 import { strategyToEvaluator } from './ExpressionBox'
 import ReactPrinter from './ReactPrinter'
 // import ReductionMessage from './ReductionMessage'
-import { EvaluationStrategy, StepRecord, Breakpoint, Evaluator } from './AppTypes'
+import { EvaluationStrategy, StepRecord, Breakpoint, Evaluator } from './Types'
 import ReductionMessage from './ReductionMessage'
 // import { StrategyContext } from './DataInjector'
 

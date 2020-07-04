@@ -1,8 +1,9 @@
 import React from 'react'
 
 import UntypedLambdaCalculusSet from '../untyped-lambda-integration/Settings'
-import { CODE_NAME as UNTYPED_CODE_NAME, UntypedLambdaSettings } from '../untyped-lambda-integration/AppTypes'
+import { CODE_NAME as UNTYPED_CODE_NAME } from '../untyped-lambda-integration/AppTypes'
 import { GlobalSettings } from '../Types'
+import { UntypedLambdaSettings } from '../untyped-lambda-integration/Types'
 
 
 interface Props {
