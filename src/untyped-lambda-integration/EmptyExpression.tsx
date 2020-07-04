@@ -2,7 +2,7 @@ import React, { useContext, ReactNode } from 'react'
 
 import Editor from '../components/Editor'
 // import { MakeActiveContext, DeleteBox } from './BoxSpace'
-import { StepRecord } from './AppTypes'
+import { StepRecord } from './Types'
 
 interface EmptyExpressionProps {
   className : string

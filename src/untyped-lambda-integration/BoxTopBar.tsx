@@ -1,7 +1,7 @@
 import React, { Component, MouseEvent } from 'react'
 
 import Controls from './ExerciseSwitch'
-import { UntypedLambdaState, PromptPlaceholder } from './AppTypes'
+import { UntypedLambdaState } from './Types'
 import { BoxState } from '../Types'
 
 
@@ -15,7 +15,7 @@ interface Props {
 
 export default function BoxTopBar (props : Props) : JSX.Element {
   const { state, isActive, removeBox, updateBoxState } = props
-  const { isExercise, editor, expression, title } = state
+  // const { isExercise, editor, expression, title } = state
 
   return (
     <div className=''>

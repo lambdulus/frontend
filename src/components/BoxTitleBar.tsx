@@ -1,7 +1,7 @@
 import React, { MouseEvent } from 'react'
 import { BoxType, BoxState } from '../Types'
 import UntypedLambdaBTB from '../untyped-lambda-integration/BoxTopBar'
-import { UntypedLambdaState } from '../untyped-lambda-integration/AppTypes'
+import { UntypedLambdaState } from '../untyped-lambda-integration/Types'
 
 import MarkdownBTB from '../markdown-integration/BoxTopBar'
 import { NoteState } from '../markdown-integration/AppTypes'

@@ -1,4 +1,4 @@
-import { UntypedLambdaState, UntypedLambdaSettings } from "./untyped-lambda-integration/AppTypes"
+import { UntypedLambdaState, UntypedLambdaSettings } from "./untyped-lambda-integration/Types"
 import { NoteState } from "./markdown-integration/AppTypes"
 
 export enum BoxType {

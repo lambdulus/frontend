@@ -1,7 +1,7 @@
 import React from 'react'
 
 import { ASTVisitor, Lambda, Variable, Beta, AST, Application, ChurchNumeral, Expansion, Macro, ASTReduction, Alpha, Gama, ASTReductionType } from "@lambdulus/core"
-import { Breakpoint } from './AppTypes'
+import { Breakpoint } from './Types'
 import { reportEvent } from '../misc';
 
 

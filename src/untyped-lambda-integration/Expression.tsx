@@ -2,7 +2,7 @@
 
 // import Controls from './Controls' // TODO: Controls are gonna be imported from the Frontend app - or maybe not even imported just passed as children
 import Step from './Step'
-import { PromptPlaceholder, UntypedLambdaState, Breakpoint, StepRecord } from './AppTypes'
+import { UntypedLambdaState, Breakpoint, StepRecord, UntypedLambdaExpressionState } from './Types'
 import Editor from '../components/Editor'
 // import { DeleteBox } from './BoxSpace'
 // import { AddBoxContext } from './MethodInjector'
@@ -14,8 +14,7 @@ import DebugControls from '../components/DebugControls'
 
 interface EvaluatorProps {
   className : string
-  isExercise : boolean
-  state : UntypedLambdaState
+  state : UntypedLambdaExpressionState
   breakpoints : Array<Breakpoint>
   history : Array<StepRecord>
   editor : {
@@ -27,7 +26,7 @@ interface EvaluatorProps {
   isNormalForm : boolean
 
   createBoxFrom (stepRecord : StepRecord) : UntypedLambdaState
-  setBoxState (state : UntypedLambdaState) : void
+  setBoxState (state : UntypedLambdaExpressionState) : void
   onContent (content : string, caretPosition : number) : void
   onEnter () : void
   onExecute () : void
@@ -43,7 +42,7 @@ export default class Expression extends PureComponent<EvaluatorProps> {
   }
 
   render () : JSX.Element {
-    const { className, isExercise, state, editor, shouldShowDebugControls } = this.props
+    const { className, state, editor, shouldShowDebugControls } = this.props
 
     const {
       placeholder,
