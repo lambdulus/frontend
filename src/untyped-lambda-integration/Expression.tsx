@@ -44,6 +44,8 @@ export default class Expression extends PureComponent<EvaluatorProps> {
   render () : JSX.Element {
     const { className, state, editor, shouldShowDebugControls } = this.props
 
+    const { isRunning } : UntypedLambdaExpressionState = state
+
     const {
       placeholder,
       content,
@@ -98,6 +100,7 @@ export default class Expression extends PureComponent<EvaluatorProps> {
         {
           ( ! this.props.isNormalForm && shouldShowDebugControls) ?
             <DebugControls
+              isRunning={ isRunning }
               onStep={ this.props.onEnter }
               onRun={ this.props.onExecute }
             />
