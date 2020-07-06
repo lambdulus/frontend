@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { Component } from 'react'
 
 import { ANY_BOX, NO_BOX } from '../AppTypes'
 import { BoxType, BoxesWhitelist, BoxState, GlobalSettings } from '../Types'
@@ -6,11 +6,16 @@ import { createNewUntypedLambdaExercise, createNewUntypedLambdaExpression, creat
 import { UntypedLambdaSettings, UntypedLambdaState } from '../untyped-lambda-integration/Types'
 import { createNewMarkdown } from '../markdown-integration/AppTypes'
 
+import "../styles/CreateBox.css"
 
 interface Props {
   addNew : (box : BoxState) => void,
   whiteList : BoxesWhitelist,
   settings : GlobalSettings
+}
+
+interface State {
+  opened : boolean
 }
 
 function anyBoxAllowed (whitelist : BoxesWhitelist) : boolean {
@@ -27,70 +32,129 @@ function isAllowed (type : BoxType, whitelist : BoxesWhitelist) : boolean {
 
 // TODO: this needs to change
 // somehow I need to be able to delegate choosing the specific subtype of the Box
-export function CreateBox (props : Props) : JSX.Element {
-  const { addNew, whiteList, settings } : Props = props
+export default class CreateBox extends Component<Props, State> {
+  constructor (props : Props) {
+    super(props)
 
-  const untLSettings : UntypedLambdaSettings = settings[UNTYPED_CODE_NAME] as UntypedLambdaState
+    this.state = {
+      opened : false,
+    }
 
-  const addLambdaBoxIfAllowed = (allowed : boolean) => (
-    allowed ?
-      <div>
+    this.onOpen = this.onOpen.bind(this)
+  }
+
+
+  render () : JSX.Element {
+    const { addNew, whiteList, settings } : Props = this.props
+  
+    const untLSettings : UntypedLambdaSettings = settings[UNTYPED_CODE_NAME] as UntypedLambdaState
+  
+    const addLambdaBoxIfAllowed = (allowed : boolean) => (
+      allowed ?
+        <div className='create-box--group'>
+          <p
+            className='plusBtn'
+            title='Create new λ box'
+            onClick={ () => {
+              this.setState({ opened : false })
+              addNew(createNewUntypedLambdaExpression(untLSettings)) } // TODO: some imported function from the Integration -- like Integration.CreateNewBox()
+            }
+          >
+            <i>{ ADD_BOX_LABEL } Expression</i>
+          </p>
+  
+          <p
+            className='plusBtn'
+            title='Create new λ Exercise box'
+            onClick={ () => {
+              this.setState({ opened : false })
+              addNew(createNewUntypedLambdaMacro(untLSettings)) } // TODO: some imported function from the Integration -- like Integration.CreateNewBox()
+            }
+              >
+            <i>{ ADD_BOX_LABEL } Macro</i>
+          </p>
+  
+          <p
+            className='plusBtn'
+            title='Create new λ Macro box'
+            onClick={ () => {
+              this.setState({ opened : false })
+              addNew(createNewUntypedLambdaMacro(untLSettings)) } // TODO: some imported function from the Integration -- like Integration.CreateNewBox()
+            }
+              >
+            <i>{ ADD_BOX_LABEL } Exercise</i>
+          </p>
+        </div>
+        :
+        null
+    )
+  
+    const addLispBoxIfAllowed = (allowed : boolean) => (
+      allowed ?
+        <div className='create-box--group'>
+          <p
+            className='plusBtn'
+            title='Create new Lisp box'
+            onClick={ () => {
+              this.setState({ opened : false })
+              addNew({__key : Date.now().toString()} as BoxState) } // NOTE: just for now
+            }
+          >
+            <i>+ Lisp</i>
+          </p>
+        </div>
+        :
+        null
+    )
+  
+    const addMDBoxIfAllowed = (allowed : boolean) => (
+      allowed ?
+      <div className='create-box--group'>
         <p
           className='plusBtn'
-          title='Create new λ box'
-          onClick={ () => addNew(createNewUntypedLambdaExpression(untLSettings)) } // TODO: some imported function from the Integration -- like Integration.CreateNewBox()
+          title='Create new MarkDown box'
+          onClick={ () => {
+            this.setState({ opened : false })
+            addNew(createNewMarkdown()) }
+          }
         >
-          <i>{ ADD_BOX_LABEL }</i>
-        </p>
-
-        <p
-          className='plusBtn'
-          title='Create new λ Macro box'
-          onClick={ () => addNew(createNewUntypedLambdaMacro(untLSettings)) } // TODO: some imported function from the Integration -- like Integration.CreateNewBox()
-        >
-          <i>{ ADD_BOX_LABEL } Macro</i>
+          <i>+ MD</i>
         </p>
       </div>
       :
       null
-  )
+    )
 
-  const addLispBoxIfAllowed = (allowed : boolean) => (
-    allowed ?
-      <p
-        className='plusBtn'
-        title='Create new Lisp box'
-        onClick={ () => addNew({__key : Date.now().toString()} as BoxState) } // NOTE: just for now
-      >
-        <i>+ Lisp</i>
-      </p>
-      :
-      null
-  )
-
-  const addMDBoxIfAllowed = (allowed : boolean) => (
-    allowed ?
-    <p
-      className='plusBtn'
-      title='Create new MarkDown box'
-      onClick={ () => addNew(createNewMarkdown()) }
-    >
-      <i>+ MD</i>
-    </p>
-    :
-    null
-  )
-
-  return (
-    noBoxAllowed(whiteList) ?
-      null as any
-      :
-      <div className='addBoxArea'>
-        <div className='addButtons'>
-          { addLambdaBoxIfAllowed(isAllowed (BoxType.UNTYPED_LAMBDA, whiteList)) }
-          { addLispBoxIfAllowed(isAllowed(BoxType.LISP, whiteList)) }
-          { addMDBoxIfAllowed(isAllowed(BoxType.MARKDOWN, whiteList)) }
+    if (this.state.opened) {
+      return (
+        noBoxAllowed(whiteList) ?
+          null as any
+          :
+          <div className='create-box'>
+            <div className='create-box--container'>
+              { addLambdaBoxIfAllowed(isAllowed (BoxType.UNTYPED_LAMBDA, whiteList)) }
+              { addLispBoxIfAllowed(isAllowed(BoxType.LISP, whiteList)) }
+              { addMDBoxIfAllowed(isAllowed(BoxType.MARKDOWN, whiteList)) }
+            </div>
+          </div>
+      )
+    }
+    
+    return (
+      <div className='create-box-plus'>
+        <div className='create-box-plus--button' onClick={ this.onOpen }>
+          <div className='create-box-plus--container'>
+            <p>
+              <i className="fas fa-plus" />
+            </p>
+          </div>
         </div>
       </div>
-  )
+    )
+  }
+
+  onOpen () : void {
+    this.setState({ opened : true })
+  }
+  
 }

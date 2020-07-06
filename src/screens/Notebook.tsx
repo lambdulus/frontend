@@ -4,7 +4,7 @@
 
 
 import React, { PureComponent } from 'react'
-import { CreateBox } from '../components/CreateBox'
+import CreateBox from '../components/CreateBox'
 import { BoxType, NotebookState, GlobalSettings, BoxState } from '../Types'
 
 import { onMarkDownBlur, NoteState } from '../markdown-integration/AppTypes'
