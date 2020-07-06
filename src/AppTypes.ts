@@ -39,8 +39,12 @@ export const EmptyAppState : AppState = {
     activeBoxIndex : NaN,
     focusedBoxIndex : undefined,
     allowedBoxes : ANY_BOX,
+    settings : getDefaultSettings(DEFAULT_WHITELIST),
+
     __key : Date.now().toString(),
-    settings : getDefaultSettings(DEFAULT_WHITELIST)
+    name : "Default Ntbk",
+    editingName : false,
+    persistent : true,
   }],
   currentNotebook : 0,
   currentScreen : Screen.MAIN,
