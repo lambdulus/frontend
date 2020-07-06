@@ -4,6 +4,8 @@ import '../styles/DebugControls.css'
 
 
 interface Props {
+  isRunning : boolean
+
   onStep : () => void
   onRun : () => void
 }
@@ -39,17 +41,20 @@ export default class DebugControls extends PureComponent<Props> {
   }
 
   render () {
-    const { onStep, onRun } : Props = this.props
+    const { isRunning, onStep, onRun } : Props = this.props
   
+    const runMessage : string =
+      isRunning ? 'Stop the Evaluation (Press F9)' :  'Evaluate the Expression (Press F9)'
+
     return (
       <div className='debug-controls'>
         <button
-          title='Run the Expression (Press F9)'
+          title={ runMessage }
           type="button"
           className='btn debug-controls--run'
           onClick={ onRun }
         >
-          <span className='debug-controls--btn-label'>Run</span>
+          <span className='debug-controls--btn-label'>{ isRunning ? 'Stop' : 'Run' }</span>
           <i className="mini-icon fas fa-play"></i>
         </button>
         
@@ -58,6 +63,7 @@ export default class DebugControls extends PureComponent<Props> {
           type="button"
           className='btn debug-controls--step'
           onClick={ onStep }
+          disabled={ isRunning }
         >
           <span className='debug-controls--btn-label'>Step</span>
           <i className="mini-icon fas fa-step-forward"></i>

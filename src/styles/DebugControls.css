@@ -21,6 +21,10 @@
 	transition: color .15s ease-in-out,background-color .15s ease-in-out,border-color .15s ease-in-out,box-shadow .15s ease-in-out;
 }
 
+.btn.disabled, .btn:disabled {
+	opacity: .65;
+}
+
 .btn:hover {
 	color: #212529;
   text-decoration: none;
@@ -53,7 +57,6 @@ button, input, optgroup, select, textarea {
 
 .debug-controls--run:hover {
   background-color: #4ece6c;
-
 }
 
 .debug-controls--step {
@@ -63,6 +66,13 @@ button, input, optgroup, select, textarea {
 
 .debug-controls--step:hover {
   background-color: #6daeeb;
+}
+
+.debug-controls--step.disabled,
+.debug-controls--step:disabled {
+	color: #b6b6b6;
+	background-color: #61758a;
+	border-color: #415972;
 }
 
 /* -------------------------- */
