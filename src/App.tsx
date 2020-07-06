@@ -33,6 +33,9 @@ export default class App extends Component<Props, AppState> {
     this.changeNotebook = this.changeNotebook.bind(this)
     this.addNotebook = this.addNotebook.bind(this)
     this.removeNotebook = this.removeNotebook.bind(this)
+    this.editNotebookName = this.editNotebookName.bind(this)
+    this.changeNotebookName = this.changeNotebookName.bind(this)
+    this.stopEditingNotebook = this.stopEditingNotebook.bind(this)
     this.updateSettings = this.updateSettings.bind(this)
     this.importWorkspace = this.importWorkspace.bind(this)
     this.clearWorkspace = this.clearWorkspace.bind(this)
@@ -57,7 +60,9 @@ export default class App extends Component<Props, AppState> {
           onImport={ this.importWorkspace }
           onClearWorkspace={ this.clearWorkspace }
         />
-        {
+        
+        {/* TODO: Commenting this out for now - world is not yet ready for such powers */}
+        {/* {
           notebookList.length > 0 ?
             <ul className='notebook-list UL'>
               <div className='notebook-list--title'>
@@ -72,7 +77,30 @@ export default class App extends Component<Props, AppState> {
                     title='Click to Select this Notebook'
                     onClick={ () => this.changeNotebook(index) }
                   >
-                    { `Notebook ${index}` }
+                    {
+                      notebook.editingName ?
+                        <input
+                          type='text'
+                          value={ notebook.name }
+                          onChange={ (event) => this.changeNotebookName(index, event.target.value) }
+                          onBlur={ () => this.stopEditingNotebook(index) }
+                          maxLength={12}
+                          size={ 10 }
+                          />
+                      :
+                        notebook.name
+                    }
+                    <span
+                      className='notebook-tab--edit-name'
+                      onClick={ (event) => {
+                        event.stopPropagation()
+
+                        this.editNotebookName(index)
+                      }}
+                    >
+                      <i className="edit-name mini-icon fas fa-pen" title='Click to Change the Notebook Name' />
+                    </span>
+
                     <div className='notebookIconWrapper'>
                         {
                           notebookList.length === 1 ?
@@ -103,7 +131,7 @@ export default class App extends Component<Props, AppState> {
             </ul>
           :
             null
-        }
+        } */}
         {
           (() => {
             if (currentScreen === Screen.MAIN)
@@ -178,6 +206,39 @@ export default class App extends Component<Props, AppState> {
     })
   }
 
+  editNotebookName (index : number) : void {
+    const { notebookList } = this.state
+
+    const notebook : NotebookState = notebookList[index]
+
+    notebookList[index] = { ...notebook, editingName : true, persistent : true }
+
+    this.setState({ notebookList })
+    updateAppStateToStorage({ ...this.state })
+  }
+
+  changeNotebookName (index : number, name : string) : void {
+    const { notebookList } = this.state
+
+    const notebook : NotebookState = notebookList[index]
+
+    notebookList[index] = { ...notebook, name }
+
+    this.setState({ notebookList })
+    updateAppStateToStorage({ ...this.state })
+  }
+
+  stopEditingNotebook (index : number) : void {
+    const { notebookList } = this.state
+
+    const notebook : NotebookState = notebookList[index]
+
+    notebookList[index] = { ...notebook, editingName : false }
+
+    this.setState({ notebookList })
+    updateAppStateToStorage({ ...this.state })
+  }
+
   updateSettings (newSettings : GlobalSettings) : void {
     const { currentNotebook, notebookList } = this.state
     notebookList[currentNotebook].settings = newSettings
@@ -206,7 +267,11 @@ function createNewNotebook () : NotebookState {
     activeBoxIndex : NaN,
     focusedBoxIndex : undefined,
     allowedBoxes : ANY_BOX,
+    settings : loadSettingsFromStorage(),
+    
     __key : Date.now().toString(),
-    settings : loadSettingsFromStorage()
+    name : "Temp Notebook",
+    editingName : false,
+    persistent : true, // TODO: you can change this if explicit save/rename is required for persistency
   }
 }

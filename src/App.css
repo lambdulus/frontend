@@ -94,6 +94,16 @@
   /* border-bottom: 1px solid #3399ff; */
 }
 
+.edit-name {
+  display: none;
+  margin-left: 10px;
+}
+
+.notebook-tab:hover .edit-name {
+  display: inline;
+  color: white;
+}
+
 .current {
   background-color: #4aa4ff;
 }

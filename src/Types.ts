@@ -12,7 +12,7 @@ export enum Screen {
   HELP,
   MACROLIST,
   SETTINGS,
-  // NOTEBOOKS,
+  NOTEBOOKS, // TODO: this will be the final solution to the `Multiple Notebooks` problem
 }
 
 export type AnyBox = -1
@@ -62,6 +62,9 @@ export interface NotebookState {
   settings : GlobalSettings // TODO: refactor to use the Dictionary
 
   __key : string
+  name : string
+  editingName : boolean
+  persistent : boolean
 }
 
 export interface AppState {
