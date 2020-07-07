@@ -6,6 +6,7 @@ import ExpressionBox from './ExpressionBox'
 import Macro from './Macro'
 import MacroList from './MacroList'
 import { UNTYPED_LAMBDA_INTEGRATION_STATE } from './AppTypes'
+import ExerciseBox from './ExerciseBox'
 
 // import macroctx from './MacroContext'
 
@@ -30,9 +31,11 @@ export default function UntypedLambdaBox (props : Props) : JSX.Element {
         return <ExpressionBox { ...props } state={ exprState } macroContext={ UNTYPED_LAMBDA_INTEGRATION_STATE } />
       }
   
-      case UntypedLambdaType.EXERCISE:
-        return <div>Exercise Box not implemented</div>
-    
+      case UntypedLambdaType.EXERCISE: {
+        const execState : UntypedLambdaExpressionState = state as UntypedLambdaExpressionState
+        return <ExerciseBox { ...props } state={ execState } macroContext={ UNTYPED_LAMBDA_INTEGRATION_STATE } />
+      }
+
       case UntypedLambdaType.MACRO: {
         const macroState : UntypedLambdaMacroState = state as UntypedLambdaMacroState
         return <Macro { ...props } state={ macroState} macroContext={ UNTYPED_LAMBDA_INTEGRATION_STATE } />
