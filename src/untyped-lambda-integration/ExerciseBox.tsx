@@ -59,7 +59,7 @@ export interface EvaluationProperties {
   addBox (box : UntypedLambdaState) : void
 }
 
-export default class ExpressionBox extends PureComponent<EvaluationProperties> {
+export default class ExerciseBox extends PureComponent<EvaluationProperties> {
   constructor (props : EvaluationProperties) {
     super(props)
 
@@ -88,7 +88,7 @@ export default class ExpressionBox extends PureComponent<EvaluationProperties> {
       editor,
     } : UntypedLambdaExpressionState = state
 
-    let className : string = 'box boxEval'
+    let className : string = 'box boxEval boxExercise'
     const { isNormalForm } = history.length ? history[history.length - 1] : { isNormalForm : false }
 
     if (expression === '') {
@@ -128,7 +128,7 @@ export default class ExpressionBox extends PureComponent<EvaluationProperties> {
     return (
       <Expression
         className={ className }
-        isExercise={ false }
+        isExercise={ true }
         state={ state }
         breakpoints={ breakpoints }
         history={ history }

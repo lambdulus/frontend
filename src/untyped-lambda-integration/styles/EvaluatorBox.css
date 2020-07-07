@@ -60,3 +60,10 @@ li:hover .hiddenMacroIcon {
   /* font-size: 0.7em; */
 }
 
+.boxExercise .activeStep .substitutedArg,
+.boxExercise .activeStep .redex,
+.boxExercise .churchnumeral.redex.argument.abstraction {
+  border: none;
+  background-color: white;
+  padding: 0;
+}

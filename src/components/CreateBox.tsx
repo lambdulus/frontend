@@ -57,7 +57,7 @@ export default class CreateBox extends Component<Props, State> {
             title='Create new λ box'
             onClick={ () => {
               this.setState({ opened : false })
-              addNew(createNewUntypedLambdaExpression(untLSettings)) } // TODO: some imported function from the Integration -- like Integration.CreateNewBox()
+              addNew(createNewUntypedLambdaExpression(untLSettings)) }
             }
           >
             <i>{ ADD_BOX_LABEL } Expression</i>
@@ -68,7 +68,7 @@ export default class CreateBox extends Component<Props, State> {
             title='Create new λ Exercise box'
             onClick={ () => {
               this.setState({ opened : false })
-              addNew(createNewUntypedLambdaMacro(untLSettings)) } // TODO: some imported function from the Integration -- like Integration.CreateNewBox()
+              addNew(createNewUntypedLambdaMacro(untLSettings)) }
             }
               >
             <i>{ ADD_BOX_LABEL } Macro</i>
@@ -79,7 +79,7 @@ export default class CreateBox extends Component<Props, State> {
             title='Create new λ Macro box'
             onClick={ () => {
               this.setState({ opened : false })
-              addNew(createNewUntypedLambdaMacro(untLSettings)) } // TODO: some imported function from the Integration -- like Integration.CreateNewBox()
+              addNew(createNewUntypedLambdaExercise(untLSettings)) }
             }
               >
             <i>{ ADD_BOX_LABEL } Exercise</i>

@@ -55,12 +55,41 @@ export function createNewUntypedLambdaExpression (defaultSettings : UntypedLambd
   }
 }
 
-// TODO: Implement
 export function createNewUntypedLambdaExercise (defaultSettings : UntypedLambdaSettings) : UntypedLambdaState {
-  return null as any
+  return {
+    ...defaultSettings,
+    __key : Date.now().toString(),
+    type : BoxType.UNTYPED_LAMBDA,
+    subtype : UntypedLambdaType.EXERCISE,
+    title : "Untyped λ Exercise",
+    minimized : false,
+    menuOpen : false,
+    settingsOpen : false,
+    expression : "",
+    ast : null,
+    history : [],
+    isRunning : false,
+    breakpoints : [],
+    timeoutID : undefined,
+    timeout : 5,
+    
+    // strategy : EvaluationStrategy.NORMAL,
+    // singleLetterNames : false,
+    // standalones : false,
+
+    macrolistOpen : false,
+    macrotable : { ...UNTYPED_LAMBDA_INTEGRATION_STATE.macrotable },
+
+    
+    editor : {
+      placeholder : "placeholder",
+      content : "",
+      caretPosition : 0,
+      syntaxError : null,
+    }
+  }
 }
 
-// TODO: Implement
 export function createNewUntypedLambdaMacro (defaultSettings : UntypedLambdaSettings) : UntypedLambdaMacroState {
   return (
     {
@@ -99,10 +128,10 @@ export function decodeUntypedLambdaState (box : UntypedLambdaState) : UntypedLam
       return decodeUntypedLambdaExpression(box as UntypedLambdaExpressionState)
       
     case UntypedLambdaType.MACRO:
-      return box //TODO: implement
+      return box //TODO: implement -- it's not really needed
 
     case UntypedLambdaType.EXERCISE:
-      return box //TODO: implement
+      return decodeUntypedLambdaExpression(box as UntypedLambdaExpressionState)
   }
 }
 

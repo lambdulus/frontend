@@ -24,10 +24,11 @@ interface EvaluatorProps {
     syntaxError : Error | null
   }
   isNormalForm : boolean
+  isExercise : boolean
 
   createBoxFrom (stepRecord : StepRecord) : UntypedLambdaState
   setBoxState (state : UntypedLambdaExpressionState) : void
-  onContent (content : string, caretPosition : number) : void
+  onContent (content : string) : void
   onEnter () : void
   onExecute () : void
   addBox (box : UntypedLambdaState) : void
@@ -42,7 +43,7 @@ export default class Expression extends PureComponent<EvaluatorProps> {
   }
 
   render () : JSX.Element {
-    const { className, state, editor, shouldShowDebugControls } = this.props
+    const { className, state, editor, shouldShowDebugControls, isExercise } = this.props
 
     const { isRunning } : UntypedLambdaExpressionState = state
 
@@ -98,25 +99,27 @@ export default class Expression extends PureComponent<EvaluatorProps> {
           </li>
         </ul>
         {
-          ( ! this.props.isNormalForm && shouldShowDebugControls) ?
-            <DebugControls
-              isRunning={ isRunning }
-              onStep={ this.props.onEnter }
-              onRun={ this.props.onExecute }
+          (isExercise && ! this.props.isNormalForm) ?
+            <Editor
+              placeholder={ placeholder } // data
+              content={ content } // data
+              syntaxError={ syntaxError } // data
+              submitOnEnter={ true } // data
+
+              onContent={ this.props.onContent } // fn
+              onEnter={ this.props.onEnter } // fn // tohle asi bude potreba
+              onExecute={ this.props.onExecute } // fn // tohle asi bude potreba
+              shouldReplaceLambda={ true }
             />
           :
-            null
-          // <Editor
-          //   placeholder={ placeholder } // data
-          //   content={ content } // data
-          //   caretPosition={ caretPosition } // data
-          //   syntaxError={ syntaxError } // data
-          //   submitOnEnter={ true } // data
-
-          //   onContent={ this.props.onContent } // fn
-          //   onEnter={ this.props.onEnter } // fn // tohle asi bude potreba
-          //   onExecute={ this.props.onExecute } // fn // tohle asi bude potreba
-          // />
+            ( ! this.props.isNormalForm && shouldShowDebugControls) ?
+              <DebugControls
+                isRunning={ isRunning }
+                onStep={ this.props.onEnter }
+                onRun={ this.props.onExecute }
+              />
+            :
+              null
         }
       </div>
     )
