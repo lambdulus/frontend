@@ -15,7 +15,7 @@ interface EmptyExpressionProps {
   }
   history : Array<StepRecord>
 
-  onContent (content : string, caretPosition : number) : void
+  onContent (content : string) : void
   onEnter () : void
   onExecute () : void
 }
@@ -44,7 +44,6 @@ export default function EmptyExpression(props : EmptyExpressionProps) : JSX.Elem
               <Editor
                 placeholder={ placeholder } // data
                 content={ content } // data
-                caretPosition={ caretPosition } // data
                 syntaxError={ syntaxError } // data
                 submitOnEnter={ true } // data
                 shouldReplaceLambda={ true }

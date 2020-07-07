@@ -25,14 +25,13 @@ export default function Note (props : NoteProperties) : JSX.Element {
     setBoxState,
   } = props
   
-  const onContent = (content : string, caretPosition : number) => {
+  const onContent = (content : string) => {
     setBoxState({
       ...props.state,
       note : content,
       editor : {
         ...props.state.editor,
         content,
-        caretPosition,
         syntaxError : null,
       }
     })
@@ -45,7 +44,6 @@ export default function Note (props : NoteProperties) : JSX.Element {
         <Editor
           placeholder={ placeholder } // data
           content={ content } // data
-          caretPosition={ caretPosition } // data
           syntaxError={ syntaxError } // data
           submitOnEnter={ false } // data
           shouldReplaceLambda={ false }
