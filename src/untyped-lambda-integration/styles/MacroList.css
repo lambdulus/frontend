@@ -1,0 +1,36 @@
+.builtinMacros, .userMacros {
+  flex: 50%;
+}
+
+.macroSpace {
+  display: flex;
+}
+
+.macro-definition {
+  padding-top: 5px;
+  padding-bottom: 5px;
+  padding-left: 20px;
+  background-color: hotpink;
+  border-radius: 0.2rem;
+}
+
+.dense-LI {
+  margin-bottom: 2px;
+}
+
+
+.boxMacro {
+  /* border-left: 5px solid rgb(11, 92, 184); */
+}
+
+.builtinMacros .boxMacro {
+  /* border-left: 5px solid darkgoldenrod; */
+  /* padding-top: 3px; */
+  /* padding-bottom: 3px; */
+}
+
+.userMacros .boxMacro {
+  /* border-left: 5px solid rgb(11, 92, 184);
+  padding-top: 3px;
+  padding-bottom: 3px; */
+}

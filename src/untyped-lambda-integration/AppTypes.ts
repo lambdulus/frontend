@@ -1,7 +1,13 @@
 import { BoxType } from '../Types'
-import { EvaluationStrategy, UntypedLambdaState, UntypedLambdaSettings, UntypedLambdaType, StepRecord, UntypedLambdaExpressionState, UntypedLambdaMacroState, PromptPlaceholder } from "./Types"
+import { EvaluationStrategy, UntypedLambdaState, UntypedLambdaSettings, UntypedLambdaType, StepRecord, UntypedLambdaExpressionState, UntypedLambdaMacroState, PromptPlaceholder, UntypedLambdaIntegrationState } from "./Types"
 import { ASTReduction, AST, decodeFast as decodeUntypedLambdaFast } from '@lambdulus/core'
 
+// import macroctx from './MacroContext'
+
+// NOTE: let instead of const just for now
+export let UNTYPED_LAMBDA_INTEGRATION_STATE : UntypedLambdaIntegrationState = {
+  macrotable : {}
+}
 
 export const ADD_BOX_LABEL = '+λ'
 
@@ -35,6 +41,10 @@ export function createNewUntypedLambdaExpression (defaultSettings : UntypedLambd
     // strategy : EvaluationStrategy.NORMAL,
     // singleLetterNames : false,
     // standalones : false,
+
+    macrolistOpen : false,
+    macrotable : { ...UNTYPED_LAMBDA_INTEGRATION_STATE.macrotable },
+
     
     editor : {
       placeholder : "placeholder",
@@ -67,6 +77,10 @@ export function createNewUntypedLambdaMacro (defaultSettings : UntypedLambdaSett
       ast : null,
       macroName : '',
       macroExpression : '',
+
+      macrolistOpen : false,
+      macrotable : { ...UNTYPED_LAMBDA_INTEGRATION_STATE.macrotable },
+
       
       editor : {
         placeholder : PromptPlaceholder.MACRO,

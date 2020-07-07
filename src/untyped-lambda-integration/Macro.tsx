@@ -1,9 +1,10 @@
 import React, { useContext } from 'react'
 
 import { BoxState } from '../Types'
-import { tokenize, parse, AST, Token, Variable, builtinMacros } from '@lambdulus/core'
+import { tokenize, parse, AST, Token, Variable, builtinMacros, MacroMap } from '@lambdulus/core'
 import { UntypedLambdaState, UntypedLambdaMacroState } from './Types'
 import Editor from '../components/Editor'
+// import { MContext } from './MacroContext'
 
 
 // import { trimStr } from '../misc'
@@ -15,13 +16,14 @@ import Editor from '../components/Editor'
 
 interface Props {
   state : UntypedLambdaMacroState
+  macroContext : { macrotable : MacroMap }
   
   setBoxState (state : UntypedLambdaMacroState) : void
   addBox (box : BoxState) : void
 }
 
 export default function Macro (props : Props) : JSX.Element {
-  const { state, setBoxState } = props
+  const { state, setBoxState, macroContext } = props
   const { editor } = state
   const { editor : { content, caretPosition, placeholder, syntaxError } } = state
   const { macroName, macroExpression, SLI } = state
@@ -94,6 +96,7 @@ export default function Macro (props : Props) : JSX.Element {
     })
 
     // defineMacro(macroName, macroBody) // TODO: tady pak budu registrovat do statickyho clena to makro
+    macroContext.macrotable[macroName] = macroBody
   
     // const newMacroTable : MacroMap = {
     //   ...macroTable,
@@ -104,28 +107,28 @@ export default function Macro (props : Props) : JSX.Element {
 
   // TODO: implement same as Evaluator - editor and stuff
   if (macroName === '' && macroExpression === '') {
+    // className='box boxMacro inactiveBox'
     return (
-      <div className='box boxMacro inactiveBox'>
-          <p className='emptyStep'>Empty macro box.</p>
-          {/* <i className='removeBox far fa-trash-alt' onClick={ deleteBox } title='Remove this Box' /> */}
-          <Editor
-            placeholder={ placeholder } // data
-            content={ content } // data
-            // caretPosition={ caretPosition } // data
-            syntaxError={ syntaxError } // data
-            shouldReplaceLambda={ true }
-            submitOnEnter={ true }
+      <div className=''>
+        <Editor
+          placeholder={ placeholder } // data
+          content={ content } // data
+          // caretPosition={ caretPosition } // data
+          syntaxError={ syntaxError } // data
+          shouldReplaceLambda={ true }
+          submitOnEnter={ true }
 
-            onContent={ onContent } // fn
-            onEnter={ onSubmit } // fn // tohle asi bude potreba
-            onExecute={ () => {} } // fn // TODO: tohle Macro nepotrebuje
-          />
-          </div>
+          onContent={ onContent } // fn
+          onEnter={ onSubmit } // fn // tohle asi bude potreba
+          onExecute={ () => {} } // fn // TODO: tohle Macro nepotrebuje
+        />
+      </div>
     )
   }
 
+  // className='box boxMacro'
   return (
-    <div className='box boxMacro'>
+    <div className=''>
       { macroName } := { macroExpression }
       {/* <i className='removeBox far fa-trash-alt' onClick={ deleteBox } title='Remove this Box' /> */}
     </div>

@@ -1,0 +1,14 @@
+.untyped-lambda--top-bar-custom--button {
+  padding-top: 5px;
+  padding-bottom: 5px;
+  text-align: center;
+  cursor: pointer;
+  float: left;
+  padding-left: 8.5px;
+  padding-right: 8.5px;
+}
+
+.untyped-lambda--top-bar-custom--button:hover {
+  background-color: rgb(221, 221, 221);
+  border-radius: 5px;
+}

@@ -30,6 +30,7 @@ import InactiveEvaluator from './InactiveExpression'
 import Expression from './Expression'
 import { EvaluationStrategy, PromptPlaceholder, UntypedLambdaState, Evaluator, StepRecord, Breakpoint, UntypedLambdaType, UntypedLambdaExpressionState } from './Types'
 import { reportEvent } from '../misc'
+// import { MContext } from './MacroContext'
 
 
 export function strategyToEvaluator (strategy : EvaluationStrategy) : Evaluator {
@@ -52,6 +53,7 @@ export interface EvaluationProperties {
   state : UntypedLambdaExpressionState
   isActive : boolean
   isFocused : boolean
+  macroContext : { macrotable : MacroMap }
 
   setBoxState (state : UntypedLambdaExpressionState) : void
   addBox (box : UntypedLambdaState) : void
@@ -150,6 +152,7 @@ export default class ExpressionBox extends PureComponent<EvaluationProperties> {
       strategy,
       SLI,
       expandStandalones,
+      macrotable,
     } : UntypedLambdaExpressionState = state
     const { ast } = stepRecord
     const content = ast.toString()
@@ -173,6 +176,8 @@ export default class ExpressionBox extends PureComponent<EvaluationProperties> {
       strategy,
       SLI,
       expandStandalones,
+      macrolistOpen : false,
+      macrotable : { ...macrotable, ...this.props.macroContext.macrotable },
       editor : {
         placeholder : PromptPlaceholder.EVAL_MODE,
         content,
@@ -575,7 +580,7 @@ export default class ExpressionBox extends PureComponent<EvaluationProperties> {
     const { SLI : singleLetterVars } = this.props.state
 
     const tokens : Array<Token> = tokenize(expression, { lambdaLetters : ['λ'], singleLetterVars })
-    const ast : AST = parse(tokens, {}) // macroTable
+    const ast : AST = parse(tokens, this.props.macroContext.macrotable) // macroTable
 
     return ast
   }

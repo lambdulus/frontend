@@ -4,6 +4,10 @@ import { BoxState } from '../Types'
 import { UntypedLambdaState, UntypedLambdaType, UntypedLambdaExpressionState, UntypedLambdaMacroState } from './Types'
 import ExpressionBox from './ExpressionBox'
 import Macro from './Macro'
+import MacroList from './MacroList'
+import { UNTYPED_LAMBDA_INTEGRATION_STATE } from './AppTypes'
+
+// import macroctx from './MacroContext'
 
 
 interface Props {
@@ -17,20 +21,39 @@ interface Props {
 
 export default function UntypedLambdaBox (props : Props) : JSX.Element {
   const { state } : Props = props
-  const { subtype } : UntypedLambdaState = state
+  const { subtype, macrolistOpen } : UntypedLambdaState = state
 
-  switch (subtype) {
-    case UntypedLambdaType.ORDINARY: {
-      const exprState : UntypedLambdaExpressionState = state as UntypedLambdaExpressionState
-      return <ExpressionBox { ...props } state={ exprState } />
-    }
-
-    case UntypedLambdaType.EXERCISE:
-      return <div>Exercise Box not implemented</div>
+  const renderBox = () => {
+    switch (subtype) {
+      case UntypedLambdaType.ORDINARY: {
+        const exprState : UntypedLambdaExpressionState = state as UntypedLambdaExpressionState
+        return <ExpressionBox { ...props } state={ exprState } macroContext={ UNTYPED_LAMBDA_INTEGRATION_STATE } />
+      }
   
-    case UntypedLambdaType.MACRO: {
-      const macroState : UntypedLambdaMacroState = state as UntypedLambdaMacroState
-      return <Macro { ...props } state={ macroState} />
+      case UntypedLambdaType.EXERCISE:
+        return <div>Exercise Box not implemented</div>
+    
+      case UntypedLambdaType.MACRO: {
+        const macroState : UntypedLambdaMacroState = state as UntypedLambdaMacroState
+        return <Macro { ...props } state={ macroState} macroContext={ UNTYPED_LAMBDA_INTEGRATION_STATE } />
+      }
     }
   }
+
+  return (
+    <div>
+      {
+        macrolistOpen ?
+          <div className='untyped-lambda-box--macrolist'>
+            <MacroList macroTable={ state.macrotable }  />
+            {/* // TODO: this will just get this? */}
+          </div>
+        :
+          null
+      }
+
+      { renderBox() }
+
+    </div>
+  )
 }

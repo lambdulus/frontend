@@ -10,10 +10,8 @@
 
 .box-top-bar-custom {
   position: absolute;
-  top: 5px;
+  top: 0;
   right: 6em;
-  /* right: 7%; */
-  
 }
 
 .box-top-bar-controls {
