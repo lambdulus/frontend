@@ -26,7 +26,7 @@ export default function Macro (props : Props) : JSX.Element {
   const { editor : { content, caretPosition, placeholder, syntaxError } } = state
   const { macroName, macroExpression, SLI } = state
 
-  const onContent = (content : string, caretPosition : number) => {
+  const onContent = (content : string) => {
     setBoxState({
       ...props.state,
       editor : {
@@ -111,7 +111,7 @@ export default function Macro (props : Props) : JSX.Element {
           <Editor
             placeholder={ placeholder } // data
             content={ content } // data
-            caretPosition={ caretPosition } // data
+            // caretPosition={ caretPosition } // data
             syntaxError={ syntaxError } // data
             shouldReplaceLambda={ true }
             submitOnEnter={ true }

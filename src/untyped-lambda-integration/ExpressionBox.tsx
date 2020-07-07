@@ -182,7 +182,7 @@ export default class ExpressionBox extends PureComponent<EvaluationProperties> {
     }
   }
 
-  onContent (content : string, caretPosition : number) : void {
+  onContent (content : string) : void {
     const { state, setBoxState } = this.props
 
     setBoxState({
@@ -190,7 +190,6 @@ export default class ExpressionBox extends PureComponent<EvaluationProperties> {
       editor : {
         ...state.editor,
         content,
-        caretPosition,
         syntaxError : null,
       }
     })

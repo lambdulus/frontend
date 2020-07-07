@@ -17,12 +17,11 @@ export enum ActionType {
 interface EditorProperties {
   placeholder: string
   content : string
-  caretPosition : number
   syntaxError : Error | null
   submitOnEnter : boolean
   shouldReplaceLambda : boolean
   
-  onContent (content : string, caretPosition : number) : void
+  onContent (content : string) : void
   onEnter () : void
   onExecute () : void // TODO:delete
   // onReset () : void
@@ -32,7 +31,6 @@ export default function Editor (props : EditorProperties) : JSX.Element {
   const {
     placeholder,
     content,
-    caretPosition,
     syntaxError,
     submitOnEnter,
     shouldReplaceLambda,
@@ -51,7 +49,7 @@ export default function Editor (props : EditorProperties) : JSX.Element {
       content = content.replace(/\\/g, 'λ')
     }
     
-    onContent(content, caretPosition)
+    onContent(content)
   }
 
   // TODO: Editor should not decide that - it should only implement onEnter onShiftEnter onCtrlEnter
@@ -98,9 +96,6 @@ export default function Editor (props : EditorProperties) : JSX.Element {
         <InputField
           placeholder={ placeholder }
           content={ content }
-          lines={ lines }
-          caretPosition={ caretPosition }
-          // onChange={ onChange }
           onContent={ (content : string) => onChange(content) }
           onKeyDown={ onKeyDown }
         />
@@ -112,15 +107,13 @@ export default function Editor (props : EditorProperties) : JSX.Element {
 interface InputProps {
   placeholder : string
   content : string
-  lines : number
-  caretPosition : number
   // onChange (event : ChangeEvent<HTMLTextAreaElement>) : void
   onContent (content : string) : void
   onKeyDown (event : KeyboardEvent<HTMLDivElement>) : void
 }
 
 function InputField (props : InputProps) : JSX.Element {
-  const { placeholder, content, lines, onKeyDown, caretPosition, onContent } : InputProps = props
+  const { placeholder, content, onKeyDown, onContent } : InputProps = props
 
   return (
     <div
@@ -135,6 +128,7 @@ function InputField (props : InputProps) : JSX.Element {
         options={ { formatOnPaste : true, minimap : { enabled : false} } }
         onChange={ (content : string) => onContent(content) }
         // editorDidMount={ ::this.editorDidMount }
+        editorDidMount={ (editor, monaco) => editor.focus() }
       />
     </div>
   )
