@@ -1,10 +1,10 @@
-import { UntypedLambdaState, UntypedLambdaSettings } from "./untyped-lambda-integration/Types"
+import { UntypedLambdaState, UntypedLambdaSettings, UntypedLambdaIntegrationState } from "./untyped-lambda-integration/Types"
 import { NoteState } from "./markdown-integration/AppTypes"
 
 export enum BoxType {
-  UNTYPED_LAMBDA,
-  LISP,
-  MARKDOWN,
+  UNTYPED_LAMBDA = 'UNTYPED_LAMBDA',
+  LISP = 'LISP',
+  MARKDOWN = 'MARKDOWN',
 }
 
 export enum Screen {
@@ -21,6 +21,8 @@ export type NoBox = -2
 
 // TODO: when building `Exam Mode`  allow only Array<BoxType> or NoBox
 export type BoxesWhitelist = Array<BoxType> | AnyBox | NoBox
+
+export interface AbstractIntegrationState {}
 
 export interface AbstractBoxState {
   type : BoxType,
@@ -47,6 +49,12 @@ export type BoxState = UntypedLambdaState | LispBox | NoteState // or other thin
 
 export type Settings = UntypedLambdaSettings | LispSettings // or other things in the future
 
+export type IntegrationState = UntypedLambdaIntegrationState // | Others
+
+export interface IntegrationStates {
+  [key : string] : IntegrationState  // TODO: FIX THIS!!!
+}
+
 // TODO: this needs to be reconsidered
 export interface GlobalSettings {
   // [UNTYPED_CODE_NAME] : UntypedLambdaSettings
@@ -60,6 +68,7 @@ export interface NotebookState {
   allowedBoxes : BoxesWhitelist
 
   settings : GlobalSettings // TODO: refactor to use the Dictionary
+  integrationStates : IntegrationStates
 
   __key : string
   name : string

@@ -2,13 +2,14 @@ import React, { Component } from 'react'
 
 import './App.css'
 
-import { updateSettingsInStorage, loadAppStateFromStorage, updateAppStateToStorage, CLEAR_WORKSPACE_CONFIRMATION, loadSettingsFromStorage, ANY_BOX } from './AppTypes'
+import { updateSettingsInStorage, loadAppStateFromStorage, updateAppStateToStorage, CLEAR_WORKSPACE_CONFIRMATION, loadSettingsFromStorage, ANY_BOX, initIntegrationStates } from './AppTypes'
 
 import MenuBar from './components/MenuBar'
 import Notebook from './screens/Notebook'
 import Help from './screens/Help'
 import SettingsScreen from './screens/Settings'
 import { Screen, AppState, NotebookState, GlobalSettings } from './Types'
+import { UNTYPED_LAMBDA_INTEGRATION_STATE } from './untyped-lambda-integration/AppTypes'
 
 
 
@@ -27,6 +28,8 @@ export default class App extends Component<Props, AppState> {
     super(props)
 
     this.state = loadAppStateFromStorage()
+
+    initIntegrationStates(this.state)
 
     this.setScreen = this.setScreen.bind(this)
     this.updateNotebook = this.updateNotebook.bind(this)
@@ -268,6 +271,9 @@ function createNewNotebook () : NotebookState {
     focusedBoxIndex : undefined,
     allowedBoxes : ANY_BOX,
     settings : loadSettingsFromStorage(),
+    integrationStates : {
+      'UNTYPED_LAMBDA' : UNTYPED_LAMBDA_INTEGRATION_STATE,
+    },
     
     __key : Date.now().toString(),
     name : "Temp Notebook",

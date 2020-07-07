@@ -1,6 +1,10 @@
-import { AbstractSettings, BoxType, AbstractBoxState } from "../Types"
-import { AST, ASTReduction, ASTReductionType, NormalEvaluator, ApplicativeEvaluator, OptimizeEvaluator } from "@lambdulus/core"
+import { AbstractSettings, BoxType, AbstractBoxState, AbstractIntegrationState } from "../Types"
+import { AST, ASTReduction, ASTReductionType, NormalEvaluator, ApplicativeEvaluator, OptimizeEvaluator, MacroMap } from "@lambdulus/core"
 
+
+export interface UntypedLambdaIntegrationState extends AbstractIntegrationState {
+  macrotable : MacroMap
+}
 
 export enum PromptPlaceholder {
   INIT = 'Type λ (as \\) expression and hit enter',
@@ -58,6 +62,9 @@ export interface UntypedLambdaExpressionState extends AbstractBoxState {
   strategy : EvaluationStrategy
   SLI : boolean
   expandStandalones : boolean
+
+  macrolistOpen : boolean
+  macrotable : MacroMap
   
   editor : {
     placeholder : string
@@ -80,6 +87,9 @@ export interface UntypedLambdaMacroState extends AbstractBoxState {
   SLI : boolean
   expandStandalones : boolean
   strategy : EvaluationStrategy
+
+  macrolistOpen : boolean
+  macrotable : MacroMap
 
   editor : {
     placeholder : string

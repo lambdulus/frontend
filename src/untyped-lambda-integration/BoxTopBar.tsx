@@ -4,6 +4,8 @@ import Controls from './ExerciseSwitch'
 import { UntypedLambdaState } from './Types'
 import { BoxState } from '../Types'
 
+import './styles/BoxTopBar.css'
+
 
 interface Props {
   state : UntypedLambdaState
@@ -15,10 +17,22 @@ interface Props {
 
 export default function BoxTopBar (props : Props) : JSX.Element {
   const { state, isActive, removeBox, updateBoxState } = props
-  // const { isExercise, editor, expression, title } = state
+  const { macrolistOpen } = state
 
   return (
     <div className=''>
+
+      <div
+        onClick={ (e) => {
+          e.stopPropagation()
+          updateBoxState({ ...state, macrolistOpen : ! macrolistOpen })
+        } }
+        className='untyped-lambda--top-bar-custom--button'
+        title={ macrolistOpen ? 'Hide Macros' : 'Show All Macros for This Box' }
+      >
+        <i className="mini-icon fas fa-list-ul" />
+      </div>
+
       {/* {
         expression === '' ?
           null
