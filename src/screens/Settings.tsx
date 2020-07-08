@@ -1,7 +1,10 @@
 import React from 'react'
 
 import UntypedLambdaCalculusSet from '../untyped-lambda-integration/Settings'
-import { CODE_NAME as UNTYPED_CODE_NAME } from '../untyped-lambda-integration/AppTypes'
+import {
+  CODE_NAME as UNTYPED_CODE_NAME,
+  GLOBAL_SETTINGS_ENABLER as UNTYPED_GLOBAL_SETTINGS_ENABLER
+} from '../untyped-lambda-integration/AppTypes'
 import { GlobalSettings } from '../Types'
 import { UntypedLambdaSettings } from '../untyped-lambda-integration/Types'
 
@@ -20,6 +23,7 @@ export default function SettingsScreen (props : Props) : JSX.Element {
     <div className='settingsSpace'>
       <UntypedLambdaCalculusSet
         settings={ untypedSettings }
+        settingsEnabled={ UNTYPED_GLOBAL_SETTINGS_ENABLER }
         change={
           (unTypLSet : UntypedLambdaSettings) =>
             updateSettings({ ...settings, [UNTYPED_CODE_NAME] : unTypLSet })

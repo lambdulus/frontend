@@ -62,6 +62,7 @@ export default class Expression extends PureComponent<EvaluatorProps> {
               <li key={ i.toString() } className='inactiveStep LI' >
                 <Step
                   breakpoints={ this.props.breakpoints }
+                  strategy={ this.props.state.strategy }
                   addBreakpoint={ () => {} }
                   stepRecord={ stepRecord }
                   lastStep={ false }
@@ -80,6 +81,7 @@ export default class Expression extends PureComponent<EvaluatorProps> {
           <li key={this.props.history.length - 1} className='activeStep LI'>
             <Step
               breakpoints={ this.props.breakpoints }
+              strategy={ this.props.state.strategy }
               addBreakpoint={ this.addBreakpoint }
               stepRecord={ this.props.history[this.props.history.length - 1] }
               lastStep={ true }

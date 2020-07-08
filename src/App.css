@@ -17,6 +17,7 @@
   position: relative;
   padding-left: 10px;
   padding-top: 5px; /* NOTE: just trying more minimal design - less white space around boxes */
+  padding-bottom: 10px;
   /* padding-bottom: 5px; */ /* NOTE: just trying more minimal design - less white space around boxes */
   font-size: 1.3em; /* NOTE: It may be better with smaller font-size */
 

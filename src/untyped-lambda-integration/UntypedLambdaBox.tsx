@@ -1,12 +1,13 @@
 import React from 'react'
 
-import { BoxState } from '../Types'
-import { UntypedLambdaState, UntypedLambdaType, UntypedLambdaExpressionState, UntypedLambdaMacroState } from './Types'
+import { BoxState, BoxType } from '../Types'
+import { UntypedLambdaState, UntypedLambdaType, UntypedLambdaExpressionState, UntypedLambdaMacroState, UntypedLambdaSettings } from './Types'
 import ExpressionBox from './ExpressionBox'
 import Macro from './Macro'
 import MacroList from './MacroList'
-import { UNTYPED_LAMBDA_INTEGRATION_STATE } from './AppTypes'
+import { UNTYPED_LAMBDA_INTEGRATION_STATE, GLOBAL_SETTINGS_ENABLER, MACRO_SETTINGS_ENABLER } from './AppTypes'
 import ExerciseBox from './ExerciseBox'
+import Settings from './Settings'
 
 // import macroctx from './MacroContext'
 
@@ -21,8 +22,24 @@ interface Props {
 }
 
 export default function UntypedLambdaBox (props : Props) : JSX.Element {
-  const { state } : Props = props
-  const { subtype, macrolistOpen } : UntypedLambdaState = state
+  const { state, setBoxState } : Props = props
+  const { settingsOpen, subtype, macrolistOpen, SLI, expandStandalones, strategy } : UntypedLambdaState = state
+
+  const getSettingsEnabler = () => {
+    switch (subtype) {
+      case UntypedLambdaType.ORDINARY: {
+        return GLOBAL_SETTINGS_ENABLER
+      }
+  
+      case UntypedLambdaType.EXERCISE: {
+        return GLOBAL_SETTINGS_ENABLER
+      }
+
+      case UntypedLambdaType.MACRO: {
+        return MACRO_SETTINGS_ENABLER
+      }
+    }
+  }
 
   const renderBox = () => {
     switch (subtype) {
@@ -45,6 +62,25 @@ export default function UntypedLambdaBox (props : Props) : JSX.Element {
 
   return (
     <div>
+      {
+        settingsOpen ?
+          <div className='box-settings'>
+            Box Local Settings:
+            <Settings
+              settings={ { type : BoxType.UNTYPED_LAMBDA, SLI, expandStandalones, strategy } }
+              settingsEnabled={ getSettingsEnabler() }
+
+              change={ (settings : UntypedLambdaSettings) => {
+                setBoxState({
+                  ...state,
+                  ...settings
+                })
+              } }
+            />
+          </div>
+        :
+          null
+      }
       {
         macrolistOpen ?
           <div className='untyped-lambda-box--macrolist'>

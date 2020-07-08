@@ -14,6 +14,7 @@ import ReductionMessage from './ReductionMessage'
 interface StepWrapperProperties {
   stepRecord : StepRecord
   breakpoints : Array<Breakpoint>
+  strategy : EvaluationStrategy
   addBreakpoint (breakpoint : Breakpoint) : void
   children : JSX.Element
   lastStep : boolean
@@ -41,7 +42,7 @@ export default function StepWrapper (props : StepWrapperProperties) : JSX.Elemen
   //   </StrategyContext.Consumer>
   // )
   return(
-    <StepMemo { ...props } strategy={ EvaluationStrategy.NORMAL } />
+    <StepMemo { ...props } />
   )
 }
 

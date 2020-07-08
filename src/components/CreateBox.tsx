@@ -142,8 +142,8 @@ export default class CreateBox extends Component<Props, State> {
     
     return (
       <div className='create-box-plus'>
-        <div className='create-box-plus--button' onClick={ this.onOpen }>
-          <div className='create-box-plus--container'>
+        <div className='create-box-plus--button'>
+          <div className='create-box-plus--container' onClick={ this.onOpen }>
             <p>
               <i className="fas fa-plus" />
             </p>

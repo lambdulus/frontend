@@ -2,13 +2,14 @@ import React, { useContext, ReactNode } from 'react'
 
 import Step from './Step'
 // import { AddBoxContext } from './MethodInjector'
-import { Breakpoint, StepRecord, UntypedLambdaState } from './Types'
+import { Breakpoint, StepRecord, UntypedLambdaState, EvaluationStrategy } from './Types'
 // import { DeleteBox, MakeActiveContext } from './BoxSpace'
 
 interface InactiveExpressionProps {
   className : string
   breakpoints : Array<Breakpoint>
   history : Array<StepRecord>
+  strategy : EvaluationStrategy
 
   createBoxFrom (stepRecord : StepRecord) : UntypedLambdaState
 }
@@ -27,6 +28,7 @@ export default function InactiveExpression (props : InactiveExpressionProps) : J
         <li key={ 0 } className='activeStep LI'>
           <Step
             breakpoints={ props.breakpoints }
+            strategy={ props.strategy }
             addBreakpoint={ () => {} } // blank function - NOOP
             stepRecord={ props.history[0] }
             lastStep={ false }

@@ -171,7 +171,7 @@ export function initIntegrationStates (appState : AppState) {
   for (const [key, value] of Object.entries(notebook.integrationStates)) {
     switch (key) {
       case BoxType.UNTYPED_LAMBDA: {
-        UNTYPED_LAMBDA_INTEGRATION_STATE.macrotable = value.macrotable // TODO: this is very informed - should be done by specific integration - leaving just for now
+        value.macrotable = UNTYPED_LAMBDA_INTEGRATION_STATE.macrotable  // TODO: this is very informed - should be done by specific integration - leaving just for now
         return
       }
     
