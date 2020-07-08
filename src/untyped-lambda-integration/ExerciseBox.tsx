@@ -119,6 +119,7 @@ export default class ExerciseBox extends PureComponent<EvaluationProperties> {
           className={ className }
           breakpoints={ breakpoints }
           history={ history }
+          strategy={ this.props.state.strategy }
           
           createBoxFrom={ this.createBoxFrom }
         />

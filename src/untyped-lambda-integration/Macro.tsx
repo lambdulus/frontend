@@ -109,7 +109,7 @@ export default function Macro (props : Props) : JSX.Element {
   if (macroName === '' && macroExpression === '') {
     // className='box boxMacro inactiveBox'
     return (
-      <div className=''>
+      <div className='box'>
         <Editor
           placeholder={ placeholder } // data
           content={ content } // data
@@ -128,7 +128,7 @@ export default function Macro (props : Props) : JSX.Element {
 
   // className='box boxMacro'
   return (
-    <div className=''>
+    <div className='box'>
       { macroName } := { macroExpression }
       {/* <i className='removeBox far fa-trash-alt' onClick={ deleteBox } title='Remove this Box' /> */}
     </div>

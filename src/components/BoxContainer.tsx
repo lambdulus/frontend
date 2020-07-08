@@ -56,16 +56,6 @@ export function BoxContainer (props : Props) : JSX.Element {
         addBoxAfter={ addBoxAfter }
       />
       
-      {/* This is going to be implemented in the component which will same as Box choose right Integration to render */}
-      {
-        settingsOpen ?
-          <div className='box-settings'>
-            Box Settings Override:
-          </div>
-        :
-          null
-      }
-      
       <Box
         state={ box }
         isActive={ isActiveBox }

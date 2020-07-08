@@ -1,5 +1,5 @@
 import { BoxType } from '../Types'
-import { EvaluationStrategy, UntypedLambdaState, UntypedLambdaSettings, UntypedLambdaType, StepRecord, UntypedLambdaExpressionState, UntypedLambdaMacroState, PromptPlaceholder, UntypedLambdaIntegrationState } from "./Types"
+import { EvaluationStrategy, UntypedLambdaState, UntypedLambdaSettings, UntypedLambdaType, StepRecord, UntypedLambdaExpressionState, UntypedLambdaMacroState, PromptPlaceholder, UntypedLambdaIntegrationState, SettingsEnabled } from "./Types"
 import { ASTReduction, AST, decodeFast as decodeUntypedLambdaFast } from '@lambdulus/core'
 
 // import macroctx from './MacroContext'
@@ -182,4 +182,16 @@ function decodeUntypedLambdaExpression (box : UntypedLambdaExpressionState) : Un
   })
 
   return untypedLambdaBox
+}
+
+export const GLOBAL_SETTINGS_ENABLER : SettingsEnabled = {
+  SLI : true,
+  expandStandalones : true,
+  strategy : true,
+}
+
+export const MACRO_SETTINGS_ENABLER : SettingsEnabled = {
+  SLI : true,
+  expandStandalones : false,
+  strategy : false,
 }

@@ -1,0 +1,40 @@
+.untyped-lambda-box--settings {
+  margin-top: 20px;
+}
+
+.untyped-lambda-settings-label {
+  margin-left: 7px;
+}
+
+.stratsLabel {
+  /* margin-right: 20px; */
+  margin: 0;
+  margin-top: 10px;
+}
+
+.untyped-lambda-settings--strategy-radio-wrapper {
+  margin-left: 10px;
+  margin-right: 10px;
+}
+
+.box-settings {
+  padding: 5px;
+  margin: auto;
+  margin-top: 10px;
+  padding-bottom: 20px;
+  /* width: 97%; */
+  border-bottom: 2px solid black;
+}
+
+.untyped-lambda-settings-SLI {
+  display: block;
+}
+
+.untyped-lambda-settings-expand {
+  margin-top: 20px;
+  display: block;
+}
+
+.untyped-lambda-settings-strategies {
+  margin-top: 5px;
+}

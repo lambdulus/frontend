@@ -105,4 +105,10 @@ export interface UntypedLambdaSettings extends AbstractSettings {
   strategy : EvaluationStrategy
 }
 
+export type SettingsEnabled = {
+  SLI : boolean
+  expandStandalones : boolean
+  strategy : boolean
+}
+
 export type Evaluator = NormalEvaluator | ApplicativeEvaluator | OptimizeEvaluator
