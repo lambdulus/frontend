@@ -68,6 +68,7 @@ export interface NotebookState {
   allowedBoxes : BoxesWhitelist
 
   locked : boolean
+  menuOpen : boolean
 
   settings : GlobalSettings // TODO: refactor to use the Dictionary
   integrationStates : IntegrationStates

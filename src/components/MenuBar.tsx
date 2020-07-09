@@ -34,9 +34,9 @@ export default function MenuBar (props : MenuBarProperties) : JSX.Element {
 
       {/* NOTEBOOK */}
       <div
-        className={ currentScreen === Screen.MAIN ? 'currentTab tab tab-hoverable' : 'tab tab-hoverable' }
+        className={ currentScreen === Screen.NOTEBOOKS ? 'currentTab tab tab-hoverable' : 'tab tab-hoverable' }
         title='Show All Notebooks'
-        onClick={ () => onScreenChange(Screen.MAIN) }
+        onClick={ () => onScreenChange(Screen.NOTEBOOKS) }
       >
         <i
           // className="icon far fa-file-alt"

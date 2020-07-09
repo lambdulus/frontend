@@ -11,6 +11,7 @@ import Help from './screens/Help'
 import SettingsScreen from './screens/Settings'
 import { Screen, AppState, NotebookState, GlobalSettings } from './Types'
 import { UNTYPED_LAMBDA_INTEGRATION_STATE } from './untyped-lambda-integration/AppTypes'
+import NotebookList from './screens/NotebookList'
 
 
 
@@ -44,6 +45,8 @@ export default class App extends Component<Props, AppState> {
     this.importNotebook = this.importNotebook.bind(this)
     // this.importWorkspace = this.importWorkspace.bind(this)
     this.clearWorkspace = this.clearWorkspace.bind(this)
+    this.selectNotebook = this.selectNotebook.bind(this)
+    this.updateNthNotebook = this.updateNthNotebook.bind(this)
   }
 
 
@@ -142,6 +145,14 @@ export default class App extends Component<Props, AppState> {
           (() => {
             if (currentScreen === Screen.MAIN)
               return <Notebook state={ state } updateNotebook={ this.updateNotebook } settings={ settings } />
+            if (currentScreen === Screen.NOTEBOOKS)
+              return  <NotebookList
+                        state={ this.state }
+                        onSelectNotebook={ this.selectNotebook }
+                        onRemoveNotebook={ this.removeNotebook }
+                        onUpdateNotebook={ this.updateNthNotebook }
+                        onAddNotebook={ this.addNotebook }
+                      />
             if (currentScreen === Screen.HELP)
               return <Help/>
             if (currentScreen === Screen.SETTINGS)
@@ -151,6 +162,13 @@ export default class App extends Component<Props, AppState> {
         
       </div>
     )
+  }
+
+  selectNotebook (index : number) : void {
+    this.setState({
+      currentScreen : Screen.MAIN,
+      currentNotebook : index,
+    })
   }
 
   setScreen (screen : Screen) : void {
@@ -169,20 +187,29 @@ export default class App extends Component<Props, AppState> {
     // NOTE: Carefuly around here - I kinda rely on the mutation of this.state.notebookList
   }
 
+  updateNthNotebook (notebook : NotebookState, index : number) : void {
+    const { notebookList } = this.state
+    notebookList[index] = notebook
+
+    this.setState({ notebookList })
+
+    updateNotebookStateToStorage(notebook, index)
+  }
+
   changeNotebook (index : number) : void {
     this.setState({ currentNotebook : index })
     updateAppStateToStorage({ ...this.state, currentNotebook : index })
   }
 
-  addNotebook () : void {
+  addNotebook (name : string = '') : void {
     this.setState({
-      notebookList : [ ...this.state.notebookList, createNewNotebook() ],
+      notebookList : [ ...this.state.notebookList, createNewNotebook(name) ],
       currentNotebook : this.state.currentNotebook + 1
     })
 
     updateAppStateToStorage({
       ...this.state,
-      notebookList : [ ...this.state.notebookList, createNewNotebook() ],
+      notebookList : [ ...this.state.notebookList, createNewNotebook(name) ],
       currentNotebook : this.state.currentNotebook + 1
     })
   }
@@ -294,7 +321,7 @@ export default class App extends Component<Props, AppState> {
   }
 }
 
-function createNewNotebook () : NotebookState {
+function createNewNotebook (name : string = 'Anonymous Notebook') : NotebookState {
   return {
     boxList : [],
     activeBoxIndex : NaN,
@@ -306,9 +333,10 @@ function createNewNotebook () : NotebookState {
     },
 
     locked : false,
+    menuOpen : false,
     
     __key : Date.now().toString(),
-    name : "Temp Notebook",
+    name,
     editingName : false,
     persistent : true, // TODO: you can change this if explicit save/rename is required for persistency
   }

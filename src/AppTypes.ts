@@ -43,6 +43,7 @@ export const InitNotebookState : NotebookState = {
   },
 
   locked : false,
+  menuOpen : false,
 
   __key : Date.now().toString(),
   name : "Default Ntbk",
