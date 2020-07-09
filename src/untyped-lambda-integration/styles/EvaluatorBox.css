@@ -14,6 +14,7 @@
 li:hover > .step > .inlineblock > .hiddenIcon {
   display: inline;
   color: black;
+  cursor: pointer;
 }
 
 li:hover .hiddenMacroIcon {
