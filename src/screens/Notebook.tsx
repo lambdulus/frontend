@@ -46,13 +46,13 @@ export default class Notebook extends PureComponent<Props> {
           { boxList.map(
             (box : BoxState, i : number) =>
             <li className="LI" key={ box.__key }>
-              
+
               <CreateBox
                 addNew={ (box : BoxState) => this.insertBefore(i, box) }
                 whiteList={ allowedBoxes }
                 settings={ settings }
               />
-              
+
               <BoxContainer
                 box={ box}
                 isActiveBox={ activeBoxIndex === i}
@@ -63,16 +63,16 @@ export default class Notebook extends PureComponent<Props> {
                 removeBox={ () => this.removeBox(i) }
                 updateBoxState={ (box : BoxState) => this.updateBoxState(i, box) }
                 onBlur={ () => this.onBlur(i) }
-              />          
+              />
             </li>
           ) }
-  
+
           <CreateBox
             addNew={ (box : BoxState) => this.insertBefore(state.boxList.length, box) }
             whiteList={ allowedBoxes }
             settings={ settings }
           />
-  
+
         </ul>
       </div>
     )

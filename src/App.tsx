@@ -69,78 +69,7 @@ export default class App extends Component<Props, AppState> {
           state={ this.state }
           onScreenChange={ this.setScreen }
         />
-        
-        {/* TODO: Commenting this out for now - world is not yet ready for such powers */}
-        {/* {
-          notebookList.length > 0 ?
-            <ul className='notebook-list UL'>
-              <div className='notebook-list--title'>
-                Notebook Explorer:
-              </div>
-              {
-                notebookList.map(
-                  (notebook : NotebookState, index : number) =>
-                  <li
-                    className={ `notebook-tab LI ${ currentNotebook === index ? 'current' : '' }` }
-                    key={ notebook.__key }
-                    title='Click to Select this Notebook'
-                    onClick={ () => this.changeNotebook(index) }
-                  >
-                    {
-                      notebook.editingName ?
-                        <input
-                          type='text'
-                          value={ notebook.name }
-                          onChange={ (event) => this.changeNotebookName(index, event.target.value) }
-                          onBlur={ () => this.stopEditingNotebook(index) }
-                          maxLength={12}
-                          size={ 10 }
-                          />
-                      :
-                        notebook.name
-                    }
-                    <span
-                      className='notebook-tab--edit-name'
-                      onClick={ (event) => {
-                        event.stopPropagation()
 
-                        this.editNotebookName(index)
-                      }}
-                    >
-                      <i className="edit-name mini-icon fas fa-pen" title='Click to Change the Notebook Name' />
-                    </span>
-
-                    <div className='notebookIconWrapper'>
-                        {
-                          notebookList.length === 1 ?
-                          null
-                          :
-                          <i
-                            className="removeNtb mini-icon fas fa-trash-alt"
-                            title='Click to Remove this Notebook'
-                            onClick={ (event) => {
-                              event.stopPropagation()
-                              this.removeNotebook(index) } }
-                          />
-                        }
-                      </div>
-                  </li>
-                )
-              }
-              <li
-                className='notebook-tab LI'
-                title='Click to Add New Notebook'
-                onClick={ this.addNotebook }
-              >
-                Add New
-                <div className='notebookIconWrapper'>
-                  <i className="addNtb mini-icon fas fa-plus" />
-                  </div>
-              </li>
-            </ul>
-          :
-            null
-        } */}
         {
           (() => {
             if (currentScreen === Screen.MAIN)
