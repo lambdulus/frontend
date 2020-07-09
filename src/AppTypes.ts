@@ -6,9 +6,9 @@ import { UntypedLambdaState } from './untyped-lambda-integration/Types'
 
 
 export const CLEAR_WORKSPACE_CONFIRMATION : string =
-`This will delete this whole Notebook as well as every other Notebook stored in your browser.
+`This will delete this whole Notebook from your browser's memory.
 
-                                                              Are you sure?`
+                                          Are you sure?`
 
 // TODO: when building `Exam Mode` simply leave only non-evaluative BoxTypes
 export const ALL_BOX_TYPES : Array<BoxType> = [ BoxType.UNTYPED_LAMBDA, BoxType.LISP, BoxType.MARKDOWN ]
@@ -32,23 +32,26 @@ export function mapBoxTypeToStr (type : BoxType) : string {
   }
 }
 
+export const InitNotebookState : NotebookState = {
+  boxList : [],
+  activeBoxIndex : NaN,
+  focusedBoxIndex : undefined,
+  allowedBoxes : ANY_BOX,
+  settings : getDefaultSettings(DEFAULT_WHITELIST),
+  integrationStates : {
+    'UNTYPED_LAMBDA' : UNTYPED_LAMBDA_INTEGRATION_STATE, // TODO: FIX THIS!!!
+  },
+
+  locked : false,
+
+  __key : Date.now().toString(),
+  name : "Default Ntbk",
+  editingName : false,
+  persistent : true,
+}
 
 export const EmptyAppState : AppState = {
-  notebookList : [{
-    boxList : [],
-    activeBoxIndex : NaN,
-    focusedBoxIndex : undefined,
-    allowedBoxes : ANY_BOX,
-    settings : getDefaultSettings(DEFAULT_WHITELIST),
-    integrationStates : {
-      'UNTYPED_LAMBDA' : UNTYPED_LAMBDA_INTEGRATION_STATE, // TODO: FIX THIS!!!
-    },
-
-    __key : Date.now().toString(),
-    name : "Default Ntbk",
-    editingName : false,
-    persistent : true,
-  }],
+  notebookList : [ InitNotebookState ],
   currentNotebook : 0,
   currentScreen : Screen.MAIN,
 }
@@ -131,6 +134,14 @@ export function updateAppStateToStorage (state : AppState) : void {
   localStorage.setItem('AppState', JSON.stringify(state))
 }
 
+export function updateNotebookStateToStorage (notebook : NotebookState, index : number) {
+  const state : AppState = loadAppStateFromStorage()
+
+  state.notebookList[index] = notebook
+
+  updateAppStateToStorage(state)
+}
+
 // TODO: This function is going to be replaced with correct implementation of decoding
 // this slowly becomes better and better base for the final implementation
 /**
@@ -138,29 +149,31 @@ export function updateAppStateToStorage (state : AppState) : void {
  * @param state : Deserialized form of AppState
  */
 export function decode (state : AppState) : AppState | never {
-  const notebookList : Array<NotebookState> = state.notebookList.map((notebook : NotebookState) => {
-    const boxList : Array<BoxState> = notebook.boxList.map((box : BoxState, index : number, arr : Array<BoxState>) => {
-      switch (box.type) {
-        case BoxType.UNTYPED_LAMBDA: {
-          decodeUntypedLambdaState(box as UntypedLambdaState)
-        }
-
-        //TODO: implement for other Box Types
-      
-        default:
-          return box
-      }
-    })
-
-    return {
-      ...notebook,
-      boxList,
-    }
-  })
+  const notebookList : Array<NotebookState> = state.notebookList.map(decodeNotebook)
   
   return {
     ...state,
     notebookList,
+  }
+}
+
+export function decodeNotebook (notebook : NotebookState) : NotebookState | never {
+  const boxList : Array<BoxState> = notebook.boxList.map((box : BoxState, index : number, arr : Array<BoxState>) => {
+    switch (box.type) {
+      case BoxType.UNTYPED_LAMBDA: {
+        decodeUntypedLambdaState(box as UntypedLambdaState)
+      }
+
+      //TODO: implement for other Box Types
+    
+      default:
+        return box
+    }
+  })
+
+  return {
+    ...notebook,
+    boxList,
   }
 }
 

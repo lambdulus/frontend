@@ -2,8 +2,9 @@ import React, { Component } from 'react'
 
 import './App.css'
 
-import { updateSettingsInStorage, loadAppStateFromStorage, updateAppStateToStorage, CLEAR_WORKSPACE_CONFIRMATION, loadSettingsFromStorage, ANY_BOX, initIntegrationStates } from './AppTypes'
+import { updateSettingsInStorage, loadAppStateFromStorage, updateAppStateToStorage, updateNotebookStateToStorage, CLEAR_WORKSPACE_CONFIRMATION, loadSettingsFromStorage, ANY_BOX, initIntegrationStates, InitNotebookState } from './AppTypes'
 
+import TopBar from './components/TopBar'
 import MenuBar from './components/MenuBar'
 import Notebook from './screens/Notebook'
 import Help from './screens/Help'
@@ -40,13 +41,9 @@ export default class App extends Component<Props, AppState> {
     this.changeNotebookName = this.changeNotebookName.bind(this)
     this.stopEditingNotebook = this.stopEditingNotebook.bind(this)
     this.updateSettings = this.updateSettings.bind(this)
-    this.importWorkspace = this.importWorkspace.bind(this)
+    this.importNotebook = this.importNotebook.bind(this)
+    // this.importWorkspace = this.importWorkspace.bind(this)
     this.clearWorkspace = this.clearWorkspace.bind(this)
-
-    // TODO: implement Class Keyboard Controller -> handling all keyboard events and firing events -> invoking handlers from this class
-    // document.addEventListener('keydown', (event : KeyboardEvent) => {
-    //   console.log(event)
-    // })
   }
 
 
@@ -57,11 +54,17 @@ export default class App extends Component<Props, AppState> {
 
     return (
       <div id='app'>
+        <TopBar
+          state={ this.state }
+          onScreenChange={ this.setScreen }
+          onImport={ this.importNotebook }
+          onClearWorkspace={ this.clearWorkspace }
+        />
+
+
         <MenuBar
           state={ this.state }
           onScreenChange={ this.setScreen }
-          onImport={ this.importWorkspace }
-          onClearWorkspace={ this.clearWorkspace }
         />
         
         {/* TODO: Commenting this out for now - world is not yet ready for such powers */}
@@ -160,7 +163,9 @@ export default class App extends Component<Props, AppState> {
     notebookList[currentNotebook] = notebook
 
     this.setState({ notebookList })
-    updateAppStateToStorage({ ...this.state })
+
+    updateNotebookStateToStorage(notebook, currentNotebook)
+    // updateAppStateToStorage({ ...this.state })
     // NOTE: Carefuly around here - I kinda rely on the mutation of this.state.notebookList
   }
 
@@ -178,6 +183,19 @@ export default class App extends Component<Props, AppState> {
     updateAppStateToStorage({
       ...this.state,
       notebookList : [ ...this.state.notebookList, createNewNotebook() ],
+      currentNotebook : this.state.currentNotebook + 1
+    })
+  }
+
+  importNotebook (notebook : NotebookState) : void {
+    this.setState({
+      notebookList : [ ...this.state.notebookList, notebook ],
+      currentNotebook : this.state.currentNotebook + 1
+    })
+
+    updateAppStateToStorage({
+      ...this.state,
+      notebookList : [ ...this.state.notebookList, notebook ],
       currentNotebook : this.state.currentNotebook + 1
     })
   }
@@ -217,7 +235,8 @@ export default class App extends Component<Props, AppState> {
     notebookList[index] = { ...notebook, editingName : true, persistent : true }
 
     this.setState({ notebookList })
-    updateAppStateToStorage({ ...this.state })
+    updateNotebookStateToStorage(notebook, index)
+    // updateAppStateToStorage({ ...this.state })
   }
 
   changeNotebookName (index : number, name : string) : void {
@@ -228,7 +247,9 @@ export default class App extends Component<Props, AppState> {
     notebookList[index] = { ...notebook, name }
 
     this.setState({ notebookList })
-    updateAppStateToStorage({ ...this.state })
+    updateNotebookStateToStorage(notebook, index)
+
+    // updateAppStateToStorage({ ...this.state })
   }
 
   stopEditingNotebook (index : number) : void {
@@ -239,7 +260,8 @@ export default class App extends Component<Props, AppState> {
     notebookList[index] = { ...notebook, editingName : false }
 
     this.setState({ notebookList })
-    updateAppStateToStorage({ ...this.state })
+    updateNotebookStateToStorage(notebook, index)
+    // updateAppStateToStorage({ ...this.state })
   }
 
   updateSettings (newSettings : GlobalSettings) : void {
@@ -250,16 +272,24 @@ export default class App extends Component<Props, AppState> {
     updateSettingsInStorage(newSettings)
   }
 
-  importWorkspace (state : AppState) : void {
-    this.setState(state)
-    updateAppStateToStorage(state)
-  }
+  // importWorkspace (state : AppState) : void {
+  //   this.setState(state)
+  //   updateAppStateToStorage(state)
+  // }
 
   clearWorkspace () : void {
     if (window.confirm(CLEAR_WORKSPACE_CONFIRMATION)) {
-      localStorage.removeItem('AppState')
 
-      this.setState(loadAppStateFromStorage())
+      // localStorage.removeItem('AppState')
+      const { currentNotebook, notebookList } = this.state
+      notebookList[currentNotebook] = InitNotebookState
+
+      this.setState({ notebookList })
+      updateNotebookStateToStorage(InitNotebookState, currentNotebook)
+
+      // updateAppStateToStorage(this.state)
+
+      // this.setState(loadAppStateFromStorage())
     }
   }
 }
@@ -274,6 +304,8 @@ function createNewNotebook () : NotebookState {
     integrationStates : {
       'UNTYPED_LAMBDA' : UNTYPED_LAMBDA_INTEGRATION_STATE,
     },
+
+    locked : false,
     
     __key : Date.now().toString(),
     name : "Temp Notebook",

@@ -10,7 +10,7 @@ export enum BoxType {
 export enum Screen {
   MAIN,
   HELP,
-  MACROLIST,
+  // MACROLIST,
   SETTINGS,
   NOTEBOOKS, // TODO: this will be the final solution to the `Multiple Notebooks` problem
 }
@@ -66,6 +66,8 @@ export interface NotebookState {
   activeBoxIndex : number
   focusedBoxIndex : number | undefined
   allowedBoxes : BoxesWhitelist
+
+  locked : boolean
 
   settings : GlobalSettings // TODO: refactor to use the Dictionary
   integrationStates : IntegrationStates

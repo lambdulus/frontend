@@ -9,9 +9,15 @@
 }
 /* CSS RESET */
 
-/* body {
+body {
+  overflow-x: hidden;
+  /* filter: hue-rotate(0deg); */
+  /* filter: invert(1); */
+}
+
+.app {
   background-color: #f4f6f6;
-} */
+}
 
 .boxContainer {
   position: relative;
