@@ -31,9 +31,8 @@ export default function TopBar (props : Props) : JSX.Element {
         <span className='top-bar--notebook-name'>
           { name }
         </span>
-      </div>
 
-      <span className='top-bar--item-container'>
+        <span className='top-bar--item-container'>
         {/* SETTINGS */}
         <span
           className={ currentScreen === Screen.SETTINGS ? 'top-bar--item top-bar--item-hoverable' : 'top-bar--item top-bar--item-hoverable' }
@@ -95,6 +94,7 @@ export default function TopBar (props : Props) : JSX.Element {
           </span>
         </label>
       </span>
+      </div>
     </div>
   )
 }
