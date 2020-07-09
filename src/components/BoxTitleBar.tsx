@@ -30,10 +30,14 @@ export default function BoxTitleBar (props : Props) : JSX.Element {
     <div className='boxTopBar'>
       <div
         className='topBarTitle'
-        contentEditable={ true }
-        onBlur={ (e) => updateBoxState({ ...state, title : e.target.textContent || "" }) 
-      } >
-        { title }
+      >
+        <span
+          className='box-top-bar--title-text'
+          contentEditable={ true }
+          onBlur={ (e) => updateBoxState({ ...state, title : e.target.textContent || "" })  }
+        >
+          { title }
+        </span>
       </div>
 
       <div className='box-top-bar-custom'>

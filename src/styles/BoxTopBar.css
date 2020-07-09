@@ -7,6 +7,21 @@
   /* float: left; */
 }
 
+.box-top-bar--title-text {
+  padding: 7px;
+  padding-left: 12px;
+  padding-right: 12px;
+  border-radius: 1em;
+}
+
+.box-top-bar--title-text {
+  background-color: rgb(230, 230, 230);
+}
+
+.inactive .box-top-bar--title-text {
+  background-color: rgb(240, 240, 240);
+}
+
 
 .box-top-bar-custom {
   position: absolute;
