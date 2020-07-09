@@ -41,6 +41,7 @@ export default class CreateBox extends Component<Props, State> {
     }
 
     this.onOpen = this.onOpen.bind(this)
+    this.onClose = this.onClose.bind(this)
   }
 
 
@@ -130,7 +131,11 @@ export default class CreateBox extends Component<Props, State> {
         noBoxAllowed(whiteList) ?
           null as any
           :
-          <div className='create-box'>
+          <div
+            className='create-box'
+            onClickCapture={ (e) => {
+              e.stopPropagation()
+              this.onClose() }} >
             <div className='create-box--container'>
               { addLambdaBoxIfAllowed(isAllowed (BoxType.UNTYPED_LAMBDA, whiteList)) }
               { addLispBoxIfAllowed(isAllowed(BoxType.LISP, whiteList)) }
@@ -155,6 +160,10 @@ export default class CreateBox extends Component<Props, State> {
 
   onOpen () : void {
     this.setState({ opened : true })
+  }
+
+  onClose () : void {
+    this.setState({ opened : false })
   }
   
 }

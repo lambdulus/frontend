@@ -1,9 +1,10 @@
 .create-box {
-  width: 100%;
+  width: 60%;
   margin: auto;
   text-align: center;
   border-radius: 2rem;
   background-color: rgb(243, 243, 243);
+  margin-bottom: 10px;
 }
 
 .create-box--container {
