@@ -13,6 +13,12 @@
   }  
 }
 
+.menu-bar--bottom-part {
+  position: absolute;
+  bottom: 30px;
+  width: 100%
+}
+
 .tab {
   padding-bottom: 13px;
   border-radius: 5px;
