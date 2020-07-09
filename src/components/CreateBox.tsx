@@ -56,7 +56,8 @@ export default class CreateBox extends Component<Props, State> {
           <p
             className='plusBtn'
             title='Create new λ box'
-            onClick={ () => {
+            onClick={ (e) => {
+              e.stopPropagation()
               this.setState({ opened : false })
               addNew(createNewUntypedLambdaExpression(untLSettings)) }
             }
@@ -67,7 +68,8 @@ export default class CreateBox extends Component<Props, State> {
           <p
             className='plusBtn'
             title='Create new λ Exercise box'
-            onClick={ () => {
+            onClick={ (e) => {
+              e.stopPropagation()
               this.setState({ opened : false })
               addNew(createNewUntypedLambdaMacro(untLSettings)) }
             }
@@ -78,7 +80,8 @@ export default class CreateBox extends Component<Props, State> {
           <p
             className='plusBtn'
             title='Create new λ Macro box'
-            onClick={ () => {
+            onClick={ (e) => {
+              e.stopPropagation()
               this.setState({ opened : false })
               addNew(createNewUntypedLambdaExercise(untLSettings)) }
             }
@@ -96,7 +99,8 @@ export default class CreateBox extends Component<Props, State> {
           <p
             className='plusBtn'
             title='Create new Lisp box'
-            onClick={ () => {
+            onClick={ (e) => {
+              e.stopPropagation()
               this.setState({ opened : false })
               addNew({__key : Date.now().toString()} as BoxState) } // NOTE: just for now
             }
@@ -114,7 +118,8 @@ export default class CreateBox extends Component<Props, State> {
         <p
           className='plusBtn'
           title='Create new MarkDown box'
-          onClick={ () => {
+          onClick={ (e) => {
+            e.stopPropagation()
             this.setState({ opened : false })
             addNew(createNewMarkdown()) }
           }
@@ -133,8 +138,7 @@ export default class CreateBox extends Component<Props, State> {
           :
           <div
             className='create-box'
-            onClickCapture={ (e) => {
-              e.stopPropagation()
+            onClick={ () => {
               this.onClose() }} >
             <div className='create-box--container'>
               { addLambdaBoxIfAllowed(isAllowed (BoxType.UNTYPED_LAMBDA, whiteList)) }
