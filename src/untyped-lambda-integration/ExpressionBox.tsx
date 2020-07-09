@@ -202,6 +202,7 @@ export default class ExpressionBox extends PureComponent<EvaluationProperties> {
   }
 
   onEnter () : void {
+    // TODO: refactor - clean this
     const { expression, editor : { content } } = this.props.state
 
     if (expression === '') {
@@ -222,10 +223,24 @@ export default class ExpressionBox extends PureComponent<EvaluationProperties> {
     const { state, setBoxState } = this.props
     const {
       editor : { content },
+      strategy,
     } = state
 
     try {
       const ast : AST = this.parseExpression(content)
+
+      let message = ''
+      let isNormal = false
+
+      const astCopy : AST = ast.clone()
+      const evaluator : Evaluator = new (strategyToEvaluator(strategy) as any)(astCopy)
+      
+      if (evaluator.nextReduction instanceof None) {
+        isNormal = true
+        message = 'Expression is in normal form.'
+        
+        // reportEvent('Evaluation Step', 'Step Normal Form Reached', ast.toString())  
+      }
 
       setBoxState({
         ...state,
@@ -235,8 +250,8 @@ export default class ExpressionBox extends PureComponent<EvaluationProperties> {
           ast : ast.clone(),
           lastReduction : new None,
           step : 0,
-          message : '',
-          isNormalForm : false
+          message,
+          isNormalForm : isNormal
         } ],
         editor : {
           content : '',
@@ -261,92 +276,105 @@ export default class ExpressionBox extends PureComponent<EvaluationProperties> {
   }
 
   onExerciseStep () {
-    const { state, setBoxState } = this.props
-    const { strategy, history, editor : { content } } = state
+    // const { state, setBoxState } = this.props
+    // const { strategy, history, editor : { content } } = state
     
-    try {
-      const userAst : AST = this.parseExpression(content)
-      const stepRecord : StepRecord = history[history.length - 1]
-      const { isNormalForm, step } = stepRecord
-      let { ast, lastReduction } = stepRecord
-      ast = ast.clone()
+    // try {
+    //   const userAst : AST = this.parseExpression(content)
+    //   const stepRecord : StepRecord = history[history.length - 1]
+    //   const { isNormalForm, step } = stepRecord
+    //   let { ast, lastReduction } = stepRecord
+    //   ast = ast.clone()
 
-      if (isNormalForm) {
-        // TODO: do something about it
-        // say user - there are no more steps and it is in normal form        
-        // TODO: consider immutability
-        stepRecord.message = 'No more steps available. Expression is in normal form.'
+    //   if (isNormalForm) {
+    //     // TODO: do something about it
+    //     // say user - there are no more steps and it is in normal form        
+    //     // TODO: consider immutability
+    //     stepRecord.message = 'No more steps available. Expression is in normal form.'
 
-        setBoxState({
-          ...state,
-        })
+    //     setBoxState({
+    //       ...state,
+    //     })
 
-        reportEvent('Exercise Step', 'Step Already in normal form', content)
+    //     reportEvent('Exercise Step', 'Step Already in normal form', content)
 
-        return
-      }
+    //     return
+    //   }
     
-      const normal : Evaluator = new (strategyToEvaluator(strategy) as any)(ast)
-      lastReduction = normal.nextReduction
+    //   const normal : Evaluator = new (strategyToEvaluator(strategy) as any)(ast)
+    //   lastReduction = normal.nextReduction
     
-      if (normal.nextReduction instanceof None) {
-        // TODO: refactor PLS - update history
-        // TODO: say user it is in normal form and they are mistaken
-        stepRecord.isNormalForm = true
-        stepRecord.message = 'Expression is already in normal form.'
+    //   if (normal.nextReduction instanceof None) {
+    //     // TODO: refactor PLS - update history
+    //     // TODO: say user it is in normal form and they are mistaken
+    //     stepRecord.isNormalForm = true
+    //     stepRecord.message = 'Expression is already in normal form.'
         
-        setBoxState({
-          ...state,
-        })
+    //     setBoxState({
+    //       ...state,
+    //     })
 
-        reportEvent('Exercise Step', 'Step Already in Normal Form', content)
+    //     reportEvent('Exercise Step', 'Step Already in Normal Form', content)
         
-        return
-      }
+    //     return
+    //   }
     
-      ast = normal.perform()
+    //   ast = normal.perform()
+
+    //   let isNormal = false
+
+    //   {
+    //     const astCopy : AST = ast.clone()
+    //     const evaluator : Evaluator = new (strategyToEvaluator(strategy) as any)(astCopy)
+        
+    //     if (evaluator.nextReduction instanceof None) {
+    //       isNormal = true
+          
+    //       reportEvent('Evaluation Step', 'Step Normal Form Reached', ast.toString())  
+    //     }
+    //   }
     
-      let message : string = ''
-      const comparator : TreeComparator = new TreeComparator([ userAst, ast ])
+    //   let message : string = ''
+    //   const comparator : TreeComparator = new TreeComparator([ userAst, ast ])
 
-      if (comparator.equals) {
-        ast = userAst
-        message = 'Correct.'
+    //   if (comparator.equals) {
+    //     ast = userAst
+    //     message = 'Correct.'
 
-        reportEvent('Exercise Step', 'Valid Step', content)
-      }
-      else {
-        // TODO: say user it was incorrect
-        // TODO: na to se pouzije uvnitr EvaluatorState prop messages nebo tak neco
-        // console.log('Incorrect step')
-        message = `Incorrect step. ${content}`
+    //     reportEvent('Exercise Step', 'Valid Step', content)
+    //   }
+    //   else {
+    //     // TODO: say user it was incorrect
+    //     // TODO: na to se pouzije uvnitr EvaluatorState prop messages nebo tak neco
+    //     // console.log('Incorrect step')
+    //     message = `Incorrect step. ${content}`
 
-        reportEvent('Exercise Step', 'Invalid Step', content)
-      }
+    //     reportEvent('Exercise Step', 'Invalid Step', content)
+    //   }
 
-      setBoxState({
-        ...state,
-        history : [ ...history, { ast, lastReduction, step : step + 1, message, isNormalForm : false } ],
-        editor : {
-          ...state.editor,
-          content : '',
-          caretPosition : 0,
-          placeholder : PromptPlaceholder.VALIDATE_MODE,
-          syntaxError : null,
-        }
-      })
-    } catch (exception) {
-      // TODO: print syntax error
-      // TODO: do it localy - no missuse of onSubmit
+    //   setBoxState({
+    //     ...state,
+    //     history : [ ...history, { ast, lastReduction, step : step + 1, message, isNormalForm : isNormal } ],
+    //     editor : {
+    //       ...state.editor,
+    //       content : '',
+    //       caretPosition : 0,
+    //       placeholder : PromptPlaceholder.VALIDATE_MODE,
+    //       syntaxError : null,
+    //     }
+    //   })
+    // } catch (exception) {
+    //   // TODO: print syntax error
+    //   // TODO: do it localy - no missuse of onSubmit
 
-      // TODO: print syntax error
+    //   // TODO: print syntax error
 
-      reportEvent('Exercise Step', 'Syntax error in Step', content)
-    }
+    //   reportEvent('Exercise Step', 'Syntax error in Step', content)
+    // }
   }
 
   onStep () : void {
-    console.log('DOIN ONE STEP')
+    // console.log('DOIN ONE STEP')
     const { state, setBoxState } = this.props
     const { strategy, history, editor : { content } } = state
     const stepRecord = history[history.length - 1]
@@ -358,11 +386,10 @@ export default class ExpressionBox extends PureComponent<EvaluationProperties> {
       return
     }
 
-    const normal : Evaluator = new (strategyToEvaluator(strategy) as any)(ast)
-    lastReduction = normal.nextReduction
+    const evaluator : Evaluator = new (strategyToEvaluator(strategy) as any)(ast)
+    lastReduction = evaluator.nextReduction
   
-    if (normal.nextReduction instanceof None) {
-      console.log('NEXT IS NONE')
+    if (evaluator.nextReduction instanceof None) {
       stepRecord.isNormalForm = true
       stepRecord.message = 'Expression is in normal form.'
       
@@ -375,7 +402,22 @@ export default class ExpressionBox extends PureComponent<EvaluationProperties> {
       return
     }
   
-    ast = normal.perform()
+    ast = evaluator.perform()
+
+    let message = ''
+    let isNormal = false
+
+    {
+      const astCopy : AST = ast.clone()
+      const evaluator : Evaluator = new (strategyToEvaluator(strategy) as any)(astCopy)
+      
+      if (evaluator.nextReduction instanceof None) {
+        isNormal = true
+        message = 'Expression is in normal form.'
+        
+        reportEvent('Evaluation Step', 'Step Normal Form Reached', ast.toString())  
+      }
+    }
 
     // ANCHOR: #0023
     // NOTE: This is completely crazy - it doesn't make any sense
@@ -394,7 +436,7 @@ export default class ExpressionBox extends PureComponent<EvaluationProperties> {
   
     setBoxState({
       ...state,
-      history : [ ...history, { ast, lastReduction, step : step + 1, message : '', isNormalForm : false } ],
+      history : [ ...history, { ast, lastReduction, step : step + 1, message, isNormalForm : isNormal } ],
 
     })
 
