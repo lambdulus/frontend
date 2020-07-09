@@ -21,6 +21,9 @@ export default function SettingsScreen (props : Props) : JSX.Element {
 
   return (
     <div className='settingsSpace'>
+      <h2>
+        Settings for Untyped Lambda Calculus:
+      </h2>
       <UntypedLambdaCalculusSet
         settings={ untypedSettings }
         settingsEnabled={ UNTYPED_GLOBAL_SETTINGS_ENABLER }
