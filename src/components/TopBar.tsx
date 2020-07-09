@@ -27,7 +27,7 @@ export default function TopBar (props : Props) : JSX.Element {
 
   return (
     <div className='top-bar'>
-      <div className='top-bar--notebook-name-container'>
+      <div className='cursor-pointer top-bar--notebook-name-container' onClick={ () => onScreenChange(Screen.MAIN) } >
         <span className='top-bar--notebook-name'>
           { name }
         </span>

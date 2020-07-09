@@ -1,0 +1,105 @@
+.notebook-list {
+}
+
+
+.notebook-list--notebook {
+  height: 22em;
+  width: 17em;
+  float: left;
+  margin: 2em;
+
+  border: 1px solid rgb(200, 200, 200);
+}
+
+
+/* This is my Magic - don't touch if not necessary */
+.notebook-list--notebook .mainSpace {
+  margin-top: -4em;
+  width: 95%;
+  font-size: 0.3em;
+}
+
+.notebook-list--notebook h1 {
+  font-size: 0.9em;
+}
+.notebook-list--notebook h2 {
+  font-size: 0.8em;
+}
+.notebook-list--notebook h3 {
+  font-size: 0.7em;
+}
+.notebook-list--notebook h4 {
+  font-size: 0.6em;
+}
+.notebook-list--notebook h5 {
+  font-size: 0.5em;
+}
+.notebook-list--notebook h6 {
+  font-size: 0.4em;
+}
+/* End of magic */
+
+
+.notebook-list--notebook-thumbnal {
+  height: 80%;
+  overflow: hidden;
+}
+
+
+
+.notebook-list--notebook-footer {
+  box-sizing: border-box;
+  padding: 10px;
+  font-size: 1.3em;
+
+  border-top: 1px solid rgb(200, 200, 200);
+  background-color: white;
+  height: 20%;
+}
+
+.notebook-list--notebook-footer--remove {
+  position: relative;
+  top: -1.2em;
+  margin-left: 90%;
+}
+
+.notebook-list--notebook--menu {
+  position: relative;
+  top: -25px;
+  right: -50px;
+  border-radius: 3px;
+  z-index: 999;
+  background-color: white;
+  border: 1px solid black;
+}
+
+.notebook-list--notebook--menu--dots {
+  margin-top: -5px;
+  padding-bottom: 5px;
+  padding: 5px;
+  text-align: center;
+  cursor: pointer;
+  border-radius: 0.5em;
+  /* float: left; */
+  /* width: 33%; */
+}
+
+.notebook-list--notebook--menu--dots:hover {
+  background-color: rgb(194, 194, 194);
+}
+
+.notebook-list--add-notebook--container {
+  box-sizing: border-box;
+  margin-top: 50%;
+  font-size: 3em;
+  text-align: center;
+  color: rgb(85, 85, 85);
+}
+
+.notebook-list--title {
+  /* padding-top: 1em;
+  padding-bottom: 1em;
+  padding-left: 15px;
+  margin-bottom: 10px;
+  font-weight: 500; */
+}
