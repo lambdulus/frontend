@@ -41,7 +41,7 @@ export default function NotebookList (props : Props) : JSX.Element {
         </li>
         {
           notebookList.map((notebook : NotebookState, index : number) =>
-            <li className='LI cursor-pointer notebook-list--notebook' onClick={ () => onSelectNotebook(index) }>
+            <li className='LI cursor-pointer notebook-list--notebook' key={notebook.__key} onClick={ () => onSelectNotebook(index) }>
               <div className='notebook-list--notebook-thumbnal'>
                 <Notebook
                   state={ notebook }
