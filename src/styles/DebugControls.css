@@ -53,6 +53,7 @@ button, input, optgroup, select, textarea {
 .debug-controls--run {
 	color: #28a745;
 	border-color: #28a745;
+	margin-right: 5px;
 }
 
 .debug-controls--run:hover {
