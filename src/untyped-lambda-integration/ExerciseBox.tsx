@@ -202,30 +202,48 @@ export default class ExerciseBox extends PureComponent<EvaluationProperties> {
   }
 
   onEnter () : void {
+    // TODO: refactor - clean this
     const { expression, editor : { content } } = this.props.state
 
     if (expression === '') {
       this.onSubmitExpression()
     }
-    else if (content !== '') { // && isExercise
-      this.onExerciseStep()
-    }
-    else if (content === '') { //  && (! isExercise)
-      this.onStep()
-    }
-    else {
-      console.log('Error: Something unexpected just happened. A')
-    }
+
+    this.onExerciseStep()
+
+    // else if (content !== '') { // && isExercise
+    //   this.onExerciseStep()
+    // }
+    // else if (content === '') { //  && (! isExercise)
+    //   this.onStep()
+    // }
+    // else {
+    //   console.log('Error: Something unexpected just happened. A')
+    // }
   }
 
   onSubmitExpression () : void {
     const { state, setBoxState } = this.props
     const {
+      strategy,
       editor : { content },
     } = state
 
     try {
       const ast : AST = this.parseExpression(content)
+
+      let message = ''
+      let isNormal = false
+
+      const astCopy : AST = ast.clone()
+      const evaluator : Evaluator = new (strategyToEvaluator(strategy) as any)(astCopy)
+      
+      if (evaluator.nextReduction instanceof None) {
+        isNormal = true
+        message = 'Expression is in normal form.'
+        
+        // reportEvent('Evaluation Step', 'Step Normal Form Reached', ast.toString())  
+      }
 
       setBoxState({
         ...state,
@@ -235,8 +253,8 @@ export default class ExerciseBox extends PureComponent<EvaluationProperties> {
           ast : ast.clone(),
           lastReduction : new None,
           step : 0,
-          message : '',
-          isNormalForm : false
+          message,
+          isNormalForm : isNormal
         } ],
         editor : {
           content : '',
@@ -261,6 +279,7 @@ export default class ExerciseBox extends PureComponent<EvaluationProperties> {
   }
 
   onExerciseStep () {
+    console.log('EXERCISE STEP')
     const { state, setBoxState } = this.props
     const { strategy, history, editor : { content } } = state
     
@@ -305,6 +324,19 @@ export default class ExerciseBox extends PureComponent<EvaluationProperties> {
       }
     
       ast = normal.perform()
+
+      let isNormal = false
+
+      {
+        const astCopy : AST = ast.clone()
+        const evaluator : Evaluator = new (strategyToEvaluator(strategy) as any)(astCopy)
+        
+        if (evaluator.nextReduction instanceof None) {
+          isNormal = true
+          
+          reportEvent('Evaluation Step', 'Step Normal Form Reached', ast.toString())  
+        }
+      }
     
       let message : string = ''
       const comparator : TreeComparator = new TreeComparator([ userAst, ast ])
@@ -326,7 +358,7 @@ export default class ExerciseBox extends PureComponent<EvaluationProperties> {
 
       setBoxState({
         ...state,
-        history : [ ...history, { ast, lastReduction, step : step + 1, message, isNormalForm : false } ],
+        history : [ ...history, { ast, lastReduction, step : step + 1, message, isNormalForm : isNormal } ],
         editor : {
           ...state.editor,
           content : '',
@@ -346,230 +378,230 @@ export default class ExerciseBox extends PureComponent<EvaluationProperties> {
   }
 
   onStep () : void {
-    console.log('DOIN ONE STEP')
-    const { state, setBoxState } = this.props
-    const { strategy, history, editor : { content } } = state
-    const stepRecord = history[history.length - 1]
-    const { isNormalForm, step } = stepRecord
-    let { ast, lastReduction } = stepRecord
-    ast = ast.clone()
+    // console.log('DOIN ONE STEP')
+    // const { state, setBoxState } = this.props
+    // const { strategy, history, editor : { content } } = state
+    // const stepRecord = history[history.length - 1]
+    // const { isNormalForm, step } = stepRecord
+    // let { ast, lastReduction } = stepRecord
+    // ast = ast.clone()
   
-    if (isNormalForm) {
-      return
-    }
-
-    const normal : Evaluator = new (strategyToEvaluator(strategy) as any)(ast)
-    lastReduction = normal.nextReduction
-  
-    if (normal.nextReduction instanceof None) {
-      console.log('NEXT IS NONE')
-      stepRecord.isNormalForm = true
-      stepRecord.message = 'Expression is in normal form.'
-      
-      setBoxState({
-        ...state,
-      })
-      
-      reportEvent('Evaluation Step', 'Step Normal Form Reached', ast.toString())
-
-      return
-    }
-  
-    ast = normal.perform()
-
-    // ANCHOR: #0023
-    // NOTE: This is completely crazy - it doesn't make any sense
-    // TODO: Investigate more - and fix the functionality
-    // it probably should check if the current AST Root is a Macro and next Reduction is Expansion of exactly this AST
-    // then it can say - it is in the Normal Form - if some settings enables it - not by default though
-    //
-    // if (ast instanceof Macro || ast instanceof ChurchNumeral) {
-    //   console.log('CURRENT IS MACRO OR NUMBER')
-
-    //   stepRecord.isNormalForm = true
-    //   stepRecord.message = 'Expression is in normal form.'
-
-    //   reportEvent('Evaluation Step', 'Step Normal Form Reached with Number or Macro', ast.toString())
-    // }
-  
-    setBoxState({
-      ...state,
-      history : [ ...history, { ast, lastReduction, step : step + 1, message : '', isNormalForm : false } ],
-
-    })
-
-    reportEvent('Evaluation Step', 'Step', ast.toString())
-  }
-
-  onExecute () : void {
-    const { state, setBoxState } = this.props
-    const { isRunning } = state
-
-    // if (isExercise) {
-    //   // TODO: exercises can not be run - some message to user???
+    // if (isNormalForm) {
     //   return
     // }
 
-    if (isRunning) {
-      this.onStop()
-    }
-    else {
-      const { timeout, history } = state
-      const stepRecord = history[history.length - 1]
+    // const normal : Evaluator = new (strategyToEvaluator(strategy) as any)(ast)
+    // lastReduction = normal.nextReduction
   
-      if (stepRecord.isNormalForm) {
-        return
-      }
+    // if (normal.nextReduction instanceof None) {
+    //   console.log('NEXT IS NONE')
+    //   stepRecord.isNormalForm = true
+    //   stepRecord.message = 'Expression is in normal form.'
       
-      const { ast, step, lastReduction, isNormalForm, message } = stepRecord
-      history.push(history[history.length - 1])
-      history[history.length - 2] = { ast : ast.clone(), step, lastReduction, message : 'Skipping some steps...', isNormalForm }
+    //   setBoxState({
+    //     ...state,
+    //   })
+      
+    //   reportEvent('Evaluation Step', 'Step Normal Form Reached', ast.toString())
 
-      setBoxState({
-        ...state,
-        isRunning : true,
-        timeoutID : window.setTimeout(this.onRun, timeout),
-      })
+    //   return
+    // }
+  
+    // ast = normal.perform()
 
-      reportEvent('Execution', 'Run Evaluation', ast.toString())
-    }
+    // // ANCHOR: #0023
+    // // NOTE: This is completely crazy - it doesn't make any sense
+    // // TODO: Investigate more - and fix the functionality
+    // // it probably should check if the current AST Root is a Macro and next Reduction is Expansion of exactly this AST
+    // // then it can say - it is in the Normal Form - if some settings enables it - not by default though
+    // //
+    // // if (ast instanceof Macro || ast instanceof ChurchNumeral) {
+    // //   console.log('CURRENT IS MACRO OR NUMBER')
+
+    // //   stepRecord.isNormalForm = true
+    // //   stepRecord.message = 'Expression is in normal form.'
+
+    // //   reportEvent('Evaluation Step', 'Step Normal Form Reached with Number or Macro', ast.toString())
+    // // }
+  
+    // setBoxState({
+    //   ...state,
+    //   history : [ ...history, { ast, lastReduction, step : step + 1, message : '', isNormalForm : false } ],
+
+    // })
+
+    // reportEvent('Evaluation Step', 'Step', ast.toString())
+  }
+
+  onExecute () : void {
+    // const { state, setBoxState } = this.props
+    // const { isRunning } = state
+
+    // // if (isExercise) {
+    // //   // TODO: exercises can not be run - some message to user???
+    // //   return
+    // // }
+
+    // if (isRunning) {
+    //   this.onStop()
+    // }
+    // else {
+    //   const { timeout, history } = state
+    //   const stepRecord = history[history.length - 1]
+  
+    //   if (stepRecord.isNormalForm) {
+    //     return
+    //   }
+      
+    //   const { ast, step, lastReduction, isNormalForm, message } = stepRecord
+    //   history.push(history[history.length - 1])
+    //   history[history.length - 2] = { ast : ast.clone(), step, lastReduction, message : 'Skipping some steps...', isNormalForm }
+
+    //   setBoxState({
+    //     ...state,
+    //     isRunning : true,
+    //     timeoutID : window.setTimeout(this.onRun, timeout),
+    //   })
+
+    //   reportEvent('Execution', 'Run Evaluation', ast.toString())
+    // }
   }
 
   onRun () : void {
-    const { state, setBoxState } = this.props
-    const { strategy } = state
-    let { history, isRunning, breakpoints, timeoutID, timeout } = state
-    const stepRecord : StepRecord = history[history.length - 1]
-    const { isNormalForm, step } = stepRecord
-    let { lastReduction } = stepRecord
+    // const { state, setBoxState } = this.props
+    // const { strategy } = state
+    // let { history, isRunning, breakpoints, timeoutID, timeout } = state
+    // const stepRecord : StepRecord = history[history.length - 1]
+    // const { isNormalForm, step } = stepRecord
+    // let { lastReduction } = stepRecord
 
-    if ( ! isRunning) {
-      return
-    }
-    
-    if (isNormalForm) {
-      setBoxState({
-        ...state,
-        isRunning : false,
-        timeoutID : undefined,
-      })
-  
-      return
-    }
-  
-    let { ast } = stepRecord
-    const normal : Evaluator = new (strategyToEvaluator(strategy) as any)(ast)
-    lastReduction = normal.nextReduction
-    
-    if (normal.nextReduction instanceof None) {
-      // TODO: consider immutability
-      history.pop()
-      history.push({
-        ast,
-        lastReduction : stepRecord.lastReduction,
-        step,
-        message : 'Expression is in normal form.',
-        isNormalForm : true
-      })
-  
-      setBoxState({
-        ...state,
-        isRunning : false,
-        timeoutID : undefined,
-      })
-  
-      return
-    }
-  
-    // TODO: maybe refactor a little
-    const breakpoint : Breakpoint | undefined = breakpoints.find(
-      (breakpoint : Breakpoint) =>
-        this.shouldBreak(breakpoint, normal.nextReduction)
-    )
-
-    if (breakpoint !== undefined) {
-      // TODO: consider immutability
-      if (normal.nextReduction instanceof Expansion) {
-        breakpoint.broken.add(normal.nextReduction.target)
-      }
-      if (normal.nextReduction instanceof Beta && normal.nextReduction.redex.left instanceof Lambda) {
-        breakpoint.broken.add(normal.nextReduction.redex.left.argument)
-      }
-
-      window.clearTimeout(timeoutID)
-      reportEvent('Evaluation Run Ended', 'Breakpoint was reached', ast.toString())
-
-
-      setBoxState({
-        ...state,
-        isRunning : false,
-        timeoutID,
-      })
-
-      return
-    }
-  
-    ast = normal.perform()
-
-    history[history.length - 1] = { ast, lastReduction, step : step + 1, message : '', isNormalForm }
-
-    // NOTE: Same thing as #0023
-    // if (ast instanceof Macro || ast instanceof ChurchNumeral) {
-    //   history[history.length - 1] = { ast, lastReduction, step : step + 1, message : 'Expression is in normal form.', isNormalForm : true }
-
-    //   reportEvent('Evaluation Run Ended', 'Step Normal Form Reached with Number or Macro', ast.toString())
+    // if ( ! isRunning) {
+    //   return
     // }
     
-    setBoxState({
-      ...state,
-      timeoutID : window.setTimeout(this.onRun, timeout)
-    })
+    // if (isNormalForm) {
+    //   setBoxState({
+    //     ...state,
+    //     isRunning : false,
+    //     timeoutID : undefined,
+    //   })
+  
+    //   return
+    // }
+  
+    // let { ast } = stepRecord
+    // const normal : Evaluator = new (strategyToEvaluator(strategy) as any)(ast)
+    // lastReduction = normal.nextReduction
+    
+    // if (normal.nextReduction instanceof None) {
+    //   // TODO: consider immutability
+    //   history.pop()
+    //   history.push({
+    //     ast,
+    //     lastReduction : stepRecord.lastReduction,
+    //     step,
+    //     message : 'Expression is in normal form.',
+    //     isNormalForm : true
+    //   })
+  
+    //   setBoxState({
+    //     ...state,
+    //     isRunning : false,
+    //     timeoutID : undefined,
+    //   })
+  
+    //   return
+    // }
+  
+    // // TODO: maybe refactor a little
+    // const breakpoint : Breakpoint | undefined = breakpoints.find(
+    //   (breakpoint : Breakpoint) =>
+    //     this.shouldBreak(breakpoint, normal.nextReduction)
+    // )
+
+    // if (breakpoint !== undefined) {
+    //   // TODO: consider immutability
+    //   if (normal.nextReduction instanceof Expansion) {
+    //     breakpoint.broken.add(normal.nextReduction.target)
+    //   }
+    //   if (normal.nextReduction instanceof Beta && normal.nextReduction.redex.left instanceof Lambda) {
+    //     breakpoint.broken.add(normal.nextReduction.redex.left.argument)
+    //   }
+
+    //   window.clearTimeout(timeoutID)
+    //   reportEvent('Evaluation Run Ended', 'Breakpoint was reached', ast.toString())
+
+
+    //   setBoxState({
+    //     ...state,
+    //     isRunning : false,
+    //     timeoutID,
+    //   })
+
+    //   return
+    // }
+  
+    // ast = normal.perform()
+
+    // history[history.length - 1] = { ast, lastReduction, step : step + 1, message : '', isNormalForm }
+
+    // // NOTE: Same thing as #0023
+    // // if (ast instanceof Macro || ast instanceof ChurchNumeral) {
+    // //   history[history.length - 1] = { ast, lastReduction, step : step + 1, message : 'Expression is in normal form.', isNormalForm : true }
+
+    // //   reportEvent('Evaluation Run Ended', 'Step Normal Form Reached with Number or Macro', ast.toString())
+    // // }
+    
+    // setBoxState({
+    //   ...state,
+    //   timeoutID : window.setTimeout(this.onRun, timeout)
+    // })
   }
 
   onStop () : void {
-    const { state, setBoxState } = this.props
-    const { timeoutID } = state
+    // const { state, setBoxState } = this.props
+    // const { timeoutID } = state
   
-    window.clearTimeout(timeoutID)
+    // window.clearTimeout(timeoutID)
   
-    setBoxState({
-      ...state,
-      isRunning : false,
-      timeoutID : undefined
-    })
+    // setBoxState({
+    //   ...state,
+    //   isRunning : false,
+    //   timeoutID : undefined
+    // })
   }
 
   // TODO: breakpointy se pak jeste musi predelat
   shouldBreak (breakpoint : Breakpoint, reduction : ASTReduction) : boolean {
+    // // if (reduction.type === breakpoint.type
+    // //     && reduction instanceof Beta && breakpoint.context instanceof Lambda
+    // //     && reduction.target.identifier === breakpoint.context.body.identifier
+    // //   ) {
+    // //     return true
+    // // }
     // if (reduction.type === breakpoint.type
-    //     && reduction instanceof Beta && breakpoint.context instanceof Lambda
-    //     && reduction.target.identifier === breakpoint.context.body.identifier
-    //   ) {
-    //     return true
+    //     && reduction instanceof Beta && breakpoint.context instanceof Variable
+    //     && reduction.redex.left instanceof Lambda
+    //     && reduction.redex.left.argument.identifier === breakpoint.context.identifier
+    //     && ! breakpoint.broken.has(reduction.redex.left.argument)
+    // ) {
+    //   return true
     // }
-    if (reduction.type === breakpoint.type
-        && reduction instanceof Beta && breakpoint.context instanceof Variable
-        && reduction.redex.left instanceof Lambda
-        && reduction.redex.left.argument.identifier === breakpoint.context.identifier
-        && ! breakpoint.broken.has(reduction.redex.left.argument)
-    ) {
-      return true
-    }
 
-    if (reduction.type === breakpoint.type
-        && reduction instanceof Expansion && breakpoint.context instanceof ChurchNumeral
-        && reduction.target.identifier === breakpoint.context.identifier
-        && ! breakpoint.broken.has(reduction.target)
-    ) {
-      return true
-    }
-    if (reduction.type === breakpoint.type
-        && reduction instanceof Expansion && breakpoint.context instanceof Macro
-        && reduction.target.identifier === breakpoint.context.identifier
-        && ! breakpoint.broken.has(reduction.target)
-    ) {
-      return true
-    }
+    // if (reduction.type === breakpoint.type
+    //     && reduction instanceof Expansion && breakpoint.context instanceof ChurchNumeral
+    //     && reduction.target.identifier === breakpoint.context.identifier
+    //     && ! breakpoint.broken.has(reduction.target)
+    // ) {
+    //   return true
+    // }
+    // if (reduction.type === breakpoint.type
+    //     && reduction instanceof Expansion && breakpoint.context instanceof Macro
+    //     && reduction.target.identifier === breakpoint.context.identifier
+    //     && ! breakpoint.broken.has(reduction.target)
+    // ) {
+    //   return true
+    // }
   
     return false
   }
