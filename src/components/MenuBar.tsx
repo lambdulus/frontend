@@ -50,7 +50,7 @@ export default function MenuBar (props : MenuBarProperties) : JSX.Element {
       </div>
 
       {/* SETTINGS */}
-      <div
+      {/* <div
         className={ currentScreen === Screen.SETTINGS ? 'currentTab tab tab-hoverable' : 'tab tab-hoverable' }
         title='Go to the Settings'
         onClick={ () => onScreenChange(Screen.SETTINGS) }
@@ -59,10 +59,10 @@ export default function MenuBar (props : MenuBarProperties) : JSX.Element {
           className="icon fas fa-cogs"
         />
         <p className='iconLabel'>Settings</p>
-      </div>
+      </div> */}
 
       {/* Clear the Whole Workspace */}
-      <div
+      {/* <div
         className='tab tab-hoverable'
         title='Clear the Whole Workspace'
         onClick={ onClearWorkspace }
@@ -71,35 +71,13 @@ export default function MenuBar (props : MenuBarProperties) : JSX.Element {
           className="icon fas fa-eraser"
         />
         <p className='iconLabel'>Clear All</p>
-      </div>
+      </div> */}
 
-      {/* <div title='List all defined macros' >
-        {
-          screen === Screen.main ?
-            <i className="icon fas fa-list-ul" onClick={ () => onScreenChange(Screen.macrolist) } />
-            :
-            screen === Screen.macrolist ?
-              <i className="icon far fa-window-close" onClick={ () => onScreenChange(Screen.main) } />
-              :
-              <i className="icon fas fa-list-ul" onClick={ () => onScreenChange(Screen.macrolist) } />
-        }
-        <p className='iconLabel'>Macros</p>
-      </div>         */}
 
-      {/* TODO: SOLVE WHERE TO MOVE FEEDBACK/BUGS/ISSUES */}
-      {/* <div
-        className='tab'
-        title='Report a bug or request new feature'>
-        <a href='https://github.com/lambdulus/new-frontend/issues' target="_blank">
-          <i className="icon fas fa-bug"></i>
-        </a>
-        <p className='iconLabel'>Feedback</p>
-      </div>  */}
-
-      <div className='separator' />
+      {/* <div className='separator' /> */}
 
       {/* Export Notebook */}
-      <div
+      {/* <div
         className='tab tab-hoverable'
         title='Download this Notebook'
       >
@@ -115,10 +93,10 @@ export default function MenuBar (props : MenuBarProperties) : JSX.Element {
           <i id='download' className="icon fas fa-cloud-download-alt" />
         </a>
         <p className='iconLabel'>Export</p>
-      </div>
+      </div> */}
 
       {/* Import Notebook */}
-      <div
+      {/* <div
         className='tab tab-hoverable'
         title='Import a Notebook from Computer'
       >
@@ -127,35 +105,38 @@ export default function MenuBar (props : MenuBarProperties) : JSX.Element {
         />
         <label htmlFor="input"><i className="icon fas fa-cloud-upload-alt"></i></label>
         <p className='iconLabel'>Import</p>
-      </div>
+      </div> */}
 
-      <div className='separator' />
+      {/* <div className='separator' /> */}
 
-      {/* Issues */}
-      <div
-        className='tab tab-hoverable'
-        title='Submit a Bug or a Feature Request'
-      >
-        <a
-        target="_blank"
-          href='https://github.com/lambdulus/new-frontend/issues'
+      <div className='menu-bar--bottom-part'>
+        {/* Issues */}
+        <div
+          className='tab tab-hoverable'
+          title='Submit a Bug or a Feature Request'
         >
-          <i className="icon fas fa-bug" />
-        </a>
-        <p className='iconLabel'>GH Issues</p>
+          <a
+          target="_blank"
+            href='https://github.com/lambdulus/new-frontend/issues'
+          >
+            <i className="icon fas fa-bug" />
+          </a>
+          <p className='iconLabel'>GH Issues</p>
+        </div>
+
+        {/* MANUAL/HELP */}
+        <div
+          className={ currentScreen === Screen.HELP ? 'currentTab tab tab-hoverable' : 'tab tab-hoverable' }
+          title='Show the Manual'
+          onClick={ () => onScreenChange(Screen.HELP) }
+        >
+          <i
+            className="icon far fa-question-circle"
+          />
+          <p className='iconLabel'>Manual</p>
+        </div>
       </div>
 
-      {/* MANUAL/HELP */}
-      <div
-        className={ currentScreen === Screen.HELP ? 'currentTab tab tab-hoverable' : 'tab tab-hoverable' }
-        title='Show the Manual'
-        onClick={ () => onScreenChange(Screen.HELP) }
-      >
-        <i
-          className="icon far fa-question-circle"
-        />
-        <p className='iconLabel'>Manual</p>
-      </div>
 
     </div>
   )
