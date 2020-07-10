@@ -1,0 +1,25 @@
+{
+  "files": {
+    "main.css": "/new-frontend/build/2020-07-10/static/css/main.15d90898.chunk.css",
+    "main.js": "/new-frontend/build/2020-07-10/static/js/main.8cded9b9.chunk.js",
+    "main.js.map": "/new-frontend/build/2020-07-10/static/js/main.8cded9b9.chunk.js.map",
+    "runtime-main.js": "/new-frontend/build/2020-07-10/static/js/runtime-main.fe392b97.js",
+    "runtime-main.js.map": "/new-frontend/build/2020-07-10/static/js/runtime-main.fe392b97.js.map",
+    "static/css/2.b507a811.chunk.css": "/new-frontend/build/2020-07-10/static/css/2.b507a811.chunk.css",
+    "static/js/2.605309e4.chunk.js": "/new-frontend/build/2020-07-10/static/js/2.605309e4.chunk.js",
+    "static/js/2.605309e4.chunk.js.map": "/new-frontend/build/2020-07-10/static/js/2.605309e4.chunk.js.map",
+    "index.html": "/new-frontend/build/2020-07-10/index.html",
+    "precache-manifest.a85985d5bbcc630dabcc07066fb437e9.js": "/new-frontend/build/2020-07-10/precache-manifest.a85985d5bbcc630dabcc07066fb437e9.js",
+    "service-worker.js": "/new-frontend/build/2020-07-10/service-worker.js",
+    "static/css/2.b507a811.chunk.css.map": "/new-frontend/build/2020-07-10/static/css/2.b507a811.chunk.css.map",
+    "static/css/main.15d90898.chunk.css.map": "/new-frontend/build/2020-07-10/static/css/main.15d90898.chunk.css.map",
+    "static/js/2.605309e4.chunk.js.LICENSE.txt": "/new-frontend/build/2020-07-10/static/js/2.605309e4.chunk.js.LICENSE.txt"
+  },
+  "entrypoints": [
+    "static/js/runtime-main.fe392b97.js",
+    "static/css/2.b507a811.chunk.css",
+    "static/js/2.605309e4.chunk.js",
+    "static/css/main.15d90898.chunk.css",
+    "static/js/main.8cded9b9.chunk.js"
+  ]
+}
