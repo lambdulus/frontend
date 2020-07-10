@@ -22,6 +22,8 @@ interface EditorProperties {
   shouldReplaceLambda : boolean
   
   onContent (content : string) : void
+  onShiftEnter () : void
+  onCtrlEnter () : void
   onEnter () : void
   onExecute () : void // TODO:delete
   // onReset () : void
@@ -37,7 +39,9 @@ export default function Editor (props : EditorProperties) : JSX.Element {
 
     onContent,
     onEnter,
-    onExecute,
+    onShiftEnter,
+    onCtrlEnter,
+    // onExecute,
   } : EditorProperties = props
   const lines : number = content.split('\n').length
 
@@ -65,13 +69,13 @@ export default function Editor (props : EditorProperties) : JSX.Element {
       return
     }
 
-    // if (event.shiftKey && event.key === 'Enter' && isMarkDown) {
-    //   event.preventDefault()
-    //   onEnter()
-    // }
+    if (event.shiftKey && event.key === 'Enter') {
+      event.preventDefault()
+      onShiftEnter()
+    }
     if (event.ctrlKey && event.key === 'Enter') {
       event.preventDefault()
-      onExecute()
+      onCtrlEnter()
     }
 
     // TODO: not yet

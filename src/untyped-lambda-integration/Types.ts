@@ -15,9 +15,10 @@ export enum PromptPlaceholder {
 }
 
 export enum UntypedLambdaType {
+  EMPTY,
   ORDINARY,
   EXERCISE,
-  MACRO,
+  // MACRO,
 }
 
 export type Breakpoint = {
@@ -41,7 +42,7 @@ export enum EvaluationStrategy {
   ABSTRACTION = 'Abstraction / Simplified Evaluation'
 }
 
-export type UntypedLambdaState = UntypedLambdaExpressionState | UntypedLambdaMacroState
+export type UntypedLambdaState = UntypedLambdaExpressionState // | UntypedLambdaMacroState
 
 // TODO: consider abstract Untype Lambda State which will hold all common members
 
@@ -74,30 +75,30 @@ export interface UntypedLambdaExpressionState extends AbstractBoxState {
   }
 }
 
-export interface UntypedLambdaMacroState extends AbstractBoxState {
-  __key : string
-  type : BoxType
+// export interface UntypedLambdaMacroState extends AbstractBoxState {
+//   __key : string
+//   type : BoxType
 
-  subtype : UntypedLambdaType
-  expression : string
-  ast : AST | null
-  macroName : string
-  macroExpression : string
+//   subtype : UntypedLambdaType
+//   expression : string
+//   ast : AST | null
+//   macroName : string
+//   macroExpression : string
   
-  SLI : boolean
-  expandStandalones : boolean
-  strategy : EvaluationStrategy
+//   SLI : boolean
+//   expandStandalones : boolean
+//   strategy : EvaluationStrategy
 
-  macrolistOpen : boolean
-  macrotable : MacroMap
+//   macrolistOpen : boolean
+//   macrotable : MacroMap
 
-  editor : {
-    placeholder : string
-    content : string
-    caretPosition : number
-    syntaxError : Error | null
-  }
-}
+//   editor : {
+//     placeholder : string
+//     content : string
+//     caretPosition : number
+//     syntaxError : Error | null
+//   }
+// }
 
 export interface UntypedLambdaSettings extends AbstractSettings {
   SLI : boolean

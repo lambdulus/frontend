@@ -30,24 +30,9 @@ import InactiveEvaluator from './InactiveExpression'
 import Expression from './Expression'
 import { EvaluationStrategy, PromptPlaceholder, UntypedLambdaState, Evaluator, StepRecord, Breakpoint, UntypedLambdaType, UntypedLambdaExpressionState } from './Types'
 import { reportEvent } from '../misc'
+import { strategyToEvaluator } from './UntypedLambdaBox'
 // import { MContext } from './MacroContext'
 
-
-export function strategyToEvaluator (strategy : EvaluationStrategy) : Evaluator {
-  switch (strategy) {
-    case EvaluationStrategy.NORMAL:
-      return NormalEvaluator as any
- 
-    case EvaluationStrategy.APPLICATIVE:
-      return ApplicativeEvaluator as any
-
-    case EvaluationStrategy.OPTIMISATION:
-      return OptimizeEvaluator as any
-
-    case EvaluationStrategy.ABSTRACTION:
-      return NormalAbstractionEvaluator as any
-  }
-}
 
 export interface EvaluationProperties {
   state : UntypedLambdaExpressionState
@@ -82,7 +67,6 @@ export default class ExerciseBox extends PureComponent<EvaluationProperties> {
       minimized,
       history,
       breakpoints,
-      // isExercise,
       strategy,
       expression,
       editor,
@@ -90,26 +74,6 @@ export default class ExerciseBox extends PureComponent<EvaluationProperties> {
 
     let className : string = 'box boxEval boxExercise'
     const { isNormalForm } = history.length ? history[history.length - 1] : { isNormalForm : false }
-
-    if (expression === '') {
-      return (
-        <EmptyEvaluator
-          className={ className }
-          isActive={ this.props.isActive }
-          editor={ editor }
-          history={ history }
-
-          onContent={ this.onContent }
-          onEnter={ this.onEnter }
-          onExecute={ this.onExecute }
-        />
-      )
-    }
-
-    // NOTE: commenting now - Exercise Box will come later
-    // if (isExercise) {
-    //   className += ' boxExercise'
-    // }
 
     // TODO: Maybe I will take this out
     // Frontend may take care of that
@@ -161,7 +125,7 @@ export default class ExerciseBox extends PureComponent<EvaluationProperties> {
     return {
       __key : Date.now().toString(),
       type : BoxType.UNTYPED_LAMBDA,
-      subtype : UntypedLambdaType.ORDINARY,
+      subtype : UntypedLambdaType.EMPTY,
       title : `Copy of ${state.title}`,
       minimized : false,
       menuOpen : false,
@@ -173,7 +137,6 @@ export default class ExerciseBox extends PureComponent<EvaluationProperties> {
       breakpoints : [],
       timeoutID : undefined,
       timeout : 10,
-      // isExercise : false,
       strategy,
       SLI,
       expandStandalones,
@@ -202,24 +165,13 @@ export default class ExerciseBox extends PureComponent<EvaluationProperties> {
   }
 
   onEnter () : void {
-    // TODO: refactor - clean this
     const { expression, editor : { content } } = this.props.state
 
-    if (expression === '') {
-      this.onSubmitExpression()
+    if (content === '') {
+      this.onStep()
     }
 
     this.onExerciseStep()
-
-    // else if (content !== '') { // && isExercise
-    //   this.onExerciseStep()
-    // }
-    // else if (content === '') { //  && (! isExercise)
-    //   this.onStep()
-    // }
-    // else {
-    //   console.log('Error: Something unexpected just happened. A')
-    // }
   }
 
   onSubmitExpression () : void {
@@ -378,59 +330,74 @@ export default class ExerciseBox extends PureComponent<EvaluationProperties> {
   }
 
   onStep () : void {
-    // console.log('DOIN ONE STEP')
-    // const { state, setBoxState } = this.props
-    // const { strategy, history, editor : { content } } = state
-    // const stepRecord = history[history.length - 1]
-    // const { isNormalForm, step } = stepRecord
-    // let { ast, lastReduction } = stepRecord
-    // ast = ast.clone()
+    console.log('DOIN ONE STEP')
+    const { state, setBoxState } = this.props
+    const { strategy, history, editor : { content } } = state
+    const stepRecord = history[history.length - 1]
+    const { isNormalForm, step } = stepRecord
+    let { ast, lastReduction } = stepRecord
+    ast = ast.clone()
   
-    // if (isNormalForm) {
-    //   return
-    // }
+    if (isNormalForm) {
+      return
+    }
 
-    // const normal : Evaluator = new (strategyToEvaluator(strategy) as any)(ast)
-    // lastReduction = normal.nextReduction
+    const normal : Evaluator = new (strategyToEvaluator(strategy) as any)(ast)
+    lastReduction = normal.nextReduction
   
-    // if (normal.nextReduction instanceof None) {
-    //   console.log('NEXT IS NONE')
+    if (normal.nextReduction instanceof None) {
+      console.log('NEXT IS NONE')
+      stepRecord.isNormalForm = true
+      stepRecord.message = 'Expression is in normal form.'
+      
+      setBoxState({
+        ...state,
+      })
+      
+      reportEvent('Evaluation Step', 'Step Normal Form Reached', ast.toString())
+
+      return
+    }
+  
+    ast = normal.perform()
+
+    let message = 'Evaluating One Step for You'
+    let isNormal = false
+
+    {
+      const astCopy : AST = ast.clone()
+      const evaluator : Evaluator = new (strategyToEvaluator(strategy) as any)(astCopy)
+      
+      if (evaluator.nextReduction instanceof None) {
+        isNormal = true
+        message = 'Expression is in normal form.'
+        
+        reportEvent('Evaluation Step', 'Step Normal Form Reached', ast.toString())  
+      }
+    }
+
+    // ANCHOR: #0023
+    // NOTE: This is completely crazy - it doesn't make any sense
+    // TODO: Investigate more - and fix the functionality
+    // it probably should check if the current AST Root is a Macro and next Reduction is Expansion of exactly this AST
+    // then it can say - it is in the Normal Form - if some settings enables it - not by default though
+    //
+    // if (ast instanceof Macro || ast instanceof ChurchNumeral) {
+    //   console.log('CURRENT IS MACRO OR NUMBER')
+
     //   stepRecord.isNormalForm = true
     //   stepRecord.message = 'Expression is in normal form.'
-      
-    //   setBoxState({
-    //     ...state,
-    //   })
-      
-    //   reportEvent('Evaluation Step', 'Step Normal Form Reached', ast.toString())
 
-    //   return
+    //   reportEvent('Evaluation Step', 'Step Normal Form Reached with Number or Macro', ast.toString())
     // }
   
-    // ast = normal.perform()
+    setBoxState({
+      ...state,
+      history : [ ...history, { ast, lastReduction, step : step + 1, message, isNormalForm : isNormal } ],
 
-    // // ANCHOR: #0023
-    // // NOTE: This is completely crazy - it doesn't make any sense
-    // // TODO: Investigate more - and fix the functionality
-    // // it probably should check if the current AST Root is a Macro and next Reduction is Expansion of exactly this AST
-    // // then it can say - it is in the Normal Form - if some settings enables it - not by default though
-    // //
-    // // if (ast instanceof Macro || ast instanceof ChurchNumeral) {
-    // //   console.log('CURRENT IS MACRO OR NUMBER')
+    })
 
-    // //   stepRecord.isNormalForm = true
-    // //   stepRecord.message = 'Expression is in normal form.'
-
-    // //   reportEvent('Evaluation Step', 'Step Normal Form Reached with Number or Macro', ast.toString())
-    // // }
-  
-    // setBoxState({
-    //   ...state,
-    //   history : [ ...history, { ast, lastReduction, step : step + 1, message : '', isNormalForm : false } ],
-
-    // })
-
-    // reportEvent('Evaluation Step', 'Step', ast.toString())
+    reportEvent('Exercise Empty Evaluation Step', 'Step', ast.toString())
   }
 
   onExecute () : void {

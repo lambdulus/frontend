@@ -4,6 +4,8 @@ import Editor from '../components/Editor'
 // import { MakeActiveContext, DeleteBox } from './BoxSpace'
 import { StepRecord } from './Types'
 
+import './styles/EmptyExpression.css'
+
 interface EmptyExpressionProps {
   className : string
   isActive : boolean
@@ -13,11 +15,11 @@ interface EmptyExpressionProps {
     caretPosition : number
     syntaxError : Error | null
   }
-  history : Array<StepRecord>
+  // history : Array<StepRecord>
 
   onContent (content : string) : void
-  onEnter () : void
-  onExecute () : void
+  onDebug () : void
+  onExercise () : void
 }
 
 
@@ -45,22 +47,48 @@ export default function EmptyExpression(props : EmptyExpressionProps) : JSX.Elem
                 placeholder={ placeholder } // data
                 content={ content } // data
                 syntaxError={ syntaxError } // data
-                submitOnEnter={ true } // data
+                submitOnEnter={ false } // data
                 shouldReplaceLambda={ true }
 
                 onContent={ props.onContent } // fn
-                onEnter={ props.onEnter } // fn // tohle asi bude potreba
-                onExecute={ props.onExecute } // fn // tohle asi bude potreba
+                onEnter={ () => void 0 } // fn
+                onCtrlEnter={ props.onDebug }
+                onShiftEnter={ props.onExercise }
+                onExecute={ () => void 0 } // fn
               />
+
+              <div className='debug-controls'>
+                <button
+                  title='Debug this Expression in the Evaluator (Ctrl + Enter)'
+                  type="button"
+                  className='open-as-debug btn'
+                  onClick={ props.onDebug }
+                >
+                  <span
+                    className='untyped-lambda--submit-expression--btn-label'
+                  >
+                    Debug
+                  </span>
+                </button>
+                
+                <button
+                  title='Exercise this Expression Yourself (Shift + Enter)'
+                  type="button"
+                  className='open-as-exercise btn'
+                  onClick={ props.onExercise }
+                >
+                  <span className='untyped-lambda--submit-expression--btn-label'>Exercise</span>
+                </button>
+              </div>
             </div>
           )
           :
           (
             <div>
               <p className='inactiveMessage'>
-                Collapsing { Math.max(0, props.history.length - 1) } { props.history.length === 2 ? 'step' : 'steps' }. Click to activate this box.
+                Collapsing Empty Expression Box. Click to activate this box.
               </p>
-              </div>
+            </div>
           )
       }
     </div>

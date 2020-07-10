@@ -1,0 +1,20 @@
+
+
+.open-as-debug.btn {
+  color: #2771e9;
+	border-color: #1d6be9;
+	margin-right: 5px;
+}
+
+.open-as-debug:hover {
+  background-color: #89b7ff;
+}
+
+.open-as-exercise.btn {
+  color: #00158b;
+	border-color: #010e55;
+}
+
+.open-as-exercise:hover {
+  background-color: #8fa0ff;
+}
