@@ -68,3 +68,15 @@
   border-top-right-radius: 5px;
   border-bottom-right-radius: 5px;
 }
+
+.export:link {
+  color: black;
+}
+
+.export:active {
+  color: black;
+}
+
+.export:visited {
+  color: black;
+}
