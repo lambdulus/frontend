@@ -98,6 +98,12 @@ export default class App extends Component<Props, AppState> {
       currentScreen : Screen.MAIN,
       currentNotebook : index,
     })
+
+    updateAppStateToStorage({
+      ...this.state,
+      currentScreen : Screen.MAIN,
+      currentNotebook : index,
+    })
   }
 
   setScreen (screen : Screen) : void {
@@ -138,6 +144,7 @@ export default class App extends Component<Props, AppState> {
 
     updateAppStateToStorage({
       ...this.state,
+      currentScreen : Screen.MAIN,
       notebookList : [ ...this.state.notebookList, createNewNotebook(name) ],
       currentNotebook : this.state.currentNotebook + 1
     })
