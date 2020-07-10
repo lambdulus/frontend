@@ -1,5 +1,5 @@
 import { BoxType } from '../Types'
-import { EvaluationStrategy, UntypedLambdaState, UntypedLambdaSettings, UntypedLambdaType, StepRecord, UntypedLambdaExpressionState, UntypedLambdaMacroState, PromptPlaceholder, UntypedLambdaIntegrationState, SettingsEnabled } from "./Types"
+import { EvaluationStrategy, UntypedLambdaState, UntypedLambdaSettings, UntypedLambdaType, StepRecord, UntypedLambdaExpressionState, UntypedLambdaIntegrationState, SettingsEnabled } from "./Types"
 import { ASTReduction, AST, decodeFast as decodeUntypedLambdaFast } from '@lambdulus/core'
 
 // import macroctx from './MacroContext'
@@ -9,7 +9,7 @@ export let UNTYPED_LAMBDA_INTEGRATION_STATE : UntypedLambdaIntegrationState = {
   macrotable : {}
 }
 
-export const ADD_BOX_LABEL = '+λ'
+export const ADD_BOX_LABEL = '+ Untyped λ'
 
 export const CODE_NAME = 'UNTYPED_LAMBDA_CALCULUS'
 
@@ -25,7 +25,7 @@ export function createNewUntypedLambdaExpression (defaultSettings : UntypedLambd
     ...defaultSettings,
     __key : Date.now().toString(),
     type : BoxType.UNTYPED_LAMBDA,
-    subtype : UntypedLambdaType.ORDINARY,
+    subtype : UntypedLambdaType.EMPTY,
     title : "Untyped λ Expression",
     minimized : false,
     menuOpen : false,
@@ -55,84 +55,86 @@ export function createNewUntypedLambdaExpression (defaultSettings : UntypedLambd
   }
 }
 
-export function createNewUntypedLambdaExercise (defaultSettings : UntypedLambdaSettings) : UntypedLambdaState {
-  return {
-    ...defaultSettings,
-    __key : Date.now().toString(),
-    type : BoxType.UNTYPED_LAMBDA,
-    subtype : UntypedLambdaType.EXERCISE,
-    title : "Untyped λ Exercise",
-    minimized : false,
-    menuOpen : false,
-    settingsOpen : false,
-    expression : "",
-    ast : null,
-    history : [],
-    isRunning : false,
-    breakpoints : [],
-    timeoutID : undefined,
-    timeout : 5,
+// export function createNewUntypedLambdaExercise (defaultSettings : UntypedLambdaSettings) : UntypedLambdaState {
+//   return {
+//     ...defaultSettings,
+//     __key : Date.now().toString(),
+//     type : BoxType.UNTYPED_LAMBDA,
+//     subtype : UntypedLambdaType.EXERCISE,
+//     title : "Untyped λ Exercise",
+//     minimized : false,
+//     menuOpen : false,
+//     settingsOpen : false,
+//     expression : "",
+//     ast : null,
+//     history : [],
+//     isRunning : false,
+//     breakpoints : [],
+//     timeoutID : undefined,
+//     timeout : 5,
     
-    // strategy : EvaluationStrategy.NORMAL,
-    // singleLetterNames : false,
-    // standalones : false,
+//     // strategy : EvaluationStrategy.NORMAL,
+//     // singleLetterNames : false,
+//     // standalones : false,
 
-    macrolistOpen : false,
-    macrotable : { ...UNTYPED_LAMBDA_INTEGRATION_STATE.macrotable },
+//     macrolistOpen : false,
+//     macrotable : { ...UNTYPED_LAMBDA_INTEGRATION_STATE.macrotable },
 
     
-    editor : {
-      placeholder : "placeholder",
-      content : "",
-      caretPosition : 0,
-      syntaxError : null,
-    }
-  }
-}
+//     editor : {
+//       placeholder : "placeholder",
+//       content : "",
+//       caretPosition : 0,
+//       syntaxError : null,
+//     }
+//   }
+// }
 
-export function createNewUntypedLambdaMacro (defaultSettings : UntypedLambdaSettings) : UntypedLambdaMacroState {
-  return (
-    {
-      ...defaultSettings,
-      __key : Date.now().toString(),
-      type : BoxType.UNTYPED_LAMBDA,
-      title : "Untyped λ Macro Expression",
-      minimized : false,
-      menuOpen : false,
-      settingsOpen : false,
+// export function createNewUntypedLambdaMacro (defaultSettings : UntypedLambdaSettings) : UntypedLambdaMacroState {
+//   return (
+//     {
+//       ...defaultSettings,
+//       __key : Date.now().toString(),
+//       type : BoxType.UNTYPED_LAMBDA,
+//       title : "Untyped λ Macro Expression",
+//       minimized : false,
+//       menuOpen : false,
+//       settingsOpen : false,
     
-      subtype : UntypedLambdaType.MACRO,
-      expression : '',
-      ast : null,
-      macroName : '',
-      macroExpression : '',
+//       subtype : UntypedLambdaType.MACRO,
+//       expression : '',
+//       ast : null,
+//       macroName : '',
+//       macroExpression : '',
 
-      macrolistOpen : false,
-      macrotable : { ...UNTYPED_LAMBDA_INTEGRATION_STATE.macrotable },
+//       macrolistOpen : false,
+//       macrotable : { ...UNTYPED_LAMBDA_INTEGRATION_STATE.macrotable },
 
       
-      editor : {
-        placeholder : PromptPlaceholder.MACRO,
-        content : '',
-        caretPosition : 0,
-        syntaxError : null
-      }
-    }
-  )
-}
+//       editor : {
+//         placeholder : PromptPlaceholder.MACRO,
+//         content : '',
+//         caretPosition : 0,
+//         syntaxError : null
+//       }
+//     }
+//   )
+// }
 
 
 export function decodeUntypedLambdaState (box : UntypedLambdaState) : UntypedLambdaState {
-  switch (box.subtype) {
-    case UntypedLambdaType.ORDINARY:
-      return decodeUntypedLambdaExpression(box as UntypedLambdaExpressionState)
-      
-    case UntypedLambdaType.MACRO:
-      return box //TODO: implement -- it's not really needed
+  return decodeUntypedLambdaExpression(box as UntypedLambdaExpressionState)
 
-    case UntypedLambdaType.EXERCISE:
-      return decodeUntypedLambdaExpression(box as UntypedLambdaExpressionState)
-  }
+  // switch (box.subtype) {
+  //   case UntypedLambdaType.ORDINARY:
+  //     return decodeUntypedLambdaExpression(box as UntypedLambdaExpressionState)
+      
+    // case UntypedLambdaType.MACRO:
+    //   return box //TODO: implement -- it's not really needed
+
+    // case UntypedLambdaType.EXERCISE:
+    //   return decodeUntypedLambdaExpression(box as UntypedLambdaExpressionState)
+  // }
 }
 
 function decodeUntypedLambdaExpression (box : UntypedLambdaExpressionState) : UntypedLambdaExpressionState {
@@ -190,8 +192,8 @@ export const GLOBAL_SETTINGS_ENABLER : SettingsEnabled = {
   strategy : true,
 }
 
-export const MACRO_SETTINGS_ENABLER : SettingsEnabled = {
-  SLI : true,
-  expandStandalones : false,
-  strategy : false,
-}
+// export const MACRO_SETTINGS_ENABLER : SettingsEnabled = {
+//   SLI : true,
+//   expandStandalones : false,
+//   strategy : false,
+// }

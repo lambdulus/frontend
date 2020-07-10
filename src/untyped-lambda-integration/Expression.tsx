@@ -110,6 +110,8 @@ export default class Expression extends PureComponent<EvaluatorProps> {
 
               onContent={ this.props.onContent } // fn
               onEnter={ this.props.onEnter } // fn // tohle asi bude potreba
+              onShiftEnter={ () => void 0 }
+              onCtrlEnter={ () => void 0 }
               onExecute={ this.props.onExecute } // fn // tohle asi bude potreba
               shouldReplaceLambda={ true }
             />

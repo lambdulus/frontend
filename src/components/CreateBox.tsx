@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 
 import { ANY_BOX, NO_BOX } from '../AppTypes'
 import { BoxType, BoxesWhitelist, BoxState, GlobalSettings } from '../Types'
-import { createNewUntypedLambdaExercise, createNewUntypedLambdaExpression, createNewUntypedLambdaMacro, ADD_BOX_LABEL, CODE_NAME as UNTYPED_CODE_NAME } from '../untyped-lambda-integration/AppTypes'
+import { createNewUntypedLambdaExpression, ADD_BOX_LABEL, CODE_NAME as UNTYPED_CODE_NAME } from '../untyped-lambda-integration/AppTypes'
 import { UntypedLambdaSettings, UntypedLambdaState } from '../untyped-lambda-integration/Types'
 import { createNewMarkdown } from '../markdown-integration/AppTypes'
 
@@ -65,7 +65,7 @@ export default class CreateBox extends Component<Props, State> {
             <i>{ ADD_BOX_LABEL } Expression</i>
           </p>
   
-          <p
+          {/* <p
             className='plusBtn'
             title='Create new λ Exercise box'
             onClick={ (e) => {
@@ -87,7 +87,7 @@ export default class CreateBox extends Component<Props, State> {
             }
               >
             <i>{ ADD_BOX_LABEL } Exercise</i>
-          </p>
+          </p> */}
         </div>
         :
         null

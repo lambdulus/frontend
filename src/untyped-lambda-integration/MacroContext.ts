@@ -1,4 +1,4 @@
-import Macro from "./Macro"
+// import Macro from "./Macro"
 import { MacroDef, MacroMap } from "@lambdulus/core"
 
 
