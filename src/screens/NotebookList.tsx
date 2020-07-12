@@ -53,13 +53,13 @@ export default function NotebookList (props : Props) : JSX.Element {
                 <span>
                   { notebook.name }
                 </span>
-                <div className='notebook-list--notebook-footer--remove'>
+                <div className='notebook-list--notebook-footer--menu'>
                   <div
                     onClick={ (e) => {
                       e.stopPropagation()
                       onUpdateNotebook({ ...notebook, menuOpen : ! notebook.menuOpen }, index)
                     } }
-                    className='notebook-list--notebook--menu--dots'
+                    className={ `notebook-list--notebook--menu--dots ${notebook.menuOpen ? 'menu-pressed-open' : ''}` }
                   >
                     <i className="mini-icon fas fa-ellipsis-v"></i>
                   </div>

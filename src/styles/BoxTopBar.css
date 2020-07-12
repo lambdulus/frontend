@@ -76,13 +76,15 @@
   width: 50%;
   position: absolute;
   right: 0;
+  border-radius: 5px;
+}
 
-  /* width: 50%; */
+.box-top-bar--controls--menu.menu-pressed-open {
+  background-color: rgb(240, 240, 240);
 }
 
 .box-top-bar--controls--menu:hover {
   background-color: rgb(221, 221, 221);
-  border-radius: 5px;
 }
 
 /* .box-top-bar--controls--remove {
