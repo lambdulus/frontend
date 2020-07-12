@@ -1,5 +1,6 @@
 .boxTopBar {
   width: 100%;
+  min-height: 1em;
 }
 
 .topBarTitle {
@@ -26,14 +27,14 @@
 .box-top-bar-custom {
   position: absolute;
   top: 0;
-  right: 6em;
+  right: 3em;
 }
 
 .box-top-bar-controls {
   position: absolute;
   right: 0;
   top: 0px;
-  width: 5.5em;
+  width: 4em;
   /* width: 7%; */
   /* margin-left: 80%; */
 }
@@ -44,7 +45,7 @@
   text-align: center;
   cursor: pointer;
   float: left;
-  width: 33%;
+  width: 50%;
 }
 
 .box-top-bar--controls--imize:hover {
@@ -52,14 +53,14 @@
   border-radius: 5px;
 }
 
-.box-top-bar--controls--settings {
+/* .box-top-bar--controls--settings {
   padding-top: 5px;
   padding-bottom: 5px;
   text-align: center;
   cursor: pointer;
   float: left;
   width: 33%;
-}
+} */
 
 .box-top-bar--controls--settings:hover {
   background-color: rgb(221, 221, 221);
@@ -72,7 +73,9 @@
   text-align: center;
   cursor: pointer;
   float: left;
-  width: 33%;
+  width: 50%;
+  position: absolute;
+  right: 0;
 
   /* width: 50%; */
 }

@@ -78,13 +78,18 @@ export default class BoxTitleBar extends Component<Props, State> {
         <div
           className='topBarTitle'
         >
-          <span
-            className='box-top-bar--title-text'
-            contentEditable={ true }
-            onBlur={ (e) => updateBoxState({ ...state, title : e.target.textContent || "" })  }
-          >
-            { title }
-          </span>
+          {
+            type !== BoxType.MARKDOWN ?
+              <span
+                className='box-top-bar--title-text'
+                contentEditable={ true }
+                onBlur={ (e) => updateBoxState({ ...state, title : e.target.textContent || "" })  }
+              >
+                { title }
+              </span>
+            :
+              null
+          }
         </div>
 
         <div className='box-top-bar-custom'>
@@ -116,24 +121,28 @@ export default class BoxTitleBar extends Component<Props, State> {
 
         </div>
         <div className='box-top-bar-controls'>
+          {
+            type !== BoxType.MARKDOWN ?
+            <div
+              onClick={ (e) => {
+                e.stopPropagation()
+                updateBoxState({ ...state, minimized : ! minimized })
+              } }
+              className='box-top-bar--controls--imize'
+              title={ minimized ? 'Expand this Box' : 'Collapse this Box' }
+            >
+              {
+                minimized ?
+                  <i className="mini-icon fas fa-caret-down" />
+                :
+                  <i className="mini-icon fas fa-caret-up" />
+              }
+            </div>
+            :
+              null
+          }
 
-          <div
-            onClick={ (e) => {
-              e.stopPropagation()
-              updateBoxState({ ...state, minimized : ! minimized })
-            } }
-            className='box-top-bar--controls--imize'
-            title={ minimized ? 'Expand this Box' : 'Collapse this Box' }
-          >
-            {
-              minimized ?
-              <i className="mini-icon fas fa-caret-down" />
-              :
-              <i className="mini-icon fas fa-caret-up" />
-            }
-          </div>      
-
-          <div
+          {/* <div
             className='box-top-bar--controls--settings'
             onClick={ (e) => {
               e.stopPropagation()
@@ -141,7 +150,7 @@ export default class BoxTitleBar extends Component<Props, State> {
             } }
           >
             <i className="mini-icon fas fa-cog" />
-          </div>
+          </div> */}
 
           <div
             onClick={ () => this.setState({ menuOpen : ! menuOpen }) }
