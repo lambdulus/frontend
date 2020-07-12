@@ -2,7 +2,7 @@
 
 // import Controls from './Controls' // TODO: Controls are gonna be imported from the Frontend app - or maybe not even imported just passed as children
 import Step from './Step'
-import { UntypedLambdaState, Breakpoint, StepRecord, UntypedLambdaExpressionState } from './Types'
+import { UntypedLambdaState, Breakpoint, StepRecord, UntypedLambdaExpressionState, EvaluationStrategy } from './Types'
 import Editor from '../components/Editor'
 // import { DeleteBox } from './BoxSpace'
 // import { AddBoxContext } from './MethodInjector'
@@ -10,6 +10,8 @@ import { mapLeftFromTo } from '../misc'
 import DebugControls from '../components/DebugControls'
 // import BoxTopBar from './BoxTopBar'
 // import Controls from './ExerciseSwitch'
+
+import './styles/Expression.css'
 
 
 interface EvaluatorProps {
@@ -43,9 +45,9 @@ export default class Expression extends PureComponent<EvaluatorProps> {
   }
 
   render () : JSX.Element {
-    const { className, state, editor, shouldShowDebugControls, isExercise } = this.props
+    const { className, state, editor, shouldShowDebugControls, isExercise, setBoxState } = this.props
 
-    const { isRunning } : UntypedLambdaExpressionState = state
+    const { isRunning, strategy } : UntypedLambdaExpressionState = state
 
     const {
       placeholder,
@@ -53,6 +55,9 @@ export default class Expression extends PureComponent<EvaluatorProps> {
       caretPosition,
       syntaxError,
     } = editor
+
+    const uniq : string = Date.now().toString()
+
 
     return (
       <div className={ className }>
@@ -102,26 +107,157 @@ export default class Expression extends PureComponent<EvaluatorProps> {
         </ul>
         {
           (isExercise && ! this.props.isNormalForm) ?
-            <Editor
-              placeholder={ placeholder } // data
-              content={ content } // data
-              syntaxError={ syntaxError } // data
-              submitOnEnter={ true } // data
+            <div>
 
-              onContent={ this.props.onContent } // fn
-              onEnter={ this.props.onEnter } // fn // tohle asi bude potreba
-              onShiftEnter={ () => void 0 }
-              onCtrlEnter={ () => void 0 }
-              onExecute={ this.props.onExecute } // fn // tohle asi bude potreba
-              shouldReplaceLambda={ true }
-            />
+              <Editor
+                placeholder={ placeholder } // data
+                content={ content } // data
+                syntaxError={ syntaxError } // data
+                submitOnEnter={ true } // data
+
+                onContent={ this.props.onContent } // fn
+                onEnter={ this.props.onEnter } // fn // tohle asi bude potreba
+                onShiftEnter={ () => void 0 }
+                onCtrlEnter={ () => void 0 }
+                onExecute={ this.props.onExecute } // fn // tohle asi bude potreba
+                shouldReplaceLambda={ true }
+              />
+
+
+              <div className='untyped-lambda--pick-strategy untyped-lambda-settings-strategies inlineblock'>
+                <p className='stratsLabel inlineblock'>Strategy:</p>
+                
+                <span className='untyped-lambda-settings--strategy-radio-wrapper'>
+                  <input
+                    id={ `untyped-lambda-settings--simplified-strategy-${uniq}` }
+                    type='radio'
+                    name={ `untyped-lambda-settings--strategy-${uniq}` }
+                    // style="fill"
+                    checked={
+                      strategy === EvaluationStrategy.ABSTRACTION
+                    }
+                    
+                    onChange={
+                      () => setBoxState({ ...state, strategy : EvaluationStrategy.ABSTRACTION })
+                    }
+                  />
+                  <label className='untyped-lambda-settings-label' htmlFor={ `untyped-lambda-settings--simplified-strategy-${uniq}` }>
+                    Simplified
+                  </label>
+                </span>
+
+                <span className='untyped-lambda-settings--strategy-radio-wrapper'>
+                  <input
+                    id={ `untyped-lambda-settings--normal-strategy-${uniq}` }
+                    type='radio'
+                    name={ `untyped-lambda-settings--strategy-${uniq}` }
+                    // style="fill"
+                    checked={
+                      strategy === EvaluationStrategy.NORMAL
+                    }
+
+                    onChange={
+                      () => setBoxState({ ...state, strategy : EvaluationStrategy.NORMAL })
+                    }
+                  />
+                  <label className='untyped-lambda-settings-label' htmlFor={ `untyped-lambda-settings--normal-strategy-${uniq}` }>
+                    Normal
+                  </label>
+                </span>
+
+                <span className='untyped-lambda-settings--strategy-radio-wrapper'>
+                  <input
+                    id={ `untyped-lambda-settings--applicative-strategy-${uniq}` }
+                    type='radio'
+                    name={ `untyped-lambda-settings--strategy-${uniq}` }
+                    // style="fill"
+                    checked={
+                      strategy === EvaluationStrategy.APPLICATIVE
+                    }
+                    
+                    onChange={
+                      () => setBoxState({ ...state, strategy : EvaluationStrategy.APPLICATIVE })
+                    }
+                  />
+                  <label className='untyped-lambda-settings-label' htmlFor={ `untyped-lambda-settings--applicative-strategy-${uniq}` }>
+                    Applicative
+                  </label>
+                </span>
+              </div>
+            </div>
           :
             ( ! this.props.isNormalForm && shouldShowDebugControls) ?
-              <DebugControls
-                isRunning={ isRunning }
-                onStep={ this.props.onEnter }
-                onRun={ this.props.onExecute }
-              />
+              <div>
+                <span className='untyped-lambda--debug-ctrl'>
+                  <DebugControls
+                    isRunning={ isRunning }
+                    onStep={ this.props.onEnter }
+                    onRun={ this.props.onExecute }
+                  />
+                </span>
+                
+                <div className='untyped-lambda--pick-strategy untyped-lambda-settings-strategies inlineblock'>
+                  <p className='stratsLabel inlineblock'>Strategy:</p>
+                  
+                  <span className='untyped-lambda-settings--strategy-radio-wrapper'>
+                    <input
+                      id={ `untyped-lambda-settings--simplified-strategy-${uniq}` }
+                      type='radio'
+                      name={ `untyped-lambda-settings--strategy-${uniq}` }
+                      // style="fill"
+                      checked={
+                        strategy === EvaluationStrategy.ABSTRACTION
+                      }
+                      
+                      onChange={
+                        () => setBoxState({ ...state, strategy : EvaluationStrategy.ABSTRACTION })
+                      }
+                    />
+                    <label className='untyped-lambda-settings-label' htmlFor={ `untyped-lambda-settings--simplified-strategy-${uniq}` }>
+                      Simplified
+                    </label>
+                  </span>
+
+                  <span className='untyped-lambda-settings--strategy-radio-wrapper'>
+                    <input
+                      id={ `untyped-lambda-settings--normal-strategy-${uniq}` }
+                      type='radio'
+                      name={ `untyped-lambda-settings--strategy-${uniq}` }
+                      // style="fill"
+                      checked={
+                        strategy === EvaluationStrategy.NORMAL
+                      }
+
+                      onChange={
+                        () => setBoxState({ ...state, strategy : EvaluationStrategy.NORMAL })
+                      }
+                    />
+                    <label className='untyped-lambda-settings-label' htmlFor={ `untyped-lambda-settings--normal-strategy-${uniq}` }>
+                      Normal
+                    </label>
+                  </span>
+
+                  <span className='untyped-lambda-settings--strategy-radio-wrapper'>
+                    <input
+                      id={ `untyped-lambda-settings--applicative-strategy-${uniq}` }
+                      type='radio'
+                      name={ `untyped-lambda-settings--strategy-${uniq}` }
+                      // style="fill"
+                      checked={
+                        strategy === EvaluationStrategy.APPLICATIVE
+                      }
+                      
+                      onChange={
+                        () => setBoxState({ ...state, strategy : EvaluationStrategy.APPLICATIVE })
+                      }
+                    />
+                    <label className='untyped-lambda-settings-label' htmlFor={ `untyped-lambda-settings--applicative-strategy-${uniq}` }>
+                      Applicative
+                    </label>
+                  </span>
+                </div>
+
+              </div>
             :
               null
         }
