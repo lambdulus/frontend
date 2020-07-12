@@ -69,12 +69,16 @@ export default class Notebook extends PureComponent<Props> {
             </li>
           ) }
 
-          <CreateBox
-            addNew={ (box : BoxState) => this.insertBefore(state.boxList.length, box) }
-            whiteList={ allowedBoxes }
-            settings={ settings }
-          />
-
+          {
+            boxList.length === 0 ?
+              <CreateBox
+                addNew={ (box : BoxState) => this.insertBefore(state.boxList.length, box) }
+                whiteList={ allowedBoxes }
+                settings={ settings }
+              />
+            :
+            null
+          }
         </ul>
       </div>
     )

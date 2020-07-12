@@ -17,7 +17,7 @@ export const ANY_BOX = -1
 
 export const NO_BOX = -2
 
-export const DEFAULT_WHITELIST : BoxesWhitelist = ALL_BOX_TYPES
+export const DEFAULT_WHITELIST : BoxesWhitelist = [ BoxType.UNTYPED_LAMBDA, BoxType.MARKDOWN ]
 
 
 export function mapBoxTypeToStr (type : BoxType) : string {
@@ -36,7 +36,7 @@ export const InitNotebookState : NotebookState = {
   boxList : [],
   activeBoxIndex : NaN,
   focusedBoxIndex : undefined,
-  allowedBoxes : ANY_BOX,
+  allowedBoxes : DEFAULT_WHITELIST,
   settings : getDefaultSettings(DEFAULT_WHITELIST),
   integrationStates : {
     'UNTYPED_LAMBDA' : UNTYPED_LAMBDA_INTEGRATION_STATE, // TODO: FIX THIS!!!
