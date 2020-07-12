@@ -9,8 +9,8 @@ import { createNewMarkdown } from '../markdown-integration/AppTypes'
 import "../styles/CreateBox.css"
 
 interface Props {
-  addNew : (box : BoxState) => void,
-  whiteList : BoxesWhitelist,
+  addNew : (box : BoxState) => void
+  whiteList : BoxesWhitelist
   settings : GlobalSettings
 }
 

@@ -47,11 +47,11 @@ export default class Notebook extends PureComponent<Props> {
             (box : BoxState, i : number) =>
             <li className="LI" key={ box.__key }>
 
-              <CreateBox
+              {/* <CreateBox
                 addNew={ (box : BoxState) => this.insertBefore(i, box) }
                 whiteList={ allowedBoxes }
                 settings={ settings }
-              />
+              /> */}
 
               <BoxContainer
                 box={ box}
@@ -63,6 +63,8 @@ export default class Notebook extends PureComponent<Props> {
                 removeBox={ () => this.removeBox(i) }
                 updateBoxState={ (box : BoxState) => this.updateBoxState(i, box) }
                 onBlur={ () => this.onBlur(i) }
+                whiteList={ allowedBoxes }
+                settings={ settings }
               />
             </li>
           ) }
@@ -173,8 +175,16 @@ export default class Notebook extends PureComponent<Props> {
     console.log("              INSERT BEFORE " + index)
     const { boxList } = this.props.state
 
-    boxList.splice(index, 0, box)
-    this.props.updateNotebook({ ...this.props.state, boxList : boxList, activeBoxIndex : index, focusedBoxIndex : index })
+    const boxListCopy = [ ...boxList ]
+
+    boxListCopy.splice(index, 0, box)
+
+
+    console.log('.................AAA.....................')
+    console.log(JSON.stringify(boxListCopy))
+    console.log('.................BBB.....................')
+
+    this.props.updateNotebook({ ...this.props.state, boxList : boxListCopy, activeBoxIndex : index, focusedBoxIndex : index })
   }
 
   insertAfter (index : number, box : BoxState) : void {
@@ -187,6 +197,7 @@ export default class Notebook extends PureComponent<Props> {
   }
 
   removeBox (index : number) : void {
+    console.log('reeeeeeeeeeeeeeeeeeemove')
     const { boxList, activeBoxIndex } = this.props.state
     
     const nearestValidIndex = (i : number) => {
@@ -204,6 +215,8 @@ export default class Notebook extends PureComponent<Props> {
   }
 
   updateBoxState (index : number, box : BoxState) : void {
+    console.log('update booooooooooooooox staaaaaaaaaaaaaaate')
+
     const { boxList } = this.props.state
     boxList[index] = { ...box }
 

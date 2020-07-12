@@ -1,0 +1,21 @@
+.box-top-bar--modal--pick-box-type {
+  position: fixed;
+  left: 5%;
+  top: 5%;
+  width: 90%;
+  height: 90%;
+  z-index: 9999;
+
+  background-color: powderblue;
+}
+
+.modal--create-box {
+  width: 50%;
+  margin: auto;
+  padding-top: 10%;
+  box-sizing: border-box;
+}
+
+.modal--create-box--container {
+  background-color: purple;
+}
