@@ -7,6 +7,7 @@ import { UntypedLambdaSettings, UntypedLambdaState } from '../untyped-lambda-int
 import { createNewMarkdown } from '../markdown-integration/AppTypes'
 
 import "../styles/CreateBox.css"
+import PickBoxTypeModal from './PickBoxTypeModal'
 
 interface Props {
   addNew : (box : BoxState) => void
@@ -15,159 +16,49 @@ interface Props {
 }
 
 interface State {
-  opened : boolean
-}
-
-function anyBoxAllowed (whitelist : BoxesWhitelist) : boolean {
-  return whitelist === ANY_BOX
-}
-
-function noBoxAllowed (whitelist : BoxesWhitelist) : boolean {
-  return whitelist === NO_BOX
-}
-
-function isAllowed (type : BoxType, whitelist : BoxesWhitelist) : boolean {
-  return anyBoxAllowed(whitelist) || (whitelist as Array<BoxType>).includes(type)
+  modalOpen : boolean
 }
 
 // TODO: this needs to change
 // somehow I need to be able to delegate choosing the specific subtype of the Box
-export default class CreateBox extends Component<Props, State> {
+export default class CreateBox extends Component <Props, State> {
   constructor (props : Props) {
     super(props)
 
     this.state = {
-      opened : false,
+      modalOpen : false
     }
-
-    this.onOpen = this.onOpen.bind(this)
-    this.onClose = this.onClose.bind(this)
   }
-
 
   render () : JSX.Element {
     const { addNew, whiteList, settings } : Props = this.props
-  
-    const untLSettings : UntypedLambdaSettings = settings[UNTYPED_CODE_NAME] as UntypedLambdaState
-  
-    const addLambdaBoxIfAllowed = (allowed : boolean) => (
-      allowed ?
-        <div className='create-box--group'>
-          <p
-            className='plusBtn'
-            title='Create new λ box'
-            onClick={ (e) => {
-              e.stopPropagation()
-              this.setState({ opened : false })
-              addNew(createNewUntypedLambdaExpression(untLSettings)) }
-            }
-          >
-            <i>{ ADD_BOX_LABEL } Expression</i>
-          </p>
-  
-          {/* <p
-            className='plusBtn'
-            title='Create new λ Exercise box'
-            onClick={ (e) => {
-              e.stopPropagation()
-              this.setState({ opened : false })
-              addNew(createNewUntypedLambdaMacro(untLSettings)) }
-            }
-              >
-            <i>{ ADD_BOX_LABEL } Macro</i>
-          </p>
-  
-          <p
-            className='plusBtn'
-            title='Create new λ Macro box'
-            onClick={ (e) => {
-              e.stopPropagation()
-              this.setState({ opened : false })
-              addNew(createNewUntypedLambdaExercise(untLSettings)) }
-            }
-              >
-            <i>{ ADD_BOX_LABEL } Exercise</i>
-          </p> */}
-        </div>
-        :
-        null
-    )
-  
-    const addLispBoxIfAllowed = (allowed : boolean) => (
-      allowed ?
-        <div className='create-box--group'>
-          <p
-            className='plusBtn'
-            title='Create new Lisp box'
-            onClick={ (e) => {
-              e.stopPropagation()
-              this.setState({ opened : false })
-              addNew({__key : Date.now().toString()} as BoxState) } // NOTE: just for now
-            }
-          >
-            <i>+ Lisp</i>
-          </p>
-        </div>
-        :
-        null
-    )
-  
-    const addMDBoxIfAllowed = (allowed : boolean) => (
-      allowed ?
-      <div className='create-box--group'>
-        <p
-          className='plusBtn'
-          title='Create new MarkDown box'
-          onClick={ (e) => {
-            e.stopPropagation()
-            this.setState({ opened : false })
-            addNew(createNewMarkdown()) }
-          }
-        >
-          <i>+ MD</i>
-        </p>
-      </div>
-      :
-      null
-    )
-
-    if (this.state.opened) {
+    const { modalOpen } = this.state
+   
+    if (this.state.modalOpen === false) {
       return (
-        noBoxAllowed(whiteList) ?
-          null as any
-          :
-          <div
-            className='create-box'
-            onClick={ () => {
-              this.onClose() }} >
-            <div className='create-box--container'>
-              { addLambdaBoxIfAllowed(isAllowed (BoxType.UNTYPED_LAMBDA, whiteList)) }
-              { addLispBoxIfAllowed(isAllowed(BoxType.LISP, whiteList)) }
-              { addMDBoxIfAllowed(isAllowed(BoxType.MARKDOWN, whiteList)) }
-            </div>
+        <div className='create-box-plus' onClick={ () => this.setState({ modalOpen : ! modalOpen }) } >
+          <div className='create-box-plus--button'>
+            {/* <div className='create-box-plus--container' onClick={ () => {} }> */}
+              {/* <p> */}
+                <i className="fas fa-plus" />
+              {/* </p> */}
+            {/* </div> */}
           </div>
+        </div>
       )
     }
-    
-    return (
-      <div className='create-box-plus'>
-        <div className='create-box-plus--button'>
-          <div className='create-box-plus--container' onClick={ this.onOpen }>
-            <p>
-              <i className="fas fa-plus" />
-            </p>
-          </div>
-        </div>
-      </div>
-    )
+    else {
+      return (
+        <PickBoxTypeModal
+          addNew={ (box : BoxState) => {
+            addNew(box)
+            this.setState({ modalOpen : false })
+          } }
+          whiteList={ this.props.whiteList }
+          settings={ this.props.settings }
+        />
+      )
+    }
   }
-
-  onOpen () : void {
-    this.setState({ opened : true })
-  }
-
-  onClose () : void {
-    this.setState({ opened : false })
-  }
-  
 }
+  

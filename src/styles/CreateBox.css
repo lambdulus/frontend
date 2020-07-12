@@ -11,7 +11,7 @@
   display: inline-block;
 }
 
-.create-box--group {
+/* .create-box--group {
   display: inline-block;
   margin-left: 5px;
   margin-right: 5px;
@@ -28,7 +28,7 @@
 .create-box--group .plusBtn:hover {
   background-color: #a0bddb;
   cursor: pointer;
-}
+} */
 
 .plusBtn {
   display: inline-block;
@@ -36,37 +36,28 @@
   border-radius: 2rem;
 }
 
-/*  */
-
 
 .create-box-plus {
-  width: 100%;
+  position: fixed;
+  top: 40vh;
+  left: 45vw;
+  /* width: 10em; */
+  /* height: 10em; */
   margin: auto;
   text-align: center;
-  border-radius: 2rem;
-}
-
-.create-box-plus--button {
-  margin: auto;
-}
-
-.create-box-plus--container {
-  height: 100%;
-  display: inline-block;
-  width: 3em;
-  height: 3em;
   border-radius: 50%;
+  /* border-radius: 2rem; */
+  padding: 1em;
+  padding-left: 1.1em;
+  padding-right: 1.1em;
+  font-size: 2em;
+  color: rgb(160, 160, 160);
 
-  text-align: center;
+  background-color: rgb(235, 235, 235);
+}
+
+.create-box-plus:hover {
+  color:gray;
+  background-color: rgb(219, 219, 219);
   cursor: pointer;
-  color: rgb(155, 155, 155)
-}
-
-.create-box-plus:hover .create-box-plus--container {
-  background-color: rgb(212, 212, 212);
-  color: black
-}
-
-.create-box-plus--container:hover {
-  background-color: rgb(187, 187, 187);
 }

@@ -9,7 +9,7 @@ export let UNTYPED_LAMBDA_INTEGRATION_STATE : UntypedLambdaIntegrationState = {
   macrotable : {}
 }
 
-export const ADD_BOX_LABEL = '+ Untyped λ'
+export const ADD_BOX_LABEL = '+ Untyped λ Expression'
 
 export const CODE_NAME = 'UNTYPED_LAMBDA_CALCULUS'
 

@@ -35,8 +35,8 @@ export default function PickBoxTypeModal (props : Props) : JSX.Element {
 
   const addLambdaBoxIfAllowed = (allowed : boolean) => (
     allowed ?
-      <div className='create-box--group'>
-        <p
+      <div className='add-box--group'>
+        <div
           className='plusBtn'
           title='Create new λ box'
           onClick={ (e) => {
@@ -45,8 +45,9 @@ export default function PickBoxTypeModal (props : Props) : JSX.Element {
             addNew(createNewUntypedLambdaExpression(untLSettings)) }
           }
         >
-          <i>{ ADD_BOX_LABEL } Expression</i>
-        </p>
+          <p className='create-box--big'>λ</p>
+          <p className='creat-box--label'>{ ADD_BOX_LABEL }</p>
+        </div>
       </div>
       :
       null
@@ -54,8 +55,8 @@ export default function PickBoxTypeModal (props : Props) : JSX.Element {
 
   const addLispBoxIfAllowed = (allowed : boolean) => (
     allowed ?
-      <div className='create-box--group'>
-        <p
+      <div className='add-box--group'>
+        <div
           className='plusBtn'
           title='Create new Lisp box'
           onClick={ (e) => {
@@ -64,8 +65,9 @@ export default function PickBoxTypeModal (props : Props) : JSX.Element {
             addNew({__key : Date.now().toString()} as BoxState) } // NOTE: just for now
           }
         >
-          <i>+ Lisp</i>
-        </p>
+          <p className='create-box--big'>()</p>
+          <p className='creat-box--label'>+ Lisp</p>
+        </div>
       </div>
       :
       null
@@ -73,8 +75,8 @@ export default function PickBoxTypeModal (props : Props) : JSX.Element {
 
   const addMDBoxIfAllowed = (allowed : boolean) => (
     allowed ?
-    <div className='create-box--group'>
-      <p
+    <div className='add-box--group'>
+      <div
         className='plusBtn'
         title='Create new MarkDown box'
         onClick={ (e) => {
@@ -83,8 +85,9 @@ export default function PickBoxTypeModal (props : Props) : JSX.Element {
           addNew(createNewMarkdown()) }
         }
       >
-        <i>+ MD</i>
-      </p>
+        <p className='create-box--big'>M&darr;</p>
+        <p className='creat-box--label'>+ Markdown</p>
+      </div>
     </div>
     :
     null

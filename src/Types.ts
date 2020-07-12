@@ -86,20 +86,20 @@ export interface AppState {
 }
 
 
-// TODO: move to specific integration
-export interface MacroDefinitionState {
-  __key : string
-  type : BoxType
-  macroName : string
-  macroExpression : string
-  singleLetterNames : boolean
-  editor : {
-    placeholder : string
-    content : string
-    caretPosition : number
-    syntaxError : Error | null
-  }
-}
+// // TODO: move to specific integration
+// export interface MacroDefinitionState {
+//   __key : string
+//   type : BoxType
+//   macroName : string
+//   macroExpression : string
+//   singleLetterNames : boolean
+//   editor : {
+//     placeholder : string
+//     content : string
+//     caretPosition : number
+//     syntaxError : Error | null
+//   }
+// }
 
 
 
