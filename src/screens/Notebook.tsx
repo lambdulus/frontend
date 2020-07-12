@@ -7,7 +7,7 @@ import React, { PureComponent } from 'react'
 import CreateBox from '../components/CreateBox'
 import { BoxType, NotebookState, GlobalSettings, BoxState } from '../Types'
 
-import { onMarkDownBlur, NoteState } from '../markdown-integration/AppTypes'
+import { onMarkDownBlur, NoteState, onMarkDownActive } from '../markdown-integration/AppTypes'
 import { BoxContainer } from '../components/BoxContainer'
 
 interface Props {
@@ -176,23 +176,16 @@ export default class Notebook extends PureComponent<Props> {
   }
 
   insertBefore (index : number, box : BoxState) : void {
-    console.log("              INSERT BEFORE " + index)
     const { boxList } = this.props.state
 
     const boxListCopy = [ ...boxList ]
 
     boxListCopy.splice(index, 0, box)
 
-
-    console.log('.................AAA.....................')
-    console.log(JSON.stringify(boxListCopy))
-    console.log('.................BBB.....................')
-
     this.props.updateNotebook({ ...this.props.state, boxList : boxListCopy, activeBoxIndex : index, focusedBoxIndex : index })
   }
 
   insertAfter (index : number, box : BoxState) : void {
-    console.log("              INSERT AFTER " + index)
 
     const { boxList } = this.props.state
 
@@ -201,7 +194,6 @@ export default class Notebook extends PureComponent<Props> {
   }
 
   removeBox (index : number) : void {
-    console.log('reeeeeeeeeeeeeeeeeeemove')
     const { boxList, activeBoxIndex } = this.props.state
     
     const nearestValidIndex = (i : number) => {
@@ -219,8 +211,6 @@ export default class Notebook extends PureComponent<Props> {
   }
 
   updateBoxState (index : number, box : BoxState) : void {
-    console.log('update booooooooooooooox staaaaaaaaaaaaaaate')
-
     const { boxList } = this.props.state
     boxList[index] = { ...box }
 
@@ -249,7 +239,28 @@ export default class Notebook extends PureComponent<Props> {
     }
 
     if (index !== activeBoxIndex || index !== focusedBoxIndex || boxList[index].minimized === true) {
-      boxList[index].minimized = false;
+      const futureType : BoxType = boxList[index].type
+
+      const patch = {
+        minimized : false,
+      }
+
+      switch (futureType) {
+        case BoxType.MARKDOWN: {
+          boxList[index] = {
+            ...onMarkDownActive(boxList[index] as NoteState),
+            ...patch,
+          }
+        }
+          
+        default: {
+          boxList[index] = {
+            ...boxList[index],
+            ...patch
+          }
+        }
+          break;
+      }
 
       this.props.updateNotebook({ ...this.props.state, activeBoxIndex : index, focusedBoxIndex : index, boxList })
     }
@@ -275,8 +286,8 @@ export default class Notebook extends PureComponent<Props> {
         break
       
       case BoxType.MARKDOWN: {
-        // boxList[index] = onMarkDownBlur(boxList[index] as NoteState)
-        return // TODO: just for now
+        boxList[index] = onMarkDownBlur(boxList[index] as NoteState)
+        // return // TODO: just for now
       }
 
       default:

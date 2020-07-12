@@ -41,3 +41,10 @@ export function onMarkDownBlur (state : NoteState) : NoteState {
     isEditing: false,
   }
 }
+
+export function onMarkDownActive (state : NoteState) : NoteState {
+  return {
+    ...state,
+    isEditing : true,
+  }
+}
