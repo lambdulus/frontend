@@ -153,8 +153,11 @@ export default class BoxTitleBar extends Component<Props, State> {
           </div> */}
 
           <div
-            onClick={ () => this.setState({ menuOpen : ! menuOpen }) }
-            className='box-top-bar--controls--menu'
+            onClick={ (e) => {
+              e.stopPropagation()
+              this.setState({ menuOpen : ! menuOpen })
+            } }
+            className={ `box-top-bar--controls--menu ${menuOpen ? 'menu-pressed-open' : ''}` }
           >
             <i className="mini-icon fas fa-ellipsis-v"></i>
           </div>
