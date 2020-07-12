@@ -2,7 +2,7 @@ import React, { MouseEvent } from 'react'
 import { mapBoxTypeToStr } from '../AppTypes'
 import Box from './Box'
 import BoxTitleBar from './BoxTitleBar'
-import { BoxState } from '../Types'
+import { BoxState, GlobalSettings, BoxesWhitelist } from '../Types'
 
 import "../styles/BoxContainer.css"
 
@@ -18,6 +18,8 @@ interface Props {
   removeBox : () => void
   addBoxBefore : (state : BoxState) => void
   addBoxAfter : (state : BoxState) => void
+  settings : GlobalSettings
+  whiteList : BoxesWhitelist
 }
 
 export function BoxContainer (props : Props) : JSX.Element {
@@ -54,6 +56,8 @@ export function BoxContainer (props : Props) : JSX.Element {
         updateBoxState={ (box : BoxState) => updateBoxState(box) }
         addBoxBefore={ addBoxBefore }
         addBoxAfter={ addBoxAfter }
+        settings={ props.settings }
+        whiteList={ props.whiteList }
       />
       
       <Box

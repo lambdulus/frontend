@@ -111,6 +111,13 @@ export default class App extends Component<Props, AppState> {
   }
 
   updateNotebook (notebook : NotebookState) : void {
+
+    console.log('??????????????????????????????????????')
+    console.log(notebook.boxList.length)
+    console.log('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
+
+
+
     const { notebookList, currentNotebook } = this.state
 
     notebookList[currentNotebook] = notebook
