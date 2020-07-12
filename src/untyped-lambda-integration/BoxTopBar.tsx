@@ -22,7 +22,7 @@ export default function BoxTopBar (props : Props) : JSX.Element {
   return (
     <div className=''>
 
-      <div
+      {/* <div
         onClick={ (e) => {
           e.stopPropagation()
           updateBoxState({ ...state, macrolistOpen : ! macrolistOpen })
@@ -31,7 +31,7 @@ export default function BoxTopBar (props : Props) : JSX.Element {
         title={ macrolistOpen ? 'Hide Macros' : 'Show All Macros for This Box' }
       >
         <i className="mini-icon fas fa-list-ul" />
-      </div>
+      </div> */}
 
       {/* {
         expression === '' ?
