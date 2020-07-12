@@ -181,14 +181,20 @@ export default class BoxTitleBar extends Component<Props, State> {
 
               <div
                 className='box-top-bar--menu-item'
-                onClick={ () => this.selectBoxType('before') }
+                onClick={ (e) => {
+                  e.stopPropagation()
+                  this.selectBoxType('before')
+                } }
               >
                 New Box Before
               </div>
 
               <div
                 className='box-top-bar--menu-item'
-                onClick={ () => this.selectBoxType('after') }
+                onClick={ (e) => {
+                  e.stopPropagation()
+                  this.selectBoxType('after')
+                } }
               >
                 New Box After
               </div>

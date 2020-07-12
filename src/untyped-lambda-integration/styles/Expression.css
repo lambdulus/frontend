@@ -1,0 +1,28 @@
+.untyped-lambda--debug-ctrl {
+  float: left;
+}
+
+.untyped-lambda--pick-strategy {
+  margin-left: 20px;
+}
+
+.untyped-lambda-settings--strategy-radio-wrapper {
+  padding: 5px;
+  padding-left: 10px;
+  padding-right: 10px;
+  border-radius: 1em;
+
+  color: gray;
+  background-color: gainsboro;
+  font-size: 0.9em;
+  
+  border: 1px solid rgb(190, 190, 190);
+}
+
+input[type="radio"]:checked + .untyped-lambda-settings-label {
+  color: black;
+}
+
+.untyped-lambda-settings--strategy-radio-wrapper:hover {
+  color: rgb(68, 68, 68);
+}

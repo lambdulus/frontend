@@ -40,7 +40,7 @@ export default function PickBoxTypeModal (props : Props) : JSX.Element {
           className='plusBtn'
           title='Create new λ box'
           onClick={ (e) => {
-            // e.stopPropagation()
+            e.stopPropagation()
             // this.setState({ opened : false })
             addNew(createNewUntypedLambdaExpression(untLSettings)) }
           }
@@ -60,7 +60,7 @@ export default function PickBoxTypeModal (props : Props) : JSX.Element {
           className='plusBtn'
           title='Create new Lisp box'
           onClick={ (e) => {
-            // e.stopPropagation()
+            e.stopPropagation()
             // this.setState({ opened : false })
             addNew({__key : Date.now().toString()} as BoxState) } // NOTE: just for now
           }
@@ -80,7 +80,7 @@ export default function PickBoxTypeModal (props : Props) : JSX.Element {
         className='plusBtn'
         title='Create new MarkDown box'
         onClick={ (e) => {
-          // e.stopPropagation()
+          e.stopPropagation()
           // this.setState({ opened : false })
           addNew(createNewMarkdown()) }
         }
