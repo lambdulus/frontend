@@ -34,26 +34,17 @@ body {
   /* -webkit-box-shadow: 6px 7px 16px -7px rgba(64,64,64,0.87);
   -moz-box-shadow: 6px 7px 16px -7px rgba(64,64,64,0.87);
   box-shadow: 6px 7px 16px -7px rgba(64,64,64,0.87); */
-
-  border-left: 5px solid cornflowerblue;
   background-color: white;
 }
 
-.boxContainer.inactive {
-  border-left: 5px solid rgb(160, 186, 238);
+/* .boxContainer.inactive {
+  border-left: 3px solid rgb(160, 186, 238);
 }
 
 .boxContainer.inactive:hover {
-  border-left: 5px solid rgb(124, 166, 250);
-}
-
-.boxContainer.markDownBox {
-  border-left: 5px solid white;
-}
-
-.boxContainer.markDownBox:hover {
-  border-left: 5px solid white;
-}
+  border-left-color: rgb(124, 166, 250);
+  /* border-left: 5px solid rgb(124, 166, 250);
+} */
 
 .mainSpace, .helpSpace, .settingsSpace {
   width: 65%; /* TODO: consider */

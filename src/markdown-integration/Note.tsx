@@ -3,6 +3,9 @@ import React from 'react'
 import 'github-markdown-css'
 import { NoteState } from './AppTypes'
 import Editor from '../components/Editor'
+
+import './styles/Note.css'
+
 const ReactMarkdown = require('react-markdown')
 
 export interface NoteProperties {
@@ -62,13 +65,13 @@ export default function Note (props : NoteProperties) : JSX.Element {
 
   return (
     <div
+      className='box boxNote'
       onClick={ () => 
         isActive &&
         setBoxState({
         ...props.state,
         isEditing : true,
       }) }
-      className='box boxNote'
     >
       <ReactMarkdown className='markdown-body' source={ note } />
     </div>
