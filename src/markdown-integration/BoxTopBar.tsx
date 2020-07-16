@@ -34,13 +34,23 @@ export default function BoxTopBar (props : Props) : JSX.Element {
         <div className='markdown-editing'>
           <span
             className={ `markdown-write ${isEditing ? 'markdown-selected' : ''}` }
-            onClick={ () => updateBoxState({ ...state, isEditing : true}) }
+            onClick={ (e) => {
+              e.stopPropagation()
+              if (isEditing === false) {
+                updateBoxState({ ...state, isEditing : true})
+              }
+            } }
           >
             Edit
           </span>
           <span
             className={ `markdown-preview ${isEditing ? '' : 'markdown-selected'}` }
-            onClick={ () => updateBoxState({ ...state, isEditing : false}) }
+            onClick={ (e) => {
+              e.stopPropagation()
+              if (isEditing === true) {
+                updateBoxState({ ...state, isEditing : false})
+              }
+            } }
           >
             Preview
           </span>
