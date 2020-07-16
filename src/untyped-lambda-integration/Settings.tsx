@@ -50,7 +50,7 @@ export default function Settings (props : Props) : JSX.Element {
       }
 
       {
-        expSt_E ?
+        expSt_E && false ? // hiding this out - I am not sure what this should be in the first place
           <span
             className='untyped-lambda-settings-expand'
             title='Expand Numbers and Macros at the End'>

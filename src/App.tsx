@@ -84,8 +84,10 @@ export default class App extends Component<Props, AppState> {
                       />
             if (currentScreen === Screen.HELP)
               return <Help/>
-            if (currentScreen === Screen.SETTINGS)
+            if (currentScreen === Screen.SETTINGS) {
+              console.log('settings')
               return <SettingsScreen settings={ settings } updateSettings={ this.updateSettings } />
+            }
           })()
         }
         
@@ -107,6 +109,7 @@ export default class App extends Component<Props, AppState> {
   }
 
   setScreen (screen : Screen) : void {
+    console.log('set state screen ', screen)
     this.setState({ currentScreen : screen })
   }
 
