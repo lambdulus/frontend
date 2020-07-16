@@ -17,6 +17,11 @@
   margin-right: 10px;
 }
 
+.untyped-lambda-settings--strategy-radio-wrapper input {
+  position: relative;
+  top: 2px;
+}
+
 .box-settings {
   padding: 5px;
   margin: auto;

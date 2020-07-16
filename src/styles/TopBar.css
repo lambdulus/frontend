@@ -51,6 +51,10 @@
   margin-top: 5px;
 }
 
+.top-bar--item-hoverable--active {
+  background-color: #e4e4e4;
+}
+
 .top-bar--item-hoverable:hover {
   background-color: #dfdfdf;
   cursor: pointer;
