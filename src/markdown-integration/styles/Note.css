@@ -1,0 +1,20 @@
+.boxContainer.active.markDownBox {
+  min-height: 5em;
+  border-left: 5px solid rgb(140, 140, 140);
+}
+
+.boxContainer.inactive.markDownBox {
+  min-height: 5em;
+  border-left: 3px solid rgb(180, 180, 180);
+}
+
+.boxContainer.markDownBox:hover {
+  border-left-color: rgb(140, 140, 140);
+}
+
+/* 
+.markDownBox {
+	border-left: 5px solid cornflowerblue;
+  background-color: white;
+  min-height: 5em;
+} */
