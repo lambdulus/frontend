@@ -19,7 +19,27 @@
   font-size: 0.3em;
 }
 
+.notebook-list--notebook .debug-controls {
+  display: none;
+}
+
+.notebook-list--notebook .untyped-lambda-settings-strategies {
+  display: none;
+}
+
+.notebook-list--notebook .box-top-bar-custom {
+  display: none;
+}
+
 .notebook-list--notebook .create-box-plus {
+  display: none;
+}
+
+.notebook-list--notebook .markdown-body {
+  font-size: 1em;
+}
+
+.notebook-list--notebook .topBarTitle {
   display: none;
 }
 
