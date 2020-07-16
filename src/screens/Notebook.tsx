@@ -271,7 +271,9 @@ export default class Notebook extends PureComponent<Props> {
     // I am thinking - right now all it does is this:
     // it un-focuses currently focused Box
     // if this is not really needed - then maybe I should not have this feature
+    console.log('..................................')
     console.log("                  BLUR " + index)
+
     const { boxList, activeBoxIndex } = this.props.state
 
     if (activeBoxIndex !== index) {
