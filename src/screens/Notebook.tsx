@@ -14,7 +14,7 @@ interface Props {
   state : NotebookState
   settings : GlobalSettings
 
-  updateNotebook (notebook : NotebookState) : void
+  updateNotebook (notebook : Partial<NotebookState>) : void
 }
 
 export default class Notebook extends PureComponent<Props> {
@@ -182,7 +182,7 @@ export default class Notebook extends PureComponent<Props> {
 
     boxListCopy.splice(index, 0, box)
 
-    this.props.updateNotebook({ ...this.props.state, boxList : boxListCopy, activeBoxIndex : index, focusedBoxIndex : index })
+    this.props.updateNotebook({ boxList : boxListCopy, activeBoxIndex : index, focusedBoxIndex : index })
   }
 
   insertAfter (index : number, box : BoxState) : void {
@@ -190,7 +190,7 @@ export default class Notebook extends PureComponent<Props> {
     const { boxList } = this.props.state
 
     boxList.splice(index + 1, 0, box)
-    this.props.updateNotebook({ ...this.props.state, boxList : boxList, activeBoxIndex : index + 1, focusedBoxIndex : index + 1})
+    this.props.updateNotebook({ boxList : boxList, activeBoxIndex : index + 1, focusedBoxIndex : index + 1})
   }
 
   removeBox (index : number) : void {
@@ -207,19 +207,20 @@ export default class Notebook extends PureComponent<Props> {
     const newIndex : number = nearestValidIndex(index)
 
     boxList.splice(index, 1)
-    this.props.updateNotebook({ ...this.props.state, boxList : boxList, activeBoxIndex : newIndex })
+    this.props.updateNotebook({ boxList : boxList, activeBoxIndex : newIndex })
   }
 
   updateBoxState (index : number, box : BoxState) : void {
+    console.log('UPDATING BOX STATE')
     const { boxList } = this.props.state
     boxList[index] = { ...box }
 
 
-    this.props.updateNotebook({ ...this.props.state, boxList : [...boxList] })
+    this.props.updateNotebook({ boxList : [...boxList], activeBoxIndex : index })
   }
 
   makeActive (index : number) : void {
-    console.log("               MAKE ACTIVE " + index)
+    console.log("CLICKED ON               MAKE ACTIVE " + index)
     const { activeBoxIndex, focusedBoxIndex, boxList } = this.props.state
 
     const currentType : BoxType = boxList[activeBoxIndex].type
@@ -262,7 +263,7 @@ export default class Notebook extends PureComponent<Props> {
           break;
       }
 
-      this.props.updateNotebook({ ...this.props.state, activeBoxIndex : index, focusedBoxIndex : index, boxList })
+      this.props.updateNotebook({ activeBoxIndex : index, focusedBoxIndex : index, boxList })
     }
   }
 
@@ -296,6 +297,6 @@ export default class Notebook extends PureComponent<Props> {
         break
     }
 
-    this.props.updateNotebook({ ...this.props.state, boxList, focusedBoxIndex : undefined })
+    this.props.updateNotebook({ boxList, focusedBoxIndex : undefined })
   }
 }

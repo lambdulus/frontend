@@ -33,6 +33,21 @@ export function createNewMarkdown () : NoteState {
   }
 }
 
+export function resetMarkdownBox (state : NoteState) : NoteState {
+  return {
+    ...state,
+    minimized : false,
+    note : '',
+    isEditing : true,
+    editor : {
+      placeholder : PromptPlaceholder,
+      content : '',
+      caretPosition : 0,
+      syntaxError : null
+    }
+  }
+}
+
 export const PromptPlaceholder : string = 'Note in MarkDown'
 
 export function onMarkDownBlur (state : NoteState) : NoteState {

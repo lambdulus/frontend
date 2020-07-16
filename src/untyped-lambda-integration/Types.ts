@@ -64,8 +64,8 @@ export interface UntypedLambdaExpressionState extends AbstractBoxState {
   SLI : boolean
   expandStandalones : boolean
 
-  macrolistOpen : boolean
-  macrotable : MacroMap
+  macrolistOpen : boolean // this is gonna go out
+  macrotable : MacroMap // this is gonna go out
   
   editor : {
     placeholder : string

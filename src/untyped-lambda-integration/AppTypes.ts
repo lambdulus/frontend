@@ -55,6 +55,33 @@ export function createNewUntypedLambdaExpression (defaultSettings : UntypedLambd
   }
 }
 
+export function resetUntypedLambdaBox (state : UntypedLambdaState) : UntypedLambdaState {
+  return {
+    ...state,
+    subtype : UntypedLambdaType.EMPTY,
+    title : "Untyped λ Expression",
+    minimized : false,
+    expression : "",
+    ast : null,
+    history : [],
+    isRunning : false,
+    breakpoints : [],
+    timeoutID : undefined,
+    timeout : 5,
+    
+    macrolistOpen : false,
+    macrotable : { ...UNTYPED_LAMBDA_INTEGRATION_STATE.macrotable },
+
+    
+    editor : {
+      placeholder : "placeholder",
+      content : "",
+      caretPosition : 0,
+      syntaxError : null,
+    }
+  }
+}
+
 // export function createNewUntypedLambdaExercise (defaultSettings : UntypedLambdaSettings) : UntypedLambdaState {
 //   return {
 //     ...defaultSettings,
