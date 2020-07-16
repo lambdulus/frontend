@@ -27,9 +27,11 @@ export default class DebugControls extends PureComponent<Props> {
         && ( ! event.metaKey)
         && (event.key === 'F8' || event.key === 'F9')) {
           if (event.key === 'F8') {
+            event.preventDefault()
             this.props.onStep()
           }
           if (event.key === 'F9') {
+            event.preventDefault()
             this.props.onRun()
           }
         }
