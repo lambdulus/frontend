@@ -4,12 +4,13 @@ import UntypedLambdaBTB from '../untyped-lambda-integration/BoxTopBar'
 import { UntypedLambdaState } from '../untyped-lambda-integration/Types'
 
 import MarkdownBTB from '../markdown-integration/BoxTopBar'
-import { NoteState } from '../markdown-integration/AppTypes'
+import { NoteState, resetMarkdownBox } from '../markdown-integration/AppTypes'
 
 import EmptyBTB from '../empty-integration/BoxTopBar'
 
 import '../styles/BoxTopBar.css'
 import PickBoxTypeModal from './PickBoxTypeModal'
+import { resetUntypedLambdaBox } from '../untyped-lambda-integration/AppTypes'
 
 
 type BoxPlace = 'before' | 'after'
@@ -170,6 +171,7 @@ export default class BoxTitleBar extends Component<Props, State> {
               <div
                 className='box-top-bar--menu-item'
                 onClick={ removeBox }
+                title='Delete this Box from the Notebook'
               >
                 Remove
                 {/* <i
@@ -181,6 +183,7 @@ export default class BoxTitleBar extends Component<Props, State> {
 
               <div
                 className='box-top-bar--menu-item'
+                title='Add another Box before this one'
                 onClick={ (e) => {
                   e.stopPropagation()
                   this.selectBoxType('before')
@@ -191,12 +194,38 @@ export default class BoxTitleBar extends Component<Props, State> {
 
               <div
                 className='box-top-bar--menu-item'
+                title='Add another Box after this one'
                 onClick={ (e) => {
                   e.stopPropagation()
                   this.selectBoxType('after')
                 } }
               >
                 New Box After
+              </div>
+
+              <div
+                className='box-top-bar--menu-item'
+                title='Reset this Box to Initial State'
+                onClick={ (e) => {
+                  e.stopPropagation()
+                  console.log('CLICKED ON RESET BOX')
+
+                  switch (type) {
+                    case BoxType.UNTYPED_LAMBDA: {
+                      console.log('RESET UNTYPED LAMBDA')
+                      updateBoxState(resetUntypedLambdaBox(state as UntypedLambdaState))
+                      break
+                    }
+                    case BoxType.MARKDOWN: {
+                      console.log('RESET MARODOWN')
+                      updateBoxState(resetMarkdownBox(state as NoteState))
+                      break
+                    }
+                  }
+                  this.setState({ menuOpen : false })
+                } }
+              >
+                Reset this Box
               </div>
             
             </div>

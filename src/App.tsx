@@ -110,21 +110,24 @@ export default class App extends Component<Props, AppState> {
     this.setState({ currentScreen : screen })
   }
 
-  updateNotebook (notebook : NotebookState) : void {
+  updateNotebook (notebook : Partial<NotebookState>) : void {
 
     console.log('??????????????????????????????????????')
-    console.log(notebook.boxList.length)
+    // console.log(notebook.boxList.length)
     console.log('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
 
 
 
     const { notebookList, currentNotebook } = this.state
 
-    notebookList[currentNotebook] = notebook
+    notebookList[currentNotebook] = {
+      ...notebookList[currentNotebook],
+      ...notebook,
+    }
 
     this.setState({ notebookList })
 
-    updateNotebookStateToStorage(notebook, currentNotebook)
+    updateNotebookStateToStorage(notebookList[currentNotebook], currentNotebook)
     // updateAppStateToStorage({ ...this.state })
     // NOTE: Carefuly around here - I kinda rely on the mutation of this.state.notebookList
   }

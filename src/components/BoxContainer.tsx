@@ -53,7 +53,7 @@ export function BoxContainer (props : Props) : JSX.Element {
           e.stopPropagation()
           removeBox()
          } }
-        updateBoxState={ (box : BoxState) => updateBoxState(box) }
+        updateBoxState={ updateBoxState }
         addBoxBefore={ addBoxBefore }
         addBoxAfter={ addBoxAfter }
         settings={ props.settings }
@@ -64,7 +64,7 @@ export function BoxContainer (props : Props) : JSX.Element {
         state={ box }
         isActive={ isActiveBox }
         isFocused={ isFocusedBox }
-        updateBoxState={ (box : BoxState) => updateBoxState(box) }
+        updateBoxState={ updateBoxState }
         addBoxAfter={ addBoxAfter }
       />
     </div>
