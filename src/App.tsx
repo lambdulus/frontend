@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 
 import './App.css'
 
-import { updateSettingsInStorage, loadAppStateFromStorage, updateAppStateToStorage, updateNotebookStateToStorage, CLEAR_WORKSPACE_CONFIRMATION, loadSettingsFromStorage, ANY_BOX, initIntegrationStates, InitNotebookState } from './AppTypes'
+import { updateSettingsInStorage, loadAppStateFromStorage, updateAppStateToStorage, updateNotebookStateToStorage, CLEAR_WORKSPACE_CONFIRMATION, loadSettingsFromStorage, ANY_BOX, initIntegrationStates, InitNotebookState, DEFAULT_WHITELIST } from './AppTypes'
 
 import TopBar from './components/TopBar'
 import MenuBar from './components/MenuBar'
@@ -275,7 +275,7 @@ function createNewNotebook (name : string = 'Anonymous Notebook') : NotebookStat
     boxList : [],
     activeBoxIndex : NaN,
     focusedBoxIndex : undefined,
-    allowedBoxes : ANY_BOX,
+    allowedBoxes : DEFAULT_WHITELIST,
     settings : loadSettingsFromStorage(),
     integrationStates : {
       'UNTYPED_LAMBDA' : UNTYPED_LAMBDA_INTEGRATION_STATE,
