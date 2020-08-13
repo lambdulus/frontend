@@ -79,7 +79,14 @@ export default class BoxTitleBar extends Component<Props, State> {
         <div
           className='topBarTitle'
         >
-          {
+          <span
+                className='box-top-bar--title-text'
+                contentEditable={ true }
+                onBlur={ (e) => updateBoxState({ ...state, title : e.target.textContent || "" })  }
+              >
+              { title }
+          </span>
+          {/* {
             type !== BoxType.MARKDOWN ?
               <span
                 className='box-top-bar--title-text'
@@ -90,7 +97,7 @@ export default class BoxTitleBar extends Component<Props, State> {
               </span>
             :
               null
-          }
+          } */}
         </div>
 
         <div className='box-top-bar-custom'>
