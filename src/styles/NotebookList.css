@@ -81,6 +81,14 @@
   height: 20%;
 }
 
+.notebook-list--notebook-footer--title {
+  width: 80%;
+  display: inline-block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 .notebook-list--notebook-footer--menu {
   position: relative;
   top: -1.2em;
