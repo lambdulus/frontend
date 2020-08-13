@@ -118,6 +118,8 @@ interface InputProps {
 
 function InputField (props : InputProps) : JSX.Element {
   const { placeholder, content, onKeyDown, onContent } : InputProps = props
+  const lines : number = content.split('\n').length
+
 
   return (
     <div
@@ -125,11 +127,19 @@ function InputField (props : InputProps) : JSX.Element {
     >
       <MonacoEditor
         // width="800"
-        height={10 * 19} // 10 lines by default
+        height={ (lines + 1) * 19} // 10 lines by default
         language="markdown"
         theme="vs-light"
         value={ content }
-        options={ { formatOnPaste : true, minimap : { enabled : false} } }
+        options={ {
+          formatOnPaste : true,
+          minimap : { enabled : false },
+          renderLineHighlight : "none",
+          scrollBeyondLastLine : false,
+          overviewRulerBorder : false,
+          scrollbar : {
+            handleMouseWheel : false,
+          } } }
         onChange={ (content : string) => onContent(content) }
         // editorDidMount={ ::this.editorDidMount }
         editorDidMount={ (editor, monaco) => editor.focus() }
