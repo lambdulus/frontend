@@ -32,7 +32,7 @@ export default function NotebookList (props : Props) : JSX.Element {
               return
             }
 
-            onAddNotebook()
+            // onAddNotebook() // don't add new notebook when user cancels the prompt
           }}
         >
           <div className='notebook-list--add-notebook--container'>
@@ -50,7 +50,7 @@ export default function NotebookList (props : Props) : JSX.Element {
                 />
               </div>
               <div className='notebook-list--notebook-footer'>
-                <span>
+                <span className='notebook-list--notebook-footer--title'>
                   { notebook.name }
                 </span>
                 <div className='notebook-list--notebook-footer--menu'>

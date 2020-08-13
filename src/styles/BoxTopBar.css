@@ -5,14 +5,24 @@
 
 .topBarTitle {
   width: 40%;
+  
   /* float: left; */
 }
 
 .box-top-bar--title-text {
+  max-width: 100%;
+  display: inline-block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
   padding: 7px;
   padding-left: 12px;
   padding-right: 12px;
-  border-radius: 1em;
+  border-radius: 0.25em;
+}
+
+.box-top-bar--title-text:focus {
+  display: inline;
 }
 
 .box-top-bar--title-text {
