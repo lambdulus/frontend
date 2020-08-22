@@ -18,6 +18,10 @@ import {
   OptimizeEvaluator,
   MacroMap,
   NormalAbstractionEvaluator,
+  Application,
+  ASTReductionType,
+  Eta,
+  Alpha,
 } from "@lambdulus/core"
 
 import './styles/EvaluatorBox.css'
@@ -30,7 +34,8 @@ import InactiveEvaluator from './InactiveExpression'
 import Expression from './Expression'
 import { EvaluationStrategy, PromptPlaceholder, UntypedLambdaState, Evaluator, StepRecord, Breakpoint, UntypedLambdaType, UntypedLambdaExpressionState } from './Types'
 import { reportEvent } from '../misc'
-import { strategyToEvaluator } from './UntypedLambdaBox'
+import { start } from 'repl'
+import { findSimplifiedReduction, MacroBeta, tryMacroContraction, strategyToEvaluator } from './AppTypes'
 // import { MContext } from './MacroContext'
 
 
@@ -49,6 +54,7 @@ export default class ExpressionBox extends PureComponent<EvaluationProperties> {
     super(props)
 
     this.onContent = this.onContent.bind(this)
+    this.onSimplifiedStep = this.onSimplifiedStep.bind(this)
     this.onStep = this.onStep.bind(this)
     this.onExecute = this.onExecute.bind(this)
     this.onRun = this.onRun.bind(this)
@@ -112,6 +118,7 @@ export default class ExpressionBox extends PureComponent<EvaluationProperties> {
     const {
       strategy,
       SLI,
+      SDE,
       expandStandalones,
       macrotable,
     } : UntypedLambdaExpressionState = state
@@ -134,6 +141,7 @@ export default class ExpressionBox extends PureComponent<EvaluationProperties> {
       timeoutID : undefined,
       timeout : 10,
       strategy,
+      SDE,
       SLI,
       expandStandalones,
       macrolistOpen : false,
@@ -160,14 +168,172 @@ export default class ExpressionBox extends PureComponent<EvaluationProperties> {
     })
   }
 
+  onSimplifiedStep () : void {
+    console.log("DOIN ONE STEP       _______     SIMPLIFIED")
+
+    const { state, setBoxState } = this.props
+    const { strategy, history, editor : { content }, macrotable } = state
+    const stepRecord = history[history.length - 1]
+    const { isNormalForm, step } = stepRecord
+    const { lastReduction } = stepRecord
+    const ast = stepRecord.ast.clone()
+    let newast = ast
+
+    if (isNormalForm) {
+      return
+    }
+    //                                                    fix this part please
+    const [nextReduction, evaluateReduction] : [ASTReduction, any] = findSimplifiedReduction(ast, strategy, macrotable)
+    console.log('BACK TO THE WORLD HERE')
+    
+    let message = ''
+    let isNowNormalForm = false
+
+
+    if (nextReduction instanceof MacroBeta) {
+      console.log("YES MACRO BETA HERE")
+      // z macrobeta si vytahnu aritu makra
+      const arity : number = nextReduction.arity
+
+      // a zkontroluju jestli velikost pole odpovida arite
+      if (nextReduction.applications.length !== arity) {
+        // pokud arita nesedi - je vetsi nez delka pole aplikaci -->
+        // --> musim vyhlasit warning a rict, ze tenhle krok neni uplne gooda
+        console.log("ARITY IS WRONG - probably too few arguments")
+        stepRecord.message = `Macro ${tryMacroContraction(nextReduction.applications[0].left, macrotable)} is given too few arguments.`
+
+        newast = evaluateReduction(newast)
+
+        // this.setState({
+        //   ...state,
+        // })
+        // return
+      }
+      else {
+        // this is what happens when ::single-step
+        //
+        newast = evaluateReduction(newast)
+        // debugger
+
+        // if we are not ::single-step --> findSimplifiedReduction won't return MacroBeta -- instead
+        // it will return the first redex --> first beta reduction in the list and then it's not macro reduction problem anymore
+        // so next consecutive redex search will just find pretty normal situation as it probably should
+      }
+    }
+    else if (nextReduction instanceof None) {
+      stepRecord.isNormalForm = true
+      stepRecord.message = 'Expression is in normal form.'
+      setBoxState({
+        ...state,
+      })
+      return
+    }
+    else {
+      newast = evaluateReduction(newast)
+    }
+
+
+    {
+      console.log('copak se tohle vubec neprovadi????????????????')
+      const astCopy : AST = newast.clone()
+      const [nextReduction, evaluateReduction] : [ASTReduction, any] = findSimplifiedReduction(astCopy, strategy, macrotable)
+      // const evaluator : Evaluator = new (strategyToEvaluator(strategy) as any)(astCopy)
+      
+      if (nextReduction instanceof None) {
+        isNowNormalForm = true
+        message = 'Expression is in normal form.'
+        
+        reportEvent('Evaluation Step', 'Step Normal Form Reached', ast.toString())  
+      }
+    }
+
+    setBoxState({
+      ...state,
+      history : [ ...history, { ast : newast, lastReduction : nextReduction, step : step + 1, message, isNormalForm : isNowNormalForm } ],
+    })
+
+    reportEvent('Evaluation Step', 'Step Normal Form Reached', ast.toString())
+    return
+    
+    {
+      // None
+      // console.log("_________________________________ NONE")
+      // stepRecord.isNormalForm = true
+      // stepRecord.message = 'Expression is in normal form.'
+      
+      // setBoxState({
+      //   ...state,
+      // })
+      
+      // reportEvent('Evaluation Step', 'Step Normal Form Reached', ast.toString())
+
+      // return
+    }
+    {
+      // Expansion -> then None
+      // stepRecord.lastReduction = newreduction
+      // stepRecord.isNormalForm = true
+      // stepRecord.message = 'Expression is in normal form.'
+      
+      // setBoxState({
+      //   ...state,
+      // })
+      
+      // reportEvent('Evaluation Step', 'Step Normal Form Reached', ast.toString())
+
+      // return
+    }
+    {
+      // Expandion -> then Any ASTReduction inside the expanded Macro --> need to Expand first
+      // ast = newAst
+
+      // let message = ''
+      // let isNormal = false
+
+      // setBoxState({
+      //   ...state,
+      //   history : [ ...history, { ast, lastReduction, step : step + 1, message, isNormalForm : isNormal } ]
+      // })
+      // return
+    }
+    {
+      // Expansion -> then Any ASTReduction completely outside of Macro --> skip the Expansion and do the next thing instead
+      // ast = newevaluator.perform()
+      // const p = parent as AST
+      // const ts = treeSide as String
+      // (p as any)[ts as any] = M
+      // // parent should be not-null
+      // // because if there was a Macro which we were able to Expand
+      // // and then there has been found Redex which is not part of the newly expanded sub-tree
+      // // the new Redex simply has to be in different part of the tree --> which means - M (original Macro) is not the root
+
+      // let message = ''
+      // let isNormal = false
+
+      // setBoxState({
+      //   ...state,
+      //   history : [ ...history, { ast, lastReduction, step : step + 1, message, isNormalForm : isNormal } ]
+      // })
+      // return
+    }
+  }
+
   onStep () : void {
     // console.log('DOIN ONE STEP')
     const { state, setBoxState } = this.props
-    const { strategy, history, editor : { content } } = state
+    const { strategy, SDE, history, editor : { content } } = state
+
+    // this is gonna change - Simplified Evaluation won't be strategy - but Strategy Modifier
+    if (SDE) {
+      this.onSimplifiedStep()
+      return
+    }
+
     const stepRecord = history[history.length - 1]
     const { isNormalForm, step } = stepRecord
     let { ast, lastReduction } = stepRecord
     ast = ast.clone()
+
   
     if (isNormalForm) {
       return

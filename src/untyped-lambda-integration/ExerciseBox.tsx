@@ -30,7 +30,7 @@ import InactiveEvaluator from './InactiveExpression'
 import Expression from './Expression'
 import { EvaluationStrategy, PromptPlaceholder, UntypedLambdaState, Evaluator, StepRecord, Breakpoint, UntypedLambdaType, UntypedLambdaExpressionState } from './Types'
 import { reportEvent } from '../misc'
-import { strategyToEvaluator } from './UntypedLambdaBox'
+import { strategyToEvaluator } from './AppTypes'
 // import { MContext } from './MacroContext'
 
 
@@ -116,6 +116,7 @@ export default class ExerciseBox extends PureComponent<EvaluationProperties> {
     const {
       strategy,
       SLI,
+      SDE,
       expandStandalones,
       macrotable,
     } : UntypedLambdaExpressionState = state
@@ -138,6 +139,7 @@ export default class ExerciseBox extends PureComponent<EvaluationProperties> {
       timeoutID : undefined,
       timeout : 10,
       strategy,
+      SDE,
       SLI,
       expandStandalones,
       macrolistOpen : false,

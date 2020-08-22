@@ -1,4 +1,4 @@
- import React, { PureComponent, ReactNode } from 'react'
+ import React, { PureComponent, ReactNode, ChangeEvent } from 'react'
 
 // import Controls from './Controls' // TODO: Controls are gonna be imported from the Frontend app - or maybe not even imported just passed as children
 import Step from './Step'
@@ -47,7 +47,7 @@ export default class Expression extends PureComponent<EvaluatorProps> {
   render () : JSX.Element {
     const { className, state, editor, shouldShowDebugControls, isExercise, setBoxState } = this.props
 
-    const { isRunning, strategy } : UntypedLambdaExpressionState = state
+    const { isRunning, strategy, SDE } : UntypedLambdaExpressionState = state
 
     const {
       placeholder,
@@ -127,7 +127,7 @@ export default class Expression extends PureComponent<EvaluatorProps> {
               <div className='untyped-lambda--pick-strategy untyped-lambda-settings-strategies inlineblock'>
                 <p className='stratsLabel inlineblock'>Strategy:</p>
                 
-                <span className='untyped-lambda-settings--strategy-radio-wrapper'>
+                {/* <span className='untyped-lambda-settings--strategy-radio-wrapper'>
                   <input
                     id={ `untyped-lambda-settings--simplified-strategy-${uniq}` }
                     type='radio'
@@ -144,7 +144,7 @@ export default class Expression extends PureComponent<EvaluatorProps> {
                   <label className='untyped-lambda-settings-label' htmlFor={ `untyped-lambda-settings--simplified-strategy-${uniq}` }>
                     Simplified
                   </label>
-                </span>
+                </span> */}
 
                 <span className='untyped-lambda-settings--strategy-radio-wrapper'>
                   <input
@@ -199,7 +199,7 @@ export default class Expression extends PureComponent<EvaluatorProps> {
                 <div className='untyped-lambda--pick-strategy untyped-lambda-settings-strategies inlineblock'>
                   <p className='stratsLabel inlineblock'>Strategy:</p>
                   
-                  <span className='untyped-lambda-settings--strategy-radio-wrapper'>
+                  {/* <span className='untyped-lambda-settings--strategy-radio-wrapper'>
                     <input
                       id={ `untyped-lambda-settings--simplified-strategy-${uniq}` }
                       type='radio'
@@ -216,7 +216,7 @@ export default class Expression extends PureComponent<EvaluatorProps> {
                     <label className='untyped-lambda-settings-label' htmlFor={ `untyped-lambda-settings--simplified-strategy-${uniq}` }>
                       Simplified
                     </label>
-                  </span>
+                  </span> */}
 
                   <span className='untyped-lambda-settings--strategy-radio-wrapper'>
                     <input
@@ -256,6 +256,29 @@ export default class Expression extends PureComponent<EvaluatorProps> {
                     </label>
                   </span>
                 </div>
+
+                {/* Here add SDE switch/checkbox */}
+                {
+                  <span
+                    className='untyped-lambda-settings-SDE-'
+                    title='Simplified Evaluation'>
+                    <input
+                      id={ `untyped-lambda-settings--SDE-${uniq}` }
+                      type='checkbox'
+                      checked={ SDE }
+                      disabled={ false }
+                      // shape="fill"
+                      
+                      onChange={
+                        (e : ChangeEvent<HTMLInputElement>) => // tady nejakej destructuring
+                          setBoxState({ ...state, SDE : e.target.checked })
+                      }
+                    />
+                    <label className='untyped-lambda-settings-label' htmlFor={ `untyped-lambda-settings--SDE-${uniq}` }>
+                      Simplified Evaluation
+                    </label>
+                  </span>
+                }
 
               </div>
             :

@@ -162,7 +162,7 @@ export function decodeNotebook (notebook : NotebookState) : NotebookState | neve
   const boxList : Array<BoxState> = notebook.boxList.map((box : BoxState, index : number, arr : Array<BoxState>) => {
     switch (box.type) {
       case BoxType.UNTYPED_LAMBDA: {
-        decodeUntypedLambdaState(box as UntypedLambdaState)
+        return decodeUntypedLambdaState(box as UntypedLambdaState)
       }
 
       //TODO: implement for other Box Types
