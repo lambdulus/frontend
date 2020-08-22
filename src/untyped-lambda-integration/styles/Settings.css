@@ -32,6 +32,8 @@
 }
 
 .untyped-lambda-settings-SLI {
+  margin-top: 10px;
+  margin-bottom: 10px;
   display: block;
 }
 
@@ -42,4 +44,10 @@
 
 .untyped-lambda-settings-strategies {
   margin-top: 5px;
+}
+
+.untyped-lambda-settings-SDE {
+  margin-top: 10px;
+  margin-bottom: 10px;
+  display: block;
 }

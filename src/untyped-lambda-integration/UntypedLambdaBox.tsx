@@ -5,12 +5,12 @@ import { UntypedLambdaState, UntypedLambdaType, UntypedLambdaExpressionState, Un
 import ExpressionBox from './ExpressionBox'
 // import Macro from './Macro'
 import MacroList from './MacroList'
-import { UNTYPED_LAMBDA_INTEGRATION_STATE, GLOBAL_SETTINGS_ENABLER } from './AppTypes'
+import { UNTYPED_LAMBDA_INTEGRATION_STATE, GLOBAL_SETTINGS_ENABLER, strategyToEvaluator } from './AppTypes'
 import ExerciseBox from './ExerciseBox'
 import Settings from './Settings'
 import EmptyExpression from './EmptyExpression'
 import { reportEvent } from '../misc'
-import { None, Evaluator, Token, tokenize, parse, AST, NormalEvaluator, ApplicativeEvaluator, OptimizeEvaluator, NormalAbstractionEvaluator } from '@lambdulus/core'
+import { None, Evaluator, Token, tokenize, parse, AST, NormalEvaluator, ApplicativeEvaluator, OptimizeEvaluator, NormalAbstractionEvaluator, MacroMap } from '@lambdulus/core'
 
 // import macroctx from './MacroContext'
 
@@ -31,7 +31,7 @@ export default class UntypedLambdaBox extends PureComponent<Props> {
 
   render () {
     const { state, isActive, isFocused, setBoxState, addBox } : Props = this.props
-    const { settingsOpen, subtype, macrolistOpen, SLI, expandStandalones, strategy, editor } : UntypedLambdaState = state
+    const { settingsOpen, subtype, macrolistOpen, SLI, expandStandalones, strategy, SDE, editor } : UntypedLambdaState = state
 
 
     const renderBoxContent = () => {
@@ -90,7 +90,7 @@ export default class UntypedLambdaBox extends PureComponent<Props> {
             <div className='box-settings'>
               Box Local Settings:
               <Settings
-                settings={ { type : BoxType.UNTYPED_LAMBDA, SLI, expandStandalones, strategy } }
+                settings={ { type : BoxType.UNTYPED_LAMBDA, SLI, expandStandalones, strategy, SDE } }
                 settingsEnabled={ GLOBAL_SETTINGS_ENABLER }
 
                 change={ (settings : UntypedLambdaSettings) => {
@@ -127,8 +127,12 @@ export default class UntypedLambdaBox extends PureComponent<Props> {
       strategy,
     } = state
 
+    const definitions : Array<string> = content.split(';')
+    const expression : string = definitions.pop() || ""
+    const macromap : MacroMap = toMacroMap(definitions)
+    
     try {
-      const ast : AST = this.parseExpression(content)
+      const ast : AST = this.parseExpression(expression, macromap)
 
       let message = ''
       let isNormal = false
@@ -148,6 +152,7 @@ export default class UntypedLambdaBox extends PureComponent<Props> {
         ast,
         subtype,
         expression : content,
+        macrotable : macromap,
         history : [ {
           ast : ast.clone(),
           lastReduction : new None,
@@ -178,31 +183,22 @@ export default class UntypedLambdaBox extends PureComponent<Props> {
   }
 
   // THROWS Exceptions
-  parseExpression (expression : string) : AST {
+  parseExpression (expression : string, macrotable : MacroMap) : AST {
     // const { macroTable } = this.props
 
     const { SLI : singleLetterVars } = this.props.state
 
     const tokens : Array<Token> = tokenize(expression, { lambdaLetters : ['λ'], singleLetterVars })
-    const ast : AST = parse(tokens, UNTYPED_LAMBDA_INTEGRATION_STATE.macrotable) // macroTable
+    const ast : AST = parse(tokens, macrotable) // macroTable
 
     return ast
   }
 
 }
 
-export function strategyToEvaluator (strategy : EvaluationStrategy) : Evaluator {
-  switch (strategy) {
-    case EvaluationStrategy.NORMAL:
-      return NormalEvaluator as any
- 
-    case EvaluationStrategy.APPLICATIVE:
-      return ApplicativeEvaluator as any
-
-    case EvaluationStrategy.OPTIMISATION:
-      return OptimizeEvaluator as any
-
-    case EvaluationStrategy.ABSTRACTION:
-      return NormalAbstractionEvaluator as any
-  }
+function toMacroMap (definitions : Array<string>) : MacroMap {
+  return definitions.reduce((acc : MacroMap, def) => {
+    const [name, body] = def.split(':=')
+    return { ...acc, [name.trim()] : body.trim() }
+  }, {})
 }
