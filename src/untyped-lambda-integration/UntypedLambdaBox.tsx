@@ -5,12 +5,12 @@ import { UntypedLambdaState, UntypedLambdaType, UntypedLambdaExpressionState, Un
 import ExpressionBox from './ExpressionBox'
 // import Macro from './Macro'
 import MacroList from './MacroList'
-import { UNTYPED_LAMBDA_INTEGRATION_STATE, GLOBAL_SETTINGS_ENABLER, strategyToEvaluator } from './AppTypes'
+import { UNTYPED_LAMBDA_INTEGRATION_STATE, GLOBAL_SETTINGS_ENABLER, strategyToEvaluator, findSimplifiedReduction } from './AppTypes'
 import ExerciseBox from './ExerciseBox'
 import Settings from './Settings'
 import EmptyExpression from './EmptyExpression'
 import { reportEvent } from '../misc'
-import { None, Evaluator, Token, tokenize, parse, AST, NormalEvaluator, ApplicativeEvaluator, OptimizeEvaluator, NormalAbstractionEvaluator, MacroMap } from '@lambdulus/core'
+import { None, Evaluator, Token, tokenize, parse, AST, NormalEvaluator, ApplicativeEvaluator, OptimizeEvaluator, NormalAbstractionEvaluator, MacroMap, ASTReduction } from '@lambdulus/core'
 
 // import macroctx from './MacroContext'
 
@@ -125,6 +125,7 @@ export default class UntypedLambdaBox extends PureComponent<Props> {
     const {
       editor : { content },
       strategy,
+      SDE,
     } = state
 
     const definitions : Array<string> = content.split(';')
@@ -138,9 +139,19 @@ export default class UntypedLambdaBox extends PureComponent<Props> {
       let isNormal = false
 
       const astCopy : AST = ast.clone()
-      const evaluator : Evaluator = new (strategyToEvaluator(strategy) as any)(astCopy)
+
+      const nextReduction = (() => {
+        if (SDE) {
+          return findSimplifiedReduction(astCopy, strategy, macromap)[0]
+        }
+        else {
+          const evaluator : Evaluator = new (strategyToEvaluator(strategy) as any)(astCopy)
+          return evaluator.nextReduction
+        }
+      })()
+
       
-      if (evaluator.nextReduction instanceof None) {
+      if (nextReduction instanceof None) {
         isNormal = true
         message = 'Expression is in normal form.'
         

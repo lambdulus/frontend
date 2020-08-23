@@ -183,7 +183,7 @@ export default class ExpressionBox extends PureComponent<EvaluationProperties> {
       return
     }
     //                                                    fix this part please
-    const [nextReduction, evaluateReduction] : [ASTReduction, any] = findSimplifiedReduction(ast, strategy, macrotable)
+    const [nextReduction, evaluateReduction] : [ASTReduction, (ast : AST) => AST] = findSimplifiedReduction(ast, strategy, macrotable)
     console.log('BACK TO THE WORLD HERE')
     
     let message = ''
@@ -236,7 +236,7 @@ export default class ExpressionBox extends PureComponent<EvaluationProperties> {
     {
       console.log('copak se tohle vubec neprovadi????????????????')
       const astCopy : AST = newast.clone()
-      const [nextReduction, evaluateReduction] : [ASTReduction, any] = findSimplifiedReduction(astCopy, strategy, macrotable)
+      const [nextReduction, evaluateReduction] : [ASTReduction, (ast : AST) => AST] = findSimplifiedReduction(astCopy, strategy, macrotable)
       // const evaluator : Evaluator = new (strategyToEvaluator(strategy) as any)(astCopy)
       
       if (nextReduction instanceof None) {
