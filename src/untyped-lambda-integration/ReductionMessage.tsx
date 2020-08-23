@@ -48,7 +48,7 @@ export default function ReductionMessage (props : ReductionMessageProperties) : 
   if (lastReduction.type === ASTReductionType.GAMA) {
     return (
       <p className='lastReduction'>
-        Simplified Application
+        Simplified Beta Reduction
       </p>
     )
   }
