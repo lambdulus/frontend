@@ -15,7 +15,7 @@ interface Props {
 
 export default function Settings (props : Props) : JSX.Element {
   const { settings, change, settingsEnabled } : Props = props
-  const { SLI, expandStandalones, strategy } : UntypedLambdaSettings = settings
+  const { SLI, expandStandalones, strategy, SDE } : UntypedLambdaSettings = settings
   const { SLI : SLI_E, expandStandalones : expSt_E, strategy : strat_E } : SettingsEnabled = settingsEnabled
 
   const uniq : string = Date.now().toString()
@@ -50,6 +50,28 @@ export default function Settings (props : Props) : JSX.Element {
       }
 
       {
+        <span
+          className='untyped-lambda-settings-SDE'
+          title='Simplified Evaluation'>
+          <input
+            id={ `untyped-lambda-settings--SDE-${uniq}` }
+            type='checkbox'
+            checked={ SDE }
+            disabled={ false }
+            // shape="fill"
+            
+            onChange={
+              (e : ChangeEvent<HTMLInputElement>) => // tady nejakej destructuring
+                change({ ...settings, SDE : e.target.checked })
+            }
+          />
+          <label className='untyped-lambda-settings-label' htmlFor={ `untyped-lambda-settings--SDE-${uniq}` }>
+            Simplified Evaluation
+          </label>
+        </span>
+      }
+
+      {
         expSt_E && false ? // hiding this out - I am not sure what this should be in the first place
           <span
             className='untyped-lambda-settings-expand'
@@ -80,7 +102,7 @@ export default function Settings (props : Props) : JSX.Element {
         strat_E ?
           <div className='untyped-lambda-settings-strategies inlineblock'>
             <p className='stratsLabel inlineblock'>Evaluation Strategies:</p>
-            <span className='untyped-lambda-settings--strategy-radio-wrapper'>
+            {/* <span className='untyped-lambda-settings--strategy-radio-wrapper'>
               <input
                 id={ `untyped-lambda-settings--simplified-strategy-${uniq}` }
                 type='radio'
@@ -97,7 +119,7 @@ export default function Settings (props : Props) : JSX.Element {
               <label className='untyped-lambda-settings-label' htmlFor={ `untyped-lambda-settings--simplified-strategy-${uniq}` }>
                 Simplified
               </label>
-            </span>
+            </span> */}
 
             <span className='untyped-lambda-settings--strategy-radio-wrapper'>
               <input

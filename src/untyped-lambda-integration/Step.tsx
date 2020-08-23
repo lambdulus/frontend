@@ -3,11 +3,11 @@ import { ASTReduction } from '@lambdulus/core'
 
 import './styles/Step.css'
 
-import { strategyToEvaluator } from './UntypedLambdaBox'
 import ReactPrinter from './ReactPrinter'
 // import ReductionMessage from './ReductionMessage'
 import { EvaluationStrategy, StepRecord, Breakpoint, Evaluator } from './Types'
 import ReductionMessage from './ReductionMessage'
+import { strategyToEvaluator } from './AppTypes'
 // import { StrategyContext } from './DataInjector'
 
 
