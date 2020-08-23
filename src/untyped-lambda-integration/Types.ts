@@ -61,11 +61,12 @@ export interface UntypedLambdaExpressionState extends AbstractBoxState {
   // isExercise : boolean
   
   strategy : EvaluationStrategy
+  SDE : boolean // Semantics Drive Evaluation (Strategy) -- formerly called Simplified Strategy
   SLI : boolean
   expandStandalones : boolean
 
   macrolistOpen : boolean // this is gonna go out
-  macrotable : MacroMap // this is gonna go out
+  macrotable : MacroMap // this is gonna go out - WHY? I don't think so - it's gonna stay
   
   editor : {
     placeholder : string
@@ -104,6 +105,7 @@ export interface UntypedLambdaSettings extends AbstractSettings {
   SLI : boolean
   expandStandalones : boolean
   strategy : EvaluationStrategy
+  SDE : boolean
 }
 
 export type SettingsEnabled = {
