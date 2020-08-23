@@ -254,6 +254,8 @@ export function findSimplifiedReduction (ast : AST, strategy : EvaluationStrateg
     //
     const [newreduction, newperformevaluation] = findSimplifiedReduction(newAst, strategy, macrotable)
 
+    // return [nextReduction, (ast) => newAst]
+
     if (newreduction instanceof None) {
       //
       // newAst nema zadny REDEX
@@ -277,7 +279,7 @@ export function findSimplifiedReduction (ast : AST, strategy : EvaluationStrateg
       // I can just forgot all the complex ruling and do the sensible thing --> perform 
 
       console.log("_________________________________ CHURCH EXPAND -- INSIDE EXPANSION")
-      return [nextReduction, (ast) => ast]
+      return [nextReduction, (ast) => newAst]
     }
   }
 
