@@ -289,11 +289,44 @@ export default class Expression extends PureComponent<EvaluatorProps> {
   }
 
   addBreakpoint (breakpoint : Breakpoint) : void {
-    let { state, setBoxState } = this.props
+    let { state, setBoxState, breakpoints } = this.props
   
-    setBoxState({
-      ...state,
-      breakpoints : [ ...state.breakpoints, breakpoint ],
+    // const index : number = breakpoints.findIndex((brk : Breakpoint) => {
+    //   return brk.type === breakpoint.type && brk.context.identifier === breakpoint.context.identifier
+    // })
+    // 
+    // if (index >= 0) {
+    //   breakpoints.splice(index, 1)
+    // }
+    // else {
+    //   breakpoints.push(breakpoint)
+    // }
+    // 
+    // setBoxState({
+    //   ...state,
+    //   breakpoints,
+    // })
+
+    const brkpts : Array<Breakpoint> = breakpoints.filter((brk : Breakpoint) => {
+      return brk.type !== breakpoint.type || brk.context.identifier !== breakpoint.context.identifier
     })
+
+    if (brkpts.length !== breakpoints.length) {
+      setBoxState({
+        ...state,
+        breakpoints : brkpts,
+      })
+    }
+    else {
+      setBoxState({
+        ...state,
+        breakpoints : [ ...breakpoints, breakpoint ]
+      })
+    }
+
+
+    
+
+    
   }
 }
