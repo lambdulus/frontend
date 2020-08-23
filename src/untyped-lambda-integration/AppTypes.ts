@@ -254,6 +254,8 @@ export function findSimplifiedReduction (ast : AST, strategy : EvaluationStrateg
     //
     const [newreduction, newperformevaluation] = findSimplifiedReduction(newAst, strategy, macrotable)
 
+    // return [nextReduction, (ast) => newAst]
+
     if (newreduction instanceof None) {
       //
       // newAst nema zadny REDEX
@@ -277,7 +279,7 @@ export function findSimplifiedReduction (ast : AST, strategy : EvaluationStrateg
       // I can just forgot all the complex ruling and do the sensible thing --> perform 
 
       console.log("_________________________________ CHURCH EXPAND -- INSIDE EXPANSION")
-      return [nextReduction, (ast) => ast]
+      return [nextReduction, (ast) => newAst]
     }
   }
 
@@ -580,7 +582,7 @@ export function tryMacroContraction (ast : AST, macrotable : MacroTable) : AST {
   // compare the ast with all the user-defined macros
 
   if (isChurchNumeral(ast)) {
-    const n : number = churchNumberalToNumber(ast as Lambda)
+    const n : number = churchNumeralToNumber(ast as Lambda)
     const [s, z] : [string, string] = churchArgNames(ast)
 
     if (n === 0 && s === 's' && z === 'z') {
@@ -644,7 +646,7 @@ function isPeanoNumber (s : string, z : string, ast : AST) : boolean {
   return false
 }
 
-function churchNumberalToNumber (ast : Lambda) : number {
+function churchNumeralToNumber (ast : Lambda) : number {
   const s : string = ast.argument.name()
   const z : string = (ast.body as Lambda).argument.name()
 
@@ -661,15 +663,15 @@ function churchNumberalToNumber (ast : Lambda) : number {
 }
 
 
+/**
+ * Decides if the result of the application of the macro M to its arguments should evaluate to the normal form
+ */
 function macroIsSingleStep (macro : Macro) : boolean {
-  if ([ "ZERO", "-", "*", "+", "/" ].includes(macro.name())) {
+  if ([ "*", "+", "/", "-", "^", "DELTA", "=", ">", "<", ">=", "<=", "ZERO", "NOT", "AND", "OR", "PRED", "SUC" ].includes(macro.name())) {
     return true
   }
 
-  // if ( ! (macro.name() in builtinMacros)) {
-  //   return true
-  //   // NOTE: just now - any user macro is single-step
-  // }
+  // "T", "F" -- functioning as `if then else` --> therefore can not be Single-Step
 
   return false
 }
@@ -826,7 +828,10 @@ export class NormalMacroRedexExtender extends ASTVisitor {
 
 function hasApplicativeOverride (macro : Macro) : boolean {
   // TODO: implement later
-  return ["*", "+", "/", "-", "ZERO"].includes(macro.name())
+  return ["*", "+", "/", "-", "^", "DELTA", "=", ">", "<", ">=", "<=", "ZERO", "NOT", "PRED", "SUC"].includes(macro.name())
+  
+  //  "T", "F"
+  // "AND", "OR"
   // return false
 }
 
