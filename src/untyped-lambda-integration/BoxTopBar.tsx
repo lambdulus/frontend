@@ -22,16 +22,16 @@ export default function BoxTopBar (props : Props) : JSX.Element {
   return (
     <div className=''>
 
-      {/* <div
+      <div
         onClick={ (e) => {
           e.stopPropagation()
           updateBoxState({ ...state, macrolistOpen : ! macrolistOpen })
         } }
-        className='untyped-lambda--top-bar-custom--button'
+        className={ `untyped-lambda--top-bar-custom--button ${macrolistOpen ? 'menu-pressed-open' : ''}` }
         title={ macrolistOpen ? 'Hide Macros' : 'Show All Macros for This Box' }
       >
         <i className="mini-icon fas fa-list-ul" />
-      </div> */}
+      </div>
 
       {/* {
         expression === '' ?
