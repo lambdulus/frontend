@@ -9,6 +9,7 @@ import { BoxType, NotebookState, GlobalSettings, BoxState } from '../Types'
 
 import { onMarkDownBlur, NoteState, onMarkDownActive } from '../markdown-integration/AppTypes'
 import { BoxContainer } from '../components/BoxContainer'
+import { UntypedLambdaState } from '../untyped-lambda-integration/Types'
 
 interface Props {
   state : NotebookState
@@ -29,6 +30,7 @@ export default class Notebook extends PureComponent<Props> {
     this.onBlur = this.onBlur.bind(this)
     this.createBoxFromURL = this.createBoxFromURL.bind(this)
     this.setBoxState = this.setBoxState.bind(this)
+    this.updateURL = this.updateURL.bind(this)
   }
 
   // componentDidMount () : void {
@@ -215,6 +217,8 @@ export default class Notebook extends PureComponent<Props> {
     const { boxList } = this.props.state
     boxList[index] = { ...box }
 
+    this.updateURL(box)
+
 
     this.props.updateNotebook({ boxList : [...boxList], activeBoxIndex : index })
   }
@@ -263,6 +267,8 @@ export default class Notebook extends PureComponent<Props> {
           break;
       }
 
+      this.updateURL(boxList[index])
+
       this.props.updateNotebook({ activeBoxIndex : index, focusedBoxIndex : index, boxList })
     }
   }
@@ -298,5 +304,33 @@ export default class Notebook extends PureComponent<Props> {
     }
 
     this.props.updateNotebook({ boxList, focusedBoxIndex : undefined })
+  }
+
+  updateURL (box : BoxState) : void {
+    switch (box.type) {
+      case BoxType.MARKDOWN : {
+        const searchParams : URLSearchParams = new URL(window.document.location.toString()).searchParams
+
+        searchParams.set('type', BoxType.MARKDOWN)
+        searchParams.set('source', encodeURI((box as NoteState).editor.content))
+
+        window.history.pushState(null, '', '?' + searchParams.toString())
+        break;
+      }
+
+      case BoxType.UNTYPED_LAMBDA : {
+        const searchParams : URLSearchParams = new URL(window.document.location.toString()).searchParams
+
+        searchParams.set('type', BoxType.UNTYPED_LAMBDA)
+        searchParams.set('source', encodeURI((box as UntypedLambdaState).editor.content))
+
+        window.history.pushState(null, '', '?' + searchParams.toString())
+
+        break;
+      }
+    
+      default:
+        break;
+    }
   }
 }
