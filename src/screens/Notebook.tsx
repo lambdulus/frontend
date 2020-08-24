@@ -31,9 +31,9 @@ export default class Notebook extends PureComponent<Props> {
     this.setBoxState = this.setBoxState.bind(this)
   }
 
-  componentDidMount () : void {
-    this.createBoxFromURL()
-  }
+  // componentDidMount () : void {
+  //   this.createBoxFromURL()
+  // }
 
   render () {
     const { state, settings } = this.props

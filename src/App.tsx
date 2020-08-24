@@ -9,9 +9,10 @@ import MenuBar from './components/MenuBar'
 import Notebook from './screens/Notebook'
 import Help from './screens/Help'
 import SettingsScreen from './screens/Settings'
-import { Screen, AppState, NotebookState, GlobalSettings } from './Types'
-import { UNTYPED_LAMBDA_INTEGRATION_STATE } from './untyped-lambda-integration/AppTypes'
+import { Screen, AppState, NotebookState, GlobalSettings, BoxType, BoxState } from './Types'
+import { UNTYPED_LAMBDA_INTEGRATION_STATE, createNewUntypedLambdaBoxFromSource, defaultSettings } from './untyped-lambda-integration/AppTypes'
 import NotebookList from './screens/NotebookList'
+import { UntypedLambdaState, UntypedLambdaSettings } from './untyped-lambda-integration/Types'
 
 
 
@@ -47,8 +48,63 @@ export default class App extends Component<Props, AppState> {
     this.clearWorkspace = this.clearWorkspace.bind(this)
     this.selectNotebook = this.selectNotebook.bind(this)
     this.updateNthNotebook = this.updateNthNotebook.bind(this)
+
+    this.createNotebookFromURL = this.createNotebookFromURL.bind(this)
   }
 
+  componentDidMount () : void {
+    this.createNotebookFromURL()
+  }
+
+  createNotebookFromURL () {
+    // const { currentNotebook, notebookList } = this.state
+    const urlSearchParams : URLSearchParams = new URL(window.location.toString()).searchParams
+    const type : string | null = urlSearchParams.get('type')
+
+    // const notebook : NotebookState = notebookList[currentNotebook]
+    // const { settings } = notebook
+
+    if (type === null) {
+      return
+    }
+
+    switch (type) {
+      case BoxType.UNTYPED_LAMBDA: {
+        const source : string | null = urlSearchParams.get('source')
+        
+        if (source === null) {
+          return
+        }
+        
+        const box : UntypedLambdaState = createNewUntypedLambdaBoxFromSource(source, defaultSettings)
+        const notebook : NotebookState = createNewNotebookWithBox('Notebook from Link' , box)
+
+        this.setState({
+          currentScreen : Screen.MAIN,
+          notebookList : [ ...this.state.notebookList, notebook ],
+          currentNotebook : this.state.currentNotebook + 1
+        })
+    
+        // updateAppStateToStorage({
+        //   ...this.state,
+        //   currentScreen : Screen.MAIN,
+        //   notebookList : [ ...this.state.notebookList, notebook ],
+        //   currentNotebook : this.state.currentNotebook + 1
+        // })
+
+        // window.location.href = window.location.host + '/testik'
+        // alert(window.location.host)
+        // window.location.replace(window.location.host)
+      }
+        
+      default:
+        break;
+    }
+    
+    console.log(window.location.toString())
+    console.log(urlSearchParams.get('type'))
+    console.log(urlSearchParams.get('source'))
+  }
 
   render () {
     const { notebookList, currentNotebook, currentScreen } = this.state
@@ -288,5 +344,26 @@ function createNewNotebook (name : string = 'Anonymous Notebook') : NotebookStat
     name,
     editingName : false,
     persistent : true, // TODO: you can change this if explicit save/rename is required for persistency
+  }
+}
+
+function createNewNotebookWithBox (name : string = 'Notebook from Link', box : BoxState) : NotebookState {
+  return {
+    boxList : [ box ],
+    activeBoxIndex : 0,
+    focusedBoxIndex : 0,
+    allowedBoxes : DEFAULT_WHITELIST,
+    settings : loadSettingsFromStorage(),
+    integrationStates : {
+      'UNTYPED_LAMBDA' : UNTYPED_LAMBDA_INTEGRATION_STATE,
+    },
+
+    locked : false,
+    menuOpen : false,
+    
+    __key : Date.now().toString(),
+    name,
+    editingName : false,
+    persistent : false, // TODO: you can change this if explicit save/rename is required for persistency
   }
 }
