@@ -57,12 +57,8 @@ export default class App extends Component<Props, AppState> {
   }
 
   createNotebookFromURL () {
-    // const { currentNotebook, notebookList } = this.state
     const urlSearchParams : URLSearchParams = new URL(window.location.toString()).searchParams
     const type : string | null = urlSearchParams.get('type')
-
-    // const notebook : NotebookState = notebookList[currentNotebook]
-    // const { settings } = notebook
 
     if (type === null) {
       return
@@ -75,16 +71,16 @@ export default class App extends Component<Props, AppState> {
         if (source === null) {
           return
         }
-        
-        const box : UntypedLambdaState = createNewUntypedLambdaBoxFromSource(source, defaultSettings)
+
+        const box : UntypedLambdaState = createNewUntypedLambdaBoxFromSource(decodeURI(source), defaultSettings)
         const notebook : NotebookState = createNewNotebookWithBox('Notebook from Link' , box)
 
         this.setState({
           currentScreen : Screen.MAIN,
-          notebookList : [ ...this.state.notebookList, notebook ],
-          currentNotebook : this.state.currentNotebook + 1
+          notebookList : [ notebook, ...this.state.notebookList ],
+          currentNotebook : 0
         })
-    
+
         // updateAppStateToStorage({
         //   ...this.state,
         //   currentScreen : Screen.MAIN,
@@ -162,6 +158,8 @@ export default class App extends Component<Props, AppState> {
       currentScreen : Screen.MAIN,
       currentNotebook : index,
     })
+
+    window.history.pushState(null, '', '/')
   }
 
   setScreen (screen : Screen) : void {
