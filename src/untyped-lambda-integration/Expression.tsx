@@ -322,11 +322,6 @@ export default class Expression extends PureComponent<EvaluatorProps> {
         ...state,
         breakpoints : [ ...breakpoints, breakpoint ]
       })
-    }
-
-
-    
-
-    
+    }    
   }
 }

@@ -12,3 +12,8 @@
   background-color: rgb(221, 221, 221);
   border-radius: 5px;
 }
+
+.untyped-lambda--top-bar-custom--button.menu-pressed-open {
+  background-color: rgb(241, 241, 241);
+  border-radius: 5px;
+}

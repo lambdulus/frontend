@@ -1,7 +1,7 @@
 .untyped-lambda-box--macrolist {
   padding: 5px;
 
-  border-bottom: 2px solid black;
+  border-bottom: 2px solid gray;
 }
 
 .builtinMacros, .userMacros {
