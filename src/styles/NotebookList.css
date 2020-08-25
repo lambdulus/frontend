@@ -92,7 +92,7 @@
 .notebook-list--notebook-footer--menu {
   position: relative;
   top: -1.2em;
-  margin-left: 90%;
+  margin-left: 85%;
 }
 
 .notebook-list--notebook--menu {
@@ -112,22 +112,29 @@
 }
 
 .notebook-list--notebook--menu--dots {
-  margin-top: -5px;
-  padding-bottom: 5px;
-  padding: 5px;
+  margin-top: -0.35em;
+  height: 1.25em;
+  width: 1.7em;
+  padding-top: 0.25em;
+  padding-bottom: 0.2em;
+
+  /* padding: 5px; */
+  /* padding-left: 20px; */
+  /* padding-right: 20px; */
+
   text-align: center;
   cursor: pointer;
-  border-radius: 0.5em;
+  border-radius: 50%;
   /* float: left; */
   /* width: 33%; */
 }
 
 .notebook-list--notebook--menu--dots.menu-pressed-open {
-  background-color: rgb(223, 223, 223);
+  background-color: rgb(243, 243, 243);
 }
 
 .notebook-list--notebook--menu--dots:hover {
-  background-color: rgb(194, 194, 194);
+  background-color: rgb(236, 236, 236);
 }
 
 .notebook-list--add-notebook--container {
