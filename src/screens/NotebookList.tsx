@@ -90,8 +90,11 @@ export default function NotebookList (props : Props) : JSX.Element {
                         e.stopPropagation()
                         const name : string | null = prompt('Please Enter New Name for the Notebook')
 
-                        if (name !== null) {
+                        if (name !== null && name !== "") {
                           onUpdateNotebook({ ...notebook, name, menuOpen : false }, index)
+                        }
+                        else {
+                          onUpdateNotebook({ ...notebook, menuOpen : false }, index)
                         }
                       } }
                     >
