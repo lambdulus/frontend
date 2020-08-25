@@ -201,6 +201,13 @@ export default class BoxTitleBar extends Component<Props, State> {
 
                   searchParams.set('type', state.type)
                   searchParams.set('source', encodeURI((state as any).editor.content)) // todo: fix that `as any`
+
+                  if (state.type === BoxType.UNTYPED_LAMBDA) {
+                    searchParams.set('subtype', (state as UntypedLambdaState).subtype)
+                    searchParams.set('strategy', (state as UntypedLambdaState).strategy)
+                    searchParams.set('SDE', (state as UntypedLambdaState).SDE.toString())
+                  }
+
                   const url : string = window.location.host + '?' + searchParams.toString()
 
                   navigator.clipboard.writeText(url)
