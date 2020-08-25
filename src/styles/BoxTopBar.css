@@ -139,20 +139,23 @@
   position: absolute;
   top: 40px;
   right: 5px;
-  border-radius: 3px;
+  border-radius: 0.25rem;
   z-index: 777;
   background-color: white;
-  border: 1px solid black;
+  padding-top: 5px;
+  padding-bottom: 5px;
 
-  /* width: 150px; */
-  /* height: 250px; */
-  /* background-color: rgb(53, 133, 202); */
+  -webkit-box-shadow: 0px 0px 15px -1px rgba(102,102,102,0.5);
+  -moz-box-shadow: 0px 0px 15px -1px rgba(102,102,102,0.5);
+  box-shadow: 0px 0px 15px -1px rgba(102,102,102,0.5);
 }
 
 .box-top-bar--menu-item {
-  margin: 2px;
-  padding: 5px;
-  border-radius: 2px;
+  font-size: 0.9em;
+  /* font-weight: 300; */
+  padding: 8px;
+  padding-left: 1em;
+  padding-right: 2em;
   cursor: pointer;
 }
 
