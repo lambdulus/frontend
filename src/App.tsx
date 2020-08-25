@@ -81,6 +81,8 @@ export default class App extends Component<Props, AppState> {
           currentNotebook : 0
         })
 
+        window.history.pushState(null, '', '/') // TODO: decide if remove or leave
+
         // updateAppStateToStorage({
         //   ...this.state,
         //   currentScreen : Screen.MAIN,
@@ -362,6 +364,6 @@ function createNewNotebookWithBox (name : string = 'Notebook from Link', box : B
     __key : Date.now().toString(),
     name,
     editingName : false,
-    persistent : false, // TODO: you can change this if explicit save/rename is required for persistency
+    persistent : true, // TODO: you can change this if explicit save/rename is required for persistency
   }
 }
