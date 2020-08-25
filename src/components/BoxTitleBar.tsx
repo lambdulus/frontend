@@ -31,6 +31,7 @@ interface State {
   modalOpen : boolean
   where : BoxPlace | null
   menuOpen : boolean
+  shareLinkOpen : boolean
 }
 
 
@@ -43,6 +44,7 @@ export default class BoxTitleBar extends Component<Props, State> {
       modalOpen : false,
       where : null,
       menuOpen : false,
+      shareLinkOpen : false,
     }
 
     this.selectBoxType = this.selectBoxType.bind(this)
@@ -52,7 +54,7 @@ export default class BoxTitleBar extends Component<Props, State> {
     const { state, isActive, updateBoxState, removeBox, addBoxBefore, addBoxAfter } : Props = this.props
     const { type, title, minimized, settingsOpen } = state
 
-    const { modalOpen, where, menuOpen } : State = this.state
+    const { modalOpen, where, menuOpen, shareLinkOpen } : State = this.state
 
     return (
       <div className='boxTopBar'>
@@ -99,6 +101,22 @@ export default class BoxTitleBar extends Component<Props, State> {
               null
           } */}
         </div>
+
+        {/* <div className='box-top-bar--menu-item--share-link'>
+          {
+            shareLinkOpen ?
+            
+            <span>{(() => {
+              const searchParams : URLSearchParams = new URL(window.document.location.toString()).searchParams
+
+              searchParams.set('type', state.type)
+              searchParams.set('source', encodeURI((state as any).editor.content)) // todo: fix that `as any`
+              return window.location.host + '?' + searchParams.toString()})()}
+            </span>
+              :
+            null
+          }
+        </div> */}
 
         <div className='box-top-bar-custom'>
           {
@@ -170,11 +188,38 @@ export default class BoxTitleBar extends Component<Props, State> {
             <i className="mini-icon fas fa-ellipsis-v"></i>
           </div>
         </div>
-        
+
         {
           menuOpen ?
             <div className='box-top-bar--menu' >
-              {/* TODO: move into ... menu */}
+              {/* TODO: move into ... Menu component */}
+              <div
+                className='box-top-bar--menu-item'
+                onClick={ () => {
+                  this.setState({ shareLinkOpen : true })
+                  const searchParams : URLSearchParams = new URL(window.document.location.toString()).searchParams
+
+                  searchParams.set('type', state.type)
+                  searchParams.set('source', encodeURI((state as any).editor.content)) // todo: fix that `as any`
+                  const url : string = window.location.host + '?' + searchParams.toString()
+
+                  navigator.clipboard.writeText(url)
+
+                  setTimeout(() => this.setState({ shareLinkOpen : false, menuOpen : false }), 1500)
+
+                }}
+                title='Get shareable link for this Box'
+              >
+                Share the URL
+              </div>
+              {
+                shareLinkOpen ?
+                  <p className='box-top-bar--menu-item--notif'>
+                    Link Copied!
+                  </p>
+                  :
+                  null
+              }
               <div
                 className='box-top-bar--menu-item'
                 onClick={ removeBox }

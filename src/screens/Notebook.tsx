@@ -307,6 +307,7 @@ export default class Notebook extends PureComponent<Props> {
   }
 
   updateURL (box : BoxState) : void {
+    return
     switch (box.type) {
       case BoxType.MARKDOWN : {
         const searchParams : URLSearchParams = new URL(window.document.location.toString()).searchParams
