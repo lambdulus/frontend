@@ -59,12 +59,12 @@ export function createNewUntypedLambdaExpression (defaultSettings : UntypedLambd
   }
 }
 
-export function createNewUntypedLambdaBoxFromSource (source : string, defaultSettings : UntypedLambdaSettings) : UntypedLambdaExpressionState {
+export function createNewUntypedLambdaBoxFromSource (source : string, defaultSettings : UntypedLambdaSettings, subtype : UntypedLambdaType) : UntypedLambdaExpressionState {
   return {
     ...defaultSettings,
     __key : Date.now().toString(),
     type : BoxType.UNTYPED_LAMBDA,
-    subtype : UntypedLambdaType.EMPTY,
+    subtype,
     title : "Untyped λ Expression",
     minimized : false,
     menuOpen : false,

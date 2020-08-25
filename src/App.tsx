@@ -12,7 +12,8 @@ import SettingsScreen from './screens/Settings'
 import { Screen, AppState, NotebookState, GlobalSettings, BoxType, BoxState } from './Types'
 import { UNTYPED_LAMBDA_INTEGRATION_STATE, createNewUntypedLambdaBoxFromSource, defaultSettings } from './untyped-lambda-integration/AppTypes'
 import NotebookList from './screens/NotebookList'
-import { UntypedLambdaState, UntypedLambdaSettings } from './untyped-lambda-integration/Types'
+import { UntypedLambdaState, UntypedLambdaSettings, EvaluationStrategy, UntypedLambdaType } from './untyped-lambda-integration/Types'
+import { url } from 'inspector'
 
 
 
@@ -67,12 +68,30 @@ export default class App extends Component<Props, AppState> {
     switch (type) {
       case BoxType.UNTYPED_LAMBDA: {
         const source : string | null = urlSearchParams.get('source')
+        const subtype : string | null = urlSearchParams.get('subtype')
+        const strategy : string | null = urlSearchParams.get('strategy')
+        const SDE : string | null = urlSearchParams.get('SDE')
         
-        if (source === null) {
+        if (source === null || subtype === null || strategy === null || SDE === null) {
           return
         }
 
-        const box : UntypedLambdaState = createNewUntypedLambdaBoxFromSource(decodeURI(source), defaultSettings)
+        const strat : EvaluationStrategy = EvaluationStrategy.NORMAL === strategy ? EvaluationStrategy.NORMAL : EvaluationStrategy.APPLICATIVE
+
+        const settings : UntypedLambdaSettings = { ...defaultSettings, strategy : strat, SDE : SDE === 'true' ? true : false }
+
+        const sub : UntypedLambdaType = subtype === UntypedLambdaType.EMPTY ?
+            UntypedLambdaType.EMPTY
+          :
+            subtype === UntypedLambdaType.ORDINARY ?
+              UntypedLambdaType.ORDINARY
+            :
+              subtype === UntypedLambdaType.EXERCISE ?
+                UntypedLambdaType.EXERCISE
+              :
+                UntypedLambdaType.EMPTY
+
+        const box : UntypedLambdaState = createNewUntypedLambdaBoxFromSource(decodeURI(source), settings, sub)
         const notebook : NotebookState = createNewNotebookWithBox('Notebook from Link' , box)
 
         this.setState({
@@ -83,12 +102,12 @@ export default class App extends Component<Props, AppState> {
 
         window.history.pushState(null, '', '/') // TODO: decide if remove or leave
 
-        // updateAppStateToStorage({
-        //   ...this.state,
-        //   currentScreen : Screen.MAIN,
-        //   notebookList : [ ...this.state.notebookList, notebook ],
-        //   currentNotebook : this.state.currentNotebook + 1
-        // })
+        updateAppStateToStorage({
+          ...this.state,
+          currentScreen : Screen.MAIN,
+          notebookList : [ ...this.state.notebookList, notebook ],
+          currentNotebook : this.state.notebookList.length - 1
+        })
 
         // window.location.href = window.location.host + '/testik'
         // alert(window.location.host)
@@ -99,9 +118,9 @@ export default class App extends Component<Props, AppState> {
         break;
     }
     
-    console.log(window.location.toString())
-    console.log(urlSearchParams.get('type'))
-    console.log(urlSearchParams.get('source'))
+    // console.log(window.location.toString())
+    // console.log(urlSearchParams.get('type'))
+    // console.log(urlSearchParams.get('source'))
   }
 
   render () {

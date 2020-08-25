@@ -15,9 +15,9 @@ export enum PromptPlaceholder {
 }
 
 export enum UntypedLambdaType {
-  EMPTY,
-  ORDINARY,
-  EXERCISE,
+  EMPTY = 'EMPTY',
+  ORDINARY = 'ORDINARY',
+  EXERCISE = 'EXERCISE',
   // MACRO,
 }
 
