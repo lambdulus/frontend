@@ -1,4 +1,4 @@
-import React, { MouseEvent } from 'react'
+import React, { MouseEvent, PureComponent } from 'react'
 import { mapBoxTypeToStr } from '../AppTypes'
 import Box from './Box'
 import BoxTitleBar from './BoxTitleBar'
@@ -44,6 +44,20 @@ export function BoxContainer (props : Props) : JSX.Element {
       className={ `boxContainer ${ isActiveBox ? 'active' : 'inactive' } ${boxTypeClassName}` }
       onClick={ makeActive }
       onBlur={ onBlur }
+      ref={ (elem : any) => {
+        // This is just temporary
+        // should be replaced with much finer logic
+        // like: store ref to the state and then scroll to the part of the Box which should be visible
+        // depending on the action user just did
+        // for now - it will do
+        if (elem !== null && isActiveBox) {
+          const boundingRect = elem.getBoundingClientRect()
+          const viewportHeight : number = window.innerHeight
+          if (boundingRect.bottom > viewportHeight) {
+            elem.scrollIntoView(false)
+          }
+        }
+      } }
     >
       <BoxTitleBar
         state={ box }
@@ -52,7 +66,7 @@ export function BoxContainer (props : Props) : JSX.Element {
         removeBox={ (e : MouseEvent) => {
           e.stopPropagation()
           removeBox()
-         } }
+        } }
         updateBoxState={ updateBoxState }
         addBoxBefore={ addBoxBefore }
         addBoxAfter={ addBoxAfter }
