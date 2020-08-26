@@ -19,7 +19,7 @@ export const CODE_NAME = 'UNTYPED_LAMBDA_CALCULUS'
 
 export const defaultSettings : UntypedLambdaSettings = {
   type : BoxType.UNTYPED_LAMBDA,
-  SLI : false,
+  SLI : true,
   expandStandalones : false,
   strategy : EvaluationStrategy.NORMAL,
   SDE : false,
