@@ -206,6 +206,7 @@ export default class BoxTitleBar extends Component<Props, State> {
                     searchParams.set('subtype', (state as UntypedLambdaState).subtype)
                     searchParams.set('strategy', (state as UntypedLambdaState).strategy)
                     searchParams.set('SDE', (state as UntypedLambdaState).SDE.toString())
+                    searchParams.set('SLI', (state as UntypedLambdaState).SLI.toString())
                   }
 
                   const url : string = window.location.host + '?' + searchParams.toString()

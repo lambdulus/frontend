@@ -5,7 +5,7 @@ import { UntypedLambdaState, UntypedLambdaType, UntypedLambdaExpressionState, Un
 import ExpressionBox from './ExpressionBox'
 // import Macro from './Macro'
 import MacroList from './MacroList'
-import { UNTYPED_LAMBDA_INTEGRATION_STATE, GLOBAL_SETTINGS_ENABLER, strategyToEvaluator, findSimplifiedReduction } from './AppTypes'
+import { UNTYPED_LAMBDA_INTEGRATION_STATE, GLOBAL_SETTINGS_ENABLER, strategyToEvaluator, findSimplifiedReduction, toMacroMap } from './AppTypes'
 import ExerciseBox from './ExerciseBox'
 import Settings from './Settings'
 import EmptyExpression from './EmptyExpression'
@@ -205,11 +205,4 @@ export default class UntypedLambdaBox extends PureComponent<Props> {
     return ast
   }
 
-}
-
-function toMacroMap (definitions : Array<string>) : MacroMap {
-  return definitions.reduce((acc : MacroMap, def) => {
-    const [name, body] = def.split(':=')
-    return { ...acc, [name.trim()] : body.trim() }
-  }, {})
 }

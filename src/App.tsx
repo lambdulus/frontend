@@ -71,14 +71,17 @@ export default class App extends Component<Props, AppState> {
         const subtype : string | null = urlSearchParams.get('subtype')
         const strategy : string | null = urlSearchParams.get('strategy')
         const SDE : string | null = urlSearchParams.get('SDE')
+        const SLI : string | null = urlSearchParams.get('SLI')
         
-        if (source === null || subtype === null || strategy === null || SDE === null) {
+        if (source === null || subtype === null || strategy === null || SDE === null || SLI === null) {
           return
         }
 
         const strat : EvaluationStrategy = EvaluationStrategy.NORMAL === strategy ? EvaluationStrategy.NORMAL : EvaluationStrategy.APPLICATIVE
 
-        const settings : UntypedLambdaSettings = { ...defaultSettings, strategy : strat, SDE : SDE === 'true' ? true : false }
+        const sli : boolean = SLI === 'true' ? true : false
+
+        const settings : UntypedLambdaSettings = { ...defaultSettings, strategy : strat, SDE : SDE === 'true' ? true : false, SLI : sli }
 
         const sub : UntypedLambdaType = subtype === UntypedLambdaType.EMPTY ?
             UntypedLambdaType.EMPTY
@@ -91,24 +94,28 @@ export default class App extends Component<Props, AppState> {
               :
                 UntypedLambdaType.EMPTY
 
-        const box : UntypedLambdaState = createNewUntypedLambdaBoxFromSource(decodeURI(source), settings, sub)
-        const notebook : NotebookState = createNewNotebookWithBox('Notebook from Link' , box)
+        try {
+          const box : UntypedLambdaState = createNewUntypedLambdaBoxFromSource(decodeURI(source), settings, sub)
+          const notebook : NotebookState = createNewNotebookWithBox('Notebook from Link' , box)
 
-        this.setState({
-          currentScreen : Screen.MAIN,
-          notebookList : [ notebook, ...this.state.notebookList ],
-          currentNotebook : 0
-        })
+          this.setState({
+            currentScreen : Screen.MAIN,
+            notebookList : [ notebook, ...this.state.notebookList ],
+            currentNotebook : 0
+          })
 
-        window.history.pushState(null, '', '/') // TODO: decide if remove or leave
+          window.history.pushState(null, '', '/') // TODO: decide if remove or leave
 
-        updateAppStateToStorage({
-          ...this.state,
-          currentScreen : Screen.MAIN,
-          notebookList : [ ...this.state.notebookList, notebook ],
-          currentNotebook : this.state.notebookList.length - 1
-        })
-
+          updateAppStateToStorage({
+            ...this.state,
+            currentScreen : Screen.MAIN,
+            notebookList : [ ...this.state.notebookList, notebook ],
+            currentNotebook : this.state.notebookList.length - 1
+          })
+        }
+        catch (ex) {
+          window.history.pushState(null, '', '/') // TODO: decide if remove or leave
+        }
         // window.location.href = window.location.host + '/testik'
         // alert(window.location.host)
         // window.location.replace(window.location.host)

@@ -1,9 +1,10 @@
 import { BoxType } from '../Types'
-import { EvaluationStrategy, UntypedLambdaState, UntypedLambdaSettings, UntypedLambdaType, StepRecord, UntypedLambdaExpressionState, UntypedLambdaIntegrationState, SettingsEnabled } from "./Types"
-import { ASTReduction, AST, decodeFast as decodeUntypedLambdaFast, Evaluator, NormalEvaluator, None, Expansion, Macro, ASTReductionType, Alpha, Lambda, Beta, Eta, Application, ASTVisitor, Variable, ChurchNumeral, BetaReducer, builtinMacros, MacroTable, Token, tokenize, parse, TokenType, ApplicativeEvaluator, OptimizeEvaluator, NormalAbstractionEvaluator } from '@lambdulus/core'
+import { EvaluationStrategy, UntypedLambdaState, UntypedLambdaSettings, UntypedLambdaType, StepRecord, UntypedLambdaExpressionState, UntypedLambdaIntegrationState, SettingsEnabled, PromptPlaceholder } from "./Types"
+import { ASTReduction, AST, decodeFast as decodeUntypedLambdaFast, Evaluator, NormalEvaluator, None, Expansion, Macro, ASTReductionType, Alpha, Lambda, Beta, Eta, Application, ASTVisitor, Variable, ChurchNumeral, BetaReducer, builtinMacros, MacroTable, Token, tokenize, parse, TokenType, ApplicativeEvaluator, OptimizeEvaluator, NormalAbstractionEvaluator, MacroMap } from '@lambdulus/core'
 import { Child, Binary } from '@lambdulus/core/dist/ast'
 import { TreeComparator } from './TreeComparator'
 import { PositionRecord, BLANK_POSITION } from '@lambdulus/core/dist/lexer/position'
+import { reportEvent } from '../misc'
 
 // import macroctx from './MacroContext'
 
@@ -59,38 +60,128 @@ export function createNewUntypedLambdaExpression (defaultSettings : UntypedLambd
   }
 }
 
+export function toMacroMap (definitions : Array<string>) : MacroMap {
+  return definitions.reduce((acc : MacroMap, def) => {
+    const [name, body] = def.split(':=')
+    return { ...acc, [name.trim()] : body.trim() }
+  }, {})
+}
+
 export function createNewUntypedLambdaBoxFromSource (source : string, defaultSettings : UntypedLambdaSettings, subtype : UntypedLambdaType) : UntypedLambdaExpressionState {
-  return {
-    ...defaultSettings,
-    __key : Date.now().toString(),
-    type : BoxType.UNTYPED_LAMBDA,
-    subtype,
-    title : "Untyped λ Expression",
-    minimized : false,
-    menuOpen : false,
-    settingsOpen : false,
-    expression : "",
-    ast : null,
-    history : [],
-    isRunning : false,
-    breakpoints : [],
-    timeoutID : undefined,
-    timeout : 5,
-    
-    // strategy : EvaluationStrategy.NORMAL,
-    // singleLetterNames : false,
-    // standalones : false,
-
-    macrolistOpen : false,
-    macrotable : { ...UNTYPED_LAMBDA_INTEGRATION_STATE.macrotable },
-
-    
-    editor : {
-      placeholder : "placeholder",
-      content : source,
-      caretPosition : 0,
-      syntaxError : null,
+  if (subtype === UntypedLambdaType.EMPTY) {
+    return {
+      ...defaultSettings,
+      __key : Date.now().toString(),
+      type : BoxType.UNTYPED_LAMBDA,
+      subtype,
+      title : "Untyped λ Expression",
+      minimized : false,
+      menuOpen : false,
+      settingsOpen : false,
+      expression : "",
+      ast : null,
+      history : [],
+      isRunning : false,
+      breakpoints : [],
+      timeoutID : undefined,
+      timeout : 5,
+      
+      // strategy : EvaluationStrategy.NORMAL,
+      // singleLetterNames : false,
+      // standalones : false,
+  
+      macrolistOpen : false,
+      macrotable : {  }, // ...UNTYPED_LAMBDA_INTEGRATION_STATE.macrotable
+  
+      
+      editor : {
+        placeholder : "placeholder",
+        content : source,
+        caretPosition : 0,
+        syntaxError : null,
+      }
     }
+  }
+  else {
+    return createNewUntypedLambdaBoxFromSource2(source, defaultSettings, subtype)
+  }
+}
+
+function createNewUntypedLambdaBoxFromSource2 (source : string, defaultSettings : UntypedLambdaSettings, subtype : UntypedLambdaType) : UntypedLambdaExpressionState {
+  const { SDE, SLI, strategy } = defaultSettings
+
+  const definitions : Array<string> = source.split(';')
+  const expression : string = definitions.pop() || ""
+  const macromap : MacroMap = toMacroMap(definitions)
+  
+  try {
+    const tokens : Array<Token> = tokenize(expression, { lambdaLetters : ['λ'], singleLetterVars : SLI })
+    const ast : AST = parse(tokens, macromap) // macroTable
+    
+    
+    let message = ''
+    let isNormal = false
+
+    const astCopy : AST = ast.clone()
+
+    const nextReduction = (() => {
+      if (SDE) {
+        return findSimplifiedReduction(astCopy, strategy, macromap)[0]
+      }
+      else {
+        const evaluator : Evaluator = new (strategyToEvaluator(strategy) as any)(astCopy)
+        return evaluator.nextReduction
+      }
+    })()
+
+    
+    if (nextReduction instanceof None) {
+      isNormal = true
+      message = 'Expression is in normal form.'
+      
+      // reportEvent('Evaluation Step', 'Step Normal Form Reached', ast.toString())  
+    }
+
+    reportEvent('Submit Expression from Link', 'submit valid', source)
+
+    return {
+      ...defaultSettings,
+      __key : Date.now().toString(),
+      type : BoxType.UNTYPED_LAMBDA,
+      subtype,
+      title : "Untyped λ Expression",
+      minimized : false,
+      menuOpen : false,
+      settingsOpen : false,
+      isRunning : false,
+      breakpoints : [],
+      timeoutID : undefined,
+      timeout : 5,
+      ast,
+      expression : source,
+      history : [ {
+        ast : ast.clone(),
+        lastReduction : new None,
+        step : 0,
+        message,
+        isNormalForm : isNormal
+      } ],
+
+      macrolistOpen : false,
+      macrotable : macromap,
+      // macrotable : { ...UNTYPED_LAMBDA_INTEGRATION_STATE.macrotable },
+
+      editor : {
+        content : source,
+        caretPosition : 0,
+        placeholder : PromptPlaceholder.EVAL_MODE,
+        syntaxError : null,
+      }
+    }
+
+  } catch (exception) {
+    reportEvent('Submit Expression from Link', 'submit invalid', source)
+    throw exception
   }
 }
 
