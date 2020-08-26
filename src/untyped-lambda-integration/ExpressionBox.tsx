@@ -72,6 +72,8 @@ export default class ExpressionBox extends PureComponent<EvaluationProperties> {
       strategy,
       expression,
       editor,
+      SDE,
+      macrotable,
     } : UntypedLambdaExpressionState = state
 
     let className : string = 'box boxEval'
@@ -86,6 +88,8 @@ export default class ExpressionBox extends PureComponent<EvaluationProperties> {
           breakpoints={ breakpoints }
           history={ history }
           strategy={ this.props.state.strategy }
+          SDE={ SDE }
+          macrotable={ macrotable }
           
           createBoxFrom={ this.createBoxFrom }
         />
@@ -145,10 +149,10 @@ export default class ExpressionBox extends PureComponent<EvaluationProperties> {
       SLI,
       expandStandalones,
       macrolistOpen : false,
-      macrotable : { ...macrotable, ...this.props.macroContext.macrotable },
+      macrotable : { }, // ...macrotable, ...this.props.macroContext.macrotable
       editor : {
         placeholder : PromptPlaceholder.EVAL_MODE,
-        content,
+        content : Object.entries(macrotable).map(([name, definition] : [string, string]) => name + ' := ' + definition + ' ;\n' ).join('') + content,
         caretPosition : content.length,
         syntaxError : null,
       }
@@ -182,6 +186,9 @@ export default class ExpressionBox extends PureComponent<EvaluationProperties> {
     if (isNormalForm) {
       return
     }
+
+    console.log('looooooooooooooooooooooooooooking')
+
     //                                                    fix this part please
     const [nextReduction, evaluateReduction] : [ASTReduction, (ast : AST) => AST] = findSimplifiedReduction(ast, strategy, macrotable)
     console.log('BACK TO THE WORLD HERE')
@@ -189,6 +196,7 @@ export default class ExpressionBox extends PureComponent<EvaluationProperties> {
     let message = ''
     let isNowNormalForm = false
 
+    console.log(nextReduction)
 
     if (nextReduction instanceof MacroBeta) {
       console.log("YES MACRO BETA HERE")

@@ -3,6 +3,7 @@ import React from 'react'
 import { ASTVisitor, Lambda, Variable, Beta, AST, Application, ChurchNumeral, Expansion, Macro, ASTReduction, Alpha, Gama, ASTReductionType } from "@lambdulus/core"
 import { Breakpoint } from './Types'
 import { reportEvent } from '../misc';
+import { MacroBeta } from './AppTypes';
 
 
 export default class ReactPrinter extends ASTVisitor {
@@ -108,6 +109,7 @@ export default class ReactPrinter extends ASTVisitor {
     private readonly onClick : (breakpoint : Breakpoint) => void,
     private readonly reduction : ASTReduction,
     private readonly breakpoints : Array<Breakpoint>,
+    private readonly SDE : boolean,
   ) {
     super()
     this.tree.visit(this)
@@ -129,9 +131,21 @@ export default class ReactPrinter extends ASTVisitor {
       redex = this.reduction.redex
     }
 
+    if (this.reduction instanceof MacroBeta) {
+      if (this.reduction.applications.some((app : Application) => app.identifier === application.identifier)) {
+        if (application.left instanceof Macro) {
+          leftClassName += ' extended-redex'
+        }
+        
+        rightClassName += ' extended-redex'
+        console.log('bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb')
+      }
+    }
+
     if (this.reduction instanceof Gama && this.reduction.args.includes(application)) {
       className += ' redex abstraction argument'
     }
+
     // else if (this.reduction instanceof Expansion) {
     //   redex = this.reduction.target
     // } // to asi neni uplne potreba tady
@@ -360,6 +374,7 @@ export default class ReactPrinter extends ASTVisitor {
 
   // TODO: little bit refactored, maybe keep going  
   onMacro (macro: Macro) : void {
+    console.log(this.reduction)
     let className = 'macro'
     let redex : AST | null = null
     let redexClass : string = ' redex'
@@ -367,7 +382,7 @@ export default class ReactPrinter extends ASTVisitor {
 
     if (this.reduction instanceof Expansion) {
       redex = this.reduction.target
-    } 
+    }
 
     if (this.reduction instanceof Gama) {
       if (this.reduction.redexes.includes(macro)) {
@@ -379,6 +394,16 @@ export default class ReactPrinter extends ASTVisitor {
       if (this.reduction.args.includes(macro)) {
         className += redexClass + ' abstraction argument'
       }
+    }
+
+    if (this.reduction instanceof MacroBeta) {
+      
+      if (macro.identifier === this.reduction.applications[0].left.identifier) {
+        className += ' abstraction'
+        console.log('............................................------------------.................................')
+      }
+      console.log("MMMMMMMMMMMMMMMMACROBEEEEEEEEEEEEEEEEEEEEEETAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA")
+
     }
 
 

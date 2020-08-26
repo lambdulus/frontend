@@ -12,6 +12,7 @@ import DebugControls from '../components/DebugControls'
 // import Controls from './ExerciseSwitch'
 
 import './styles/Expression.css'
+import { MacroMap } from '@lambdulus/core'
 
 
 interface EvaluatorProps {
@@ -47,7 +48,7 @@ export default class Expression extends PureComponent<EvaluatorProps> {
   render () : JSX.Element {
     const { className, state, editor, shouldShowDebugControls, isExercise, setBoxState } = this.props
 
-    const { isRunning, strategy, SDE } : UntypedLambdaExpressionState = state
+    const { isRunning, strategy, SDE, macrotable } : UntypedLambdaExpressionState = state
 
     const {
       placeholder,
@@ -71,6 +72,8 @@ export default class Expression extends PureComponent<EvaluatorProps> {
                   addBreakpoint={ () => {} }
                   stepRecord={ stepRecord }
                   lastStep={ false }
+                  SDE={ SDE }
+                  macrotable={ macrotable }
                 >
                   <i
                     className="hiddenIcon far fa-clone"
@@ -90,6 +93,8 @@ export default class Expression extends PureComponent<EvaluatorProps> {
               addBreakpoint={ this.addBreakpoint }
               stepRecord={ this.props.history[this.props.history.length - 1] }
               lastStep={ true }
+              SDE={ SDE }
+              macrotable={ macrotable }
             >
                 <i
                   className="hiddenIcon far fa-clone"

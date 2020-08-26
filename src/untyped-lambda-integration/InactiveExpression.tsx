@@ -3,6 +3,7 @@ import React, { useContext, ReactNode } from 'react'
 import Step from './Step'
 // import { AddBoxContext } from './MethodInjector'
 import { Breakpoint, StepRecord, UntypedLambdaState, EvaluationStrategy } from './Types'
+import { MacroMap } from '@lambdulus/core'
 // import { DeleteBox, MakeActiveContext } from './BoxSpace'
 
 interface InactiveExpressionProps {
@@ -10,13 +11,15 @@ interface InactiveExpressionProps {
   breakpoints : Array<Breakpoint>
   history : Array<StepRecord>
   strategy : EvaluationStrategy
+  SDE : boolean
+  macrotable : MacroMap
 
-  createBoxFrom (stepRecord : StepRecord) : UntypedLambdaState
+  createBoxFrom (stepRecord : StepRecord, macrotable : MacroMap) : UntypedLambdaState
 }
 
 
 export default function InactiveExpression (props : InactiveExpressionProps) : JSX.Element {
-  const { className } = props
+  const { className, SDE, macrotable } = props
   // const deleteBox = useContext(DeleteBox)
   // const makeActive = useContext(MakeActiveContext)
 
@@ -32,6 +35,8 @@ export default function InactiveExpression (props : InactiveExpressionProps) : J
             addBreakpoint={ () => {} } // blank function - NOOP
             stepRecord={ props.history[0] }
             lastStep={ false }
+            SDE={ SDE }
+            macrotable={ macrotable }
           >
             
             {/* <AddBoxContext.Consumer>

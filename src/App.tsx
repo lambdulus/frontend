@@ -13,7 +13,6 @@ import { Screen, AppState, NotebookState, GlobalSettings, BoxType, BoxState } fr
 import { UNTYPED_LAMBDA_INTEGRATION_STATE, createNewUntypedLambdaBoxFromSource, defaultSettings } from './untyped-lambda-integration/AppTypes'
 import NotebookList from './screens/NotebookList'
 import { UntypedLambdaState, UntypedLambdaSettings, EvaluationStrategy, UntypedLambdaType } from './untyped-lambda-integration/Types'
-import { url } from 'inspector'
 
 
 
@@ -57,6 +56,8 @@ export default class App extends Component<Props, AppState> {
     this.createNotebookFromURL()
   }
 
+  // TODO: all of this needs to be moved to more apropriate component
+  // maybe something like Notebook or similar -- this just isn't right
   createNotebookFromURL () {
     const urlSearchParams : URLSearchParams = new URL(window.location.toString()).searchParams
     const type : string | null = urlSearchParams.get('type')
@@ -114,20 +115,13 @@ export default class App extends Component<Props, AppState> {
           })
         }
         catch (ex) {
-          window.history.pushState(null, '', '/') // TODO: decide if remove or leave
+          window.history.replaceState(null, '', '/') // TODO: decide if remove or leave
         }
-        // window.location.href = window.location.host + '/testik'
-        // alert(window.location.host)
-        // window.location.replace(window.location.host)
       }
         
       default:
         break;
     }
-    
-    // console.log(window.location.toString())
-    // console.log(urlSearchParams.get('type'))
-    // console.log(urlSearchParams.get('source'))
   }
 
   render () {
