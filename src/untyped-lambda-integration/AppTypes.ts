@@ -22,7 +22,7 @@ export const defaultSettings : UntypedLambdaSettings = {
   SLI : true,
   expandStandalones : false,
   strategy : EvaluationStrategy.NORMAL,
-  SDE : false,
+  SDE : true,
 }
 
 export function createNewUntypedLambdaExpression (defaultSettings : UntypedLambdaSettings) : UntypedLambdaExpressionState {
