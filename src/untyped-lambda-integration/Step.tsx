@@ -1,5 +1,5 @@
 import React, { memo } from 'react'
-import { ASTReduction } from '@lambdulus/core'
+import { ASTReduction, AST, MacroMap, None } from '@lambdulus/core'
 
 import './styles/Step.css'
 
@@ -7,7 +7,7 @@ import ReactPrinter from './ReactPrinter'
 // import ReductionMessage from './ReductionMessage'
 import { EvaluationStrategy, StepRecord, Breakpoint, Evaluator } from './Types'
 import ReductionMessage from './ReductionMessage'
-import { strategyToEvaluator } from './AppTypes'
+import { strategyToEvaluator, findSimplifiedReduction, MacroBeta } from './AppTypes'
 // import { StrategyContext } from './DataInjector'
 
 
@@ -18,6 +18,8 @@ interface StepWrapperProperties {
   addBreakpoint (breakpoint : Breakpoint) : void
   children : JSX.Element
   lastStep : boolean
+  SDE : boolean
+  macrotable : MacroMap
 }
 
 interface StepProperties {
@@ -27,6 +29,8 @@ interface StepProperties {
   children : JSX.Element
   strategy : EvaluationStrategy
   lastStep : boolean
+  SDE : boolean
+  macrotable : MacroMap
 }
 
 // This is done because of highlighting - if Strategy is changed ->
@@ -47,16 +51,46 @@ export default function StepWrapper (props : StepWrapperProperties) : JSX.Elemen
 }
 
 function Step (props : StepProperties) : JSX.Element | null {
-  const { stepRecord, addBreakpoint, breakpoints, children, strategy } = props
+  const { stepRecord, addBreakpoint, breakpoints, children, strategy, SDE, macrotable } = props
   const { ast : tree, lastReduction, step, message } = stepRecord
 
   if (tree === null) {
     return null
   }
 
-  const evaluator : Evaluator = new (strategyToEvaluator(strategy) as any)(tree)
-  const reduction : ASTReduction = evaluator.nextReduction
-  const printer : ReactPrinter = new ReactPrinter(tree, addBreakpoint, reduction, breakpoints)
+  // const evaluator : Evaluator = new (strategyToEvaluator(strategy) as any)(tree)
+  const newast : AST = tree.clone()
+  let nextReduction = (() => {
+    if (SDE) {
+      return findSimplifiedReduction(newast, strategy, macrotable)[0]
+    }
+    else {
+      const evaluator : Evaluator = new (strategyToEvaluator(strategy) as any)(tree)
+      return evaluator.nextReduction
+    }
+  })()
+
+  if ( ! (nextReduction instanceof MacroBeta) && !(nextReduction instanceof None)) {
+    // TODO: read carefully
+    // this means -- next reduction is gonna be normal stuff (Beta, Alpha, Expansion)
+    // because of some decision to structure the findSimplifiedReduction the way it works
+    // mainly := first clone the tree and then mutate it with each recursive call
+    // if it's the normal stuff --> then the tree I used to identify the redex is not the same tree as I am giving to the ReactPrinter
+    // for this reason I have to use redex finder which does not mutate the tree under my hands at least until I rewrite
+    // the findSimplifiedReduction
+    const evaluator : Evaluator = new (strategyToEvaluator(strategy) as any)(tree)
+    nextReduction = evaluator.nextReduction
+    // TODO: read carefully
+    // this definitely needs to be fixed
+    // I will most certainly need to do some dirty magic in ReactPrinter - because this design also makes it impossible
+    // to decide what is current redex in expressions like:
+    // (λ x . + x x) ( + 1 2 )
+    // + [( + 1 2 )] [( + 1 2 )]
+    // both [( + 1 2 )] are highlighted
+    // but maybe its not related to this
+  }
+  const reduction : ASTReduction = nextReduction
+  const printer : ReactPrinter = new ReactPrinter(tree, addBreakpoint, reduction, breakpoints, SDE)
 
   const incorrectStep : boolean = stepRecord.message.indexOf('Incorrect step.') === 0
   const correctStep : boolean = stepRecord.message.indexOf('Correct.') === 0
