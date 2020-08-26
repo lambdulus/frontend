@@ -191,7 +191,19 @@ export default class BoxTitleBar extends Component<Props, State> {
 
         {
           menuOpen ?
-            <div className='box-top-bar--menu' >
+            <div
+              className='box-top-bar--menu'
+              ref={ (elem : any) => {
+                // just to be able to always see the menu
+                if (elem !== null) {
+                  const boundingRect = elem.getBoundingClientRect()
+                  const viewportHeight : number = window.innerHeight
+                  if (boundingRect.bottom > viewportHeight) {
+                    elem.scrollIntoView(false)
+                  }
+                }
+              } }
+            >
               {/* TODO: move into ... Menu component */}
               <div
                 className='box-top-bar--menu-item'

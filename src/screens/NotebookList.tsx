@@ -67,7 +67,19 @@ export default function NotebookList (props : Props) : JSX.Element {
               </div>
               {
                 notebook.menuOpen ?
-                  <div className='notebook-list--notebook--menu' >
+                  <div
+                    className='notebook-list--notebook--menu'
+                    ref={ (elem : any) => {
+                      // just to be able to always see the menu
+                      if (elem !== null) {
+                        const boundingRect = elem.getBoundingClientRect()
+                        const viewportHeight : number = window.innerHeight
+                        if (boundingRect.bottom > viewportHeight) {
+                          elem.scrollIntoView(false)
+                        }
+                      }
+                    } }  
+                  >
                     {/* TODO: move into ... menu */}
                     <div
                       className='box-top-bar--menu-item'
