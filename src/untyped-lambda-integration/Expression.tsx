@@ -192,7 +192,7 @@ export default class Expression extends PureComponent<EvaluatorProps> {
             </div>
           :
             ( ! this.props.isNormalForm && shouldShowDebugControls) ?
-              <div>
+              <div style={ { height: '2.5em' } }>
                 <span className='untyped-lambda--debug-ctrl'>
                   <DebugControls
                     isRunning={ isRunning }
