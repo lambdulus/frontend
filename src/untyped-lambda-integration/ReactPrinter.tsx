@@ -174,7 +174,7 @@ export default class ReactPrinter extends ASTVisitor {
         this.redexesFound++
         
         rightClassName += ' extended-redex'
-        console.log('bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb')
+        // console.log('bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb')
       }
     }
 
@@ -410,7 +410,7 @@ export default class ReactPrinter extends ASTVisitor {
 
   // TODO: little bit refactored, maybe keep going  
   onMacro (macro: Macro) : void {
-    console.log(this.reduction)
+    // console.log(this.reduction)
     let className = 'macro'
     let redex : AST | null = null
     let redexClass : string = ' redex'
@@ -436,9 +436,9 @@ export default class ReactPrinter extends ASTVisitor {
       
       if (macro.identifier === this.reduction.applications[0].left.identifier) {
         className += ' abstraction'
-        console.log('............................................------------------.................................')
+        // console.log('............................................------------------.................................')
       }
-      console.log("MMMMMMMMMMMMMMMMACROBEEEEEEEEEEEEEEEEEEEEEETAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA")
+      // console.log("MMMMMMMMMMMMMMMMACROBEEEEEEEEEEEEEEEEEEEEEETAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA")
 
     }
 
