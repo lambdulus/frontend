@@ -280,16 +280,16 @@ export default class BoxTitleBar extends Component<Props, State> {
                 title='Reset this Box to Initial State'
                 onClick={ (e) => {
                   e.stopPropagation()
-                  console.log('CLICKED ON RESET BOX')
+                  // console.log('CLICKED ON RESET BOX')
 
                   switch (type) {
                     case BoxType.UNTYPED_LAMBDA: {
-                      console.log('RESET UNTYPED LAMBDA')
+                      // console.log('RESET UNTYPED LAMBDA')
                       updateBoxState(resetUntypedLambdaBox(state as UntypedLambdaState))
                       break
                     }
                     case BoxType.MARKDOWN: {
-                      console.log('RESET MARODOWN')
+                      // console.log('RESET MARODOWN')
                       updateBoxState(resetMarkdownBox(state as NoteState))
                       break
                     }

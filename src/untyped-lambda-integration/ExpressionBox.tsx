@@ -173,7 +173,7 @@ export default class ExpressionBox extends PureComponent<EvaluationProperties> {
   }
 
   onSimplifiedStep () : void {
-    console.log("DOIN ONE STEP       _______     SIMPLIFIED")
+    // console.log("DOIN ONE STEP       _______     SIMPLIFIED")
 
     const { state, setBoxState } = this.props
     const { strategy, history, editor : { content }, macrotable } = state
@@ -187,19 +187,19 @@ export default class ExpressionBox extends PureComponent<EvaluationProperties> {
       return
     }
 
-    console.log('looooooooooooooooooooooooooooking')
+    // console.log('looooooooooooooooooooooooooooking')
 
     //                                                    fix this part please
     const [nextReduction, evaluateReduction] : [ASTReduction, (ast : AST) => AST] = findSimplifiedReduction(ast, strategy, macrotable)
-    console.log('BACK TO THE WORLD HERE')
+    // console.log('BACK TO THE WORLD HERE')
     
     let message = ''
     let isNowNormalForm = false
 
-    console.log(nextReduction)
+    // console.log(nextReduction)
 
     if (nextReduction instanceof MacroBeta) {
-      console.log("YES MACRO BETA HERE")
+      // console.log("YES MACRO BETA HERE")
       // z macrobeta si vytahnu aritu makra
       const arity : number = nextReduction.arity
 
@@ -207,7 +207,7 @@ export default class ExpressionBox extends PureComponent<EvaluationProperties> {
       if (nextReduction.applications.length !== arity) {
         // pokud arita nesedi - je vetsi nez delka pole aplikaci -->
         // --> musim vyhlasit warning a rict, ze tenhle krok neni uplne gooda
-        console.log("ARITY IS WRONG - probably too few arguments")
+        // console.log("ARITY IS WRONG - probably too few arguments")
         stepRecord.message = `Macro ${tryMacroContraction(nextReduction.applications[0].left, macrotable)} is given too few arguments.`
 
         newast = evaluateReduction(newast)
@@ -242,7 +242,7 @@ export default class ExpressionBox extends PureComponent<EvaluationProperties> {
 
 
     {
-      console.log('copak se tohle vubec neprovadi????????????????')
+      // console.log('copak se tohle vubec neprovadi????????????????')
       const astCopy : AST = newast.clone()
       const [nextReduction, evaluateReduction] : [ASTReduction, (ast : AST) => AST] = findSimplifiedReduction(astCopy, strategy, macrotable)
       // const evaluator : Evaluator = new (strategyToEvaluator(strategy) as any)(astCopy)

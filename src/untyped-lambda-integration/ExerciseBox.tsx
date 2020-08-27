@@ -237,7 +237,7 @@ export default class ExerciseBox extends PureComponent<EvaluationProperties> {
   }
 
   onExerciseStep () {
-    console.log('EXERCISE STEP')
+    // console.log('EXERCISE STEP')
     const { state, setBoxState } = this.props
     const { strategy, history, editor : { content } } = state
     
@@ -336,7 +336,7 @@ export default class ExerciseBox extends PureComponent<EvaluationProperties> {
   }
 
   onStep () : void {
-    console.log('DOIN ONE STEP')
+    // console.log('DOIN ONE STEP')
     const { state, setBoxState } = this.props
     const { strategy, history, editor : { content } } = state
     const stepRecord = history[history.length - 1]
@@ -352,7 +352,7 @@ export default class ExerciseBox extends PureComponent<EvaluationProperties> {
     lastReduction = normal.nextReduction
   
     if (normal.nextReduction instanceof None) {
-      console.log('NEXT IS NONE')
+      // console.log('NEXT IS NONE')
       stepRecord.isNormalForm = true
       stepRecord.message = 'Expression is in normal form.'
       
