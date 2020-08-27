@@ -31,7 +31,7 @@ export default class UntypedLambdaBox extends PureComponent<Props> {
 
   render () {
     const { state, isActive, isFocused, setBoxState, addBox } : Props = this.props
-    const { settingsOpen, subtype, macrolistOpen, SLI, expandStandalones, strategy, SDE, editor } : UntypedLambdaState = state
+    const { settingsOpen, subtype, macrolistOpen, SLI, expandStandalones, strategy, SDE, editor, minimized } : UntypedLambdaState = state
 
 
     const renderBoxContent = () => {
@@ -41,6 +41,7 @@ export default class UntypedLambdaBox extends PureComponent<Props> {
             <EmptyExpression
               className='box boxEval'
               isActive={ isActive }
+              isMinimized={ minimized }
               editor={ editor }
               onContent={(content : string) =>
                 setBoxState({
