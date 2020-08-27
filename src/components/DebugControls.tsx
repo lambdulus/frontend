@@ -5,6 +5,7 @@ import '../styles/DebugControls.css'
 
 interface Props {
   isRunning : boolean
+  disableRun : boolean /* TODO: this is just for now -- because I am not sure students will know how to exercise with simplified */
 
   onStep : () => void
   onRun : () => void
@@ -30,7 +31,7 @@ export default class DebugControls extends PureComponent<Props> {
             event.preventDefault()
             this.props.onStep()
           }
-          if (event.key === 'F9') {
+          if (event.key === 'F9' && ! this.props.disableRun) { /* TODO: this is just for now -- because I am not sure students will know how to exercise with simplified */
             event.preventDefault()
             this.props.onRun()
           }
@@ -50,15 +51,22 @@ export default class DebugControls extends PureComponent<Props> {
 
     return (
       <div className='debug-controls'>
-        <button
-          title={ runMessage }
-          type="button"
-          className='btn debug-controls--run'
-          onClick={ onRun }
-        >
-          <span className='debug-controls--btn-label'>{ isRunning ? 'Stop' : 'Run' }</span>
-          <i className="mini-icon fas fa-play"></i>
-        </button>
+        {
+          /* TODO: this is just for now -- because I am not sure students will know how to exercise with simplified */
+          this.props.disableRun ?
+            null
+          :
+          <button
+            title={ runMessage }
+            type="button"
+            className='btn debug-controls--run'
+            onClick={ onRun }
+          >
+            <span className='debug-controls--btn-label'>{ isRunning ? 'Stop' : 'Run' }</span>
+            <i className="mini-icon fas fa-play"></i>
+          </button>
+        }
+        
         
         <button
           title='Evaluate Next Step (Press F8)'
