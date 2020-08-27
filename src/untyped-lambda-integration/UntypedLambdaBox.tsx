@@ -43,6 +43,7 @@ export default class UntypedLambdaBox extends PureComponent<Props> {
               isActive={ isActive }
               isMinimized={ minimized }
               editor={ editor }
+              state={ state }
               onContent={(content : string) =>
                 setBoxState({
                   ...state,
@@ -55,6 +56,7 @@ export default class UntypedLambdaBox extends PureComponent<Props> {
               }
               onDebug={ () => this.onSubmitExpression(UntypedLambdaType.ORDINARY) }
               onExercise={ () => this.onSubmitExpression(UntypedLambdaType.EXERCISE) }
+              setBoxState={ setBoxState }
             />
           )
   

@@ -198,6 +198,7 @@ export default class Expression extends PureComponent<EvaluatorProps> {
                     isRunning={ isRunning }
                     onStep={ this.props.onEnter }
                     onRun={ this.props.onExecute }
+                    disableRun={ SDE }
                   />
                 </span>
                 
