@@ -430,7 +430,6 @@ export function findSimplifiedReduction (ast : AST, strategy : EvaluationStrateg
 
     if (newreduction instanceof None) {
       console.log("_________________________________ rule I. INSIDE EXPANSION")
-      debugger
       return [newreduction, (ast) => ast] // (ast) => ast
       // NO REDEX FOUND --> normal form, not expanding M
       // means - I should signal normal form -- perhaps there is a problem
@@ -468,7 +467,11 @@ export function findSimplifiedReduction (ast : AST, strategy : EvaluationStrateg
       // const [fnArgNames, fnBody] = splitLambdaFn(expanded)
       // const fnBody : AST = getFnBody(expanded)
       const fnArgNames : Array<string> = getFnArgNames(expanded)
-      const arity : number = fnArgNames.length
+      let arity : number = fnArgNames.length
+      const arit : number | null = getArityOfKnownMacro(M.name())
+      if (arit !== null && arit <= arity) {
+        arity = arit
+      }
       // const arity : number = getArity(expanded)
       console.log("arity of the macro is: ", arity)
       // --> get arity of expression X which was expanded from macro M
@@ -789,6 +792,19 @@ function churchNumeralToNumber (ast : Lambda) : number {
 }
 
 
+
+function getArityOfKnownMacro (macroname : string) : number | null {
+  if ([ "*", "+", "/", "-", "^", "DELTA", "=", ">", "<", ">=", "<=", "AND", "OR" ].includes(macroname)) {
+    return 2
+  }
+
+  if ([ "ZERO", "NOT" ].includes(macroname)) {
+    return 1
+  }
+
+  return null
+}
+
 /**
  * Decides if the result of the application of the macro M to its arguments should evaluate to the normal form
  */
@@ -914,6 +930,10 @@ export class NormalMacroRedexExtender extends ASTVisitor {
 
         this.parents.push(application) // pushing this APP as a parent of the previously last one in the list
         return
+    }
+
+    if (this.found) {
+      return
     }
 
     // go to the right
