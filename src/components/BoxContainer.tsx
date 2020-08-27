@@ -44,20 +44,6 @@ export function BoxContainer (props : Props) : JSX.Element {
       className={ `boxContainer ${ isActiveBox ? 'active' : 'inactive' } ${boxTypeClassName}` }
       onClick={ makeActive }
       onBlur={ onBlur }
-      ref={ (elem : any) => {
-        // This is just temporary
-        // should be replaced with much finer logic
-        // like: store ref to the state and then scroll to the part of the Box which should be visible
-        // depending on the action user just did
-        // for now - it will do
-        if (elem !== null && isActiveBox) {
-          const boundingRect = elem.getBoundingClientRect()
-          const viewportHeight : number = window.innerHeight
-          if (boundingRect.bottom > viewportHeight) {
-            elem.scrollIntoView(false)
-          }
-        }
-      } }
     >
       <BoxTitleBar
         state={ box }

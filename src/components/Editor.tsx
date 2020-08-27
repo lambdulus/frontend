@@ -127,7 +127,7 @@ function InputField (props : InputProps) : JSX.Element {
     >
       <MonacoEditor
         // width="800"
-        height={ (lines + 1) * 19} // 10 lines by default
+        height={ Math.min(40 * 19, (lines + 1) * 19) } // 10 lines by default
         language="markdown"
         theme="vs-light"
         value={ content }
@@ -138,7 +138,7 @@ function InputField (props : InputProps) : JSX.Element {
           scrollBeyondLastLine : false,
           overviewRulerBorder : false,
           scrollbar : {
-            handleMouseWheel : false,
+            // handleMouseWheel : false,
           } } }
         onChange={ (content : string) => onContent(content) }
         // editorDidMount={ ::this.editorDidMount }
