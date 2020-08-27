@@ -10,6 +10,33 @@ export default class ReactPrinter extends ASTVisitor {
   private rendered : JSX.Element | null = null
   private argument : Variable | null = null
 
+  // TODO: this is just temporary and very dirty hot fix
+  // because findSimplifiedReduction needs to get clonned tree
+  // because it modifies that tree even thought it probably shoudl not
+  // actual tree being printed is not the same
+  // this then leads to some problem when expression is being copied (argument used mutliple times inside lambda)
+  // and one of them is then identified as a REDEX
+  // because all of them share same Identifier --> all of them are identified as a redex
+  // private foundRedexes : Array<symbol> = []
+  // on the other hand -- this is not so dirty right?
+  private redexesFound : number = 0 // 0 is empty ; 1 is found ; -1 is blocked and can't be set to 1 again
+  // NOW: be very careful
+  // this solution unfortunately combines both of the original solutions and this means it probably takes
+  // the worst of both of them
+  // what it means is this:
+  // it relies on correct logic that sets reduction.topLevelParent
+  // there could very well be bug and it could work badly
+  // also it relies on order
+  // once the redexFound was set to 1 it will be set to -1 and then it cannot be set again
+  // this means - I efectively say - only first occurence of the expression can be the REDEX
+  // be very aware that this might be very ill and really buggy
+  //
+  //
+  // final decision is to dith all of the above
+  // and just go with counting --> logic seems sound --> if I arrive somewhere first when printing
+  // in the same order I look for the redexes (in normal order at least I hope) --> it should be redex
+  // rest is fake
+
   private printMultiLambda (lambda : Lambda, accumulator : JSX.Element) : void {
     if (lambda.body instanceof Lambda) {
       const context : Variable = lambda.body.argument
@@ -132,10 +159,19 @@ export default class ReactPrinter extends ASTVisitor {
     }
 
     if (this.reduction instanceof MacroBeta) {
-      if (this.reduction.applications.some((app : Application) => app.identifier === application.identifier)) {
+      // if (this.redexFound === 0 && application.identifier === this.reduction.topLevelParent.identifier) {
+      //   this.redexFound = 1
+      //   redexFoundFlag = true
+      //   debugger
+      // }
+      
+      //  === 1 && 
+      if (this.redexesFound < this.reduction.arity && this.reduction.applications.some((app : Application) => app.identifier === application.identifier)) {
         if (application.left instanceof Macro) {
           leftClassName += ' extended-redex'
         }
+
+        this.redexesFound++
         
         rightClassName += ' extended-redex'
         console.log('bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb')
