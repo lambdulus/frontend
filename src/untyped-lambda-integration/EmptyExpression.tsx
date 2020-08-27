@@ -9,6 +9,7 @@ import './styles/EmptyExpression.css'
 interface EmptyExpressionProps {
   className : string
   isActive : boolean
+  isMinimized : boolean
   editor : {
     placeholder : string
     content : string
@@ -24,7 +25,7 @@ interface EmptyExpressionProps {
 
 
 export default function EmptyExpression(props : EmptyExpressionProps) : JSX.Element{
-  const { className, isActive, editor } = props
+  const { className, isActive, editor, isMinimized } = props
   const {
     placeholder,
     content,
@@ -40,7 +41,7 @@ export default function EmptyExpression(props : EmptyExpressionProps) : JSX.Elem
       className={ `${className} ${isActive ? '' : ' inactiveBox'}` }
     >
       {
-        isActive ?
+        ! isMinimized ?
           (
             <div>
               <Editor
