@@ -369,7 +369,7 @@ export function findSimplifiedReduction (ast : AST, strategy : EvaluationStrateg
   }
 
   if (nextReduction instanceof Expansion && nextReduction.target instanceof ChurchNumeral) {
-    console.log("_________________________________ CHURCH NUMERAL EXPANSION")
+    // console.log("_________________________________ CHURCH NUMERAL EXPANSION")
 
     const newAst = evaluator.perform() // expand Number
 
@@ -392,7 +392,7 @@ export function findSimplifiedReduction (ast : AST, strategy : EvaluationStrateg
       // ukazka naprosto spatnyho designu provadeni redukci a faktu ze AST melo byt immutable
       //
 
-      console.log("_________________________________ rule I. INSIDE EXPANSION")
+      // console.log("_________________________________ rule I. INSIDE EXPANSION")
       return [newreduction, (ast) => ast]
       // NO REDEX FOUND --> normal form, not expanding Church Numeral
       // means - I should signal normal form -- perhaps there is a problem
@@ -404,13 +404,14 @@ export function findSimplifiedReduction (ast : AST, strategy : EvaluationStrateg
       // now - because Church Numerals DON'T have arity - they are supposed to be numbers and not Macros
       // I can just forgot all the complex ruling and do the sensible thing --> perform 
 
-      console.log("_________________________________ CHURCH EXPAND -- INSIDE EXPANSION")
+      // console.log("_________________________________ CHURCH EXPAND -- INSIDE EXPANSION")
       return [nextReduction, (ast) => newAst]
     }
   }
 
   if (nextReduction instanceof Expansion && nextReduction.target instanceof Macro) {
-    console.log("_________________________________ MACRO EXPANSION")
+    // console.log("_________________________________ MACRO EXPANSION")
+    // debugger
     
     const { parent, treeSide, target, type } : Expansion = nextReduction
     
@@ -429,7 +430,7 @@ export function findSimplifiedReduction (ast : AST, strategy : EvaluationStrateg
     // const newreduction = newevaluator.nextReduction
 
     if (newreduction instanceof None) {
-      console.log("_________________________________ rule I. INSIDE EXPANSION")
+      // console.log("_________________________________ rule I. INSIDE EXPANSION")
       return [newreduction, (ast) => ast] // (ast) => ast
       // NO REDEX FOUND --> normal form, not expanding M
       // means - I should signal normal form -- perhaps there is a problem
@@ -442,7 +443,7 @@ export function findSimplifiedReduction (ast : AST, strategy : EvaluationStrateg
     //                                                     (to co jsme expandovali)
     if (parent !== null && treeSide !== null && findRedexIn(expanded, newreduction)) {
       // REDEX is completely bounded by expanded M Macro expression
-      console.log("_________________________________ rule III. INSIDE EXPANSION")
+      // console.log("_________________________________ rule III. INSIDE EXPANSION")
       return [nextReduction, (_) => evaluator.perform()]
 
       // REDEX belongs to expanded M
@@ -452,10 +453,10 @@ export function findSimplifiedReduction (ast : AST, strategy : EvaluationStrateg
     const beta : Beta = newreduction as Beta
     if (parent !== null && treeSide !== null // parent and treeSide won't be null --> parent is either APP or Lambda --> they need to parent the macro which was expanded am I right?
         && parent instanceof Application
-        && parent[treeSide] instanceof Lambda && beta.redex.left.identifier === parent[treeSide].identifier
+        && parent[treeSide] instanceof Lambda && beta.redex?.left.identifier === parent[treeSide].identifier
         && newreduction.type === ASTReductionType.BETA
         && parent.identifier === beta.redex.identifier) {
-      console.log("_________________________________ rule IV. INSIDE")
+      // console.log("_________________________________ rule IV. INSIDE")
       // rule IV.
 
       // if ( ! macroIsSingleStep(M)) {
@@ -473,14 +474,14 @@ export function findSimplifiedReduction (ast : AST, strategy : EvaluationStrateg
         arity = arit
       }
       // const arity : number = getArity(expanded)
-      console.log("arity of the macro is: ", arity)
+      // console.log("arity of the macro is: ", arity)
       // --> get arity of expression X which was expanded from macro M
       // it should be simple -- just go to the right for the lambda and as long as it's right side is also lambda count +1
 
 
       const macroAppRedex : MacroBeta =  extendMacroAppRedex(arity, parent, ast)
       if (strategy === EvaluationStrategy.APPLICATIVE || hasApplicativeOverride(M)) {
-        console.log("............................. MACRO " + M.name() + "   has APPLICATIVE OVERRIDE")
+        // console.log("............................. MACRO " + M.name() + "   has APPLICATIVE OVERRIDE")
 
         for (const app of macroAppRedex.applications) {
           const [argreduction, argperformevaluation] = findSimplifiedReduction(app.right, strategy, macrotable)
@@ -663,8 +664,8 @@ export function findSimplifiedReduction (ast : AST, strategy : EvaluationStrateg
     // this is fallbacking action
     // redex was found - but does not concern previously expanded macro - so the expansions is unnecessary
     {
-      console.log("_________________________________ rule II. INSIDE THIS IS FALLBACK")
-      console.log(newreduction.type)
+      // console.log("_________________________________ rule II. INSIDE THIS IS FALLBACK")
+      // console.log(newreduction.type)
 
       // REDEX is NOT inside expanded M -- NOT rule III.
       // expanded Macro is also not part of the REDEX -- NOT rule IV
@@ -683,7 +684,7 @@ export function findSimplifiedReduction (ast : AST, strategy : EvaluationStrateg
     }
   }
   else {
-    console.log("_________________________________ just normal stuff")
+    // console.log("_________________________________ just normal stuff")
     return [nextReduction, (ast) => evaluator.perform()]
 
   // {
@@ -846,6 +847,12 @@ function findRedexIn (tree : AST, reduction : ASTReduction) : boolean {
     // debugger
     const expansion : Expansion = reduction as Expansion
     if (tree.identifier === expansion.target.identifier) {
+      return true
+    }
+  }
+  else if (reduction.type === ASTReductionType.GAMA) {
+    const macrobeta : MacroBeta = reduction as MacroBeta
+    if (tree.identifier === macrobeta.applications[macrobeta.applications.length - 1].identifier) {
       return true
     }
   }
