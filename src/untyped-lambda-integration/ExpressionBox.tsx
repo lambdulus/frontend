@@ -495,16 +495,19 @@ export default class ExpressionBox extends PureComponent<EvaluationProperties> {
       return
     }
 
-    if (nextReduction instanceof MacroBeta && nextReduction.arity !== nextReduction.applications.length) {
+    const arityBreakpoint : Breakpoint | undefined = breakpoints.find((brk : Breakpoint) => brk.type === ASTReductionType.GAMA && ! brk.broken.has((nextReduction as MacroBeta).applications[0]))
+    if (nextReduction instanceof MacroBeta && nextReduction.arity !== nextReduction.applications.length && arityBreakpoint === undefined) {
       stepRecord.message = `Macro ${tryMacroContraction(nextReduction.applications[0].left, macrotable)} is given too few arguments.`
     
       // completely same code as in breakpoint section -- TODO: refactor and unify pls
       window.clearTimeout(timeoutID)
       reportEvent('Evaluation Run Ended', 'Breakpoint was reached', ast.toString())
 
+      breakpoints.push({ type : ASTReductionType.GAMA, context : nextReduction.applications[0], broken : new Set([ nextReduction.applications[0] ]) })
 
       setBoxState({
         ...state,
+        breakpoints,
         isRunning : false,
         timeoutID,
       })
