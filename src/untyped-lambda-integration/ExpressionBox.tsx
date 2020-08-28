@@ -61,6 +61,7 @@ export default class ExpressionBox extends PureComponent<EvaluationProperties> {
     this.onStop = this.onStop.bind(this)
     this.shouldBreak = this.shouldBreak.bind(this)
     this.createBoxFrom = this.createBoxFrom.bind(this)
+    this.onSimplifiedRun = this.onSimplifiedRun.bind(this)
   }
 
   render () : JSX.Element {
@@ -406,7 +407,7 @@ export default class ExpressionBox extends PureComponent<EvaluationProperties> {
 
   onExecute () : void {
     const { state, setBoxState } = this.props
-    const { isRunning } = state
+    const { isRunning, SDE } = state
 
     if (isRunning) {
       this.onStop()
@@ -423,14 +424,137 @@ export default class ExpressionBox extends PureComponent<EvaluationProperties> {
       history.push(history[history.length - 1])
       history[history.length - 2] = { ast : ast.clone(), step, lastReduction, message : 'Skipping some steps...', isNormalForm }
 
-      setBoxState({
-        ...state,
-        isRunning : true,
-        timeoutID : window.setTimeout(this.onRun, timeout),
-      })
+      if (SDE) {
+        setBoxState({
+          ...state,
+          isRunning : true,
+          timeoutID : window.setTimeout(this.onSimplifiedRun, timeout),
+        })
+      }
+      else {
+        setBoxState({
+          ...state,
+          isRunning : true,
+          timeoutID : window.setTimeout(this.onRun, timeout),
+        })
+      }
+
+      
 
       reportEvent('Execution', 'Run Evaluation', ast.toString())
     }
+  }
+
+  onSimplifiedRun () : void {
+    const { state, setBoxState } = this.props
+    const { strategy, macrotable } = state
+    let { history, isRunning, breakpoints, timeoutID, timeout } = state
+    const stepRecord : StepRecord = history[history.length - 1]
+    const { isNormalForm, step } = stepRecord
+    let { lastReduction } = stepRecord
+
+    if ( ! isRunning) {
+      return
+    }
+
+    if (isNormalForm) {
+      setBoxState({
+        ...state,
+        isRunning : false,
+        timeoutID : undefined,
+      })
+  
+      return
+    }
+
+    let { ast } = stepRecord
+    const newast : AST = ast.clone()
+    const [nextReduction, evaluateReduction] : [ASTReduction, (ast : AST) => AST] = findSimplifiedReduction(newast, strategy, macrotable)
+
+/////////////////////////////////////////////////////////////////////////////////////////
+    // const normal : Evaluator = new (strategyToEvaluator(strategy) as any)(ast)
+    lastReduction = nextReduction
+    
+    if (nextReduction instanceof None) {
+      // TODO: consider immutability
+      history.pop()
+      history.push({
+        ast,
+        lastReduction : stepRecord.lastReduction,
+        step,
+        message : 'Expression is in normal form.',
+        isNormalForm : true
+      })
+  
+      setBoxState({
+        ...state,
+        isRunning : false,
+        timeoutID : undefined,
+      })
+  
+      return
+    }
+
+    if (nextReduction instanceof MacroBeta && nextReduction.arity !== nextReduction.applications.length) {
+      stepRecord.message = `Macro ${tryMacroContraction(nextReduction.applications[0].left, macrotable)} is given too few arguments.`
+    
+      // completely same code as in breakpoint section -- TODO: refactor and unify pls
+      window.clearTimeout(timeoutID)
+      reportEvent('Evaluation Run Ended', 'Breakpoint was reached', ast.toString())
+
+
+      setBoxState({
+        ...state,
+        isRunning : false,
+        timeoutID,
+      })
+
+      return
+    }
+  
+    // TODO: maybe refactor a little
+    const breakpoint : Breakpoint | undefined = breakpoints.find(
+      (breakpoint : Breakpoint) =>
+        this.shouldBreak(breakpoint, nextReduction)
+    )
+
+    if (breakpoint !== undefined) {
+      // TODO: consider immutability
+      if (nextReduction instanceof Expansion) {
+        breakpoint.broken.add(nextReduction.target)
+      }
+      if (nextReduction instanceof Beta && nextReduction.redex.left instanceof Lambda) {
+        breakpoint.broken.add(nextReduction.redex.left.argument)
+      }
+
+      window.clearTimeout(timeoutID)
+      reportEvent('Evaluation Run Ended', 'Breakpoint was reached', ast.toString())
+
+
+      setBoxState({
+        ...state,
+        isRunning : false,
+        timeoutID,
+      })
+
+      return
+    }
+  
+    ast = evaluateReduction(newast)
+
+    history[history.length - 1] = { ast, lastReduction, step : step + 1, message : '', isNormalForm }
+
+    // NOTE: Same thing as #0023
+    // if (ast instanceof Macro || ast instanceof ChurchNumeral) {
+    //   history[history.length - 1] = { ast, lastReduction, step : step + 1, message : 'Expression is in normal form.', isNormalForm : true }
+
+    //   reportEvent('Evaluation Run Ended', 'Step Normal Form Reached with Number or Macro', ast.toString())
+    // }
+    
+    setBoxState({
+      ...state,
+      timeoutID : window.setTimeout(this.onSimplifiedRun, timeout)
+    })
   }
 
   onRun () : void {
@@ -538,6 +662,7 @@ export default class ExpressionBox extends PureComponent<EvaluationProperties> {
   }
 
   // TODO: breakpointy se pak jeste musi predelat
+  // TODO: don't forget on GAMA refactor
   shouldBreak (breakpoint : Breakpoint, reduction : ASTReduction) : boolean {
     // if (reduction.type === breakpoint.type
     //     && reduction instanceof Beta && breakpoint.context instanceof Lambda
