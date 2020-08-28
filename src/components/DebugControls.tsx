@@ -5,7 +5,7 @@ import '../styles/DebugControls.css'
 
 interface Props {
   isRunning : boolean
-  disableRun : boolean /* TODO: this is just for now -- because I am not sure students will know how to exercise with simplified */
+  // disableRun : boolean /* TODO: this is just for now -- because I am not sure students will know how to exercise with simplified */
 
   onStep : () => void
   onRun : () => void
@@ -31,7 +31,7 @@ export default class DebugControls extends PureComponent<Props> {
             event.preventDefault()
             this.props.onStep()
           }
-          if (event.key === 'F9' && ! this.props.disableRun) { /* TODO: this is just for now -- because I am not sure students will know how to exercise with simplified */
+          if (event.key === 'F9') { /* TODO: this is just for now -- because I am not sure students will know how to exercise with simplified */
             event.preventDefault()
             this.props.onRun()
           }
@@ -53,9 +53,9 @@ export default class DebugControls extends PureComponent<Props> {
       <div className='debug-controls'>
         {
           /* TODO: this is just for now -- because I am not sure students will know how to exercise with simplified */
-          this.props.disableRun ?
-            null
-          :
+          // this.props.disableRun ?
+            // null
+          // :
           <button
             title={ runMessage }
             type="button"
