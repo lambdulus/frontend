@@ -1,6 +1,6 @@
 {
-  "name": "new-frontend",
-  "homepage": "https://lambdulus.github.io/new-frontend/@BUILD-VERSION",
+  "name": "frontend",
+  "homepage": "https://lambdulus.github.io/",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
