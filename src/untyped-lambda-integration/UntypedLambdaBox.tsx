@@ -132,7 +132,9 @@ export default class UntypedLambdaBox extends PureComponent<Props> {
             null
         }
 
-        { renderBoxContent() }
+        <div>
+          { renderBoxContent() }
+        </div>
 
       </div>
     )
@@ -144,13 +146,14 @@ export default class UntypedLambdaBox extends PureComponent<Props> {
       editor : { content },
       strategy,
       SDE,
+      SLI,
     } = state
 
-    const definitions : Array<string> = content.split(';')
-    const expression : string = definitions.pop() || ""
-    const macromap : MacroMap = toMacroMap(definitions)
-    
     try {
+      const definitions : Array<string> = content.split(';')
+      const expression : string = definitions.pop() || ""
+      const macromap : MacroMap = toMacroMap(definitions, SLI)
+
       const ast : AST = this.parseExpression(expression, macromap)
 
       let message = ''
@@ -170,10 +173,13 @@ export default class UntypedLambdaBox extends PureComponent<Props> {
 
       
       if (nextReduction instanceof None) {
-        isNormal = true
-        message = 'Expression is in normal form.'
-        
-        // reportEvent('Evaluation Step', 'Step Normal Form Reached', ast.toString())  
+        const etaEvaluator : Evaluator = new OptimizeEvaluator(ast)
+
+        if (etaEvaluator.nextReduction instanceof None) {
+          isNormal = true
+          message = 'Expression is in normal form.'
+          reportEvent('Evaluation Step', 'Step Normal Form Reached', ast.toString())
+        }
       }
 
       setBoxState({
@@ -199,11 +205,19 @@ export default class UntypedLambdaBox extends PureComponent<Props> {
 
       reportEvent('Submit Expression', 'submit valid', content)
     } catch (exception) {
+      let errorMessage : string = exception.toString()
+
+      if (errorMessage === "Error") {
+        if (content.match(/:=/g)?.length !== content.match(/;/g)?.length) {
+          errorMessage = "Did you forget to write the semicolon after the Macro definition?"
+        }
+      }
+
       setBoxState({
         ...state,
         editor : {
           ...state.editor,
-          syntaxError : exception.toString(),
+          syntaxError : new Error(errorMessage),
         }
       })
 
@@ -217,7 +231,7 @@ export default class UntypedLambdaBox extends PureComponent<Props> {
 
     const { SLI : singleLetterVars } = this.props.state
 
-    const tokens : Array<Token> = tokenize(expression, { lambdaLetters : ['λ'], singleLetterVars })
+    const tokens : Array<Token> = tokenize(expression, { lambdaLetters : ['λ'], singleLetterVars, macromap : macrotable })
     const ast : AST = parse(tokens, macrotable) // macroTable
 
     return ast

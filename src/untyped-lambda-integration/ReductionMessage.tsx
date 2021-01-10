@@ -37,13 +37,13 @@ export default function ReductionMessage (props : ReductionMessageProperties) : 
     )
   }
 
-  // if (lastReduction.type === ASTReductionType.ETA) {
-  //   return (
-  //     <p className='lastReduction'>
-  //       η conversion
-  //     </p>
-  //   )
-  // }
+  if (lastReduction.type === ASTReductionType.ETA) {
+    return (
+      <p className='lastReduction'>
+        η conversion
+      </p>
+    )
+  }
 
   if (lastReduction.type === ASTReductionType.GAMA) {
     return (

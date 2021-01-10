@@ -5,23 +5,36 @@
 }
 
 .builtinMacros, .userMacros {
-  flex: 50%;
+  /* flex: 50%; */
 }
 
 .macroSpace {
-  display: flex;
+  /* display: inline-flex; */
 }
 
 .macro-definition {
-  padding-top: 5px;
-  padding-bottom: 5px;
-  padding-left: 20px;
-  background-color: #c2e9ff;
-  border-radius: 0.2rem;
+  /* display: inline; */
+  padding: 10px;
+  /* padding-top: 5px; */
+  /* padding-bottom: 5px; */
+  /* padding-left: 20px; */
+  /* background-color: #c2e9ff; */
+  /* border-radius: 0.2rem; */
+  border-bottom: 1px solid gray;
+}
+
+.macro-name {
+  color: blue;
+  padding-right: 5px;
+  /* background-color:  */
 }
 
 .dense-LI {
-  margin-bottom: 2px;
+  /* margin-bottom: 2px; */
+  margin: 10px;
+  display: inline-block;
+  margin-bottom: 15px;
+
 }
 
 

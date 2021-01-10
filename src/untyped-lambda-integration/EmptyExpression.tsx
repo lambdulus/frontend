@@ -34,7 +34,7 @@ export default function EmptyExpression(props : EmptyExpressionProps) : JSX.Elem
     caretPosition,
     syntaxError,
   } = editor
-  const { SDE, strategy } = state
+  const { SDE, strategy, SLI } = state
 
   const uniq : string = Date.now().toString()
 
@@ -59,7 +59,7 @@ export default function EmptyExpression(props : EmptyExpressionProps) : JSX.Elem
                 onContent={ props.onContent } // fn
                 onEnter={ () => void 0 } // fn
                 onCtrlEnter={ props.onDebug }
-                onShiftEnter={ SDE ? () => void 0 : props.onExercise /* TODO: this is just for now -- because I am not sure students will know how to exercise with simplified */ }
+                onShiftEnter={ props.onExercise }
                 onExecute={ () => void 0 } // fn
               />
 
@@ -78,9 +78,9 @@ export default function EmptyExpression(props : EmptyExpressionProps) : JSX.Elem
                 </button>
                 
                 {
-                  SDE ? /* TODO: this is just for now -- because I am not sure students will know how to exercise with simplified */
-                    null
-                  :
+                  // SDE ? /* TODO: this is just for now -- because I am not sure students will know how to exercise with simplified */
+                    // null
+                  // :
                   <button
                     title='Exercise this Expression Yourself (Shift + Enter)'
                     type="button"
@@ -171,6 +171,26 @@ export default function EmptyExpression(props : EmptyExpressionProps) : JSX.Elem
           </label>
         </span>
       }
+
+      <span
+        className='untyped-lambda-settings-SLI-'
+        title='Single Letters as Names without Spaces'>
+        <input
+          id={ `untyped-lambda-settings--SLI-${uniq}` }
+          type='checkbox'
+          checked={ SLI }
+          disabled={ false } // TODO: tohle bude rozhodne chtit prepsat
+          // shape="fill"
+          
+          onChange={
+            (e : ChangeEvent<HTMLInputElement>) => // tady nejakej destructuring
+              setBoxState({ ...state, SLI : e.target.checked })
+          }
+        />
+        <label className='untyped-lambda-settings-label' htmlFor={ `untyped-lambda-settings--SLI-${uniq}` }>
+          Single Letter Names
+        </label>
+      </span>
   </div>
   )
 }

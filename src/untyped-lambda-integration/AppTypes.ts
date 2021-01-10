@@ -60,11 +60,58 @@ export function createNewUntypedLambdaExpression (defaultSettings : UntypedLambd
   }
 }
 
-export function toMacroMap (definitions : Array<string>) : MacroMap {
+// NOTE: Original definition
+// export function toMacroMap (definitions : Array<string>) : MacroMap {
+//   return definitions.reduce((acc : MacroMap, def) => {
+//     const [name, body] = def.split(':=')
+//     return { ...acc, [name.trim()] : body.trim() }
+//   }, {})
+// }
+
+export function toMacroMap (definitions : Array<string>, SLI : boolean) : MacroMap {
+  /**
+   * This might seem like something really wrong
+   * but hear me out!
+   * if you have SLI enabled and define your macros with SLI in mind - bodies of the macros
+   * contain some SLI syntax -> when expanded in the core - it is parsed with SLI disabled
+   * this might be considered bug of the core
+   * BUT!!! CORE has no way to get the information as of now
+   * I might consider adding another argument to the evaluators - being this specific setting
+   * until then - it's probably realatively safe to first:
+   */
+
+  // get MacroMap with only names - empty definitions
+  const mNames : MacroMap = definitions.reduce((acc : MacroMap, def) => {
+    const [name, body] = def.split(':=')
+
+    if (name.trim().length === 0 || body.trim().length === 0) {
+      throw "Invalid Macro definition. Possibly empty Macro definition?"
+    }
+
+    return { ...acc, [name] : '' }
+  }, {})
+  
   return definitions.reduce((acc : MacroMap, def) => {
     const [name, body] = def.split(':=')
-    return { ...acc, [name.trim()] : body.trim() }
+
+    // tokenize each body
+    // lexer is given this incomplete macromap with just names
+    // lexer does not need the definitions, it would function well even if it was just an array of the macro names
+    // then parse the body of the macro
+    // once again --> right now - actual macro definitions are not needed because I won't do ANY expansion
+    // not even any real reduction
+    // I just need it to parse and then serialize the body of the macro
+    // that's it!
+    const tokens : Array<Token> = tokenize(body.trim(), { lambdaLetters : ['λ'], singleLetterVars : SLI, macromap : mNames })
+    const ast : AST = parse(tokens, mNames) // macroTable
+
+    return { ...acc, [name.trim()] : ast.toString() }
   }, {})
+
+  // TODO: please fix it
+  // tokenize shoudl accept Array<MacroName>
+  // each eveluator needs to accept the SLI and possibly other configs? so the CORE
+  // can be absolutely unopionanted about the expansions and stuff
 }
 
 export function createNewUntypedLambdaBoxFromSource (source : string, defaultSettings : UntypedLambdaSettings, subtype : UntypedLambdaType) : UntypedLambdaExpressionState {
@@ -112,10 +159,10 @@ function createNewUntypedLambdaBoxFromSource2 (source : string, defaultSettings 
 
   const definitions : Array<string> = source.split(';')
   const expression : string = definitions.pop() || ""
-  const macromap : MacroMap = toMacroMap(definitions)
+  const macromap : MacroMap = toMacroMap(definitions, SLI)
   
   try {
-    const tokens : Array<Token> = tokenize(expression, { lambdaLetters : ['λ'], singleLetterVars : SLI })
+    const tokens : Array<Token> = tokenize(expression, { lambdaLetters : ['λ'], singleLetterVars : SLI, macromap })
     const ast : AST = parse(tokens, macromap) // macroTable
     
     
@@ -139,7 +186,7 @@ function createNewUntypedLambdaBoxFromSource2 (source : string, defaultSettings 
       isNormal = true
       message = 'Expression is in normal form.'
       
-      // reportEvent('Evaluation Step', 'Step Normal Form Reached', ast.toString())  
+      reportEvent('Evaluation Step', 'Step Normal Form Reached', ast.toString())  
     }
 
     reportEvent('Submit Expression from Link', 'submit valid', source)
@@ -417,6 +464,25 @@ export function findSimplifiedReduction (ast : AST, strategy : EvaluationStrateg
     
     const M : Macro = target.clone()
 
+    {
+      // anchor #1
+      const clone = ast.clone()
+      let newAst = null
+
+      {
+        const evaluator : Evaluator =
+          new (strategyToEvaluator(strategy) as any)(clone) // new NormalEvaluator(ast) // TODO: get evaluator dipending on the strategy in the future
+        newAst = evaluator.perform()
+      }
+
+      const _evaluator : Evaluator = new (strategyToEvaluator(strategy) as any)(newAst) // new NormalEvaluator(ast) // TODO: get evaluator dipending on the strategy in the future
+      const nextReduction = _evaluator.nextReduction
+
+      if (nextReduction instanceof Expansion) {
+        return [nextReduction, () => evaluator.perform()]
+      }
+    }
+
     const newAst = evaluator.perform()
     const expanded = parent !== null && treeSide !== null ? parent[treeSide].clone() : newAst.clone()
     // const expanded = parent !== null && treeSide !== null ? parent[treeSide] : newAst
@@ -674,11 +740,29 @@ export function findSimplifiedReduction (ast : AST, strategy : EvaluationStrateg
         const resAST = newperformevaluation(newAst)
         const p = parent as AST
         const ts = treeSide as String
-        (p as any)[ts as any] = M
+
+        // if (p === null || ts === null) {
+        //   console.log(nextReduction)
+        //   console.log(newreduction)
+        //   console.log()
+        //   debugger
+        // }
+
+        if (p !== null && ts !== null) {
+          (p as any)[ts as any] = M
+        }
+
         // // parent should be not-null
         // // because if there was a Macro which we were able to Expand
         // // and then there has been found Redex which is not part of the newly expanded sub-tree
         // // the new Redex simply has to be in different part of the tree --> which means - M (original Macro) is not the root
+        // //
+        // // this is aparenlty not true
+        // // A := + 1 2; B := A; B
+        // // probably because there are two levels of macro expansion and this leads to parent possibly being null
+        // // after the last change -- anchor #1
+        // // this should once again be true - but just to be sure - I will leave it inside the if
+
         return resAST
       }]
     }
@@ -716,24 +800,24 @@ export function tryMacroContraction (ast : AST, macrotable : MacroTable) : AST {
     const [s, z] : [string, string] = churchArgNames(ast)
 
     if (n === 0 && s === 's' && z === 'z') {
-      return parse(tokenize(`0`, { lambdaLetters : ['λ'], singleLetterVars : false }), macrotable)
+      return parse(tokenize(`0`, { lambdaLetters : ['λ'], singleLetterVars : false, macromap : macrotable }), macrotable)
     }
     else if (n === 0 && s === 't' && z === 'f') {
-      return parse(tokenize(`F`, { lambdaLetters : ['λ'], singleLetterVars : false }), macrotable)
+      return parse(tokenize(`F`, { lambdaLetters : ['λ'], singleLetterVars : false, macromap : macrotable }), macrotable)
     }
 
-    return parse(tokenize(`${n}`, { lambdaLetters : ['λ'], singleLetterVars : false }), macrotable)
+    return parse(tokenize(`${n}`, { lambdaLetters : ['λ'], singleLetterVars : false, macromap : macrotable }), macrotable)
   }
   
   for (const [name, definition] of [ ...Object.entries(builtinMacros), ...Object.entries(macrotable) ]) {
     // parse the definition
-    const tokens : Array<Token> = tokenize(definition, { lambdaLetters : ['λ'], singleLetterVars : false })
+    const tokens : Array<Token> = tokenize(definition, { lambdaLetters : ['λ'], singleLetterVars : false, macromap : macrotable })
     const macroast : AST = parse(tokens, macrotable)
 
     const comparator : TreeComparator = new TreeComparator([ast, macroast])
 
     if (comparator.equals) {
-      const macroNameAst : AST = parse(tokenize(name, { lambdaLetters : ['λ'], singleLetterVars : false }), macrotable)
+      const macroNameAst : AST = parse(tokenize(name, { lambdaLetters : ['λ'], singleLetterVars : false, macromap : macrotable }), macrotable)
 
 
       // const virtualToken : Token = new Token((macroNameAst as Macro).token.type, name, BLANK_POSITION)
@@ -780,18 +864,17 @@ function churchNumeralToNumber (ast : Lambda) : number {
   const s : string = ast.argument.name()
   const z : string = (ast.body as Lambda).argument.name()
 
-  // now for the main hacky stuff
-  const peanoNumber : string = (ast.body as Lambda).body.toString()
-  const matches : RegExpMatchArray | null = peanoNumber.match(RegExp(s, "g"))
-  
-  if (matches === null) {
+  return peanoToNumber((ast.body as Lambda).body, s, z)
+}
+
+function peanoToNumber (ast : AST, s : string, z : string) : number {
+  if (ast instanceof Variable && ast.name() === z) {
     return 0
   }
   else {
-    return matches.length
+    return 1 + peanoToNumber((ast as Application).right, s, z)
   }
 }
-
 
 
 function getArityOfKnownMacro (macroname : string) : number | null {
@@ -799,7 +882,7 @@ function getArityOfKnownMacro (macroname : string) : number | null {
     return 2
   }
 
-  if ([ "ZERO", "NOT" ].includes(macroname)) {
+  if ([ "ZERO", "NOT", "SUC", "PRED" ].includes(macroname)) {
     return 1
   }
 

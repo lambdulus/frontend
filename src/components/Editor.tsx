@@ -127,7 +127,7 @@ function InputField (props : InputProps) : JSX.Element {
     >
       <MonacoEditor
         // width="800"
-        height={ Math.min(40 * 19, (lines + 1) * 19) } // 10 lines by default
+        height={ Math.max(5 * 19 ,Math.min(40 * 19, (lines + 1) * 19)) } // 10 lines by default
         language="markdown"
         theme="vs-light"
         value={ content }

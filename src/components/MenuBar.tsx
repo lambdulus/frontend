@@ -24,7 +24,7 @@ export default function MenuBar (props : MenuBarProperties) : JSX.Element {
       <div
         className='tab'
         title='Get Info about this Tool'
-        onClick={ () => void 0 }
+        onClick={ () => onScreenChange(Screen.MAIN) }
       >
         <span className='lambdulusIcon'>λ</span>
         <p className='iconLabel'>Lambdulus</p>
@@ -33,7 +33,7 @@ export default function MenuBar (props : MenuBarProperties) : JSX.Element {
       {/* <div className='separator' /> */}
 
       {/* NOTEBOOK */}
-      <div
+      {/* <div
         className={ currentScreen === Screen.NOTEBOOKS ? 'currentTab tab tab-hoverable' : 'tab tab-hoverable' }
         title='Show All Notebooks'
         onClick={ () => onScreenChange(Screen.NOTEBOOKS) }
@@ -43,7 +43,7 @@ export default function MenuBar (props : MenuBarProperties) : JSX.Element {
           className="icon far fa-copy"
         />
         <p className='iconLabel'>Notebooks</p>
-      </div>
+      </div> */}
 
       <div className='menu-bar--bottom-part'>
         {/* Issues */}
@@ -53,7 +53,7 @@ export default function MenuBar (props : MenuBarProperties) : JSX.Element {
         >
           <a
           target="_blank"
-            href='https://github.com/lambdulus/new-frontend/issues'
+            href='https://github.com/lambdulus/frontend/issues'
           >
             <i className="icon fas fa-bug" />
           </a>
@@ -63,8 +63,15 @@ export default function MenuBar (props : MenuBarProperties) : JSX.Element {
         {/* MANUAL/HELP */}
         <div
           className={ currentScreen === Screen.HELP ? 'currentTab tab tab-hoverable' : 'tab tab-hoverable' }
-          title='Show the Manual'
-          onClick={ () => onScreenChange(Screen.HELP) }
+          title={ currentScreen === Screen.MAIN ? 'Show the Manual' : 'Go back' }
+          onClick={ () => {
+            if (currentScreen === Screen.HELP) {
+              onScreenChange(Screen.MAIN)
+            }
+            else {
+              onScreenChange(Screen.HELP)
+            }
+          }}
         >
           <i
             className="icon far fa-question-circle"
