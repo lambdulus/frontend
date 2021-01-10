@@ -180,7 +180,6 @@ export default class ExpressionBox extends PureComponent<EvaluationProperties> {
     const { strategy, history, editor : { content }, macrotable } = state
     const stepRecord = history[history.length - 1]
     const { isNormalForm, step } = stepRecord
-    const { lastReduction } = stepRecord
     const ast = stepRecord.ast.clone()
     let newast = ast
 
@@ -191,7 +190,7 @@ export default class ExpressionBox extends PureComponent<EvaluationProperties> {
     // console.log('looooooooooooooooooooooooooooking')
 
     //                                                    fix this part please
-    const [nextReduction, evaluateReduction] : [ASTReduction, (ast : AST) => AST] = findSimplifiedReduction(ast, strategy, macrotable)
+    let [nextReduction, evaluateReduction] : [ASTReduction, (ast : AST) => AST] = findSimplifiedReduction(ast, strategy, macrotable)
     // console.log('BACK TO THE WORLD HERE')
     
     let message = ''
@@ -230,12 +229,24 @@ export default class ExpressionBox extends PureComponent<EvaluationProperties> {
       }
     }
     else if (nextReduction instanceof None) {
-      stepRecord.isNormalForm = true
-      stepRecord.message = 'Expression is in normal form.'
-      setBoxState({
-        ...state,
-      })
-      return
+      console.log('first is NONE')
+      const etaEvaluator : Evaluator = new OptimizeEvaluator(ast)
+
+      if (etaEvaluator.nextReduction instanceof None) {
+        console.log('second is NONE')
+
+        stepRecord.isNormalForm = true
+        stepRecord.message = 'Expression is in normal form.'
+        setBoxState({
+          ...state,
+        })
+        return
+      }
+
+      console.log('second is ',etaEvaluator.nextReduction)
+
+      newast = etaEvaluator.perform()
+      nextReduction = etaEvaluator.nextReduction
     }
     else {
       newast = evaluateReduction(newast)
@@ -249,10 +260,13 @@ export default class ExpressionBox extends PureComponent<EvaluationProperties> {
       // const evaluator : Evaluator = new (strategyToEvaluator(strategy) as any)(astCopy)
       
       if (nextReduction instanceof None) {
-        isNowNormalForm = true
-        message = 'Expression is in normal form.'
-        
-        reportEvent('Evaluation Step', 'Step Normal Form Reached', ast.toString())  
+        const etaEvaluator : Evaluator = new OptimizeEvaluator(astCopy)
+        if (etaEvaluator.nextReduction instanceof None) {
+          isNowNormalForm = true
+          message = 'Expression is in normal form.'
+          
+          reportEvent('Evaluation Step', 'Step Normal Form Reached', ast.toString())
+        }
       }
     }
 
@@ -348,20 +362,27 @@ export default class ExpressionBox extends PureComponent<EvaluationProperties> {
       return
     }
 
-    const evaluator : Evaluator = new (strategyToEvaluator(strategy) as any)(ast)
+    let evaluator : Evaluator = new (strategyToEvaluator(strategy) as any)(ast)
     lastReduction = evaluator.nextReduction
   
     if (evaluator.nextReduction instanceof None) {
-      stepRecord.isNormalForm = true
-      stepRecord.message = 'Expression is in normal form.'
-      
-      setBoxState({
-        ...state,
-      })
-      
-      reportEvent('Evaluation Step', 'Step Normal Form Reached', ast.toString())
+      const etaEvaluator : Evaluator = new OptimizeEvaluator(ast)
 
-      return
+      if (etaEvaluator.nextReduction instanceof None) {
+        stepRecord.isNormalForm = true
+        stepRecord.message = 'Expression is in normal form.'
+        
+        setBoxState({
+          ...state,
+        })
+        
+        reportEvent('Evaluation Step', 'Step Normal Form Reached', ast.toString())
+  
+        return
+      }
+
+      evaluator = etaEvaluator
+      lastReduction = etaEvaluator.nextReduction
     }
   
     ast = evaluator.perform()
@@ -374,10 +395,14 @@ export default class ExpressionBox extends PureComponent<EvaluationProperties> {
       const evaluator : Evaluator = new (strategyToEvaluator(strategy) as any)(astCopy)
       
       if (evaluator.nextReduction instanceof None) {
-        isNormal = true
-        message = 'Expression is in normal form.'
-        
-        reportEvent('Evaluation Step', 'Step Normal Form Reached', ast.toString())  
+        const etaEvaluator : Evaluator = new OptimizeEvaluator(astCopy)
+
+        if (etaEvaluator.nextReduction instanceof None) {
+          isNormal = true
+          message = 'Expression is in normal form.'
+          
+          reportEvent('Evaluation Step', 'Step Normal Form Reached', ast.toString())  
+        }
       }
     }
 

@@ -48,7 +48,7 @@ export default class Expression extends PureComponent<EvaluatorProps> {
   render () : JSX.Element {
     const { className, state, editor, shouldShowDebugControls, isExercise, setBoxState } = this.props
 
-    const { isRunning, strategy, SDE, macrotable } : UntypedLambdaExpressionState = state
+    const { isRunning, strategy, SDE, macrotable, SLI } : UntypedLambdaExpressionState = state
 
     const {
       placeholder,
@@ -189,6 +189,52 @@ export default class Expression extends PureComponent<EvaluatorProps> {
                   </label>
                 </span>
               </div>
+
+              {/* Here add SDE switch/checkbox */}
+              {
+                  <span
+                    className='untyped-lambda-settings-SDE-'
+                    title='Simplified Evaluation'>
+                    <input
+                      id={ `untyped-lambda-settings--SDE-${uniq}` }
+                      type='checkbox'
+                      checked={ SDE }
+                      disabled={ false }
+                      // shape="fill"
+                      
+                      onChange={
+                        (e : ChangeEvent<HTMLInputElement>) => // tady nejakej destructuring
+                          setBoxState({ ...state, SDE : e.target.checked })
+                      }
+                    />
+                    <label className='untyped-lambda-settings-label' htmlFor={ `untyped-lambda-settings--SDE-${uniq}` }>
+                      Simplified Evaluation
+                    </label>
+                  </span>
+                }
+
+                {
+                  <span
+                    className='untyped-lambda-settings-SLI-'
+                    title='Single Letters as Names without Spaces'>
+                    <input
+                      id={ `untyped-lambda-settings--SLI-${uniq}` }
+                      type='checkbox'
+                      checked={ SLI }
+                      disabled={ false } // TODO: tohle bude rozhodne chtit prepsat
+                      // shape="fill"
+                      
+                      onChange={
+                        (e : ChangeEvent<HTMLInputElement>) => // tady nejakej destructuring
+                          setBoxState({ ...state, SLI : e.target.checked })
+                      }
+                    />
+                    <label className='untyped-lambda-settings-label' htmlFor={ `untyped-lambda-settings--SLI-${uniq}` }>
+                      Single Letter Names
+                    </label>
+                  </span>
+                }
+
             </div>
           :
             ( ! this.props.isNormalForm && shouldShowDebugControls) ?
@@ -285,6 +331,26 @@ export default class Expression extends PureComponent<EvaluatorProps> {
                     </label>
                   </span>
                 }
+
+                <span
+                  className='untyped-lambda-settings-SLI-'
+                  title='Single Letters as Names without Spaces'>
+                  <input
+                    id={ `untyped-lambda-settings--SLI-${uniq}` }
+                    type='checkbox'
+                    checked={ SLI }
+                    disabled={ false } // TODO: tohle bude rozhodne chtit prepsat
+                    // shape="fill"
+                    
+                    onChange={
+                      (e : ChangeEvent<HTMLInputElement>) => // tady nejakej destructuring
+                        setBoxState({ ...state, SLI : e.target.checked })
+                    }
+                  />
+                  <label className='untyped-lambda-settings-label' htmlFor={ `untyped-lambda-settings--SLI-${uniq}` }>
+                    Single Letter Names
+                  </label>
+                </span>
 
               </div>
             :

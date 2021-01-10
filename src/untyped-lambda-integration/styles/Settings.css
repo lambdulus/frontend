@@ -14,7 +14,12 @@
 
 .untyped-lambda-settings--strategy-radio-wrapper {
   margin-left: 10px;
-  margin-right: 10px;
+  /* margin-right: 10px; */
+}
+
+.untyped-lambda-settings--strategy-radio-wrapper:first-of-type {
+  padding-right: 10px;
+  border-right: 2px solid gray;
 }
 
 .untyped-lambda-settings--strategy-radio-wrapper input {
@@ -44,6 +49,7 @@
 
 .untyped-lambda-settings-strategies {
   margin-top: 5px;
+  margin-right: 50px;
 }
 
 .untyped-lambda-settings-SDE {

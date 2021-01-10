@@ -212,7 +212,13 @@ export default class BoxTitleBar extends Component<Props, State> {
                   const searchParams : URLSearchParams = new URL(window.document.location.toString()).searchParams
 
                   searchParams.set('type', state.type)
-                  searchParams.set('source', encodeURI((state as any).editor.content)) // todo: fix that `as any`
+
+                  if (state.type === BoxType.UNTYPED_LAMBDA) {
+                    searchParams.set('source', encodeURI((state as UntypedLambdaState).ast?.toString() || encodeURI((state as any).editor.content))) // todo: fix that `as any`
+                  }
+                  else {
+                    searchParams.set('source', encodeURI((state as any).editor.content)) // todo: fix that `as any`
+                  }
 
                   if (state.type === BoxType.UNTYPED_LAMBDA) {
                     searchParams.set('subtype', (state as UntypedLambdaState).subtype)
@@ -298,6 +304,40 @@ export default class BoxTitleBar extends Component<Props, State> {
                 } }
               >
                 Reset this Box
+              </div>
+
+
+
+              <div
+                className='box-top-bar--menu-item'
+                title="Edit this Box's Expression"
+                onClick={ (e) => {
+                  e.stopPropagation()
+                  // console.log('CLICKED ON RESET BOX')
+
+                  switch (type) {
+                    case BoxType.UNTYPED_LAMBDA: {
+                      const resetState : UntypedLambdaState = resetUntypedLambdaBox(state as UntypedLambdaState)
+                      // console.log('RESET UNTYPED LAMBDA')
+                      updateBoxState({
+                        ...resetState,
+                        editor : {
+                          ...resetState.editor,
+                          content : (state as UntypedLambdaState).expression
+                        }
+                      })
+                      break
+                    }
+                    case BoxType.MARKDOWN: {
+                      // console.log('RESET MARODOWN')
+                      // updateBoxState(resetMarkdownBox(state as NoteState))
+                      break
+                    }
+                  }
+                  this.setState({ menuOpen : false })
+                } }
+              >
+                Edit Expression
               </div>
             
             </div>
