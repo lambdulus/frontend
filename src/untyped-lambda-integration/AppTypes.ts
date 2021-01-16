@@ -457,7 +457,7 @@ export function findSimplifiedReduction (ast : AST, strategy : EvaluationStrateg
   }
 
   if (nextReduction instanceof Expansion && nextReduction.target instanceof Macro) {
-    // console.log("_________________________________ MACRO EXPANSION")
+    console.log("_________________________________ MACRO EXPANSION   ", nextReduction.target.toString())
     // debugger
     
     const { parent, treeSide, target, type } : Expansion = nextReduction
@@ -483,7 +483,8 @@ export function findSimplifiedReduction (ast : AST, strategy : EvaluationStrateg
       }
     }
 
-    const newAst = evaluator.perform()
+    let newAst = evaluator.perform()
+    // NOTE: if the newreduction is alpha I would like to mutate this variable
     const expanded = parent !== null && treeSide !== null ? parent[treeSide].clone() : newAst.clone()
     // const expanded = parent !== null && treeSide !== null ? parent[treeSide] : newAst
 
@@ -491,7 +492,8 @@ export function findSimplifiedReduction (ast : AST, strategy : EvaluationStrateg
     // newAst je cely vyraz po expanzi soucasneho makra
     // v nem vyhledam dalsi REDEX
     //
-    const [newreduction, newperformevaluation] = findSimplifiedReduction(newAst, strategy, macrotable)
+    let [newreduction, newperformevaluation] = findSimplifiedReduction(newAst, strategy, macrotable)
+    // NOTE: if the newreduction is alpha I would like to mutate these variables
     // const newevaluator = new NormalEvaluator(newAst)
     // const newreduction = newevaluator.nextReduction
 
@@ -502,6 +504,13 @@ export function findSimplifiedReduction (ast : AST, strategy : EvaluationStrateg
       // means - I should signal normal form -- perhaps there is a problem
       // --> previous step should already be normal form
       // but this way user finds out this is terminal state only after hitting - next step manually -- possible fix?
+    }
+
+    if (newreduction instanceof Alpha) {
+      // after the expansion -> next thing is Alpha, that needs to be covered
+      // we can do the alpha and then call findSimplifiedReduction again on that
+      newAst = newperformevaluation(newAst);
+      ([newreduction, newperformevaluation] = findSimplifiedReduction(newAst, strategy, macrotable))
     }
 
     // debugger
@@ -674,6 +683,7 @@ export function findSimplifiedReduction (ast : AST, strategy : EvaluationStrateg
         if (macroIsSingleStep(M)) {
           if (lastapp === null) {
             throw "This is bad, real bad."
+            // NOTE LATER: not sure what does that mean?
           }
   
           if (lastparent === null) {
@@ -711,7 +721,6 @@ export function findSimplifiedReduction (ast : AST, strategy : EvaluationStrateg
           }
         }
         
-
         return ast // it it's not single-step Macro --> then no contraction I guess
       }]
     }
