@@ -2,7 +2,7 @@ import React, { MouseEvent, PureComponent } from 'react'
 import { mapBoxTypeToStr } from '../AppTypes'
 import Box from './Box'
 import BoxTitleBar from './BoxTitleBar'
-import { BoxState, GlobalSettings, BoxesWhitelist } from '../Types'
+import { BoxState, GlobalSettings, BoxesWhitelist, BoxType } from '../Types'
 
 import "../styles/BoxContainer.css"
 
