@@ -84,6 +84,13 @@ export default class BoxTitleBar extends Component<Props, State> {
           <span
                 className='box-top-bar--title-text'
                 contentEditable={ true }
+                onClick={ (e) => {
+                  // NOTE: this is really ugly and dangerous quick fix
+                  // I am trying to fix a bug where for some reason markdown boxes, when clicked into title
+                  // it causes focus, then immidiately it loses focus
+                  // so now, when I click in the title, I won't make it active at all
+                  e.stopPropagation()
+                } }
                 onBlur={ (e) => updateBoxState({ ...state, title : e.target.textContent || "" })  }
               >
               { title }

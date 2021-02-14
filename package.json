@@ -1,6 +1,6 @@
 {
   "name": "@lambdulus/frontend",
-  "homepage": "https://lambdulus.github.io/",
+  "homepage": "https://lambdulus.github.io/frontend",
   "version": "0.1.0",
   "private": true,
   "dependencies": {

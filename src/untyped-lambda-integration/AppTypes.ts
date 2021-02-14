@@ -457,7 +457,7 @@ export function findSimplifiedReduction (ast : AST, strategy : EvaluationStrateg
   }
 
   if (nextReduction instanceof Expansion && nextReduction.target instanceof Macro) {
-    console.log("_________________________________ MACRO EXPANSION   ", nextReduction.target.toString())
+    // console.log("_________________________________ MACRO EXPANSION   ", nextReduction.target.toString())
     // debugger
     
     const { parent, treeSide, target, type } : Expansion = nextReduction
