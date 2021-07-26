@@ -221,7 +221,9 @@ export default class BoxTitleBar extends Component<Props, State> {
                   searchParams.set('type', state.type)
 
                   if (state.type === BoxType.UNTYPED_LAMBDA) {
-                    searchParams.set('source', encodeURI((state as UntypedLambdaState).ast?.toString() || encodeURI((state as any).editor.content))) // todo: fix that `as any`
+                    const macros = encodeURI(JSON.stringify((state as UntypedLambdaState).macrotable))
+                    searchParams.set('source', encodeURI((state as UntypedLambdaState).ast?.toString() || (state as UntypedLambdaState).editor.content))
+                    searchParams.set('macros', macros)
                   }
                   else {
                     searchParams.set('source', encodeURI((state as any).editor.content)) // todo: fix that `as any`
