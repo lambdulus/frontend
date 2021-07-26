@@ -13,6 +13,7 @@ import { Screen, AppState, NotebookState, GlobalSettings, BoxType, BoxState } fr
 import { UNTYPED_LAMBDA_INTEGRATION_STATE, createNewUntypedLambdaBoxFromSource, defaultSettings } from './untyped-lambda-integration/AppTypes'
 import NotebookList from './screens/NotebookList'
 import { UntypedLambdaState, UntypedLambdaSettings, EvaluationStrategy, UntypedLambdaType } from './untyped-lambda-integration/Types'
+import { MacroTable } from '@lambdulus/core'
 
 
 
@@ -69,12 +70,13 @@ export default class App extends Component<Props, AppState> {
     switch (type) {
       case BoxType.UNTYPED_LAMBDA: {
         const source : string | null = urlSearchParams.get('source')
+        const macros : string | null = urlSearchParams.get('macros')
         const subtype : string | null = urlSearchParams.get('subtype')
         const strategy : string | null = urlSearchParams.get('strategy')
         const SDE : string | null = urlSearchParams.get('SDE')
         const SLI : string | null = urlSearchParams.get('SLI')
         
-        if (source === null || subtype === null || strategy === null || SDE === null || SLI === null) {
+        if (source === null || macros == null || subtype === null || strategy === null || SDE === null || SLI === null) {
           return
         }
 
@@ -96,7 +98,10 @@ export default class App extends Component<Props, AppState> {
                 UntypedLambdaType.EMPTY
 
         try {
-          const box : UntypedLambdaState = createNewUntypedLambdaBoxFromSource(decodeURI(source), settings, sub)
+          const macrotable : MacroTable = JSON.parse(decodeURI(macros))
+          console.log({ macrotable })
+
+          const box : UntypedLambdaState = createNewUntypedLambdaBoxFromSource(decodeURI(source), settings, sub, macrotable)
           const notebook : NotebookState = createNewNotebookWithBox('Notebook from Link' , box)
 
           this.setState({

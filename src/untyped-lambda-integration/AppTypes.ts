@@ -114,7 +114,7 @@ export function toMacroMap (definitions : Array<string>, SLI : boolean) : MacroM
   // can be absolutely unopionanted about the expansions and stuff
 }
 
-export function createNewUntypedLambdaBoxFromSource (source : string, defaultSettings : UntypedLambdaSettings, subtype : UntypedLambdaType) : UntypedLambdaExpressionState {
+export function createNewUntypedLambdaBoxFromSource (source : string, defaultSettings : UntypedLambdaSettings, subtype : UntypedLambdaType, macrotable : MacroTable) : UntypedLambdaExpressionState {
   if (subtype === UntypedLambdaType.EMPTY) {
     return {
       ...defaultSettings,
@@ -138,7 +138,7 @@ export function createNewUntypedLambdaBoxFromSource (source : string, defaultSet
       // standalones : false,
   
       macrolistOpen : false,
-      macrotable : {  }, // ...UNTYPED_LAMBDA_INTEGRATION_STATE.macrotable
+      macrotable, // ...UNTYPED_LAMBDA_INTEGRATION_STATE.macrotable
   
       
       editor : {
@@ -150,16 +150,18 @@ export function createNewUntypedLambdaBoxFromSource (source : string, defaultSet
     }
   }
   else {
-    return createNewUntypedLambdaBoxFromSource2(source, defaultSettings, subtype)
+    return createNewUntypedLambdaBoxFromSource2(source, defaultSettings, subtype, macrotable)
   }
 }
 
-function createNewUntypedLambdaBoxFromSource2 (source : string, defaultSettings : UntypedLambdaSettings, subtype : UntypedLambdaType) : UntypedLambdaExpressionState {
+function createNewUntypedLambdaBoxFromSource2 (source : string, defaultSettings : UntypedLambdaSettings, subtype : UntypedLambdaType, macrotable : MacroTable) : UntypedLambdaExpressionState {
   const { SDE, SLI, strategy } = defaultSettings
 
   const definitions : Array<string> = source.split(';')
-  const expression : string = definitions.pop() || ""
-  const macromap : MacroMap = toMacroMap(definitions, SLI)
+  // const expression : string = definitions.pop() || ""
+  const expression = [Object.entries(macrotable).map(([name, def]) => `${name} := ${def}`).join(';\n') , source].join('')
+
+  const macromap : MacroMap = macrotable // toMacroMap(definitions, SLI)
   
   try {
     const tokens : Array<Token> = tokenize(expression, { lambdaLetters : ['λ'], singleLetterVars : SLI, macromap })
@@ -191,6 +193,7 @@ function createNewUntypedLambdaBoxFromSource2 (source : string, defaultSettings 
 
     reportEvent('Submit Expression from Link', 'submit valid', source)
 
+
     return {
       ...defaultSettings,
       __key : Date.now().toString(),
@@ -205,7 +208,7 @@ function createNewUntypedLambdaBoxFromSource2 (source : string, defaultSettings 
       timeoutID : undefined,
       timeout : 5,
       ast,
-      expression : source,
+      expression,
       history : [ {
         ast : ast.clone(),
         lastReduction : new None,
