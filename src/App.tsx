@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 
 import './App.css'
 
-import { updateSettingsInStorage, loadAppStateFromStorage, updateAppStateToStorage, updateNotebookStateToStorage, CLEAR_WORKSPACE_CONFIRMATION, loadSettingsFromStorage, ANY_BOX, initIntegrationStates, InitNotebookState, DEFAULT_WHITELIST } from './AppTypes'
+import { updateSettingsInStorage, loadAppStateFromStorage, updateAppStateToStorage, updateNotebookStateToStorage, CLEAR_WORKSPACE_CONFIRMATION, loadSettingsFromStorage, initIntegrationStates, InitNotebookState, DEFAULT_WHITELIST } from './Constants'
 
 import TopBar from './components/TopBar'
 import MenuBar from './components/MenuBar'
@@ -33,7 +33,7 @@ export default class App extends Component<Props, AppState> {
 
     this.state = loadAppStateFromStorage()
 
-    initIntegrationStates(this.state)
+    initIntegrationStates(this.state) // TODO: go and refactor the implementation of this fn
 
     this.setScreen = this.setScreen.bind(this)
     this.updateNotebook = this.updateNotebook.bind(this)
@@ -59,6 +59,10 @@ export default class App extends Component<Props, AppState> {
 
   // TODO: all of this needs to be moved to more apropriate component
   // maybe something like Notebook or similar -- this just isn't right
+
+  // I don't think it should get moved to the component, standalone helper function would be OK
+  // OR -> split it --> there will be very simple top level abstraction implementation
+  // and according the type of the BOX - specific Integration Module will handle the actual deserialization
   createNotebookFromURL () {
     const urlSearchParams : URLSearchParams = new URL(window.location.toString()).searchParams
     const type : string | null = urlSearchParams.get('type')
@@ -99,7 +103,6 @@ export default class App extends Component<Props, AppState> {
 
         try {
           const macrotable : MacroTable = JSON.parse(decodeURI(macros))
-          console.log({ macrotable })
 
           const box : UntypedLambdaState = createNewUntypedLambdaBoxFromSource(decodeURI(source), settings, sub, macrotable)
           const notebook : NotebookState = createNewNotebookWithBox('Notebook from Link' , box)
@@ -129,6 +132,7 @@ export default class App extends Component<Props, AppState> {
     }
   }
 
+  // NOTE: render is OK
   render () {
     const { notebookList, currentNotebook, currentScreen } = this.state
     const state = notebookList[currentNotebook]
@@ -149,59 +153,56 @@ export default class App extends Component<Props, AppState> {
           onScreenChange={ this.setScreen }
         />
 
-        {
-          (() => {
-            if (currentScreen === Screen.MAIN)
+        { (() => {
+          switch (currentScreen) {
+            case Screen.MAIN:
               return <Notebook state={ state } updateNotebook={ this.updateNotebook } settings={ settings } />
-            if (currentScreen === Screen.NOTEBOOKS)
+
+            case Screen.NOTEBOOKS:
               return  <NotebookList
-                        state={ this.state }
-                        onSelectNotebook={ this.selectNotebook }
-                        onRemoveNotebook={ this.removeNotebook }
-                        onUpdateNotebook={ this.updateNthNotebook }
-                        onAddNotebook={ this.addNotebook }
-                      />
-            if (currentScreen === Screen.HELP)
+                      state={ this.state }
+                      onSelectNotebook={ this.selectNotebook }
+                      onRemoveNotebook={ this.removeNotebook }
+                      onUpdateNotebook={ this.updateNthNotebook }
+                      onAddNotebook={ this.addNotebook }
+                    />
+
+            case Screen.HELP:
               return <Help/>
-            if (currentScreen === Screen.SETTINGS) {
-              // console.log('settings')
+
+            case Screen.SETTINGS:
               return <SettingsScreen settings={ settings } updateSettings={ this.updateSettings } />
-            }
-          })()
-        }
-        
+          }
+        })()}
       </div>
     )
   }
 
+  // NOTE: selectNotebook is ALMOST OK
   selectNotebook (index : number) : void {
     this.setState({
-      currentScreen : Screen.MAIN,
+      currentScreen : Screen.MAIN, // TODO: why am I setting the Screen too?
       currentNotebook : index,
     })
 
     updateAppStateToStorage({
       ...this.state,
-      currentScreen : Screen.MAIN,
+      currentScreen : Screen.MAIN, // TODO: why am I setting the Screen too?
       currentNotebook : index,
     })
 
-    window.history.pushState(null, '', '/')
+    // CHANGED:
+    // window.history.pushState(null, '', '/')
+    // NOTE: I think this is from the time, when prompt content was also propagated to the URL bar
+    // so it shouldn't be needed anymore
   }
 
+  // NOTE: setScereen is OK
   setScreen (screen : Screen) : void {
-    // console.log('set state screen ', screen)
     this.setState({ currentScreen : screen })
   }
 
   updateNotebook (notebook : Partial<NotebookState>) : void {
-
-    // console.log('??????????????????????????????????????')
-    // console.log(notebook.boxList.length)
-    // console.log('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
-
-
-
     const { notebookList, currentNotebook } = this.state
 
     notebookList[currentNotebook] = {
@@ -212,7 +213,6 @@ export default class App extends Component<Props, AppState> {
     this.setState({ notebookList })
 
     updateNotebookStateToStorage(notebookList[currentNotebook], currentNotebook)
-    // updateAppStateToStorage({ ...this.state })
     // NOTE: Carefuly around here - I kinda rely on the mutation of this.state.notebookList
   }
 

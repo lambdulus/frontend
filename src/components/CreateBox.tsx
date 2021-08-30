@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 
-import { ANY_BOX, NO_BOX } from '../AppTypes'
+import { ANY_BOX, NO_BOX } from '../Constants'
 import { BoxType, BoxesWhitelist, BoxState, GlobalSettings } from '../Types'
 import { createNewUntypedLambdaExpression, ADD_BOX_LABEL, CODE_NAME as UNTYPED_CODE_NAME } from '../untyped-lambda-integration/AppTypes'
 import { UntypedLambdaSettings, UntypedLambdaState } from '../untyped-lambda-integration/Types'

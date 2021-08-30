@@ -83,6 +83,6 @@ button, input, optgroup, select, textarea {
 }
 
 .debug-controls {
-  margin: 15px;
+  padding-left: 15px;
   margin-top: 10px;
 }

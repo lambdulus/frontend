@@ -1,61 +1,10 @@
-import {  CODE_NAME as UNTYPED_CODE_NAME, decodeUntypedLambdaState, UNTYPED_LAMBDA_INTEGRATION_STATE } from './untyped-lambda-integration/AppTypes'
-import { defaultSettings as UntypedLambdaDefaultSettings } from './untyped-lambda-integration/AppTypes'
+import {  CODE_NAME as UNTYPED_CODE_NAME, decodeUntypedLambdaState } from '../untyped-lambda-integration/AppTypes'
+import { defaultSettings as UntypedLambdaDefaultSettings } from '../untyped-lambda-integration/AppTypes'
 
-import { BoxType, Screen, BoxesWhitelist, AppState, GlobalSettings, NotebookState, BoxState } from "./Types"
-import { UntypedLambdaState } from './untyped-lambda-integration/Types'
+import { BoxType, BoxesWhitelist, AppState, GlobalSettings, NotebookState, BoxState } from '../Types'
+import { UntypedLambdaState } from '../untyped-lambda-integration/Types'
+import { NO_BOX, ANY_BOX, ALL_BOX_TYPES, EmptyAppState } from '../Constants'
 
-
-export const CLEAR_WORKSPACE_CONFIRMATION : string =
-`This will delete this whole Notebook from your browser's memory.
-
-                                          Are you sure?`
-
-// TODO: when building `Exam Mode` simply leave only non-evaluative BoxTypes
-export const ALL_BOX_TYPES : Array<BoxType> = [ BoxType.UNTYPED_LAMBDA, BoxType.LISP, BoxType.MARKDOWN ]
-
-export const ANY_BOX = -1
-
-export const NO_BOX = -2
-
-export const DEFAULT_WHITELIST : BoxesWhitelist = [ BoxType.UNTYPED_LAMBDA, BoxType.MARKDOWN ]
-
-
-export function mapBoxTypeToStr (type : BoxType) : string {
-  switch (type) {
-    case BoxType.UNTYPED_LAMBDA:
-      return 'untypedLambdaBox'
-
-    case BoxType.MARKDOWN:
-      return 'markDownBox'
-    default:
-      return ''
-  }
-}
-
-export const InitNotebookState : NotebookState = {
-  boxList : [],
-  activeBoxIndex : NaN,
-  focusedBoxIndex : undefined,
-  allowedBoxes : DEFAULT_WHITELIST,
-  settings : getDefaultSettings(DEFAULT_WHITELIST),
-  integrationStates : {
-    'UNTYPED_LAMBDA' : UNTYPED_LAMBDA_INTEGRATION_STATE, // TODO: FIX THIS!!!
-  },
-
-  locked : false,
-  menuOpen : false,
-
-  __key : Date.now().toString(),
-  name : "Default Ntbk",
-  editingName : false,
-  persistent : true,
-}
-
-export const EmptyAppState : AppState = {
-  notebookList : [ InitNotebookState ],
-  currentNotebook : 0,
-  currentScreen : Screen.MAIN,
-}
 
 
 export function updateSettingsInStorage (settings : GlobalSettings) : void {
@@ -126,6 +75,8 @@ export function loadAppStateFromStorage () : AppState {
       return decode(JSON.parse(maybeState))
     }
     catch (e) {
+      console.error(`Error while loading app state from the storage.\n\n${e}`)
+
       return EmptyAppState
     }
   }
@@ -179,22 +130,5 @@ export function decodeNotebook (notebook : NotebookState) : NotebookState | neve
   return {
     ...notebook,
     boxList,
-  }
-}
-
-export function initIntegrationStates (appState : AppState) {
-  const { currentNotebook, notebookList } : AppState = appState
-  const notebook = notebookList[currentNotebook]
-
-  for (const [key, value] of Object.entries(notebook.integrationStates)) {
-    switch (key) {
-      case BoxType.UNTYPED_LAMBDA: {
-        value.macrotable = UNTYPED_LAMBDA_INTEGRATION_STATE.macrotable  // TODO: this is very informed - should be done by specific integration - leaving just for now
-        return
-      }
-    
-      default:
-        break;
-    }
   }
 }

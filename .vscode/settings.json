@@ -1,0 +1,11 @@
+{
+  "search.exclude": {
+    "**/build": true,
+    "**/docs": true
+  },
+  "files.exclude": {
+    "**/build": true,
+    "**/docs": true,
+    "**/node_modules": true
+  }
+}
