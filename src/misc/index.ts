@@ -1,4 +1,4 @@
-import { MacroMap } from "@lambdulus/core"
+import { MacroMap } from "@lambdulus/core" // TODO: remove?
 
 
 export function debounce (fn : Function, treshold : number)
@@ -19,6 +19,7 @@ export function debounce (fn : Function, treshold : number)
   ]
 }
 
+// TODO: remove?
 // export function getSavedMacros () : MacroMap {
 //   return JSON.parse(window.localStorage.getItem('macrotable') || '{}')
 // }
@@ -41,6 +42,7 @@ export function mapLeftFromTo(
     return result
   }
 
+// TODO: remove?
 // export const HANDY_MACROS : MacroMap = {
 //   // 'Y' : '(λ f . (λ x . f (x x)) (λ x . f (x x)))',
 //   // 'Z' : '(λ f . (λ y . f (λ z . y y z)) (λ y . f (λ z . y y z)))',
@@ -69,6 +71,7 @@ export function mapLeftFromTo(
 //   // INFIX : 'APPLY (λ l op r . op l r)',
 // }
 
+// TODO: remove?
 // export function updateMacros (macroTable : MacroMap) : void {
 //   window.localStorage.setItem('macrotable', JSON.stringify(macroTable))
 // }
@@ -80,6 +83,7 @@ export function reportEvent (category : string, action : string, label : string)
     tracker.send('event', category, action, label )
   }
   catch (exception) {
+    // TODO: fix?
     // instead of printing to the console - show notification on the web
     // console.log("")
     // console.log('PLEASE DISABLE YOUR ADBLOCKER OR ALLOW GOOGLE ANALYTICS FOR THIS SITE')

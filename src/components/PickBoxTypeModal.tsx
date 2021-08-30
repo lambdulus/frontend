@@ -3,7 +3,7 @@ import { GlobalSettings, BoxesWhitelist, BoxState, BoxType } from '../Types'
 import { createNewMarkdown } from '../markdown-integration/AppTypes'
 import { UntypedLambdaSettings, UntypedLambdaState } from '../untyped-lambda-integration/Types'
 import { createNewUntypedLambdaExpression, ADD_BOX_LABEL, CODE_NAME as UNTYPED_CODE_NAME } from '../untyped-lambda-integration/AppTypes'
-import { ANY_BOX, NO_BOX } from '../AppTypes'
+import { ANY_BOX, NO_BOX } from '../Constants'
 
 
 import '../styles/PickBoxTypeModal.css'

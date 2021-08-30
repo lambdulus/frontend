@@ -3,7 +3,7 @@ import React, { ChangeEvent } from 'react'
 import { AppState, Screen, NotebookState } from '../Types'
 
 import '../styles/TopBar.css'
-import { decode, decodeNotebook } from '../AppTypes'
+import { decode, decodeNotebook } from '../Constants'
 
 
 interface Props {

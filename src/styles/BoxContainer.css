@@ -1,0 +1,25 @@
+.add_box_after {
+  font-size: 1.5em;
+  width: 100%;
+  margin: auto;
+  color: rgb(211, 211, 211);
+  padding-top: 5px;
+  padding-bottom: 5px;
+  background-color: rgb(250, 250, 250);
+  text-align: center;
+  cursor: pointer;
+  border-radius: 10px;
+  
+  
+  /*  Following line is just quick and dirty fix.
+      I need to get some vertical space between this ADDBOX item and the previous BOX */
+  margin-top: 20px;
+}
+
+.add_box_after:hover {
+  color: rgb(167, 167, 167);
+
+  background-color: rgb(240, 240, 240);
+
+
+}

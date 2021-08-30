@@ -1,10 +1,11 @@
-import React, { MouseEvent, PureComponent } from 'react'
-import { mapBoxTypeToStr } from '../AppTypes'
+import React, { MouseEvent, PureComponent, Component } from 'react'
+import { mapBoxTypeToStr } from '../Constants'
 import Box from './Box'
 import BoxTitleBar from './BoxTitleBar'
 import { BoxState, GlobalSettings, BoxesWhitelist, BoxType } from '../Types'
 
 import "../styles/BoxContainer.css"
+import PickBoxTypeModal from './PickBoxTypeModal'
 
 
 interface Props {
@@ -22,51 +23,87 @@ interface Props {
   whiteList : BoxesWhitelist
 }
 
-export function BoxContainer (props : Props) : JSX.Element {
-  const {
-    isActiveBox,
-    isFocusedBox,
-    box,
-    makeActive,
-    onBlur,
-    updateBoxState,
-    addBoxBefore,
-    addBoxAfter,
-    removeBox
-  } : Props = props
+interface State {
+  modalOpen : boolean
+}
 
-  const { settingsOpen } : BoxState = box
+export class BoxContainer extends Component<Props, State> {
+  constructor (props: Props) {
+    super(props)
 
-  const boxTypeClassName : string = mapBoxTypeToStr(box.type)
+    this.state = {
+      modalOpen : false
+    }
+  }
 
-  return (
-    <div
-      className={ `boxContainer ${ isActiveBox ? 'active' : 'inactive' } ${boxTypeClassName}` }
-      onClick={ makeActive }
-      onBlur={ onBlur }
-    >
-      <BoxTitleBar
-        state={ box }
-        isActive={ isActiveBox }
-        isFocused={ isFocusedBox }
-        removeBox={ (e : MouseEvent) => {
-          e.stopPropagation()
-          removeBox()
-        } }
-        updateBoxState={ updateBoxState }
-        addBoxBefore={ addBoxBefore }
-        addBoxAfter={ addBoxAfter }
-        settings={ props.settings }
-        whiteList={ props.whiteList }
-      />
-      
-      <Box
-        state={ box }
-        isActive={ isActiveBox }
-        isFocused={ isFocusedBox }
-        updateBoxState={ updateBoxState }
-        addBoxAfter={ addBoxAfter }
-      />
-    </div>
-  )
+  render () : JSX.Element {
+    const {
+      isActiveBox,
+      isFocusedBox,
+      box,
+      makeActive,
+      onBlur,
+      updateBoxState,
+      addBoxBefore,
+      addBoxAfter,
+      removeBox
+    } : Props = this.props
+  
+    const { settingsOpen } : BoxState = box
+
+    const { modalOpen } = this.state
+  
+    const boxTypeClassName : string = mapBoxTypeToStr(box.type)
+  
+    return (
+      <div>
+        {
+          modalOpen ?
+            <PickBoxTypeModal
+              addNew={ (box : BoxState) => {
+                this.props.addBoxAfter(box)
+                this.setState({ modalOpen : false })
+              } }
+              whiteList={ this.props.whiteList }
+              settings={ this.props.settings }
+            />
+          :
+            null
+        }
+  
+  
+        <div
+          className={ `boxContainer ${ isActiveBox ? 'active' : 'inactive' } ${boxTypeClassName}` }
+          onClick={ makeActive }
+          onBlur={ onBlur }
+        >
+          <BoxTitleBar
+            state={ box }
+            isActive={ isActiveBox }
+            isFocused={ isFocusedBox }
+            removeBox={ (e : MouseEvent) => {
+              e.stopPropagation()
+              removeBox()
+            } }
+            updateBoxState={ updateBoxState }
+            addBoxBefore={ addBoxBefore }
+            addBoxAfter={ addBoxAfter }
+            settings={ this.props.settings }
+            whiteList={ this.props.whiteList }
+          />
+          
+          <Box
+            state={ box }
+            isActive={ isActiveBox }
+            isFocused={ isFocusedBox }
+            updateBoxState={ updateBoxState }
+            addBoxAfter={ addBoxAfter }
+          />
+        </div>
+        <div className="add_box_after" onMouseDown={ () => this.setState({ modalOpen : true }) } >
+          +
+        </div>
+      </div>
+    )
+  }
 }

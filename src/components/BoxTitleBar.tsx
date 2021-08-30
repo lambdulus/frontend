@@ -268,7 +268,10 @@ export default class BoxTitleBar extends Component<Props, State> {
                 /> */}
               </div>
 
-              <div
+              {/* I am commenting the following element out.
+              I don't want new BOX to be added from the menu from surrounding BOXES.
+              It just doesn't feel intuitive. */}
+              {/* <div
                 className='box-top-bar--menu-item'
                 title='Add another Box before this one'
                 onClick={ (e) => {
@@ -277,9 +280,12 @@ export default class BoxTitleBar extends Component<Props, State> {
                 } }
               >
                 New Box Before
-              </div>
+              </div> */}
 
-              <div
+              {/* I am commenting the following element out.
+              I don't want new BOX to be added from the menu from surrounding BOXES.
+              It just doesn't feel intuitive. */}
+              {/* <div
                 className='box-top-bar--menu-item'
                 title='Add another Box after this one'
                 onClick={ (e) => {
@@ -288,9 +294,14 @@ export default class BoxTitleBar extends Component<Props, State> {
                 } }
               >
                 New Box After
-              </div>
+              </div> */}
 
-              <div
+              {/* I am commenting out the following element.
+                  I don't feel like having a REST/EMPTY the BOX option in the menu is necessary.
+                  You can do the same thing by clicking on EDIT and removing everything.
+                  Misclicking on this option also removes your entire work with no going back.
+                  Danger zone! */}
+              {/* <div
                 className='box-top-bar--menu-item'
                 title='Reset this Box to Initial State'
                 onClick={ (e) => {
@@ -313,9 +324,7 @@ export default class BoxTitleBar extends Component<Props, State> {
                 } }
               >
                 Reset this Box
-              </div>
-
-
+              </div> */}
 
               <div
                 className='box-top-bar--menu-item'
@@ -327,12 +336,13 @@ export default class BoxTitleBar extends Component<Props, State> {
                   switch (type) {
                     case BoxType.UNTYPED_LAMBDA: {
                       const resetState : UntypedLambdaState = resetUntypedLambdaBox(state as UntypedLambdaState)
-                      // console.log('RESET UNTYPED LAMBDA')
+                      const content : string = (state as UntypedLambdaState).expression || (state as UntypedLambdaState).editor.content
+
                       updateBoxState({
                         ...resetState,
                         editor : {
                           ...resetState.editor,
-                          content : (state as UntypedLambdaState).expression
+                          content, 
                         }
                       })
                       break

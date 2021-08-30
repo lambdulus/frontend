@@ -1,6 +1,6 @@
 import React, { ChangeEvent } from 'react'
 
-import { decode } from '../AppTypes'
+import { decode } from '../Constants'
 import { Screen, AppState } from '../Types'
 
 
