@@ -18,7 +18,12 @@ export default function Settings (props : Props) : JSX.Element {
   const { SLI, expandStandalones, strategy, SDE } : UntypedLambdaSettings = settings
   const { SLI : SLI_E, expandStandalones : expSt_E, strategy : strat_E } : SettingsEnabled = settingsEnabled
 
-  const uniq : string = Date.now().toString()
+
+  // this is just a dirty-quick implementation to get an unique identifier
+  console.log("hello my friend")
+  const array = new Uint32Array(2)
+  window.crypto.getRandomValues(array)
+  const uniq : string = `${Date.now()}-${Math.random()}-${array[0]}-${array[1]}`
 
   return (
     <div className='untyped-lambda-box--settings'>
