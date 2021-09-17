@@ -57,7 +57,12 @@ export default class Expression extends PureComponent<EvaluatorProps> {
       syntaxError,
     } = editor
 
-    const uniq : string = Date.now().toString()
+    // this is just a dirty-quick implementation to get an unique identifier
+    console.log("hello my friend")
+    const array = new Uint32Array(2)
+    window.crypto.getRandomValues(array)
+    const uniq : string = `${Date.now()}-${Math.random()}-${array[0]}-${array[1]}`
+
 
 
     return (
