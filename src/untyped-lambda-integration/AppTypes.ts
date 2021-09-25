@@ -164,7 +164,7 @@ function createNewUntypedLambdaBoxFromSource2 (source : string, defaultSettings 
   const macromap : MacroMap = macrotable // toMacroMap(definitions, SLI)
   
   try {
-    const tokens : Array<Token> = tokenize(expression, { lambdaLetters : ['λ'], singleLetterVars : SLI, macromap })
+    const tokens : Array<Token> = tokenize(source, { lambdaLetters : ['λ'], singleLetterVars : SLI, macromap })
     const ast : AST = parse(tokens, macromap) // macroTable
     
     
