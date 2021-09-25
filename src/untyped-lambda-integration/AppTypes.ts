@@ -159,7 +159,7 @@ function createNewUntypedLambdaBoxFromSource2 (source : string, defaultSettings 
 
   const definitions : Array<string> = source.split(';')
   // const expression : string = definitions.pop() || ""
-  const expression = [Object.entries(macrotable).map(([name, def]) => `${name} := ${def}`).join(';\n') , source].join('')
+  const expression = [Object.entries(macrotable).map(([name, def]) => `${name} := ${def}`).join(';\n') , source].join(';\n')
 
   const macromap : MacroMap = macrotable // toMacroMap(definitions, SLI)
   
