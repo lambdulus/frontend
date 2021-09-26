@@ -37,7 +37,6 @@ export default function EmptyExpression(props : EmptyExpressionProps) : JSX.Elem
   const { SDE, strategy, SLI } = state
 
   // this is just a dirty-quick implementation to get an unique identifier
-  console.log("hello my friend")
   const array = new Uint32Array(2)
   window.crypto.getRandomValues(array)
   const uniq : string = `${Date.now()}-${Math.random()}-${array[0]}-${array[1]}`
