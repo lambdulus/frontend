@@ -276,172 +276,172 @@ export default class BoxTitleBar extends Component<Props, State> {
         </div>
 
         {
-          menuOpen ?
-            <div
-              className='box-top-bar--menu'
-              ref={ (elem : any) => {
-                // just to be able to always see the menu
-                if (elem !== null) {
-                  const boundingRect = elem.getBoundingClientRect()
-                  const viewportHeight : number = window.innerHeight
-                  if (boundingRect.bottom > viewportHeight) {
-                    elem.scrollIntoView(false)
-                  }
-                }
-              } }
-            >
-              {/* TODO: move into ... Menu component */}
-              <div
-                className='box-top-bar--menu-item'
-                onClick={ () => {
-                  this.setState({ shareLinkOpen : true })
-                  const searchParams : URLSearchParams = new URL(window.document.location.toString()).searchParams
+          null // this is just because I can not comment this whole thing reasonably
+          // menuOpen ?
+          //   <div
+          //     className='box-top-bar--menu'
+          //     ref={ (elem : any) => {
+          //       // just to be able to always see the menu
+          //       if (elem !== null) {
+          //         const boundingRect = elem.getBoundingClientRect()
+          //         const viewportHeight : number = window.innerHeight
+          //         if (boundingRect.bottom > viewportHeight) {
+          //           elem.scrollIntoView(false)
+          //         }
+          //       }
+          //     } }
+          //   >
+          //     {/* TODO: move into ... Menu component */}
+          //     <div
+          //       className='box-top-bar--menu-item'
+          //       onClick={ () => {
+          //         this.setState({ shareLinkOpen : true })
+          //         const searchParams : URLSearchParams = new URL(window.document.location.toString()).searchParams
 
-                  searchParams.set('type', state.type)
+          //         searchParams.set('type', state.type)
 
-                  if (state.type === BoxType.UNTYPED_LAMBDA) {
-                    const macros = encodeURI(JSON.stringify((state as UntypedLambdaState).macrotable))
-                    searchParams.set('source', encodeURI((state as UntypedLambdaState).ast?.toString() || (state as UntypedLambdaState).editor.content))
-                    searchParams.set('macros', macros)
-                  }
-                  else {
-                    searchParams.set('source', encodeURI((state as any).editor.content)) // todo: fix that `as any`
-                  }
+          //         if (state.type === BoxType.UNTYPED_LAMBDA) {
+          //           const macros = encodeURI(JSON.stringify((state as UntypedLambdaState).macrotable))
+          //           searchParams.set('source', encodeURI((state as UntypedLambdaState).ast?.toString() || (state as UntypedLambdaState).editor.content))
+          //           searchParams.set('macros', macros)
+          //         }
+          //         else {
+          //           searchParams.set('source', encodeURI((state as any).editor.content)) // todo: fix that `as any`
+          //         }
 
-                  if (state.type === BoxType.UNTYPED_LAMBDA) {
-                    searchParams.set('subtype', (state as UntypedLambdaState).subtype)
-                    searchParams.set('strategy', (state as UntypedLambdaState).strategy)
-                    searchParams.set('SDE', (state as UntypedLambdaState).SDE.toString())
-                    searchParams.set('SLI', (state as UntypedLambdaState).SLI.toString())
-                  }
+          //         if (state.type === BoxType.UNTYPED_LAMBDA) {
+          //           searchParams.set('subtype', (state as UntypedLambdaState).subtype)
+          //           searchParams.set('strategy', (state as UntypedLambdaState).strategy)
+          //           searchParams.set('SDE', (state as UntypedLambdaState).SDE.toString())
+          //           searchParams.set('SLI', (state as UntypedLambdaState).SLI.toString())
+          //         }
 
-                  const url : string = window.location.host + '?' + searchParams.toString()
+          //         const url : string = window.location.host + '?' + searchParams.toString()
 
-                  navigator.clipboard.writeText(url)
+          //         navigator.clipboard.writeText(url)
 
-                  setTimeout(() => this.setState({ shareLinkOpen : false, menuOpen : false }), 1500)
+          //         setTimeout(() => this.setState({ shareLinkOpen : false, menuOpen : false }), 1500)
 
-                }}
-                title='Get shareable link for this Box'
-              >
-                Share the URL
-              </div>
-              {
-                shareLinkOpen ?
-                  <p className='box-top-bar--menu-item--notif'>
-                    Link Copied!
-                  </p>
-                  :
-                  null
-              }
-              <div
-                className='box-top-bar--menu-item'
-                onClick={ removeBox }
-                title='Delete this Box from the Notebook'
-              >
-                Remove
-                {/* <i
-                  className='mini-icon far fa-trash-alt'
-                  onClick={ removeBox }
-                  title='Remove this Box'
-                /> */}
-              </div>
+          //       }}
+          //       title='Get shareable link for this Box'
+          //     >
+          //       Share the URL
+          //     </div>
+          //     {
+          //       shareLinkOpen ?
+          //         <p className='box-top-bar--menu-item--notif'>
+          //           Link Copied!
+          //         </p>
+          //         :
+          //         null
+          //     }
+          //     <div
+          //       className='box-top-bar--menu-item'
+          //       onClick={ removeBox }
+          //       title='Delete this Box from the Notebook'
+          //     >
+          //       Remove
+          //       {/* <i
+          //         className='mini-icon far fa-trash-alt'
+          //         onClick={ removeBox }
+          //         title='Remove this Box'
+          //       /> */}
+          //     </div>
 
-              {/* I am commenting the following element out.
-              I don't want new BOX to be added from the menu from surrounding BOXES.
-              It just doesn't feel intuitive. */}
-              {/* <div
-                className='box-top-bar--menu-item'
-                title='Add another Box before this one'
-                onClick={ (e) => {
-                  e.stopPropagation()
-                  this.selectBoxType('before')
-                } }
-              >
-                New Box Before
-              </div> */}
+          //     {/* I am commenting the following element out.
+          //     I don't want new BOX to be added from the menu from surrounding BOXES.
+          //     It just doesn't feel intuitive. */}
+          //     {/* <div
+          //       className='box-top-bar--menu-item'
+          //       title='Add another Box before this one'
+          //       onClick={ (e) => {
+          //         e.stopPropagation()
+          //         this.selectBoxType('before')
+          //       } }
+          //     >
+          //       New Box Before
+          //     </div> */}
 
-              {/* I am commenting the following element out.
-              I don't want new BOX to be added from the menu from surrounding BOXES.
-              It just doesn't feel intuitive. */}
-              {/* <div
-                className='box-top-bar--menu-item'
-                title='Add another Box after this one'
-                onClick={ (e) => {
-                  e.stopPropagation()
-                  this.selectBoxType('after')
-                } }
-              >
-                New Box After
-              </div> */}
+          //     {/* I am commenting the following element out.
+          //     I don't want new BOX to be added from the menu from surrounding BOXES.
+          //     It just doesn't feel intuitive. */}
+          //     {/* <div
+          //       className='box-top-bar--menu-item'
+          //       title='Add another Box after this one'
+          //       onClick={ (e) => {
+          //         e.stopPropagation()
+          //         this.selectBoxType('after')
+          //       } }
+          //     >
+          //       New Box After
+          //     </div> */}
 
-              {/* I am commenting out the following element.
-                  I don't feel like having a REST/EMPTY the BOX option in the menu is necessary.
-                  You can do the same thing by clicking on EDIT and removing everything.
-                  Misclicking on this option also removes your entire work with no going back.
-                  Danger zone! */}
-              {/* <div
-                className='box-top-bar--menu-item'
-                title='Reset this Box to Initial State'
-                onClick={ (e) => {
-                  e.stopPropagation()
-                  // console.log('CLICKED ON RESET BOX')
+          //     {/* I am commenting out the following element.
+          //         I don't feel like having a REST/EMPTY the BOX option in the menu is necessary.
+          //         You can do the same thing by clicking on EDIT and removing everything.
+          //         Misclicking on this option also removes your entire work with no going back.
+          //         Danger zone! */}
+          //     {/* <div
+          //       className='box-top-bar--menu-item'
+          //       title='Reset this Box to Initial State'
+          //       onClick={ (e) => {
+          //         e.stopPropagation()
+          //         // console.log('CLICKED ON RESET BOX')
 
-                  switch (type) {
-                    case BoxType.UNTYPED_LAMBDA: {
-                      // console.log('RESET UNTYPED LAMBDA')
-                      updateBoxState(resetUntypedLambdaBox(state as UntypedLambdaState))
-                      break
-                    }
-                    case BoxType.MARKDOWN: {
-                      // console.log('RESET MARODOWN')
-                      updateBoxState(resetMarkdownBox(state as NoteState))
-                      break
-                    }
-                  }
-                  this.setState({ menuOpen : false })
-                } }
-              >
-                Reset this Box
-              </div> */}
+          //         switch (type) {
+          //           case BoxType.UNTYPED_LAMBDA: {
+          //             // console.log('RESET UNTYPED LAMBDA')
+          //             updateBoxState(resetUntypedLambdaBox(state as UntypedLambdaState))
+          //             break
+          //           }
+          //           case BoxType.MARKDOWN: {
+          //             // console.log('RESET MARODOWN')
+          //             updateBoxState(resetMarkdownBox(state as NoteState))
+          //             break
+          //           }
+          //         }
+          //         this.setState({ menuOpen : false })
+          //       } }
+          //     >
+          //       Reset this Box
+          //     </div> */}
 
-              <div
-                className='box-top-bar--menu-item'
-                title="Edit this Box's Expression"
-                onClick={ (e) => {
-                  e.stopPropagation()
-                  // console.log('CLICKED ON RESET BOX')
+          //     <div
+          //       className='box-top-bar--menu-item'
+          //       title="Edit this Box's Expression"
+          //       onClick={ (e) => {
+          //         e.stopPropagation()
+          //         // console.log('CLICKED ON RESET BOX')
 
-                  switch (type) {
-                    case BoxType.UNTYPED_LAMBDA: {
-                      const resetState : UntypedLambdaState = resetUntypedLambdaBox(state as UntypedLambdaState)
-                      const content : string = (state as UntypedLambdaState).expression || (state as UntypedLambdaState).editor.content
+          //         switch (type) {
+          //           case BoxType.UNTYPED_LAMBDA: {
+          //             const resetState : UntypedLambdaState = resetUntypedLambdaBox(state as UntypedLambdaState)
+          //             const content : string = (state as UntypedLambdaState).expression || (state as UntypedLambdaState).editor.content
 
-                      updateBoxState({
-                        ...resetState,
-                        editor : {
-                          ...resetState.editor,
-                          content, 
-                        }
-                      })
-                      break
-                    }
-                    case BoxType.MARKDOWN: {
-                      // console.log('RESET MARODOWN')
-                      // updateBoxState(resetMarkdownBox(state as NoteState))
-                      break
-                    }
-                  }
-                  this.setState({ menuOpen : false })
-                } }
-              >
-                Edit Expression
-              </div>
+          //             updateBoxState({
+          //               ...resetState,
+          //               editor : {
+          //                 ...resetState.editor,
+          //                 content, 
+          //               }
+          //             })
+          //             break
+          //           }
+          //           case BoxType.MARKDOWN: {
+          //             // console.log('RESET MARODOWN')
+          //             // updateBoxState(resetMarkdownBox(state as NoteState))
+          //             break
+          //           }
+          //         }
+          //         this.setState({ menuOpen : false })
+          //       } }
+          //     >
+          //       Edit Expression
+          //     </div>
             
-            </div>
-          :
-          null
-
+          //   </div>
+          // :
+          // null
         }
         
 
