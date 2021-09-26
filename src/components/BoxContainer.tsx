@@ -57,21 +57,6 @@ export class BoxContainer extends Component<Props, State> {
   
     return (
       <div>
-        {
-          modalOpen ?
-            <PickBoxTypeModal
-              addNew={ (box : BoxState) => {
-                this.props.addBoxAfter(box)
-                this.setState({ modalOpen : false })
-              } }
-              whiteList={ this.props.whiteList }
-              settings={ this.props.settings }
-            />
-          :
-            null
-        }
-  
-  
         <div
           className={ `boxContainer ${ isActiveBox ? 'active' : 'inactive' } ${boxTypeClassName}` }
           onClick={ makeActive }
@@ -100,9 +85,22 @@ export class BoxContainer extends Component<Props, State> {
             addBoxAfter={ addBoxAfter }
           />
         </div>
-        <div className="add_box_after" onMouseDown={ () => this.setState({ modalOpen : true }) } >
-          +
-        </div>
+
+        {
+          modalOpen ?
+            <PickBoxTypeModal
+              addNew={ (box : BoxState) => {
+                this.props.addBoxAfter(box)
+                this.setState({ modalOpen : false })
+              } }
+              whiteList={ this.props.whiteList }
+              settings={ this.props.settings }
+            />
+          :
+          <div className="add_box_after" onMouseDown={ () => this.setState({ modalOpen : true }) } >
+            +
+          </div>
+        }
       </div>
     )
   }
