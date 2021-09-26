@@ -36,10 +36,16 @@
   border-radius: 2rem;
 }
 
+.top-level--create-box {
+  position: fixed;
+  top: 180px;
+  width: 65%;
+}
+
 
 .create-box-plus {
   position: fixed;
-  top: 40vh;
+  top: 200px;
   left: 45vw;
   /* width: 10em; */
   /* height: 10em; */
