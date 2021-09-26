@@ -15,7 +15,7 @@
 }
 
 .modal--create-box {
-  width: 80%;
+  /* width: 80%; */
   margin: auto;
   /* padding-top: 15%; */
   /* padding-left: 5%; */
@@ -24,11 +24,11 @@
 
 .add-box--group {
   display: inline-block;
-  width: 20%;
+  width: 50%;
   text-align: center;
   /* margin: 30px; */
-  margin-right: -25%;
-  margin-left: 25%;
+  margin-right: 0%;
+  margin-left: 0%;
   border-radius: 10px;
   padding-top: 10px;
   padding-bottom: 10px;
