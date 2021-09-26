@@ -28,7 +28,7 @@ interface Props {
 }
 
 interface State {
-  modalOpen : boolean
+  // modalOpen : boolean
   where : BoxPlace | null
   menuOpen : boolean
   shareLinkOpen : boolean
@@ -41,24 +41,24 @@ export default class BoxTitleBar extends Component<Props, State> {
     super(props)
 
     this.state = {
-      modalOpen : false,
+      // modalOpen : false,
       where : null,
       menuOpen : false,
       shareLinkOpen : false,
     }
 
-    this.selectBoxType = this.selectBoxType.bind(this)
+    // this.selectBoxType = this.selectBoxType.bind(this)
   }
 
   render () : JSX.Element {
     const { state, isActive, updateBoxState, removeBox, addBoxBefore, addBoxAfter } : Props = this.props
     const { type, title, minimized, settingsOpen } = state
 
-    const { modalOpen, where, menuOpen, shareLinkOpen } : State = this.state
+    const { where, menuOpen, shareLinkOpen } : State = this.state
 
     return (
       <div className='boxTopBar'>
-        {
+        {/* {
           modalOpen ?
             <PickBoxTypeModal
               addNew={ (box : BoxState) => {
@@ -75,7 +75,7 @@ export default class BoxTitleBar extends Component<Props, State> {
             />
           :
             null
-        }
+        } */}
 
 
         <div
@@ -459,8 +459,8 @@ export default class BoxTitleBar extends Component<Props, State> {
     }
 
 
-  selectBoxType (place : BoxPlace) : void {
-    this.setState({ modalOpen : true, where : place })
-  }
+  // selectBoxType (place : BoxPlace) : void {
+  //   this.setState({ modalOpen : true, where : place })
+  // }
 
 }
