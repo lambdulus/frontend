@@ -35,15 +35,16 @@ export default function PickBoxTypeModal (props : Props) : JSX.Element {
 
   const addLambdaBoxIfAllowed = (allowed : boolean) => (
     allowed ?
-      <div className='add-box--group'>
+      <div className='add-box--group'
+        onClick={ (e) => {
+          e.stopPropagation()
+          // this.setState({ opened : false })
+          addNew(createNewUntypedLambdaExpression(untLSettings)) }
+        }
+      >
         <div
           className='plusBtn'
           title='Create new λ box'
-          onClick={ (e) => {
-            e.stopPropagation()
-            // this.setState({ opened : false })
-            addNew(createNewUntypedLambdaExpression(untLSettings)) }
-          }
         >
           <p className='create-box--big'>λ</p>
           <p className='creat-box--label'>{ ADD_BOX_LABEL }</p>
