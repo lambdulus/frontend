@@ -154,6 +154,18 @@ export default class BoxTitleBar extends Component<Props, State> {
 
         </div>
         <div className='box-top-bar-controls'>
+        <div
+            className='box-top-bar--controls-item'
+            onClick={ removeBox }
+            title='Delete this Box from the Notebook'
+          >
+            <i
+              className='mini-icon far fa-trash-alt'
+              // onClick={ removeBox }
+              // title='Remove this Box'
+            />
+          </div>
+          
           {
             type !== BoxType.MARKDOWN ?
             <div
@@ -161,14 +173,14 @@ export default class BoxTitleBar extends Component<Props, State> {
                 e.stopPropagation()
                 updateBoxState({ ...state, minimized : ! minimized })
               } }
-              className='box-top-bar--controls--imize'
+              className='box-top-bar--controls-item'
               title={ minimized ? 'Expand this Box' : 'Collapse this Box' }
             >
               {
                 minimized ?
-                  <i className="mini-icon fas fa-caret-down" />
+                  <i className="mini-icon fas fa-expand" />
                 :
-                  <i className="mini-icon fas fa-caret-up" />
+                  <i className="mini-icon fas fa-compress" />
               }
             </div>
             :
@@ -186,6 +198,73 @@ export default class BoxTitleBar extends Component<Props, State> {
           </div> */}
 
           <div
+            className='box-top-bar--controls-item'
+            onClick={ () => {
+              this.setState({ shareLinkOpen : true })
+              const searchParams : URLSearchParams = new URL(window.document.location.toString()).searchParams
+
+              searchParams.set('type', state.type)
+
+              if (state.type === BoxType.UNTYPED_LAMBDA) {
+                const macros = encodeURI(JSON.stringify((state as UntypedLambdaState).macrotable))
+                searchParams.set('source', encodeURI((state as UntypedLambdaState).ast?.toString() || (state as UntypedLambdaState).editor.content))
+                searchParams.set('macros', macros)
+              }
+              else {
+                searchParams.set('source', encodeURI((state as any).editor.content)) // todo: fix that `as any`
+              }
+
+              if (state.type === BoxType.UNTYPED_LAMBDA) {
+                searchParams.set('subtype', (state as UntypedLambdaState).subtype)
+                searchParams.set('strategy', (state as UntypedLambdaState).strategy)
+                searchParams.set('SDE', (state as UntypedLambdaState).SDE.toString())
+                searchParams.set('SLI', (state as UntypedLambdaState).SLI.toString())
+              }
+
+              const url : string = window.location.host + '?' + searchParams.toString()
+
+              navigator.clipboard.writeText(url)
+
+              setTimeout(() => this.setState({ shareLinkOpen : false, menuOpen : false }), 1500)
+
+            } }
+            title='Copy the link to this Expression.'
+          >
+            <i className="mini-icon fas fa-share-alt-square"></i>
+          </div>
+
+          <div
+            className='box-top-bar--controls-item'
+            onClick={ (e) => {
+              e.stopPropagation()
+
+              switch (type) {
+                case BoxType.UNTYPED_LAMBDA: {
+                  const resetState : UntypedLambdaState = resetUntypedLambdaBox(state as UntypedLambdaState)
+                  const content : string = (state as UntypedLambdaState).expression || (state as UntypedLambdaState).editor.content
+
+                  updateBoxState({
+                    ...resetState,
+                    editor : {
+                      ...resetState.editor,
+                      content, 
+                    }
+                  })
+                  break
+                }
+                case BoxType.MARKDOWN: {
+                  // updateBoxState(resetMarkdownBox(state as NoteState))
+                  break
+                }
+              }
+              this.setState({ menuOpen : false })
+            } }
+            title='Edit this Expression.'
+          >
+            <i className="mini-icon far fa-edit"></i>
+          </div>
+
+          {/* <div
             onClick={ (e) => {
               e.stopPropagation()
               this.setState({ menuOpen : ! menuOpen })
@@ -193,7 +272,7 @@ export default class BoxTitleBar extends Component<Props, State> {
             className={ `box-top-bar--controls--menu ${menuOpen ? 'menu-pressed-open' : ''}` }
           >
             <i className="mini-icon fas fa-ellipsis-v"></i>
-          </div>
+          </div> */}
         </div>
 
         {
@@ -365,6 +444,16 @@ export default class BoxTitleBar extends Component<Props, State> {
 
         }
         
+
+        {
+          shareLinkOpen ?
+            <p className='box-top-bar--menu-item--notif'>
+              Link Copied!
+            </p>
+            :
+            null
+        }
+
       </div>
       )
     }
