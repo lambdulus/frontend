@@ -26,9 +26,12 @@
   display: inline-block;
   width: 20%;
   text-align: center;
+  /* margin: 30px; */
   margin-right: -25%;
   margin-left: 25%;
   border-radius: 10px;
+  padding-top: 10px;
+  padding-bottom: 10px;
 }
 
 .add-box--group .plusBtn {
@@ -41,7 +44,7 @@
 }
 
 .create-box--big {
-  font-size: 2em;
+  font-size: 3em;
   font-family: monospace;
   margin: 0;
 }
