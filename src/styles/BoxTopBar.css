@@ -37,7 +37,7 @@
 .box-top-bar-custom {
   position: absolute;
   top: 0;
-  right: 5em;
+  right: 8em;
   padding-right: 20px;
   border-right: 2px solid gray;
 }
@@ -46,24 +46,70 @@
   position: absolute;
   right: 0;
   top: 0px;
-  width: 4em;
+  width: 7em;
   /* width: 7%; */
   /* margin-left: 80%; */
 }
 
-.box-top-bar--controls--imize {
+.box-top-bar--controls-item {
   padding-top: 5px;
   padding-bottom: 5px;
   text-align: center;
   cursor: pointer;
   float: left;
-  width: 50%;
+  width: 25%;
+}
+
+.box-top-bar--controls-item:hover {
+  background-color: rgb(221, 221, 221);
+  border-radius: 5px;
+}
+
+
+/* .box-top-bar--controls--imize {
+  padding-top: 5px;
+  padding-bottom: 5px;
+  text-align: center;
+  cursor: pointer;
+  float: left;
+  width: 25%;
+  margin-right: 10px;
 }
 
 .box-top-bar--controls--imize:hover {
   background-color: rgb(221, 221, 221);
   border-radius: 5px;
+} */
+
+/* .box-top-bar--delete {
+  padding-top: 5px;
+  padding-bottom: 5px;
+  text-align: center;
+  cursor: pointer;
+  float: left;
+  width: 25%;
+  margin-right: 10px;
 }
+
+.box-top-bar--delete:hover {
+  background-color: rgb(221, 221, 221);
+  border-radius: 5px;
+} */
+
+/* .box-top-bar--share {
+  padding-top: 5px;
+  padding-bottom: 5px;
+  text-align: center;
+  cursor: pointer;
+  float: left;
+  width: 25%;
+  margin-right: 10px;
+}
+
+.box-top-bar--share:hover {
+  background-color: rgb(221, 221, 221);
+  border-radius: 5px;
+} */
 
 /* .box-top-bar--controls--settings {
   padding-top: 5px;
@@ -79,25 +125,26 @@
   border-radius: 5px;
 }
 
-.box-top-bar--controls--menu {
+/* .box-top-bar--controls--menu {
   padding-top: 5px;
   padding-bottom: 5px;
   text-align: center;
   cursor: pointer;
   float: left;
-  width: 50%;
+  width: 25%;
   position: absolute;
   right: 0;
   border-radius: 5px;
-}
+  margin-right: 10px;
+} */
 
-.box-top-bar--controls--menu.menu-pressed-open {
+/* .box-top-bar--controls--menu.menu-pressed-open {
   background-color: rgb(240, 240, 240);
 }
 
 .box-top-bar--controls--menu:hover {
   background-color: rgb(221, 221, 221);
-}
+} */
 
 /* .box-top-bar--controls--remove {
   padding-top: 5px;
@@ -168,6 +215,9 @@
   font-size: 0.8em;
   text-align: center;
   font-weight: 500;
+
+  position: absolute;
+  right: -6em;
   
   margin: 20px;
   margin-top: -5px;
@@ -178,6 +228,8 @@
   padding-right: 2em;
   background-color: rgb(64, 147, 224);
   border-radius: 0.25rem;
+
+  float:left;
 }
 
 
