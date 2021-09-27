@@ -57,7 +57,9 @@ export default class BoxTitleBar extends Component<Props, State> {
     const { where, menuOpen, shareLinkOpen } : State = this.state
 
     return (
-      <div className='boxTopBar'>
+      <div className='boxTopBar'
+        onClick={ (e) => e.stopPropagation() }
+      >
         {/* {
           modalOpen ?
             <PickBoxTypeModal
@@ -154,17 +156,17 @@ export default class BoxTitleBar extends Component<Props, State> {
 
         </div>
         <div className='box-top-bar-controls'>
-        <div
-            className='box-top-bar--controls-item'
-            onClick={ removeBox }
-            title='Delete this Box from the Notebook'
-          >
-            <i
-              className='mini-icon far fa-trash-alt'
-              // onClick={ removeBox }
-              // title='Remove this Box'
-            />
-          </div>
+          <div
+              className='box-top-bar--controls-item'
+              onClick={ removeBox }
+              title='Delete this Box from the Notebook'
+            >
+              <i
+                className='mini-icon far fa-trash-alt'
+                // onClick={ removeBox }
+                // title='Remove this Box'
+              />
+            </div>
           
           {
             type !== BoxType.MARKDOWN ?
@@ -199,7 +201,8 @@ export default class BoxTitleBar extends Component<Props, State> {
 
           <div
             className='box-top-bar--controls-item'
-            onClick={ () => {
+            onClick={ (e) => {
+              e.stopPropagation()
               this.setState({ shareLinkOpen : true })
               const searchParams : URLSearchParams = new URL(window.document.location.toString()).searchParams
 
@@ -235,7 +238,16 @@ export default class BoxTitleBar extends Component<Props, State> {
 
           <div
             className='box-top-bar--controls-item'
+            onMouseDownCapture={ e => (e.preventDefault() , e.stopPropagation()) }
+            // ^^^ this line is just a dirty quick bug fix
+            // when you are editing and click on the edit button again
+            // on the mouse down - the box loses focus and then on mouse up
+            // the onClick is finished and it is then again focused
+            // so the result looks awkward
+            // the previous line is a black hole for the mousedown event
+            // that way it can't cause losing focus for the box, because it is stoped
             onClick={ (e) => {
+              console.log('clicked on the EDIT button')
               e.stopPropagation()
 
               switch (type) {
@@ -253,6 +265,7 @@ export default class BoxTitleBar extends Component<Props, State> {
                   break
                 }
                 case BoxType.MARKDOWN: {
+                  updateBoxState({ ...state, isEditing : true })
                   // updateBoxState(resetMarkdownBox(state as NoteState))
                   break
                 }
