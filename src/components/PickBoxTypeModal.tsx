@@ -56,15 +56,16 @@ export default function PickBoxTypeModal (props : Props) : JSX.Element {
 
   const addLispBoxIfAllowed = (allowed : boolean) => (
     allowed ?
-      <div className='add-box--group'>
+      <div className='add-box--group'
+        onClick={ (e) => {
+          e.stopPropagation()
+          // this.setState({ opened : false })
+          addNew({__key : Date.now().toString()} as BoxState) } // NOTE: just for now
+        }
+      >
         <div
           className='plusBtn'
           title='Create new Lisp box'
-          onClick={ (e) => {
-            e.stopPropagation()
-            // this.setState({ opened : false })
-            addNew({__key : Date.now().toString()} as BoxState) } // NOTE: just for now
-          }
         >
           <p className='create-box--big'>()</p>
           <p className='creat-box--label'>+ Lisp</p>
@@ -76,15 +77,16 @@ export default function PickBoxTypeModal (props : Props) : JSX.Element {
 
   const addMDBoxIfAllowed = (allowed : boolean) => (
     allowed ?
-    <div className='add-box--group'>
+    <div className='add-box--group'
+      onClick={ (e) => {
+        e.stopPropagation()
+        // this.setState({ opened : false })
+        addNew(createNewMarkdown()) }
+      }
+    >
       <div
         className='plusBtn'
         title='Create new MarkDown box'
-        onClick={ (e) => {
-          e.stopPropagation()
-          // this.setState({ opened : false })
-          addNew(createNewMarkdown()) }
-        }
       >
         <p className='create-box--big'>M&darr;</p>
         <p className='creat-box--label'>+ Markdown</p>
