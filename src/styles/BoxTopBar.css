@@ -229,6 +229,8 @@
   border-radius: 0.25rem;
 
   float:left;
+
+  z-index: 9999;
 }
 
 
