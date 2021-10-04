@@ -140,6 +140,9 @@ export default class App extends Component<Props, AppState> {
 
     return (
       <div id='app'>
+        <div id="bad-screen-message">
+          Lambdulus only runs on screens at least 900 pixels wide.
+        </div>
         <TopBar
           state={ this.state }
           onScreenChange={ this.setScreen }

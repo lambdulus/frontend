@@ -19,6 +19,25 @@ body {
   /* filter: invert(1); */
 }
 
+#bad-screen-message {
+  display: none;
+  background-color: rgb(195, 195, 195);
+  height: 100vh;
+  width: 100vw;
+  position: fixed;
+  text-align: center;
+  font-size: 2em;
+  padding-top: 40vh;
+  z-index: 99999;
+}
+
+/* Maximum aspect ratio */
+@media screen and (max-width: 899px) {
+  #bad-screen-message {
+    display: block;
+  }
+}
+
 .app {
   background-color: #f4f6f6;
 }
