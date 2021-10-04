@@ -76,13 +76,6 @@
   margin-bottom: 0px;
 }
 
-/* Maximum aspect ratio */
-@media (max-aspect-ratio: 1/1) {
-  body {
-    display: none;
-  }
-}
-
 .notebookIconWrapper {
   position: relative;
 }
