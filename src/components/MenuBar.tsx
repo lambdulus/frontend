@@ -1,7 +1,7 @@
 import React, { ChangeEvent } from 'react'
 
-import { decode } from '../Constants'
-import { Screen, AppState } from '../Types'
+import { decode, decodeNotebook } from '../Constants'
+import { Screen, AppState, NotebookState } from '../Types'
 
 
 import '../styles/MenuBar.css'
@@ -150,3 +150,32 @@ export default function MenuBar (props : MenuBarProperties) : JSX.Element {
 
 //   return ast
 // }
+
+
+function onFiles (event : ChangeEvent<HTMLInputElement>, onImport : (notebook : NotebookState) => void) : void {
+  const { target : { files } } = event
+  if (files === null) {
+    return
+  }
+
+  const file : File = files[0]
+  const reader : FileReader = new FileReader
+  reader.onload = (event : Event) => {
+    const notebook : NotebookState = JSON.parse(reader.result as string)
+
+    onImport(decodeNotebook(notebook))
+
+    // onImport(hydrate(state))
+    // reportEvent('Import notebook', `Notebook named ${ file.name }`, '')
+  }
+
+  reader.readAsText(file) 
+}
+
+function createURL (content : string) : string {
+  const data = new Blob([ content ], {
+    type: 'application/json'
+  })
+
+  return window.URL.createObjectURL(data);
+}

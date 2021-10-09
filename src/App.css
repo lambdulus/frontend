@@ -17,6 +17,7 @@ body {
   overflow-x: hidden;
   /* filter: hue-rotate(0deg); */
   /* filter: invert(1); */
+  spellcheck: false;
 }
 
 #bad-screen-message {
@@ -69,7 +70,7 @@ body {
   width: 65%; /* TODO: consider */
   margin: auto;
   /* margin-left: 6em; */
-  padding-top: 4em;
+  padding-top: 6em;
 }
 
 .helpSpace {

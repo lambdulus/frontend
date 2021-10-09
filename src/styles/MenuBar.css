@@ -18,6 +18,11 @@
   background-color: #1561ad;
 }
 
+.menu-bar--middle-part {
+  position: absolute;
+  width: 100%
+}
+
 .menu-bar--bottom-part {
   position: absolute;
   bottom: 30px;
@@ -36,7 +41,7 @@
 }
 
 .tab:first-of-type {
-  margin-top: 2em;
+  margin-top: 1em;
 }
 
 .currentTab::before {
