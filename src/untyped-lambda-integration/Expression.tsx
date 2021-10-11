@@ -218,25 +218,25 @@ export default class Expression extends PureComponent<EvaluatorProps> {
                 }
 
                 {
-                  <span
-                    className='untyped-lambda-settings-SLI-'
-                    title='Single Letters as Names without Spaces'>
-                    <input
-                      id={ `untyped-lambda-settings--SLI-${uniq}` }
-                      type='checkbox'
-                      checked={ SLI }
-                      disabled={ false } // TODO: tohle bude rozhodne chtit prepsat
-                      // shape="fill"
+                  // <span
+                  //   className='untyped-lambda-settings-SLI-'
+                  //   title='Single Letters as Names without Spaces'>
+                  //   <input
+                  //     id={ `untyped-lambda-settings--SLI-${uniq}` }
+                  //     type='checkbox'
+                  //     checked={ SLI }
+                  //     disabled={ false } // TODO: tohle bude rozhodne chtit prepsat
+                  //     // shape="fill"
                       
-                      onChange={
-                        (e : ChangeEvent<HTMLInputElement>) => // tady nejakej destructuring
-                          setBoxState({ ...state, SLI : e.target.checked })
-                      }
-                    />
-                    <label className='untyped-lambda-settings-label' htmlFor={ `untyped-lambda-settings--SLI-${uniq}` }>
-                      Single Letter Names
-                    </label>
-                  </span>
+                  //     onChange={
+                  //       (e : ChangeEvent<HTMLInputElement>) => // tady nejakej destructuring
+                  //         setBoxState({ ...state, SLI : e.target.checked })
+                  //     }
+                  //   />
+                  //   <label className='untyped-lambda-settings-label' htmlFor={ `untyped-lambda-settings--SLI-${uniq}` }>
+                  //     Single Letter Names
+                  //   </label>
+                  // </span>
                 }
 
             </div>
@@ -336,7 +336,7 @@ export default class Expression extends PureComponent<EvaluatorProps> {
                   </span>
                 }
 
-                <span
+                {/* <span
                   className='untyped-lambda-settings-SLI-'
                   title='Single Letters as Names without Spaces'>
                   <input
@@ -354,7 +354,7 @@ export default class Expression extends PureComponent<EvaluatorProps> {
                   <label className='untyped-lambda-settings-label' htmlFor={ `untyped-lambda-settings--SLI-${uniq}` }>
                     Single Letter Names
                   </label>
-                </span>
+                </span> */}
 
               </div>
             :
