@@ -12,7 +12,7 @@ export function createNewTinyLispExpression (defaultSettings : TinyLispSettings)
   return {
     __key : Date.now().toString(),
     type : BoxType.LISP,
-    title : '',
+    title : 'New Tiny Lisp Expression',
     minimized : false,
     menuOpen : false,
     settingsOpen : false,

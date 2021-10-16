@@ -17,7 +17,7 @@ export const ANY_BOX = -1
 
 export const NO_BOX = -2
 
-export const DEFAULT_WHITELIST : BoxesWhitelist = [ BoxType.UNTYPED_LAMBDA, BoxType.MARKDOWN ]
+export const DEFAULT_WHITELIST : BoxesWhitelist = [ BoxType.UNTYPED_LAMBDA, BoxType.MARKDOWN, BoxType.LISP ]
 
 
 export function mapBoxTypeToStr (type : BoxType) : string {
