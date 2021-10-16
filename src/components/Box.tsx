@@ -15,6 +15,8 @@ import { NoteState } from '../markdown-integration/AppTypes'
 import Note from '../markdown-integration/Note'
 
 import Empty from '../empty-integration'
+import TinyLispBox from '../tiny-lisp-integration/TinyLispBox'
+import { TinyLispState } from '../tiny-lisp-integration/Types'
 
 // import { BoxState } from '../AppTypes'
 
@@ -55,6 +57,17 @@ export default function Box (props : BoxProperties) : JSX.Element {
         isActive={ isActive }
         isFocused={ isFocused }
 
+        setBoxState={ updateBoxState }
+      />
+    )
+  }
+  if (type === BoxType.LISP) {
+    return (
+      <TinyLispBox
+        state={ state as TinyLispState }
+        isActive={ isActive }
+        isFocused={ isFocused }
+        
         setBoxState={ updateBoxState }
       />
     )
