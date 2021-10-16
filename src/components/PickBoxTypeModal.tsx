@@ -2,11 +2,14 @@ import React from 'react'
 import { GlobalSettings, BoxesWhitelist, BoxState, BoxType } from '../Types'
 import { createNewMarkdown } from '../markdown-integration/AppTypes'
 import { UntypedLambdaSettings, UntypedLambdaState } from '../untyped-lambda-integration/Types'
-import { createNewUntypedLambdaExpression, ADD_BOX_LABEL, CODE_NAME as UNTYPED_CODE_NAME } from '../untyped-lambda-integration/AppTypes'
+import { createNewUntypedLambdaExpression, ADD_BOX_LABEL as UNTYPED_ADD_BOX_LABEL, CODE_NAME as UNTYPED_CODE_NAME } from '../untyped-lambda-integration/AppTypes'
 import { ANY_BOX, NO_BOX } from '../Constants'
+import { CODE_NAME as TINY_LISP_CODE_NAME, ADD_BOX_LABEL as TINY_LISP_ADD_BOX_LABEL } from '../tiny-lisp-integration/Constants'
 
 
 import '../styles/PickBoxTypeModal.css'
+import { createNewTinyLispExpression } from '../tiny-lisp-integration/Constants'
+import { TinyLispSettings } from '../tiny-lisp-integration/Types'
 
 
 function anyBoxAllowed (whitelist : BoxesWhitelist) : boolean {
@@ -18,6 +21,7 @@ function noBoxAllowed (whitelist : BoxesWhitelist) : boolean {
 }
 
 function isAllowed (type : BoxType, whitelist : BoxesWhitelist) : boolean {
+  console.log({ whitelist })
   return anyBoxAllowed(whitelist) || (whitelist as Array<BoxType>).includes(type)
 }
 
@@ -32,6 +36,7 @@ export default function PickBoxTypeModal (props : Props) : JSX.Element {
   const { addNew, whiteList, settings } : Props = props
 
   const untLSettings : UntypedLambdaSettings = settings[UNTYPED_CODE_NAME] as UntypedLambdaState
+  const tinyLSettings : TinyLispSettings = settings[TINY_LISP_CODE_NAME] as TinyLispSettings
 
   const addLambdaBoxIfAllowed = (allowed : boolean) => (
     allowed ?
@@ -47,7 +52,7 @@ export default function PickBoxTypeModal (props : Props) : JSX.Element {
           title='Create new λ box'
         >
           <p className='create-box--big'>λ</p>
-          <p className='creat-box--label'>{ ADD_BOX_LABEL }</p>
+          <p className='creat-box--label'>{ UNTYPED_ADD_BOX_LABEL }</p>
         </div>
       </div>
       :
@@ -60,7 +65,7 @@ export default function PickBoxTypeModal (props : Props) : JSX.Element {
         onClick={ (e) => {
           e.stopPropagation()
           // this.setState({ opened : false })
-          addNew({__key : Date.now().toString()} as BoxState) } // NOTE: just for now
+          addNew(createNewTinyLispExpression(tinyLSettings)) } // NOTE: just for now
         }
       >
         <div
@@ -68,7 +73,7 @@ export default function PickBoxTypeModal (props : Props) : JSX.Element {
           title='Create new Lisp box'
         >
           <p className='create-box--big'>()</p>
-          <p className='creat-box--label'>+ Lisp</p>
+          <p className='creat-box--label'>{ TINY_LISP_ADD_BOX_LABEL }</p>
         </div>
       </div>
       :
