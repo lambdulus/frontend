@@ -1,4 +1,3 @@
-
 import { BoxType } from "../Types";
 import { TinyLispSettings, TinyLispState } from "./Types"
 
