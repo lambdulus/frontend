@@ -115,6 +115,7 @@ export function loadSettingsFromStorage () : GlobalSettings {
 
 
 export function loadAppStateFromStorage () : AppState {
+  return EmptyAppState/*
   const maybeState : string | null = localStorage.getItem('AppState')
 
   if (maybeState === null) {
@@ -130,11 +131,12 @@ export function loadAppStateFromStorage () : AppState {
 
       return EmptyAppState
     }
-  }
+  }*/
 }
 
 export function updateAppStateToStorage (state : AppState) : void {
-  localStorage.setItem('AppState', JSON.stringify(state))
+  const {parse, stringify} = require('flatted/cjs');
+  localStorage.setItem('AppState', stringify(state))
 }
 
 export function updateNotebookStateToStorage (notebook : NotebookState, index : number) {
