@@ -5,7 +5,7 @@ import './styles/Step.css'
 
 import ReactPrinter from './ReactPrinter'
 // import ReductionMessage from './ReductionMessage'
-import { EvaluationStrategy, StepRecord, Breakpoint, Evaluator } from './Types'
+import { EvaluationStrategy, StepRecord, Breakpoint, Evaluator, StepValidity } from './Types'
 import ReductionMessage from './ReductionMessage'
 import { strategyToEvaluator, findSimplifiedReduction, MacroBeta } from './AppTypes'
 // import { StrategyContext } from './DataInjector'
@@ -52,7 +52,8 @@ export default function StepWrapper (props : StepWrapperProperties) : JSX.Elemen
 
 function Step (props : StepProperties) : JSX.Element | null {
   const { stepRecord, addBreakpoint, breakpoints, children, strategy, SDE, macrotable } = props
-  const { ast : tree, lastReduction, step, message } = stepRecord
+  const { ast : tree, lastReduction, step, message, exerciseStep } = stepRecord
+  const { validity, userInput } = message
 
   if (tree === null) {
     return null
@@ -92,9 +93,9 @@ function Step (props : StepProperties) : JSX.Element | null {
   const reduction : ASTReduction = nextReduction
   const printer : ReactPrinter = new ReactPrinter(tree, addBreakpoint, reduction, breakpoints, SDE)
 
-  const incorrectStep : boolean = stepRecord.message.indexOf('Incorrect step.') === 0
-  const correctStep : boolean = stepRecord.message.indexOf('Correct.') === 0
-  const exerciseStep : boolean = incorrectStep || correctStep
+  // const incorrectStep : boolean = stepRecord.message.indexOf('Incorrect step.') === 0
+  // const correctStep : boolean = stepRecord.message.indexOf('Correct.') === 0
+  // const exerciseStep : boolean = incorrectStep || correctStep
 
   return (
     <span className='step'>
@@ -106,21 +107,27 @@ function Step (props : StepProperties) : JSX.Element | null {
         { printer.print() }
         { children }
         {
-          stepRecord.message === '' ?
+          stepRecord.message.message === '' ?
             null
             :
             exerciseStep === false ?
             <p className='stepMessage' >
-              { stepRecord.message }
+              { stepRecord.message.message }
             </p>
             :
-            incorrectStep === true ?
-              <p className='stepMessage incorrect' >
-                Incorrect input: <i className='userInput'>`{ stepRecord.message.substr(15) }`</i>
+            validity === StepValidity.INCORRECT ?
+              <p>
+                <p className='stepMessage incorrect' >
+                  Your input is incorrect!
+                  <br /> It was: 
+                    <i className='userInput'>`{ stepRecord.message.message.substr(15) }`</i>
+                  <br />
+                </p>
+                <p className='stepMessage'>Continue from the next step please.</p>
               </p>
             :
               <p className='stepMessage correct' >
-                { stepRecord.message }
+                { stepRecord.message.message }
               </p>
         }
       </div>
