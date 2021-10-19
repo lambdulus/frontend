@@ -1,5 +1,5 @@
 import { BoxType } from '../Types'
-import { EvaluationStrategy, UntypedLambdaState, UntypedLambdaSettings, UntypedLambdaType, StepRecord, UntypedLambdaExpressionState, UntypedLambdaIntegrationState, SettingsEnabled, PromptPlaceholder } from "./Types"
+import { EvaluationStrategy, UntypedLambdaState, UntypedLambdaSettings, UntypedLambdaType, StepRecord, UntypedLambdaExpressionState, UntypedLambdaIntegrationState, SettingsEnabled, PromptPlaceholder, StepMessage, StepValidity } from "./Types"
 import { ASTReduction, AST, decodeFast as decodeUntypedLambdaFast, Evaluator, NormalEvaluator, None, Expansion, Macro, ASTReductionType, Alpha, Lambda, Beta, Eta, Application, ASTVisitor, Variable, ChurchNumeral, BetaReducer, builtinMacros, MacroTable, Token, tokenize, parse, TokenType, ApplicativeEvaluator, OptimizeEvaluator, NormalAbstractionEvaluator, MacroMap } from '@lambdulus/core'
 import { Child, Binary } from '@lambdulus/core/dist/ast'
 import { TreeComparator } from './TreeComparator'
@@ -168,7 +168,7 @@ function createNewUntypedLambdaBoxFromSource2 (source : string, defaultSettings 
     const ast : AST = parse(tokens, macromap) // macroTable
     
     
-    let message = ''
+    let message : StepMessage = { validity : StepValidity.CORRECT, userInput : expression, message : '' }
     let isNormal = false
 
     const astCopy : AST = ast.clone()
@@ -186,7 +186,7 @@ function createNewUntypedLambdaBoxFromSource2 (source : string, defaultSettings 
     
     if (nextReduction instanceof None) {
       isNormal = true
-      message = 'Expression is in normal form.'
+      message.message = 'Expression is in normal form.'
       
       reportEvent('Evaluation Step', 'Step Normal Form Reached', ast.toString())  
     }
@@ -214,7 +214,8 @@ function createNewUntypedLambdaBoxFromSource2 (source : string, defaultSettings 
         lastReduction : new None,
         step : 0,
         message,
-        isNormalForm : isNormal
+        isNormalForm : isNormal,
+        exerciseStep : subtype === UntypedLambdaType.EXERCISE,
       } ],
 
       macrolistOpen : false,

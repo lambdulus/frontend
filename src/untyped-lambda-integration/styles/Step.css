@@ -144,6 +144,7 @@
 
 .incorrect .userInput {
   color: gray;
+  font-size: 1.3em;
 }
 
 .inlineblock {
