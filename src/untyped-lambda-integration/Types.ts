@@ -31,9 +31,22 @@ export interface StepRecord {
   ast : AST
   lastReduction : ASTReduction | null
   step : number
-  message : string
+  message : StepMessage
   isNormalForm : boolean
+  exerciseStep : boolean
 }
+
+export interface StepMessage {
+  message : String
+  validity : StepValidity
+  userInput : String
+}
+
+export enum StepValidity {
+  CORRECT,
+  INCORRECT
+}
+
 
 export enum EvaluationStrategy {
   NORMAL = 'Normal Evaluation',

@@ -1,7 +1,7 @@
 import React, { PureComponent } from 'react'
 
 import { BoxState, BoxType } from '../Types'
-import { UntypedLambdaState, UntypedLambdaType, UntypedLambdaExpressionState, UntypedLambdaSettings, PromptPlaceholder, EvaluationStrategy } from './Types'
+import { UntypedLambdaState, UntypedLambdaType, UntypedLambdaExpressionState, UntypedLambdaSettings, PromptPlaceholder, EvaluationStrategy, StepMessage, StepValidity } from './Types'
 import ExpressionBox from './ExpressionBox'
 // import Macro from './Macro'
 import MacroList from './MacroList'
@@ -156,7 +156,7 @@ export default class UntypedLambdaBox extends PureComponent<Props> {
 
       const ast : AST = this.parseExpression(expression, macromap)
 
-      let message = ''
+      let message : StepMessage = { validity : StepValidity.CORRECT, userInput : '', message : '' }
       let isNormal = false
 
       const astCopy : AST = ast.clone()
@@ -177,7 +177,7 @@ export default class UntypedLambdaBox extends PureComponent<Props> {
 
         if (etaEvaluator.nextReduction instanceof None) {
           isNormal = true
-          message = 'Expression is in normal form.'
+          message.message = 'Expression is in normal form.'
           reportEvent('Evaluation Step', 'Step Normal Form Reached', ast.toString())
         }
       }
@@ -193,7 +193,8 @@ export default class UntypedLambdaBox extends PureComponent<Props> {
           lastReduction : new None,
           step : 0,
           message,
-          isNormalForm : isNormal
+          isNormalForm : isNormal,
+          exerciseStep : false,
         } ],
         editor : {
           content : content,

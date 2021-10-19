@@ -32,7 +32,7 @@ import { TreeComparator } from './TreeComparator'
 import EmptyExpression from './EmptyExpression'
 import InactiveEvaluator from './InactiveExpression'
 import Expression from './Expression'
-import { EvaluationStrategy, PromptPlaceholder, UntypedLambdaState, Evaluator, StepRecord, Breakpoint, UntypedLambdaType, UntypedLambdaExpressionState } from './Types'
+import { EvaluationStrategy, PromptPlaceholder, UntypedLambdaState, Evaluator, StepRecord, Breakpoint, UntypedLambdaType, UntypedLambdaExpressionState, StepMessage, StepValidity } from './Types'
 import { reportEvent } from '../misc'
 import { start } from 'repl'
 import { findSimplifiedReduction, MacroBeta, tryMacroContraction, strategyToEvaluator } from './AppTypes'
@@ -193,7 +193,7 @@ export default class ExpressionBox extends PureComponent<EvaluationProperties> {
     let [nextReduction, evaluateReduction] : [ASTReduction, (ast : AST) => AST] = findSimplifiedReduction(ast, strategy, macrotable)
     // console.log('BACK TO THE WORLD HERE')
     
-    let message = ''
+    let message : StepMessage = { validity : StepValidity.CORRECT, userInput : '', message : '' }
     let isNowNormalForm = false
 
     // console.log(nextReduction)
@@ -208,7 +208,7 @@ export default class ExpressionBox extends PureComponent<EvaluationProperties> {
         // pokud arita nesedi - je vetsi nez delka pole aplikaci -->
         // --> musim vyhlasit warning a rict, ze tenhle krok neni uplne gooda
         // console.log("ARITY IS WRONG - probably too few arguments")
-        stepRecord.message = `Macro ${tryMacroContraction(nextReduction.applications[0].left, macrotable)} is given too few arguments.`
+        stepRecord.message.message = `Macro ${tryMacroContraction(nextReduction.applications[0].left, macrotable)} is given too few arguments.`
 
         newast = evaluateReduction(newast)
 
@@ -236,7 +236,7 @@ export default class ExpressionBox extends PureComponent<EvaluationProperties> {
         console.log('second is NONE')
 
         stepRecord.isNormalForm = true
-        stepRecord.message = 'Expression is in normal form.'
+        stepRecord.message.message = 'Expression is in normal form.'
         setBoxState({
           ...state,
         })
@@ -263,7 +263,7 @@ export default class ExpressionBox extends PureComponent<EvaluationProperties> {
         const etaEvaluator : Evaluator = new OptimizeEvaluator(astCopy)
         if (etaEvaluator.nextReduction instanceof None) {
           isNowNormalForm = true
-          message = 'Expression is in normal form.'
+          message.message = 'Expression is in normal form.'
           
           reportEvent('Evaluation Step', 'Step Normal Form Reached', ast.toString())
         }
@@ -272,7 +272,7 @@ export default class ExpressionBox extends PureComponent<EvaluationProperties> {
 
     setBoxState({
       ...state,
-      history : [ ...history, { ast : newast, lastReduction : nextReduction, step : step + 1, message, isNormalForm : isNowNormalForm } ],
+      history : [ ...history, { ast : newast, lastReduction : nextReduction, step : step + 1, message, isNormalForm : isNowNormalForm, exerciseStep : false } ],
     })
 
     reportEvent('Evaluation Step', 'Step Normal Form Reached', ast.toString())
@@ -370,7 +370,7 @@ export default class ExpressionBox extends PureComponent<EvaluationProperties> {
 
       if (etaEvaluator.nextReduction instanceof None) {
         stepRecord.isNormalForm = true
-        stepRecord.message = 'Expression is in normal form.'
+        stepRecord.message.message = 'Expression is in normal form.'
         
         setBoxState({
           ...state,
@@ -387,7 +387,7 @@ export default class ExpressionBox extends PureComponent<EvaluationProperties> {
   
     ast = evaluator.perform()
 
-    let message = ''
+    let message : StepMessage = { validity : StepValidity.CORRECT, userInput : '', message : '' }
     let isNormal = false
 
     {
@@ -399,7 +399,7 @@ export default class ExpressionBox extends PureComponent<EvaluationProperties> {
 
         if (etaEvaluator.nextReduction instanceof None) {
           isNormal = true
-          message = 'Expression is in normal form.'
+          message.message = 'Expression is in normal form.'
           
           reportEvent('Evaluation Step', 'Step Normal Form Reached', ast.toString())  
         }
@@ -423,7 +423,7 @@ export default class ExpressionBox extends PureComponent<EvaluationProperties> {
   
     setBoxState({
       ...state,
-      history : [ ...history, { ast, lastReduction, step : step + 1, message, isNormalForm : isNormal } ],
+      history : [ ...history, { ast, lastReduction, step : step + 1, message, isNormalForm : isNormal, exerciseStep : false } ],
 
     })
 
@@ -446,8 +446,9 @@ export default class ExpressionBox extends PureComponent<EvaluationProperties> {
       }
       
       const { ast, step, lastReduction, isNormalForm, message } = stepRecord
+      let msg : StepMessage = { validity : StepValidity.CORRECT, userInput : '', message : 'Skipping some steps...' }
       history.push(history[history.length - 1])
-      history[history.length - 2] = { ast : ast.clone(), step, lastReduction, message : 'Skipping some steps...', isNormalForm }
+      history[history.length - 2] = { ast : ast.clone(), step, lastReduction, message : msg, isNormalForm, exerciseStep : false }
 
       if (SDE) {
         setBoxState({
@@ -507,8 +508,9 @@ export default class ExpressionBox extends PureComponent<EvaluationProperties> {
         ast,
         lastReduction : stepRecord.lastReduction,
         step,
-        message : 'Expression is in normal form.',
-        isNormalForm : true
+        message : { validity : StepValidity.CORRECT, userInput : '', message : 'Expression is in normal form.' },
+        isNormalForm : true,
+        exerciseStep : false,
       })
   
       setBoxState({
@@ -522,7 +524,7 @@ export default class ExpressionBox extends PureComponent<EvaluationProperties> {
 
     const arityBreakpoint : Breakpoint | undefined = breakpoints.find((brk : Breakpoint) => brk.type === ASTReductionType.GAMA && ! brk.broken.has((nextReduction as MacroBeta).applications[0]))
     if (nextReduction instanceof MacroBeta && nextReduction.arity !== nextReduction.applications.length && arityBreakpoint === undefined) {
-      stepRecord.message = `Macro ${tryMacroContraction(nextReduction.applications[0].left, macrotable)} is given too few arguments.`
+      stepRecord.message.message = `Macro ${tryMacroContraction(nextReduction.applications[0].left, macrotable)} is given too few arguments.`
     
       // completely same code as in breakpoint section -- TODO: refactor and unify pls
       window.clearTimeout(timeoutID)
@@ -570,7 +572,7 @@ export default class ExpressionBox extends PureComponent<EvaluationProperties> {
   
     ast = evaluateReduction(newast)
 
-    history[history.length - 1] = { ast, lastReduction, step : step + 1, message : '', isNormalForm }
+    history[history.length - 1] = { ast, lastReduction, step : step + 1, message : { validity : StepValidity.CORRECT, userInput : '', message : '' }, isNormalForm, exerciseStep : false }
 
     // NOTE: Same thing as #0023
     // if (ast instanceof Macro || ast instanceof ChurchNumeral) {
@@ -618,8 +620,9 @@ export default class ExpressionBox extends PureComponent<EvaluationProperties> {
         ast,
         lastReduction : stepRecord.lastReduction,
         step,
-        message : 'Expression is in normal form.',
-        isNormalForm : true
+        message : { validity : StepValidity.CORRECT, userInput : '', message : 'Expression is in normal form.' }, 
+        isNormalForm : true,
+        exerciseStep : false,
       })
   
       setBoxState({
@@ -661,7 +664,7 @@ export default class ExpressionBox extends PureComponent<EvaluationProperties> {
   
     ast = normal.perform()
 
-    history[history.length - 1] = { ast, lastReduction, step : step + 1, message : '', isNormalForm }
+    history[history.length - 1] = { ast, lastReduction, step : step + 1, message : { validity : StepValidity.CORRECT, userInput : '', message : '' }, isNormalForm, exerciseStep : false }
 
     // NOTE: Same thing as #0023
     // if (ast instanceof Macro || ast instanceof ChurchNumeral) {
