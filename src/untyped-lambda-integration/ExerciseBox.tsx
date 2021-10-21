@@ -30,7 +30,7 @@ import InactiveEvaluator from './InactiveExpression'
 import Expression from './Expression'
 import { EvaluationStrategy, PromptPlaceholder, UntypedLambdaState, Evaluator, StepRecord, Breakpoint, UntypedLambdaType, UntypedLambdaExpressionState, StepMessage, StepValidity } from './Types'
 import { reportEvent } from '../misc'
-import { strategyToEvaluator, findSimplifiedReduction, MacroBeta, tryMacroContraction } from './AppTypes'
+import { strategyToEvaluator, findSimplifiedReduction, MacroBeta, toMacroMap, tryMacroContraction } from './AppTypes'
 // import { MContext } from './MacroContext'
 
 
@@ -187,10 +187,17 @@ export default class ExerciseBox extends PureComponent<EvaluationProperties> {
     const {
       strategy,
       editor : { content },
+      SLI,
+      macrotable,
     } = state
 
     try {
-      const ast : AST = this.parseExpression(content)
+      // const definitions : Array<string> = content.split(';')
+      // const expression : string = definitions.pop() || ""
+      // const macromap : MacroMap = toMacroMap(definitions, SLI)
+      // const newMacrotable : MacroMap = { ...macrotable, ...macromap } // the local macromap has a higher priority
+      
+      const ast : AST = this.parseExpression(content, macrotable)
 
       let message : StepMessage = { validity : StepValidity.CORRECT, userInput : content, message : '' }
       let isNormal = false
@@ -244,7 +251,7 @@ export default class ExerciseBox extends PureComponent<EvaluationProperties> {
     const { strategy, history, editor : { content }, macrotable } = state
 
     try {
-      const userAst : AST = this.parseExpression(content)
+      const userAst : AST = this.parseExpression(content, macrotable)
       const stepRecord : StepRecord = history[history.length - 1]
       const { isNormalForm, step } = stepRecord
       let { ast, lastReduction } = stepRecord
@@ -361,7 +368,7 @@ export default class ExerciseBox extends PureComponent<EvaluationProperties> {
   onExerciseStep () {
     // console.log('EXERCISE STEP')
     const { state, setBoxState } = this.props
-    const { strategy, history, editor : { content }, SDE } = state
+    const { strategy, history, editor : { content }, SDE, macrotable } = state
     
     if (SDE === true) {
       this.onSimplifiedExerciseStep()
@@ -370,7 +377,8 @@ export default class ExerciseBox extends PureComponent<EvaluationProperties> {
 
 
     try {
-      const userAst : AST = this.parseExpression(content)
+      const userAst : AST = this.parseExpression(content, macrotable)
+      // HERE
       const stepRecord : StepRecord = history[history.length - 1]
       const { isNormalForm, step } = stepRecord
       let { ast, lastReduction } = stepRecord
@@ -915,13 +923,15 @@ export default class ExerciseBox extends PureComponent<EvaluationProperties> {
   }
 
   // THROWS Exceptions
-  parseExpression (expression : string) : AST {
-    const { macrotable } = this.props.macroContext
+  parseExpression (expression : string, macrotable : MacroMap) : AST {
+    console.log('parsing expression ', expression)
+    // const { macrotable } = this.props.macroContext
+    console.log('my macrotable ', macrotable)
 
     const { SLI : singleLetterVars } = this.props.state
 
     const tokens : Array<Token> = tokenize(expression, { lambdaLetters : ['λ'], singleLetterVars, macromap : macrotable })
-    const ast : AST = parse(tokens, this.props.macroContext.macrotable) // macroTable
+    const ast : AST = parse(tokens, macrotable) // macroTable
 
     return ast
   }
