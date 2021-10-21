@@ -1,4 +1,4 @@
-import { AST, Lambda, Application, Macro, ChurchNumeral, Variable } from "@lambdulus/core"
+import { AST, Lambda, Application, Macro, ChurchNumeral, Variable, MacroMap } from "@lambdulus/core"
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -15,7 +15,7 @@ export class TreeComparator {
   public equals : boolean = true
   private context : Pair<AST>
 
-  constructor (readonly roots : Pair<AST> ) {
+  constructor (readonly roots : Pair<AST>, readonly macrotables : Pair<MacroMap>) {
     [ ...this.context ] = roots
     // TODO: I need to compare roots first
     this.compare()
@@ -63,6 +63,12 @@ export class TreeComparator {
       this.compare()
     }
     else if (left instanceof Macro && right instanceof Macro) {
+      if (this.macrotables[0][left.name()] === this.macrotables[1][right.name()]) {
+        // this means that both macros are defined identicaly
+        // their names migh differ, but they are letter by letter defined as the same thing
+        this.equals = true
+        return
+      }
       this.equals = left.name() === right.name()
     }
     else if (left instanceof ChurchNumeral && right instanceof ChurchNumeral) {
