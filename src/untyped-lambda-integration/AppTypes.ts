@@ -827,7 +827,7 @@ export function tryMacroContraction (ast : AST, macrotable : MacroTable) : AST {
     const tokens : Array<Token> = tokenize(definition, { lambdaLetters : ['λ'], singleLetterVars : false, macromap : macrotable })
     const macroast : AST = parse(tokens, macrotable)
 
-    const comparator : TreeComparator = new TreeComparator([ast, macroast])
+    const comparator : TreeComparator = new TreeComparator([ast, macroast], [macrotable, macrotable])
 
     if (comparator.equals) {
       const macroNameAst : AST = parse(tokenize(name, { lambdaLetters : ['λ'], singleLetterVars : false, macromap : macrotable }), macrotable)

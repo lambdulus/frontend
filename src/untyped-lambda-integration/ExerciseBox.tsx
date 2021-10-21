@@ -329,7 +329,7 @@ export default class ExerciseBox extends PureComponent<EvaluationProperties> {
       }
     
       let message : StepMessage = { validity : StepValidity.CORRECT, userInput : content, message : '' }
-      const comparator : TreeComparator = new TreeComparator([ userAst, ast ])
+      const comparator : TreeComparator = new TreeComparator([ userAst, ast ], [ newMacrotable, macrotable ])
 
       if (comparator.equals) {
         ast = userAst
@@ -352,7 +352,7 @@ export default class ExerciseBox extends PureComponent<EvaluationProperties> {
         history : [ ...history, { ast, lastReduction, step : step + 1, message, isNormalForm : isNormal, exerciseStep : true } ],
         editor : {
           ...state.editor,
-          content : Object.entries(macrotable).map(([name, definition] : [string, string]) => name + ' := ' + definition + ' ;\n').join('') + ast.toString(),
+          content : Object.entries(newMacrotable).map(([name, definition] : [string, string]) => name + ' := ' + definition + ' ;\n').join('') + ast.toString(),
           caretPosition : 0,
           placeholder : PromptPlaceholder.VALIDATE_MODE,
           syntaxError : null,
@@ -457,7 +457,7 @@ export default class ExerciseBox extends PureComponent<EvaluationProperties> {
       }
     
       let message : StepMessage = { validity : StepValidity.CORRECT, userInput : content, message : '' }
-      const comparator : TreeComparator = new TreeComparator([ userAst, ast ])
+      const comparator : TreeComparator = new TreeComparator([ userAst, ast ], [ newMacrotable, macrotable ])
 
       if (comparator.equals) {
         ast = userAst
@@ -480,7 +480,7 @@ export default class ExerciseBox extends PureComponent<EvaluationProperties> {
         history : [ ...history, { ast, lastReduction, step : step + 1, message, isNormalForm : isNormal, exerciseStep : true } ],
         editor : {
           ...state.editor,
-          content : Object.entries(macrotable).map(([name, definition] : [string, string]) => name + ' := ' + definition + ' ;\n').join('') + ast.toString(),
+          content : Object.entries(newMacrotable).map(([name, definition] : [string, string]) => name + ' := ' + definition + ' ;\n').join('') + ast.toString(),
           caretPosition : 0,
           placeholder : PromptPlaceholder.VALIDATE_MODE,
           syntaxError : null,
