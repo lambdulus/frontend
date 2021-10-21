@@ -248,10 +248,16 @@ export default class ExerciseBox extends PureComponent<EvaluationProperties> {
 
   onSimplifiedExerciseStep () {
     const { state, setBoxState } = this.props
-    const { strategy, history, editor : { content }, macrotable } = state
+    const { strategy, history, editor : { content }, macrotable, SLI } = state
 
     try {
-      const userAst : AST = this.parseExpression(content, macrotable)
+      const definitions : Array<string> = content.split(';')
+      const expression : string = definitions.pop() || ""
+      const macromap : MacroMap = toMacroMap(definitions, SLI)
+      const newMacrotable : MacroMap = { ...macrotable, ...macromap } // the local macromap has a higher priority
+      
+
+      const userAst : AST = this.parseExpression(expression, newMacrotable)
       const stepRecord : StepRecord = history[history.length - 1]
       const { isNormalForm, step } = stepRecord
       let { ast, lastReduction } = stepRecord
@@ -346,7 +352,7 @@ export default class ExerciseBox extends PureComponent<EvaluationProperties> {
         history : [ ...history, { ast, lastReduction, step : step + 1, message, isNormalForm : isNormal, exerciseStep : true } ],
         editor : {
           ...state.editor,
-          content : ast.toString(),
+          content : Object.entries(macrotable).map(([name, definition] : [string, string]) => name + ' := ' + definition + ' ;\n').join('') + ast.toString(),
           caretPosition : 0,
           placeholder : PromptPlaceholder.VALIDATE_MODE,
           syntaxError : null,
@@ -368,7 +374,7 @@ export default class ExerciseBox extends PureComponent<EvaluationProperties> {
   onExerciseStep () {
     // console.log('EXERCISE STEP')
     const { state, setBoxState } = this.props
-    const { strategy, history, editor : { content }, SDE, macrotable } = state
+    const { strategy, history, editor : { content }, SDE, macrotable, SLI } = state
     
     if (SDE === true) {
       this.onSimplifiedExerciseStep()
@@ -377,7 +383,13 @@ export default class ExerciseBox extends PureComponent<EvaluationProperties> {
 
 
     try {
-      const userAst : AST = this.parseExpression(content, macrotable)
+      const definitions : Array<string> = content.split(';')
+      const expression : string = definitions.pop() || ""
+      const macromap : MacroMap = toMacroMap(definitions, SLI)
+      const newMacrotable : MacroMap = { ...macrotable, ...macromap } // the local macromap has a higher priority
+      
+
+      const userAst : AST = this.parseExpression(expression, newMacrotable)
       // HERE
       const stepRecord : StepRecord = history[history.length - 1]
       const { isNormalForm, step } = stepRecord
@@ -468,7 +480,7 @@ export default class ExerciseBox extends PureComponent<EvaluationProperties> {
         history : [ ...history, { ast, lastReduction, step : step + 1, message, isNormalForm : isNormal, exerciseStep : true } ],
         editor : {
           ...state.editor,
-          content : ast.toString(),
+          content : Object.entries(macrotable).map(([name, definition] : [string, string]) => name + ' := ' + definition + ' ;\n').join('') + ast.toString(),
           caretPosition : 0,
           placeholder : PromptPlaceholder.VALIDATE_MODE,
           syntaxError : null,
