@@ -2,7 +2,7 @@ name: Dispatch remote deployment of the Lambdulus Frontend App.
 
 on:
   push:
-    branches: [ main ]
+    branches: [ master ]
 
 jobs:
   build:
