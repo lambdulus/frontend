@@ -1,13 +1,10 @@
-import React, { Component, ChangeEvent, MouseEvent } from 'react'
+import React, { MouseEvent } from 'react'
 
-import { NoteState, PromptPlaceholder } from './AppTypes'
+import { NoteState } from './AppTypes'
 
 import 'pretty-checkbox'
 import './styles/EditingSwitch.css'
 import { BoxState } from '../Types'
-
-const { Switch } = require('pretty-checkbox-react')
-
 
 interface Props {
   state : NoteState
@@ -18,8 +15,8 @@ interface Props {
 
 
 export default function BoxTopBar (props : Props) : JSX.Element {
-  const { state, isActive, removeBox, updateBoxState } = props
-  const { note, isEditing, title } = state
+  const { state, updateBoxState } = props
+  const { isEditing } = state
 
   return (
     <div className=''>

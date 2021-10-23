@@ -3,7 +3,7 @@ import React, { ChangeEvent } from 'react'
 import { AppState, Screen, NotebookState } from '../Types'
 
 import '../styles/TopBar.css'
-import { decode, decodeNotebook } from '../Constants'
+import { decodeNotebook } from '../Constants'
 
 
 interface Props {
@@ -113,7 +113,7 @@ function onFiles (event : ChangeEvent<HTMLInputElement>, onImport : (notebook : 
   }
 
   const file : File = files[0]
-  const reader : FileReader = new FileReader
+  const reader : FileReader = new FileReader()
   reader.onload = (event : Event) => {
     const notebook : NotebookState = JSON.parse(reader.result as string)
 

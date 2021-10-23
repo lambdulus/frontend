@@ -1,7 +1,7 @@
 import React, { PureComponent } from 'react'
 
-import { BoxState, BoxType } from '../Types'
-import { UntypedLambdaState, UntypedLambdaType, UntypedLambdaExpressionState, UntypedLambdaSettings, PromptPlaceholder, EvaluationStrategy, StepMessage, StepValidity } from './Types'
+import { BoxType } from '../Types'
+import { UntypedLambdaState, UntypedLambdaType, UntypedLambdaSettings, PromptPlaceholder, StepMessage, StepValidity } from './Types'
 import ExpressionBox from './ExpressionBox'
 // import Macro from './Macro'
 import MacroList from './MacroList'
@@ -10,7 +10,7 @@ import ExerciseBox from './ExerciseBox'
 import Settings from './Settings'
 import EmptyExpression from './EmptyExpression'
 import { reportEvent } from '../misc'
-import { None, Evaluator, Token, tokenize, parse, AST, NormalEvaluator, ApplicativeEvaluator, OptimizeEvaluator, NormalAbstractionEvaluator, MacroMap, ASTReduction } from '@lambdulus/core'
+import { None, Evaluator, Token, tokenize, parse, AST, OptimizeEvaluator, MacroMap } from '@lambdulus/core'
 
 // import macroctx from './MacroContext'
 
@@ -25,10 +25,6 @@ interface Props {
 }
 
 export default class UntypedLambdaBox extends PureComponent<Props> {
-  constructor (props : Props) {
-    super(props)
-  }
-
   render () {
     const { state, isActive, isFocused, setBoxState, addBox } : Props = this.props
     const { settingsOpen, subtype, macrolistOpen, SLI, expandStandalones, strategy, SDE, editor, minimized } : UntypedLambdaState = state
@@ -190,7 +186,7 @@ export default class UntypedLambdaBox extends PureComponent<Props> {
         macrotable : macromap,
         history : [ {
           ast : ast.clone(),
-          lastReduction : new None,
+          lastReduction : new None(),
           step : 0,
           message,
           isNormalForm : isNormal,

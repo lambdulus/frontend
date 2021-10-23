@@ -4,11 +4,9 @@ import { ASTReduction, AST, MacroMap, None } from '@lambdulus/core'
 import './styles/Step.css'
 
 import ReactPrinter from './ReactPrinter'
-// import ReductionMessage from './ReductionMessage'
 import { EvaluationStrategy, StepRecord, Breakpoint, Evaluator, StepValidity } from './Types'
 import ReductionMessage from './ReductionMessage'
 import { strategyToEvaluator, findSimplifiedReduction, MacroBeta } from './AppTypes'
-// import { StrategyContext } from './DataInjector'
 
 
 interface StepWrapperProperties {
@@ -53,7 +51,7 @@ export default function StepWrapper (props : StepWrapperProperties) : JSX.Elemen
 function Step (props : StepProperties) : JSX.Element | null {
   const { stepRecord, addBreakpoint, breakpoints, children, strategy, SDE, macrotable } = props
   const { ast : tree, lastReduction, step, message, exerciseStep } = stepRecord
-  const { validity, userInput } = message
+  const { validity } = message
 
   if (tree === null) {
     return null

@@ -9,7 +9,6 @@ import { BoxType, NotebookState, GlobalSettings, BoxState } from '../Types'
 
 import { onMarkDownBlur, NoteState, onMarkDownActive } from '../markdown-integration/AppTypes'
 import { BoxContainer } from '../components/BoxContainer'
-import { UntypedLambdaState } from '../untyped-lambda-integration/Types'
 
 interface Props {
   state : NotebookState
@@ -253,20 +252,19 @@ export default class Notebook extends PureComponent<Props> {
       }
 
       switch (futureType) {
-        case BoxType.MARKDOWN: {
+        case BoxType.MARKDOWN:
           boxList[index] = {
             ...onMarkDownActive(boxList[index] as NoteState),
             ...patch,
           }
-        }
+          break
           
-        default: {
+        default:
           boxList[index] = {
             ...boxList[index],
             ...patch
           }
-        }
-          break;
+          break
       }
 
       this.updateURL(boxList[index])
@@ -296,10 +294,10 @@ export default class Notebook extends PureComponent<Props> {
         // boxList[activeBoxIndex] = onUntypedLambdaBlur(boxList[activeBoxIndex])
         break
       
-      case BoxType.MARKDOWN: {
+      case BoxType.MARKDOWN:
         boxList[index] = onMarkDownBlur(boxList[index] as NoteState)
         // return // TODO: just for now
-      }
+      break
 
       default:
         break
@@ -310,30 +308,30 @@ export default class Notebook extends PureComponent<Props> {
 
   updateURL (box : BoxState) : void {
     return
-    switch (box.type) {
-      case BoxType.MARKDOWN : {
-        const searchParams : URLSearchParams = new URL(window.document.location.toString()).searchParams
+    // switch (box.type) {
+    //   case BoxType.MARKDOWN : {
+    //     const searchParams : URLSearchParams = new URL(window.document.location.toString()).searchParams
 
-        searchParams.set('type', BoxType.MARKDOWN)
-        searchParams.set('source', encodeURI((box as NoteState).editor.content))
+    //     searchParams.set('type', BoxType.MARKDOWN)
+    //     searchParams.set('source', encodeURI((box as NoteState).editor.content))
 
-        window.history.pushState(null, '', '?' + searchParams.toString())
-        break;
-      }
+    //     window.history.pushState(null, '', '?' + searchParams.toString())
+    //     break;
+    //   }
 
-      case BoxType.UNTYPED_LAMBDA : {
-        const searchParams : URLSearchParams = new URL(window.document.location.toString()).searchParams
+    //   case BoxType.UNTYPED_LAMBDA : {
+    //     const searchParams : URLSearchParams = new URL(window.document.location.toString()).searchParams
 
-        searchParams.set('type', BoxType.UNTYPED_LAMBDA)
-        searchParams.set('source', encodeURI((box as UntypedLambdaState).editor.content))
+    //     searchParams.set('type', BoxType.UNTYPED_LAMBDA)
+    //     searchParams.set('source', encodeURI((box as UntypedLambdaState).editor.content))
 
-        window.history.pushState(null, '', '?' + searchParams.toString())
+    //     window.history.pushState(null, '', '?' + searchParams.toString())
 
-        break;
-      }
+    //     break;
+    //   }
     
-      default:
-        break;
-    }
+    //   default:
+    //     break;
+    // }
   }
 }

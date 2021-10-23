@@ -1,8 +1,7 @@
-import React, { useContext, ReactNode, ChangeEvent } from 'react'
+import React, { ChangeEvent } from 'react'
 
 import Editor from '../components/Editor'
-// import { MakeActiveContext, DeleteBox } from './BoxSpace'
-import { StepRecord, UntypedLambdaExpressionState, EvaluationStrategy } from './Types'
+import { UntypedLambdaExpressionState, EvaluationStrategy } from './Types'
 
 import './styles/EmptyExpression.css'
 
@@ -31,7 +30,6 @@ export default function EmptyExpression(props : EmptyExpressionProps) : JSX.Elem
   const {
     placeholder,
     content,
-    caretPosition,
     syntaxError,
   } = editor
   const { SDE, strategy, SLI } = state

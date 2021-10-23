@@ -1,6 +1,5 @@
-import React, { Component, MouseEvent } from 'react'
+import React, { MouseEvent } from 'react'
 
-import Controls from './ExerciseSwitch'
 import { UntypedLambdaState } from './Types'
 import { BoxState } from '../Types'
 
@@ -16,7 +15,7 @@ interface Props {
 
 
 export default function BoxTopBar (props : Props) : JSX.Element {
-  const { state, isActive, removeBox, updateBoxState } = props
+  const { state, updateBoxState } = props
   const { macrolistOpen } = state
 
   return (

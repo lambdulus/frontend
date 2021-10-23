@@ -1,9 +1,8 @@
 import { BoxType } from '../Types'
 import { EvaluationStrategy, UntypedLambdaState, UntypedLambdaSettings, UntypedLambdaType, StepRecord, UntypedLambdaExpressionState, UntypedLambdaIntegrationState, SettingsEnabled, PromptPlaceholder, StepMessage, StepValidity } from "./Types"
-import { ASTReduction, AST, decodeFast as decodeUntypedLambdaFast, Evaluator, NormalEvaluator, None, Expansion, Macro, ASTReductionType, Alpha, Lambda, Beta, Eta, Application, ASTVisitor, Variable, ChurchNumeral, BetaReducer, builtinMacros, MacroTable, Token, tokenize, parse, TokenType, ApplicativeEvaluator, OptimizeEvaluator, NormalAbstractionEvaluator, MacroMap } from '@lambdulus/core'
+import { ASTReduction, AST, decodeFast as decodeUntypedLambdaFast, Evaluator, NormalEvaluator, None, Expansion, Macro, ASTReductionType, Alpha, Lambda, Beta, Eta, Application, ASTVisitor, Variable, ChurchNumeral, builtinMacros, MacroTable, Token, tokenize, parse, ApplicativeEvaluator, OptimizeEvaluator, NormalAbstractionEvaluator, MacroMap } from '@lambdulus/core'
 import { Child, Binary } from '@lambdulus/core/dist/ast'
 import { TreeComparator } from './TreeComparator'
-import { PositionRecord, BLANK_POSITION } from '@lambdulus/core/dist/lexer/position'
 import { reportEvent } from '../misc'
 
 // import macroctx from './MacroContext'
@@ -85,7 +84,7 @@ export function toMacroMap (definitions : Array<string>, SLI : boolean) : MacroM
     const [name, body] = def.split(':=')
 
     if (name.trim().length === 0 || body.trim().length === 0) {
-      throw "Invalid Macro definition. Possibly empty Macro definition?"
+      throw Error("Invalid Macro definition. Possibly empty Macro definition?")
     }
 
     return { ...acc, [name] : '' }
@@ -157,8 +156,6 @@ export function createNewUntypedLambdaBoxFromSource (source : string, defaultSet
 function createNewUntypedLambdaBoxFromSource2 (source : string, defaultSettings : UntypedLambdaSettings, subtype : UntypedLambdaType, macrotable : MacroTable) : UntypedLambdaExpressionState {
   const { SDE, SLI, strategy } = defaultSettings
 
-  const definitions : Array<string> = source.split(';')
-  // const expression : string = definitions.pop() || ""
   const expression = [Object.entries(macrotable).map(([name, def]) => `${name} := ${def}`).join(';\n') , source].join(';\n')
 
   const macromap : MacroMap = macrotable // toMacroMap(definitions, SLI)
@@ -211,7 +208,7 @@ function createNewUntypedLambdaBoxFromSource2 (source : string, defaultSettings 
       expression,
       history : [ {
         ast : ast.clone(),
-        lastReduction : new None,
+        lastReduction : new None(),
         step : 0,
         message,
         isNormalForm : isNormal,
@@ -359,7 +356,7 @@ function decodeUntypedLambdaExpression (box : UntypedLambdaExpressionState) : Un
     // parse expression
     // replace untypedLambdaBox.ast with parsed AST
     // for now - throw error
-    throw "ROOT AST IS NOT DECODABLE"
+    throw Error("ROOT AST IS NOT DECODABLE")
   }
 
   untypedLambdaBox.ast = decodedFirst
@@ -373,7 +370,7 @@ function decodeUntypedLambdaExpression (box : UntypedLambdaExpressionState) : Un
       // you will need to do the steps as long as need to be
       // replace decodedNth with parsed AST
       // for throw
-      throw "CURRENT STEP IS NOT DECODABLE " + index
+      throw Error("CURRENT STEP IS NOT DECODABLE " + index)
     }
 
     // TODO: maybe instead of this theatre just use the Core . Evalautor
@@ -429,7 +426,7 @@ export function findSimplifiedReduction (ast : AST, strategy : EvaluationStrateg
     // newAst je ted to same jako ast
     // uvnitr celeho stromu hledam dalsi REDEX
     //
-    const [newreduction, newperformevaluation] = findSimplifiedReduction(newAst, strategy, macrotable)
+    const [newreduction] = findSimplifiedReduction(newAst, strategy, macrotable)
 
     // return [nextReduction, (ast) => newAst]
 
@@ -464,7 +461,7 @@ export function findSimplifiedReduction (ast : AST, strategy : EvaluationStrateg
     // console.log("_________________________________ MACRO EXPANSION   ", nextReduction.target.toString())
     // debugger
     
-    const { parent, treeSide, target, type } : Expansion = nextReduction
+    const { parent, treeSide, target } : Expansion = nextReduction
     
     const M : Macro = target.clone()
 
@@ -686,7 +683,7 @@ export function findSimplifiedReduction (ast : AST, strategy : EvaluationStrateg
 
         if (macroIsSingleStep(M)) {
           if (lastapp === null) {
-            throw "This is bad, real bad."
+            throw Error("This is bad, real bad.")
             // NOTE LATER: not sure what does that mean?
           }
   
@@ -742,6 +739,7 @@ export function findSimplifiedReduction (ast : AST, strategy : EvaluationStrateg
     // if (parent !== null && treeSide !== null && ( ! findRedexIn(parent[treeSide], newreduction)))
     // this is fallbacking action
     // redex was found - but does not concern previously expanded macro - so the expansions is unnecessary
+    // eslint-disable-next-line
     {
       // console.log("_________________________________ rule II. INSIDE THIS IS FALLBACK")
       // console.log(newreduction.type)

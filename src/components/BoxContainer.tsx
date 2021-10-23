@@ -1,8 +1,8 @@
-import React, { MouseEvent, PureComponent, Component } from 'react'
+import React, { MouseEvent, Component } from 'react'
 import { mapBoxTypeToStr } from '../Constants'
 import Box from './Box'
 import BoxTitleBar from './BoxTitleBar'
-import { BoxState, GlobalSettings, BoxesWhitelist, BoxType } from '../Types'
+import { BoxState, GlobalSettings, BoxesWhitelist } from '../Types'
 
 import "../styles/BoxContainer.css"
 import PickBoxTypeModal from './PickBoxTypeModal'
@@ -49,8 +49,6 @@ export class BoxContainer extends Component<Props, State> {
       removeBox
     } : Props = this.props
   
-    const { settingsOpen } : BoxState = box
-
     const { modalOpen } = this.state
   
     const boxTypeClassName : string = mapBoxTypeToStr(box.type)

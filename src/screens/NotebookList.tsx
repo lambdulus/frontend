@@ -15,7 +15,7 @@ interface Props {
 
 export default function NotebookList (props : Props) : JSX.Element {
   const { state, onSelectNotebook, onRemoveNotebook, onUpdateNotebook, onAddNotebook } : Props = props
-  const { notebookList, currentNotebook } : AppState = state
+  const { notebookList } : AppState = state
 
   return (
     <div className='mainSpace'>

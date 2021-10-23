@@ -11,7 +11,7 @@ type Triple<T> = [T, T, T]
 //
 // first I need more trees, I need the previous AST
 export class TreeComparator {
-  private translator : Map<string, string> = new Map
+  private translator : Map<string, string> = new Map()
   public equals : boolean = true
   private context : Pair<AST>
 
