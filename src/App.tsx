@@ -31,6 +31,8 @@ export default class App extends Component<Props, AppState> {
   constructor (props : Props) {
     super(props)
 
+    console.log(`VERSION: ${process.env.REACT_APP_VERSION_INFO}`)
+
     this.state = loadAppStateFromStorage()
 
     initIntegrationStates(this.state) // TODO: go and refactor the implementation of this fn
