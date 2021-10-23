@@ -7,6 +7,10 @@ const ReactMarkdown = require('react-markdown')
 export default function Help (props : {}) : JSX.Element {
   return (
   <div className='helpSpace'>
-    <ReactMarkdown className='markdown-body' source={ guide } />    
+    <ReactMarkdown className='markdown-body' source={ guide } />
+    <br />
+    <br />
+    <br />
+    { `version: ${process.env.REACT_APP_VERSION_INFO}` }
   </div>)
 }
