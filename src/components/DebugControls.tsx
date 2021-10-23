@@ -15,10 +15,6 @@ interface Props {
 // it would be singleton module, which would make sure ONLY ONE `DebugControls` component
 // is subscribed to the `keydown` event
 export default class DebugControls extends PureComponent<Props> {
-  constructor (props : Props) {
-    super(props)
-  }
-
   componentDidMount () : void {
     document.onkeydown = (event) => {
       console.log('KEYDOWN', event.key)

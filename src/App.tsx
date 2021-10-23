@@ -126,6 +126,7 @@ export default class App extends Component<Props, AppState> {
           window.history.replaceState(null, '', '/') // TODO: decide if remove or leave
         }
       }
+      break
         
       default:
         break;

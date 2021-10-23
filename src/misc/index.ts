@@ -1,6 +1,3 @@
-import { MacroMap } from "@lambdulus/core" // TODO: remove?
-
-
 export function debounce (fn : Function, treshold : number)
  : [ (...args : Array<any>) => void, () => void ] {
   let timer : number

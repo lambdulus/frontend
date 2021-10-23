@@ -4,12 +4,11 @@ import UntypedLambdaBTB from '../untyped-lambda-integration/BoxTopBar'
 import { UntypedLambdaState } from '../untyped-lambda-integration/Types'
 
 import MarkdownBTB from '../markdown-integration/BoxTopBar'
-import { NoteState, resetMarkdownBox } from '../markdown-integration/AppTypes'
+import { NoteState } from '../markdown-integration/AppTypes'
 
 import EmptyBTB from '../empty-integration/BoxTopBar'
 
 import '../styles/BoxTopBar.css'
-import PickBoxTypeModal from './PickBoxTypeModal'
 import { resetUntypedLambdaBox } from '../untyped-lambda-integration/AppTypes'
 
 
@@ -51,10 +50,10 @@ export default class BoxTitleBar extends Component<Props, State> {
   }
 
   render () : JSX.Element {
-    const { state, isActive, updateBoxState, removeBox, addBoxBefore, addBoxAfter } : Props = this.props
-    const { type, title, minimized, settingsOpen } = state
+    const { state, isActive, updateBoxState, removeBox } : Props = this.props
+    const { type, title, minimized } = state
 
-    const { where, menuOpen, shareLinkOpen } : State = this.state
+    const { shareLinkOpen } : State = this.state
 
     return (
       <div className='boxTopBar'
@@ -238,8 +237,11 @@ export default class BoxTitleBar extends Component<Props, State> {
 
           <div
             className='box-top-bar--controls-item'
-            onMouseDownCapture={ e => (e.preventDefault() , e.stopPropagation()) }
-            // ^^^ this line is just a dirty quick bug fix
+            onMouseDownCapture={ e => {
+              e.preventDefault()
+              e.stopPropagation()
+            } }
+            // ^^^ this function is just a dirty quick bug fix
             // when you are editing and click on the edit button again
             // on the mouse down - the box loses focus and then on mouse up
             // the onClick is finished and it is then again focused

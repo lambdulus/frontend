@@ -86,7 +86,7 @@ export default class ReactPrinter extends ASTVisitor {
             title={ title }
             onClick={ () => {
               (context as any).identifier = Symbol()
-              this.onClick({ type : ASTReductionType.BETA, context, broken : new Set })
+              this.onClick({ type : ASTReductionType.BETA, context, broken : new Set() })
               reportEvent('Breakpoint added to argument', 'Breakpoint was added', '')
             }
             }
@@ -284,7 +284,7 @@ export default class ReactPrinter extends ASTVisitor {
           title={ title }
           onClick={ () => {
             (context as any).identifier = Symbol()
-            this.onClick({ type : ASTReductionType.BETA, context, broken : new Set })
+            this.onClick({ type : ASTReductionType.BETA, context, broken : new Set() })
             reportEvent('Breakpoint added to argument', 'Breakpoint was added', '')
           }
           }
@@ -342,7 +342,7 @@ export default class ReactPrinter extends ASTVisitor {
                 title={ title }
                 onClick={ () => {
                   (context as any).identifier = Symbol()
-                  this.onClick({ type : ASTReductionType.BETA, context, broken : new Set })
+                  this.onClick({ type : ASTReductionType.BETA, context, broken : new Set() })
                   reportEvent('Breakpoint added', 'Breakpoint was added', '')
                 }
                 }
@@ -398,7 +398,7 @@ export default class ReactPrinter extends ASTVisitor {
         title={ title }
         onClick={ () => {
           (churchNumber as any).identifier = Symbol()
-          this.onClick({ type: ASTReductionType.EXPANSION, context : churchNumber, broken : new Set })
+          this.onClick({ type: ASTReductionType.EXPANSION, context : churchNumber, broken : new Set() })
           reportEvent('Breakpoint added to ChurchNumeral', 'Breakpoint was added', '')
         }
         }
@@ -463,7 +463,7 @@ export default class ReactPrinter extends ASTVisitor {
         title={ title }
         onClick={ () => {
           (macro as any).identifier = Symbol()
-          this.onClick({ type: ASTReductionType.EXPANSION, context : macro, broken : new Set })
+          this.onClick({ type: ASTReductionType.EXPANSION, context : macro, broken : new Set() })
           reportEvent('Breakpoint added to Macro', 'Breakpoint was added', '')
         }
         }

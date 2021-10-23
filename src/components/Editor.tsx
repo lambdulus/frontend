@@ -1,4 +1,4 @@
-import React, { ChangeEvent, KeyboardEvent } from 'react'
+import React, { KeyboardEvent } from 'react'
 import MonacoEditor from 'react-monaco-editor'
 
 import '../styles/Editor.css'
@@ -43,7 +43,6 @@ export default function Editor (props : EditorProperties) : JSX.Element {
     onCtrlEnter,
     // onExecute,
   } : EditorProperties = props
-  const lines : number = content.split('\n').length
 
   const onChange = (content : string) => {
     // let { target : { value : content } } : { target : { value : string } } = event
@@ -117,7 +116,7 @@ interface InputProps {
 }
 
 function InputField (props : InputProps) : JSX.Element {
-  const { placeholder, content, onKeyDown, onContent } : InputProps = props
+  const { content, onKeyDown, onContent } : InputProps = props
   const lines : number = content.split('\n').length
 
 

@@ -1,10 +1,6 @@
 import React, { Component } from 'react'
 
-import { ANY_BOX, NO_BOX } from '../Constants'
-import { BoxType, BoxesWhitelist, BoxState, GlobalSettings } from '../Types'
-import { createNewUntypedLambdaExpression, ADD_BOX_LABEL, CODE_NAME as UNTYPED_CODE_NAME } from '../untyped-lambda-integration/AppTypes'
-import { UntypedLambdaSettings, UntypedLambdaState } from '../untyped-lambda-integration/Types'
-import { createNewMarkdown } from '../markdown-integration/AppTypes'
+import { BoxesWhitelist, BoxState, GlobalSettings } from '../Types'
 
 import "../styles/CreateBox.css"
 import PickBoxTypeModal from './PickBoxTypeModal'
@@ -31,18 +27,14 @@ export default class CreateBox extends Component <Props, State> {
   }
 
   render () : JSX.Element {
-    const { addNew, whiteList, settings } : Props = this.props
+    const { addNew } : Props = this.props
     const { modalOpen } = this.state
    
     if (this.state.modalOpen === false) {
       return (
         <div className='create-box-plus' onClick={ () => this.setState({ modalOpen : ! modalOpen }) } >
           <div className='create-box-plus--button'>
-            {/* <div className='create-box-plus--container' onClick={ () => {} }> */}
-              {/* <p> */}
-                <i className="fas fa-plus" />
-              {/* </p> */}
-            {/* </div> */}
+            <i className="fas fa-plus" />
           </div>
         </div>
       )

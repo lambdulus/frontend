@@ -20,11 +20,10 @@ export default function Note (props : NoteProperties) : JSX.Element {
   const {
     state : {
       note,
-      editor : { placeholder, content, caretPosition, syntaxError },
+      editor : { placeholder, content, syntaxError },
       isEditing,
     },
     isActive,
-    isFocused,
     setBoxState,
   } = props
   

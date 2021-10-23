@@ -1,19 +1,12 @@
- import React, { PureComponent, ReactNode, ChangeEvent } from 'react'
+ import React, { PureComponent, ChangeEvent } from 'react'
 
-// import Controls from './Controls' // TODO: Controls are gonna be imported from the Frontend app - or maybe not even imported just passed as children
 import Step from './Step'
 import { UntypedLambdaState, Breakpoint, StepRecord, UntypedLambdaExpressionState, EvaluationStrategy } from './Types'
 import Editor from '../components/Editor'
-// import { DeleteBox } from './BoxSpace'
-// import { AddBoxContext } from './MethodInjector'
 import { mapLeftFromTo } from '../misc'
 import DebugControls from '../components/DebugControls'
-// import BoxTopBar from './BoxTopBar'
-// import Controls from './ExerciseSwitch'
 
 import './styles/Expression.css'
-import { MacroMap } from '@lambdulus/core'
-
 
 interface EvaluatorProps {
   className : string
@@ -48,12 +41,11 @@ export default class Expression extends PureComponent<EvaluatorProps> {
   render () : JSX.Element {
     const { className, state, editor, shouldShowDebugControls, isExercise, setBoxState } = this.props
 
-    const { isRunning, strategy, SDE, macrotable, SLI } : UntypedLambdaExpressionState = state
+    const { isRunning, strategy, SDE, macrotable } : UntypedLambdaExpressionState = state
 
     const {
       placeholder,
       content,
-      caretPosition,
       syntaxError,
     } = editor
 

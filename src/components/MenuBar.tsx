@@ -1,7 +1,6 @@
-import React, { ChangeEvent } from 'react'
+import React from 'react'
 
-import { decode, decodeNotebook } from '../Constants'
-import { Screen, AppState, NotebookState } from '../Types'
+import { Screen, AppState } from '../Types'
 
 
 import '../styles/MenuBar.css'
@@ -52,7 +51,8 @@ export default function MenuBar (props : MenuBarProperties) : JSX.Element {
           title='Submit a Bug or a Feature Request'
         >
           <a
-          target="_blank"
+            target="_blank"
+            rel="noopener noreferrer"
             href='https://github.com/lambdulus/frontend/issues'
           >
             <i className="icon fas fa-bug" />
@@ -152,30 +152,30 @@ export default function MenuBar (props : MenuBarProperties) : JSX.Element {
 // }
 
 
-function onFiles (event : ChangeEvent<HTMLInputElement>, onImport : (notebook : NotebookState) => void) : void {
-  const { target : { files } } = event
-  if (files === null) {
-    return
-  }
+// function onFiles (event : ChangeEvent<HTMLInputElement>, onImport : (notebook : NotebookState) => void) : void {
+//   const { target : { files } } = event
+//   if (files === null) {
+//     return
+//   }
 
-  const file : File = files[0]
-  const reader : FileReader = new FileReader
-  reader.onload = (event : Event) => {
-    const notebook : NotebookState = JSON.parse(reader.result as string)
+//   const file : File = files[0]
+//   const reader : FileReader = new FileReader
+//   reader.onload = (event : Event) => {
+//     const notebook : NotebookState = JSON.parse(reader.result as string)
 
-    onImport(decodeNotebook(notebook))
+//     onImport(decodeNotebook(notebook))
 
-    // onImport(hydrate(state))
-    // reportEvent('Import notebook', `Notebook named ${ file.name }`, '')
-  }
+//     // onImport(hydrate(state))
+//     // reportEvent('Import notebook', `Notebook named ${ file.name }`, '')
+//   }
 
-  reader.readAsText(file) 
-}
+//   reader.readAsText(file) 
+// }
 
-function createURL (content : string) : string {
-  const data = new Blob([ content ], {
-    type: 'application/json'
-  })
+// function createURL (content : string) : string {
+//   const data = new Blob([ content ], {
+//     type: 'application/json'
+//   })
 
-  return window.URL.createObjectURL(data);
-}
+//   return window.URL.createObjectURL(data);
+// }

@@ -1,4 +1,4 @@
-import React, { useContext, ReactNode } from 'react'
+import React from 'react'
 
 import Step from './Step'
 // import { AddBoxContext } from './MethodInjector'
@@ -38,7 +38,6 @@ export default function InactiveExpression (props : InactiveExpressionProps) : J
             SDE={ SDE }
             macrotable={ macrotable }
           >
-            
             {/* <AddBoxContext.Consumer>
               {
                 (addBox : (boxState : BoxState) => void) => <i
@@ -47,7 +46,6 @@ export default function InactiveExpression (props : InactiveExpressionProps) : J
                 />
               }
             </AddBoxContext.Consumer> */}
-            
           </Step>
         </li>
       </ul>
