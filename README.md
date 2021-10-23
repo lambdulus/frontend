@@ -10,6 +10,7 @@ Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
 The page will reload if you make edits.<br />
 You will also see any lint errors in the console.
 
-### `npm run build`
+### `Building and Deploying`
 
-Build the app to `docs` folder - after pushing to remote it will be deployed to GitHub Pages.
+To build and deploy the Frontend App you have to open a merge request into the `master` branch and merge it.
+There is an action which will take care of the rest.
