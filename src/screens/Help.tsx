@@ -12,5 +12,7 @@ export default function Help (props : {}) : JSX.Element {
     <br />
     <br />
     { `version: ${process.env.REACT_APP_VERSION_INFO}` }
+    <br />
+    { `commit hash: ${process.env.REACT_APP_COMMIT}` }
   </div>)
 }
