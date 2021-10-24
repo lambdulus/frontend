@@ -1,6 +1,6 @@
 import React from 'react'
 
-import 'github-markdown-css'
+import 'github-markdown-css/github-markdown-light.css'
 import { NoteState } from './AppTypes'
 import Editor from '../components/Editor'
 
