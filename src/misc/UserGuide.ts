@@ -1,4 +1,4 @@
-const content = `# User guide
+const content : string = `# User guide
 
 ## Typing expressions
 #### To write lambda expression you simply type in the prompt.
