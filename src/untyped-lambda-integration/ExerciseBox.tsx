@@ -221,11 +221,21 @@ export default class ExerciseBox extends PureComponent<EvaluationProperties> {
 
       reportEvent('Submit Expression', 'submit valid', content)
     } catch (exception) {
+      let errorMessage : string = "Something is wrong with your expression. Please inspect it closely."
+      console.error((exception as Error).toString())
+
+      if (content.match(/:=/g)?.length !== content.match(/;/g)?.length) {
+        errorMessage = "Did you forget to write a semicolon after the Macro definition?"
+      }
+      if (content.match(/\s*;\s*$/g)) {
+        errorMessage = "There's a semicolon at the end."
+      }
+      
       setBoxState({
         ...state,
         editor : {
           ...state.editor,
-          syntaxError : exception.toString(),
+          syntaxError : Error(errorMessage),
         }
       })
 

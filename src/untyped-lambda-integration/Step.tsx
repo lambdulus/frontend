@@ -114,7 +114,7 @@ function Step (props : StepProperties) : JSX.Element | null {
             </p>
             :
             validity === StepValidity.INCORRECT ?
-              <p>
+              <span>
                 <p className='stepMessage incorrect' >
                   Your input is incorrect!
                   <br /> It was: 
@@ -122,7 +122,7 @@ function Step (props : StepProperties) : JSX.Element | null {
                   <br />
                 </p>
                 <p className='stepMessage'>Continue from the next step please.</p>
-              </p>
+              </span>
             :
               <p className='stepMessage correct' >
                 { stepRecord.message.message }
