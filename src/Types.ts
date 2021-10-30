@@ -29,7 +29,6 @@ export interface AbstractBoxState {
   __key : string, 
   title : String,
   minimized : boolean,
-  menuOpen : boolean,
   settingsOpen : boolean,
 }
 
