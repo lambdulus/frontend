@@ -16,7 +16,6 @@ interface EvaluatorProps {
   editor : {
     placeholder : string
     content : string
-    caretPosition : number
     syntaxError : Error | null
   }
   isNormalForm : boolean
