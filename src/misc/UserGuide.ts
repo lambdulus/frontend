@@ -1,4 +1,4 @@
-export default `# User guide
+const content : string = `# User guide
 
 ## Typing expressions
 #### To write lambda expression you simply type in the prompt.
@@ -37,3 +37,5 @@ export default `# User guide
 ## Report a Bug or Request New Features
 #### If you want to report a bug or you need some feature - click on the \`Issues\` button on the left or at the top of the page. Then fill in the issue on the GitHub page of the project. Definitely don't forget to check if the corresponding issue already exist.
 `
+
+export default content

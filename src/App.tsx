@@ -32,6 +32,8 @@ export default class App extends Component<Props, AppState> {
     super(props)
 
     console.log(`VERSION: ${process.env.REACT_APP_VERSION_INFO}`)
+    console.log(`COMMIT: ${process.env.REACT_APP_COMMIT}`)
+
 
     this.state = loadAppStateFromStorage()
 

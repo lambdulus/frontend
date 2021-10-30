@@ -3,7 +3,7 @@ import { AST, Lambda, Application, Macro, ChurchNumeral, Variable, MacroMap } fr
 ///////////////////////////////////////////////////////////////////////////////////////
 
 type Pair<T> = [T, T]
-type Triple<T> = [T, T, T]
+// type Triple<T> = [T, T, T]
 
 
 // TODO: fix the public equals interface, maybe public get and private set?

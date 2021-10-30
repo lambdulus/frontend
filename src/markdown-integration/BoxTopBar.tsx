@@ -22,7 +22,7 @@ export default function BoxTopBar (props : Props) : JSX.Element {
     <div className=''>
       {
       // TODO: Remove This
-      /* <div className='topBarTitle' contentEditable={ true } onBlur={ (e) => updateBoxState({ ...state, title : e.target.textContent || "" }) }>
+      /* <div className='topBarTitle' contentEditable={ true } suppressContentEditableWarning={true} onBlur={ (e) => updateBoxState({ ...state, title : e.target.textContent || "" }) }>
         { title === "" ? "Click Here to Change the Title" : title }
       </div> */}
       <div className='markdown-controls' title='Edit as Markdown'>
