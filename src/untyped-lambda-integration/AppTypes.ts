@@ -52,7 +52,6 @@ export function createNewUntypedLambdaExpression (defaultSettings : UntypedLambd
     editor : {
       placeholder : "placeholder",
       content : "",
-      caretPosition : 0,
       syntaxError : null,
     }
   }
@@ -141,7 +140,6 @@ export function createNewUntypedLambdaBoxFromSource (source : string, defaultSet
       editor : {
         placeholder : "placeholder",
         content : source,
-        caretPosition : 0,
         syntaxError : null,
       }
     }
@@ -218,7 +216,6 @@ function createNewUntypedLambdaBoxFromSource2 (source : string, defaultSettings 
 
       editor : {
         content : source,
-        caretPosition : 0,
         placeholder : PromptPlaceholder.EVAL_MODE,
         syntaxError : null,
       }
@@ -251,7 +248,6 @@ export function resetUntypedLambdaBox (state : UntypedLambdaState) : UntypedLamb
     editor : {
       placeholder : "placeholder",
       content : "",
-      caretPosition : 0,
       syntaxError : null,
     }
   }

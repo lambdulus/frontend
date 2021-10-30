@@ -139,7 +139,6 @@ export default class ExpressionBox extends PureComponent<EvaluationProperties> {
       editor : {
         placeholder : PromptPlaceholder.EVAL_MODE,
         content : Object.entries(macrotable).map(([name, definition] : [string, string]) => name + ' := ' + definition + ' ;\n' ).join('') + content,
-        caretPosition : content.length,
         syntaxError : null,
       }
     }

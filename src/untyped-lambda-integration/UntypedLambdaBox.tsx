@@ -194,7 +194,6 @@ export default class UntypedLambdaBox extends PureComponent<Props> {
         } ],
         editor : {
           content : content,
-          caretPosition : 0,
           placeholder : PromptPlaceholder.EVAL_MODE,
           syntaxError : null,
         }
