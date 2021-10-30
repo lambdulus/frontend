@@ -32,7 +32,7 @@ export function createNewUntypedLambdaExpression (defaultSettings : UntypedLambd
     subtype : UntypedLambdaType.EMPTY,
     title : "Untyped λ Expression",
     minimized : false,
-    settingsOpen : false,
+    settingsOpen : true,
     expression : "",
     ast : null,
     history : [],
