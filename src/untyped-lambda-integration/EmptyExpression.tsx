@@ -13,7 +13,6 @@ interface EmptyExpressionProps {
   editor : {
     placeholder : string
     content : string
-    caretPosition : number
     syntaxError : Error | null
   }
 

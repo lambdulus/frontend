@@ -140,7 +140,6 @@ export default class ExerciseBox extends PureComponent<EvaluationProperties> {
       editor : {
         placeholder : PromptPlaceholder.EVAL_MODE,
         content : Object.entries(macrotable).map(([name, definition] : [string, string]) => name + ' := ' + definition + ' ;\n').join('') + content,
-        caretPosition : content.length,
         syntaxError : null,
       }
     }
@@ -212,7 +211,6 @@ export default class ExerciseBox extends PureComponent<EvaluationProperties> {
         } ],
         editor : {
           content : '',
-          caretPosition : 0,
           placeholder : PromptPlaceholder.EVAL_MODE,
           syntaxError : null,
         }
@@ -349,7 +347,6 @@ export default class ExerciseBox extends PureComponent<EvaluationProperties> {
         editor : {
           ...state.editor,
           content : Object.entries(newMacrotable).map(([name, definition] : [string, string]) => name + ' := ' + definition + ' ;\n').join('') + ast.toString(),
-          caretPosition : 0,
           placeholder : PromptPlaceholder.VALIDATE_MODE,
           syntaxError : null,
         }
@@ -477,7 +474,6 @@ export default class ExerciseBox extends PureComponent<EvaluationProperties> {
         editor : {
           ...state.editor,
           content : Object.entries(newMacrotable).map(([name, definition] : [string, string]) => name + ' := ' + definition + ' ;\n').join('') + ast.toString(),
-          caretPosition : 0,
           placeholder : PromptPlaceholder.VALIDATE_MODE,
           syntaxError : null,
         }

@@ -84,7 +84,6 @@ export interface UntypedLambdaExpressionState extends AbstractBoxState {
   editor : {
     placeholder : string
     content : string
-    caretPosition : number
     syntaxError : Error | null
   }
 }
