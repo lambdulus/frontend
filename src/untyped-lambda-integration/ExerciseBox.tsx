@@ -123,7 +123,6 @@ export default class ExerciseBox extends PureComponent<EvaluationProperties> {
       subtype : UntypedLambdaType.EMPTY,
       title : `Copy of ${state.title}`,
       minimized : false,
-      menuOpen : false,
       settingsOpen : false,
       expression : "",
       ast : null,
