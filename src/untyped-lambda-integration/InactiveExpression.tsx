@@ -38,14 +38,7 @@ export default function InactiveExpression (props : InactiveExpressionProps) : J
             SDE={ SDE }
             macrotable={ macrotable }
           >
-            {/* <AddBoxContext.Consumer>
-              {
-                (addBox : (boxState : BoxState) => void) => <i
-                  className="hiddenIcon far fa-clone"
-                  onClick={ () => addBox(props.createBoxFrom(props.history[0])) }
-                />
-              }
-            </AddBoxContext.Consumer> */}
+            <p></p>
           </Step>
         </li>
       </ul>
@@ -55,3 +48,13 @@ export default function InactiveExpression (props : InactiveExpressionProps) : J
     </div>
   )
 }
+
+// This was inside the <Step> </Step>
+/* <AddBoxContext.Consumer>
+              {
+                (addBox : (boxState : BoxState) => void) => <i
+                  className="hiddenIcon far fa-clone"
+                  onClick={ () => addBox(props.createBoxFrom(props.history[0])) }
+                />
+              }
+            </AddBoxContext.Consumer> */

@@ -1,12 +1,12 @@
 import React from 'react'
 
-import 'github-markdown-css'
+import 'github-markdown-css/github-markdown-light.css'
 import { NoteState } from './AppTypes'
 import Editor from '../components/Editor'
 
 import './styles/Note.css'
 
-const ReactMarkdown = require('react-markdown')
+import ReactMarkdown from 'react-markdown'
 
 export interface NoteProperties {
   state : NoteState
@@ -72,7 +72,9 @@ export default function Note (props : NoteProperties) : JSX.Element {
         isEditing : true,
       }) }
     >
-      <ReactMarkdown className='markdown-body' source={ note } />
+      <ReactMarkdown className='markdown-body'>
+        { note }
+      </ReactMarkdown>
     </div>
   )
 }

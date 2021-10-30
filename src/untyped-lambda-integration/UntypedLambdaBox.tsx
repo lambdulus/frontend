@@ -202,13 +202,17 @@ export default class UntypedLambdaBox extends PureComponent<Props> {
 
       reportEvent('Submit Expression', 'submit valid', content)
     } catch (exception) {
-      let errorMessage : string = exception.toString()
+      let errorMessage : string = "Something is wrong with your expression. Please inspect it closely."
+      console.error((exception as Error).toString())
 
-      if (errorMessage === "Error") {
+      // if (errorMessage === "Error") {
         if (content.match(/:=/g)?.length !== content.match(/;/g)?.length) {
-          errorMessage = "Did you forget to write the semicolon after the Macro definition?"
+          errorMessage = "Did you forget to write a semicolon after the Macro definition?"
         }
-      }
+        if (content.match(/\s*;\s*$/g)) {
+          errorMessage = "There's a semicolon at the end."
+        }
+      // }
 
       setBoxState({
         ...state,
