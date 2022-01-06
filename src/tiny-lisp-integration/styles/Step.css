@@ -1,0 +1,29 @@
+
+
+.importantInstruction {
+    background-color: #81c784;
+    padding-left: 1px;
+    padding-right: 1px;
+    border-radius: 2px;
+}
+
+.currentInstruction {
+    background-color: #d55374;
+    padding-left: 1px;
+    padding-right: 1px;
+    border-radius: 2px;
+}
+
+.normalInstruction {
+
+}
+
+ul#horizontal-list {/*
+    min-width: 696px;
+    list-style: none;
+    padding-top: 20px;
+    display: inline;*/
+}
+ul#horizontal-list li {
+    display: inline;
+}

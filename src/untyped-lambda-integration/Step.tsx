@@ -74,14 +74,14 @@ function Step (props : StepProperties) : JSX.Element | null {
     // this means -- next reduction is gonna be normal stuff (Beta, Alpha, Expansion)
     // because of some decision to structure the findSimplifiedReduction the way it works
     // mainly := first clone the tree and then mutate it with each recursive call
-    // if it's the normal stuff --> then the tree I used to identify the redex is not the same tree as I am giving to the ReactPrinter
+    // if it's the normal stuff --> then the tree I used to identify the redex is not the same tree as I am giving to the ReactSECDPrinter
     // for this reason I have to use redex finder which does not mutate the tree under my hands at least until I rewrite
     // the findSimplifiedReduction
     const evaluator : Evaluator = new (strategyToEvaluator(strategy) as any)(tree)
     nextReduction = evaluator.nextReduction
     // TODO: read carefully
     // this definitely needs to be fixed
-    // I will most certainly need to do some dirty magic in ReactPrinter - because this design also makes it impossible
+    // I will most certainly need to do some dirty magic in ReactSECDPrinter - because this design also makes it impossible
     // to decide what is current redex in expressions like:
     // (λ x . + x x) ( + 1 2 )
     // + [( + 1 2 )] [( + 1 2 )]
