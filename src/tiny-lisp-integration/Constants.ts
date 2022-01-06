@@ -1,6 +1,5 @@
-
-import { BoxType } from "../Types";
-import { TinyLispSettings, TinyLispState } from "./Types"
+import {BoxType} from "../Types";
+import {TinyLispSettings, TinyLispState, TinyLispType} from "./Types"
 
 
 export const ADD_BOX_LABEL = '+ Lisp Expression'
@@ -17,8 +16,9 @@ export function createNewTinyLispExpression (defaultSettings : TinyLispSettings)
     menuOpen : false,
     settingsOpen : false,
 
-
+    subtype: TinyLispType.EMPTY,
     expression : '',
+    interpreter: null,
 
     editor : {
       placeholder : '',
