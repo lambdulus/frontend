@@ -1,8 +1,11 @@
 import { BoxType, AbstractBoxState, AbstractIntegrationState, AbstractSettings } from "../Types"
+import {Interpreter} from "@lambdulus/tiny-lisp-core/main";
 
 
 export interface TinyLispState extends AbstractBoxState {
   expression : string
+  interpreter : Interpreter | null
+  subtype: TinyLispType
 
   editor : {
     placeholder : string
@@ -15,4 +18,9 @@ export interface TinyLispState extends AbstractBoxState {
 
 export interface TinyLispSettings extends AbstractSettings {
   
+}
+
+export enum TinyLispType {
+  EMPTY = 'EMPTY',
+  ORDINARY = 'ORDINARY'
 }
