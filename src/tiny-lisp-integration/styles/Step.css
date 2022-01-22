@@ -1,17 +1,47 @@
 
 
-.importantInstruction {
-    background-color: #81c784;
-    padding-left: 1px;
-    padding-right: 1px;
-    border-radius: 2px;
+.underlineFirstArgument {
+    border-bottom: 2px solid #81c784;
 }
 
-.currentInstruction {
-    background-color: #d55374;
+.highlightFirstArgument {
     padding-left: 1px;
     padding-right: 1px;
     border-radius: 2px;
+    background-color: #81c784;
+}
+
+.underlineSecondArgument {
+    border-bottom: 2px solid #818ac7;
+}
+
+.highlightSecondArgument {
+    padding-left: 1px;
+    padding-right: 1px;
+    border-radius: 2px;
+    background-color: #818ac7;
+}
+
+.underlineThirdArgument {
+    border-bottom: 2px solid #c7c181;
+}
+
+.highlightThirdArgument {
+    padding-left: 1px;
+    padding-right: 1px;
+    border-radius: 2px;
+    background-color: #c7c181;
+}
+
+.underlineCurrent {
+    border-bottom: 2px solid #d55374;
+}
+
+.highlightCurrent {
+    padding-left: 1px;
+    padding-right: 1px;
+    border-radius: 2px;
+    background-color: #d55374;
 }
 
 .normalInstruction {
@@ -24,6 +54,12 @@ ul#horizontal-list {/*
     padding-top: 20px;
     display: inline;*/
 }
+
 ul#horizontal-list li {
     display: inline;
 }
+
+/*
+padding-left: 1px;
+padding-right: 1px;
+border-radius: 2px;*/
