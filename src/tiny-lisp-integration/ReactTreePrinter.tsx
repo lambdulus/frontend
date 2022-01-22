@@ -5,17 +5,19 @@ import {
     EndNode,
     FuncNode,
     IfNode,
+    InnerNode,
     InstructionShortcut,
     LambdaNode,
     LispASTVisitor,
-    PrintCall, SECDValue,
+    PrintCall,
+    StringNode,
     TopNode,
     UnaryExprNode,
     ValueNode,
-    VarNode,
-    InnerNode
+    VarNode
 } from "@lambdulus/tiny-lisp-core/main";
 import React from "react";
+import {ListNode} from "@lambdulus/tiny-lisp-core/src/AST/AST";
 
 
 export default class ReactTreePrinter extends LispASTVisitor{
@@ -38,15 +40,15 @@ export default class ReactTreePrinter extends LispASTVisitor{
         if(node.colour === ColourType.Current){
             this.rendered = <span className="#">
                 {'('}
-                <span className="currentInstruction">
+                <span className="underlineCurrent">
                     {InstructionShortcut[node.operator]}
                 </span>
                 {' '}
-                <span className="importantInstruction">
+                <span className="underlineFirstArgument">
                     {rend1}
                 </span>
                 {' '}
-                <span className="importantInstruction">
+                <span className="underlineSecondArgument">
                     {rend2}
                 </span>
                 {')'}
@@ -67,7 +69,7 @@ export default class ReactTreePrinter extends LispASTVisitor{
 
     onCompositeNode(node: CompositeNode): void {
         let acc: Array<JSX.Element> = []
-        node.items.forEach(item => {
+        node.items.reverse().forEach(item => {
             item.accept(this)
             if (this.rendered) {
                 acc.push(this.rendered)
@@ -96,8 +98,8 @@ export default class ReactTreePrinter extends LispASTVisitor{
         node.args.accept(this)
         let rend2 = this.rendered
         if (node.colour === ColourType.Current) {
-            this.rendered = <span className="importantInstruction">
-                <span className="currentInstruction">
+            this.rendered = <span className="underlineFirstArgument">
+                <span className="underlineCurrent">
                     {rend1}
                 </span>
                 {rend2}
@@ -121,21 +123,32 @@ export default class ReactTreePrinter extends LispASTVisitor{
         if (node.colour === ColourType.Current) {
             this.rendered = <span className="#">
                 {'('}
-                <span className="currentInstruction">
+                <span className="underlineCurrent">
                     {'if'}
                 </span>
                     {' '}
-                <span className="importantInstruction">
+                <span className="underlineFirstArgument">
                     {rend1}
                 </span>
                     {' '}
-                <span className="importantInstruction">
+                <span className="underlineSecondArgument">
                     {rend2}
                 </span>
                     {' '}
-                <span className="importantInstruction">
+                <span className="underlineThirdArgument">
                     {rend3}
                 </span>
+                {')'}
+            </span>
+        }
+        else if (node.colour === ColourType.Coloured) {
+            this.rendered = <span className="underlineCurrent">
+                {'(if '}
+                {rend1}
+                {' '}
+                {rend2}
+                {' '}
+                {rend3}
                 {')'}
             </span>
         }
@@ -159,7 +172,17 @@ export default class ReactTreePrinter extends LispASTVisitor{
         let rend2 = this.rendered
         if (node.colour === ColourType.Current) {
             this.rendered =
-                <span className="importantInstruction">
+                <span className="underlineCurrent">
+                    {'((lambda ('}
+                    {rend1}
+                    {')'}
+                    {rend2}
+                    {'))'}
+                </span>
+        }
+        else if (node.colour === ColourType.Coloured) {
+            this.rendered =
+                <span className="underlineFirstArgument">
                     {'((lambda ('}
                     {rend1}
                     {')'}
@@ -188,11 +211,11 @@ export default class ReactTreePrinter extends LispASTVisitor{
         if(node.colour === ColourType.Current){
             this.rendered = <span className="#">
                 {'('}
-                <span className="currentInstruction">
+                <span className="underlineCurrent">
                     {InstructionShortcut[node.shortcut]}
                 </span>
                 {' '}
-                <span className="importantInstruction">
+                <span className="underlineFirstArgument">
                     {rend1}
                 </span>
                 {')'}
@@ -210,23 +233,41 @@ export default class ReactTreePrinter extends LispASTVisitor{
     }
 
     onValueNode(node: ValueNode): void {
-        this.rendered = <span className={this.getClassName(node)}>
+        this.rendered = <span className={ReactTreePrinter.getClassName(node)}>
             {node.value}
         </span>
     }
 
     onVarNode(node: VarNode): void {
-        this.rendered = <span className={this.getClassName(node)}>
+        this.rendered = <span className={ReactTreePrinter.getClassName(node)}>
             {node.variable}
         </span>
     }
 
-    private getClassName(node: InnerNode): string{
+    onListNode(node: ListNode): void {
+        let res = "'" + node.print(PrintCall.Static)
+        this.rendered = <span className={ReactTreePrinter.getClassName(node)}>
+            {res}
+        </span>
+    }
+
+    onStringNode(node: StringNode) {
+        this.rendered = <span className={ReactTreePrinter.getClassName(node)}>
+            {"\"" + node.str + "\""}
+        </span>
+    }
+
+    private static getClassName(node: InnerNode): string{
+        console.log(node.colour)
         switch (node.colour){
             case ColourType.Current:
-                return "currentInstruction"
+                return "underlineCurrent"
             case ColourType.Coloured:
-                return "importantInstruction"
+                return "underlineFirstArgument"
+            case ColourType.SecondColoured:
+                return "underlineSecondArgument"
+            case ColourType.ThirdColoured:
+                return "underlineThirdArgument"
             case ColourType.None:
             default:
                 return "normalInstruction"
