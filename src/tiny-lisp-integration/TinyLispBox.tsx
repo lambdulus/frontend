@@ -1,5 +1,5 @@
 import React, {PureComponent} from 'react'
-import {Interpreter, Parser, PrintCall} from '@lambdulus/tiny-lisp-core/main'
+import {BinaryExprNode, InnerNode, Interpreter, Parser} from '@lambdulus/tiny-lisp-core/main'
 
 import {TinyLispState, TinyLispType} from './Types'
 import Editor from "../components/Editor";
@@ -20,7 +20,9 @@ export default class TinyLispBox extends PureComponent<Props> {
     super(props)
     this.onStep = this.onStep.bind(this)
     this.onContent = this.onContent.bind(this)
-      this.onDebug = this.onDebug.bind(this)
+    this.onDebug = this.onDebug.bind(this)
+    this.onMouseOver = this.onMouseOver.bind(this)
+      this.onMouseLeft = this.onMouseLeft.bind(this)
   }
 
   render () {
@@ -49,8 +51,7 @@ export default class TinyLispBox extends PureComponent<Props> {
                 if(interpreter == null){
                     throw Error//TODO zmenit asi na log a vratit neco v poradku - jinak crashne cela appka
                 }
-                const staticLisp = new ReactTreePrinter(interpreter.topNode, PrintCall.Static).print()
-                const dynamicLisp = new ReactTreePrinter(interpreter.topNode, PrintCall.Dynamic).print()
+                const staticLisp = new ReactTreePrinter(interpreter.topNode, this.onMouseOver, this.onMouseLeft).print()
                 const c = new ReactSECDPrinter(interpreter.code).print()
                 const s = new ReactSECDPrinter(interpreter.stack).print()
                 const e = new ReactSECDPrinter(interpreter.environment).print()
@@ -58,9 +59,9 @@ export default class TinyLispBox extends PureComponent<Props> {
                 console.log("DEBUG--------------------------!!!!!!!!!!!!!!!!!!!!!!!!------------------------")
                 return (
                     <div>
-                        LISP: { staticLisp }
+                        LISP:
                         <br></br>
-                        LISP2: { dynamicLisp }
+                        { staticLisp }
                         <br></br>
                         code: { c }
                         <br></br>
@@ -104,8 +105,32 @@ export default class TinyLispBox extends PureComponent<Props> {
       if(interpreter == null){
           throw Error
       }
+      console.log("Interpreter On Step", interpreter)
     interpreter.detectAction()
+      console.log("Interpreter After Step", interpreter)
     setBoxState({...state, interpreter})
+  }
+
+  onMouseOver(node: InnerNode): void{
+      console.log("Interpreter1: ", this)
+      let mouseOver = this.props.state.mouseOver
+      if(mouseOver !== null)
+          mouseOver.mouseOver = false
+      if(node instanceof BinaryExprNode)
+          node = node.operator
+      node.setMouseOver(true)
+      this.props.setBoxState({...this.props.state, mouseOver: node})
+      //console.log("Hazim tam: ", {...this.props.state, mouseOver: node})
+      console.log("Props: ", this.props, node)
+  }
+
+  onMouseLeft(): void{
+      //console.log("Interpreter2: ", this)
+      let mouseOver = this.props.state.mouseOver
+      if(mouseOver !== null)
+          mouseOver.setMouseOver(false)
+      this.props.setBoxState({...this.props.state, mouseOver: null})
+      //console.log("Hazim tam: ", {...this.props.state, mouseOver: null})
   }
 
 }
