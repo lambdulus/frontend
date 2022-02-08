@@ -1,10 +1,13 @@
 import {
+    BinaryExprNode,
     ColourType,
-    SECDArray,
-    SECDValue,
-    SECDElement,
+    FuncNode,
     Instruction,
-    BinaryExprNode
+    MainNode,
+    SECDArray,
+    SECDElement,
+    SECDValue,
+    TopNode
 } from "@lambdulus/tiny-lisp-core/main"
 import React from "react";
 
@@ -13,7 +16,7 @@ import './styles/Step.css'
 export default class ReactSECDPrinter {
     private rendered : JSX.Element | null = null
 
-    constructor(arr: SECDArray) {
+    constructor(arr: SECDArray, public hasMouseOver: () => boolean) {
         console.log(arr)
         //super();
         this.visit(arr)
@@ -35,7 +38,7 @@ export default class ReactSECDPrinter {
             let array : JSX.Element[] = []
             console.log("array", element.arr)
             array = element.arr.map<JSX.Element>(value => this.getElements(value));
-            let name: string = ReactSECDPrinter.getClassName(element)
+            let name: string = this.getClassName(element)
             console.log("ABCDEFGH", array, element.node, element.arr)
             return <span className={name}>
                             {'['}
@@ -45,7 +48,7 @@ export default class ReactSECDPrinter {
 
         }
         else if(element instanceof SECDValue){
-            let name: string = ReactSECDPrinter.getClassName(element)
+            let name: string = this.getClassName(element)
             console.log("element: ", name, element.val)
             if(element.val instanceof Instruction){
                 return <span className={name}>
@@ -64,46 +67,40 @@ export default class ReactSECDPrinter {
         throw Error()
     }
 
-    private static getClassName(val: SECDElement): string{
+    protected getClassName(val: SECDElement): string{
+        if(val.colour === ColourType.Return){
+            if(this.hasMouseOver())
+                return "highlightCurrent"
+            return "underlineCurrent"
+        }
         let node = val.getNode()
         if(typeof(node) != "undefined"){
             console.log(val, "Noda je defined.", node)
+            if(node instanceof TopNode)
+                node = node.node
+            if(node instanceof MainNode)
+                node = node.node
             if(node instanceof BinaryExprNode){
                 if(node.operator.mouseOver){
-                    switch (val.colour){
-                        case ColourType.Current:
-                            return "highlightCurrent"
-                        case ColourType.Coloured:
-                            return "highlightFirstArgument"
-                        case ColourType.SecondColoured:
-                            return "highlightSecondArgument"
-                        case ColourType.ThirdColoured:
-                            return "highlightThirdArgument"
-                        case ColourType.None:
-                        default:
-                            return "normalInstruction"
-                    }
+                    return this.highlight(val.colour)
+                }
+            }
+            else if(node instanceof FuncNode){
+                if(node.func.mouseOver){
+                    return this.highlight(val.colour)
                 }
             }
             if(node.mouseOver){
                 console.log("Noda ma na sobe mys.")
-                switch (val.colour){
-                    case ColourType.Current:
-                        return "highlightCurrent"
-                    case ColourType.Coloured:
-                        return "highlightFirstArgument"
-                    case ColourType.SecondColoured:
-                        return "highlightSecondArgument"
-                    case ColourType.ThirdColoured:
-                        return "highlightThirdArgument"
-                    case ColourType.None:
-                    default:
-                        return "normalInstruction"
-                }
+                return this.highlight(val.colour)
             }
         }
         console.log(val, "No highlight")
-        switch (val.colour){
+        return this.underline(val.colour)
+    }
+
+    protected underline(colour: ColourType): string{
+        switch (colour){
             case ColourType.Current:
                 return "underlineCurrent"
             case ColourType.Coloured:
@@ -113,6 +110,24 @@ export default class ReactSECDPrinter {
             case ColourType.ThirdColoured:
                 return "underlineThirdArgument"
             case ColourType.None:
+            case ColourType.Return:
+            default:
+                return "normalInstruction"
+        }
+    }
+
+    protected highlight(colour: ColourType): string{
+        switch (colour){
+            case ColourType.Current:
+                return "highlightCurrent"
+            case ColourType.Coloured:
+                return "highlightFirstArgument"
+            case ColourType.SecondColoured:
+                return "highlightSecondArgument"
+            case ColourType.ThirdColoured:
+                return "highlightThirdArgument"
+            case ColourType.None:
+            case ColourType.Return:
             default:
                 return "normalInstruction"
         }
