@@ -10,6 +10,7 @@ import {
     InstructionShortcut,
     LambdaNode,
     LispASTVisitor,
+    MainNode,
     OperatorNode,
     StringNode,
     TopNode,
@@ -19,7 +20,6 @@ import {
 } from "@lambdulus/tiny-lisp-core/main";
 import React, {MouseEvent} from "react";
 import {ListNode} from "@lambdulus/tiny-lisp-core/src/AST/AST";
-import TinyLispBox from "./TinyLispBox";
 
 
 export default class ReactTreePrinter extends LispASTVisitor{
@@ -240,6 +240,10 @@ export default class ReactTreePrinter extends LispASTVisitor{
         </span>
     }
 
+    onMainNode(node: MainNode) {
+        node.node.accept(this)
+    }
+
     onDefineNode(node: DefineNode): void {
         node.vars.accept(this)
         let rend1 = this.rendered
@@ -370,6 +374,7 @@ x                <span className="underlineCurrent" onMouseOver={e => this.handl
             case ColourType.ThirdColoured:
                 return "underlineThirdArgument"
             case ColourType.None:
+            case ColourType.Return:
             default:
                 return "normalInstruction"
         }

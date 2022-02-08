@@ -5,6 +5,7 @@ import {TinyLispState, TinyLispType} from './Types'
 import Editor from "../components/Editor";
 import ReactSECDPrinter from "./ReactSECDPrinter";
 import ReactTreePrinter from "./ReactTreePrinter";
+import DumpPrinter from "./DumpPrinter";
 
 
 interface Props {
@@ -22,7 +23,8 @@ export default class TinyLispBox extends PureComponent<Props> {
     this.onContent = this.onContent.bind(this)
     this.onDebug = this.onDebug.bind(this)
     this.onMouseOver = this.onMouseOver.bind(this)
-      this.onMouseLeft = this.onMouseLeft.bind(this)
+    this.onMouseLeft = this.onMouseLeft.bind(this)
+    this.hasMouseOver = this.hasMouseOver.bind(this)
   }
 
   render () {
@@ -52,10 +54,11 @@ export default class TinyLispBox extends PureComponent<Props> {
                     throw Error//TODO zmenit asi na log a vratit neco v poradku - jinak crashne cela appka
                 }
                 const staticLisp = new ReactTreePrinter(interpreter.topNode, this.onMouseOver, this.onMouseLeft).print()
-                const c = new ReactSECDPrinter(interpreter.code).print()
-                const s = new ReactSECDPrinter(interpreter.stack).print()
-                const e = new ReactSECDPrinter(interpreter.environment).print()
-                const d = new ReactSECDPrinter(interpreter.dump).print()
+                const c = new ReactSECDPrinter(interpreter.code, this.hasMouseOver).print()
+                const s = new ReactSECDPrinter(interpreter.stack, this.hasMouseOver).print()
+                const e = new ReactSECDPrinter(interpreter.environment, this.hasMouseOver).print()
+                console.log("Funkce: ", this.hasMouseOver)
+                const d = new DumpPrinter(interpreter.dump, this.hasMouseOver).print()
                 console.log("DEBUG--------------------------!!!!!!!!!!!!!!!!!!!!!!!!------------------------")
                 return (
                     <div>
@@ -131,6 +134,10 @@ export default class TinyLispBox extends PureComponent<Props> {
           mouseOver.setMouseOver(false)
       this.props.setBoxState({...this.props.state, mouseOver: null})
       //console.log("Hazim tam: ", {...this.props.state, mouseOver: null})
+  }
+
+  hasMouseOver(): boolean{
+      return this.props.state.mouseOver != null
   }
 
 }
