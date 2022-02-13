@@ -44,6 +44,17 @@
     background-color: #d55374;
 }
 
+.underlineOther {
+    border-bottom: 2px solid #53d5b7;
+}
+
+.highlightOther {
+    padding-left: 1px;
+    padding-right: 1px;
+    border-radius: 2px;
+    background-color: #53d5d5;
+}
+
 .normalInstruction {
 
 }
