@@ -2,6 +2,7 @@ import {
     BinaryExprNode,
     ColourType,
     FuncNode,
+    InnerNode,
     Instruction,
     MainNode,
     SECDArray,
@@ -15,8 +16,9 @@ import './styles/Step.css'
 
 export default class ReactSECDPrinter {
     private rendered : JSX.Element | null = null
+    private colouredArray: boolean = false
 
-    constructor(arr: SECDArray, public hasMouseOver: () => boolean) {
+    constructor(arr: SECDArray, public hasMouseOver: () => boolean, public parentHasMouseOver: (innerNode: InnerNode) => boolean) {
         console.log(arr)
         //super();
         this.visit(arr)
@@ -37,7 +39,11 @@ export default class ReactSECDPrinter {
         if(element instanceof SECDArray) {
             let array : JSX.Element[] = []
             console.log("array", element.arr)
+            if(element.colour !== ColourType.None)
+                this.colouredArray = true
             array = element.arr.map<JSX.Element>(value => this.getElements(value));
+            if(element.colour !== ColourType.None)
+                this.colouredArray = false
             let name: string = this.getClassName(element)
             console.log("ABCDEFGH", array, element.node, element.arr)
             return <span className={name}>
@@ -68,10 +74,10 @@ export default class ReactSECDPrinter {
     }
 
     protected getClassName(val: SECDElement): string{
+        if(this.colouredArray)
+            return this.underline(val.colour)
         if(val.colour === ColourType.Return){
-            if(this.hasMouseOver())
-                return "highlightCurrent"
-            return "underlineCurrent"
+            return this.hasMouseOver() ? "highlightCurrent" : "underlineCurrent"
         }
         let node = val.getNode()
         if(typeof(node) != "undefined"){
@@ -81,17 +87,16 @@ export default class ReactSECDPrinter {
             if(node instanceof MainNode)
                 node = node.node
             if(node instanceof BinaryExprNode){
-                if(node.operator.mouseOver){
+                console.log("OPERATOR V GETCLASSNAME")
+                if(this.parentHasMouseOver(node.operator)){
                     return this.highlight(val.colour)
                 }
             }
             else if(node instanceof FuncNode){
-                if(node.func.mouseOver){
-                    return this.highlight(val.colour)
-                }
+                node = node.func
             }
-            if(node.mouseOver){
-                console.log("Noda ma na sobe mys.")
+            if(this.parentHasMouseOver(node)){
+                console.log("Noda ma na sobe mys.", node, val.colour)
                 return this.highlight(val.colour)
             }
         }
@@ -129,7 +134,7 @@ export default class ReactSECDPrinter {
             case ColourType.None:
             case ColourType.Return:
             default:
-                return "normalInstruction"
+                return "highlightOther"
         }
     }
 }
