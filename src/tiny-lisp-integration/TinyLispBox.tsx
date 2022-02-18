@@ -56,10 +56,14 @@ export default class TinyLispBox extends PureComponent<Props> {
                 }
                 const staticLisp = new ReactTreePrinter(interpreter.topNode, this.onMouseOver, this.onMouseLeft).print()
                 const c = new ReactSECDPrinter(interpreter.code, this.hasMouseOver, this.parentHasMouseOver).print()
+                interpreter.code.clearPrinted()
                 const s = new ReactSECDPrinter(interpreter.stack, this.hasMouseOver, this.parentHasMouseOver).print()
+                interpreter.stack.clearPrinted()
                 const e = new ReactSECDPrinter(interpreter.environment, this.hasMouseOver, this.parentHasMouseOver).print()
+                interpreter.environment.clearPrinted()
                 console.log("Funkce: ", this.hasMouseOver)
                 const d = new DumpPrinter(interpreter.dump, this.hasMouseOver, this.parentHasMouseOver).print()
+                interpreter.dump.clearPrinted()
                 console.log("DEBUG--------------------------!!!!!!!!!!!!!!!!!!!!!!!!------------------------")
                 return (
                     <div>

@@ -37,6 +37,11 @@ export default class ReactSECDPrinter {
 
     private getElements(element: SECDElement): JSX.Element{
         if(element instanceof SECDArray) {
+            if(element.printed)
+                return <span>
+                    [fact]
+                </span>
+            element.printed = true
             let array : JSX.Element[] = []
             console.log("array", element.arr)
             if(element.colour !== ColourType.None)
@@ -92,7 +97,7 @@ export default class ReactSECDPrinter {
                     return this.highlight(val.colour)
                 }
             }
-            else if(node instanceof FuncNode){
+            else if(node instanceof FuncNode && val.colour === ColourType.Current){
                 node = node.func
             }
             if(this.parentHasMouseOver(node)){
