@@ -28,11 +28,8 @@ const content : string = `# User guide
 ## List All Macros
 #### If you want to list all defined macros - built-ins and also your macros - you simply click on the *list resembling* icon at the right top of the Box.
 
-## Remove User Macro
-#### To remove user macros - \`because you can not remove built-ins\` - you can click on the *three dots* icon at the top right part of the Box and then click on \`Edit Expression\`. You might also want to rewrite your lambda expression in case it references the macro being removed.
-
-## Redefine User Macro
-#### To redefine user macro - \`because you can not redefine built-ins\` - you start by selecting the \`three dots\` menu icon, picking the \`Edit Expression\` option and editing your macro there.
+## Remove or Redefine User Macro
+#### To remove or rewrite your macros - \`because you can not remove built-ins\` - you need to click on the "pencil" icon at the top right part of the Box. That will reset the Box back to the "editor stage", you can now modify your macros and evaluate the expression again. You might also need want to rewrite your lambda expression in case it references the macro being removed.
 
 ## Report a Bug or Request New Features
 #### If you want to report a bug or you need some feature - click on the \`Issues\` button on the left or at the top of the page. Then fill in the issue on the GitHub page of the project. Definitely don't forget to check if the corresponding issue already exist.
