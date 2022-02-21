@@ -16,7 +16,7 @@ jobs:
               issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
-              body: "👋 Thanks for creating this pull request! Stage 2. ${{ github.base_ref }}"
+              body: "👋 Thanks for creating this pull request! Stage 2. ${{ github.event.pull_request.head.ref }}"
             })
 
 #   build:
