@@ -16,34 +16,34 @@ jobs:
               issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
-              body: "👋 Thanks for creating this pull request! Stage 2. ${{ github.event.pull_request.head.ref }}"
+              body: "👋 Thanks for creating this pull request! Stage 3."
             })
 
-#   build:
-#     runs-on: ubuntu-latest
+  build:
+    runs-on: ubuntu-latest
 
-#     strategy:
-#       matrix:
-#         node-version: [16.x] # latest LTS
+    strategy:
+      matrix:
+        node-version: [16.x] # latest LTS
 
-#     steps:
-#     - uses: actions/checkout@v2
-#     - name: Use Node.js ${{ matrix.node-version }}
-#       uses: actions/setup-node@v2
-#       with:
-#         node-version: ${{ matrix.node-version }}
-#         cache: 'npm'
-#     - run: npm ci
-#     # - run: npm test
-#     - run: npm run build --if-present
+    steps:
+    - uses: actions/checkout@v2
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v2
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'npm'
+    - run: npm ci
+    # - run: npm test
+    - run: npm run build --if-present
 
-#   deploy:
-#     runs-on: ubuntu-latest
+  deploy:
+    runs-on: ubuntu-latest
     
-#     steps:
-#       - name: Event Dispatch - the deployment process
-#         run: |
-#           curl -X POST https://api.github.com/repos/lambdulus/staging/dispatches \
-#           -H 'Accept: application/vnd.github.everest-preview+json' \
-#           -u ${{ secrets.ACCESS_TOKEN }} \
-#           --data '{"event_type": "pr-deploy-staging", "client_payload": { "repository": "'"$GITHUB_REPOSITORY"'", "branch": "'"${{ github.base_ref }}"'" }}'
+    steps:
+      - name: Event Dispatch - the deployment process
+        run: |
+          curl -X POST https://api.github.com/repos/lambdulus/staging/dispatches \
+          -H 'Accept: application/vnd.github.everest-preview+json' \
+          -u ${{ secrets.ACCESS_TOKEN }} \
+          --data '{"event_type": "pr-deploy-staging", "client_payload": { "repository": "'"$GITHUB_REPOSITORY"'", "branch": "'"${{ github.event.pull_request.head.ref }}"'" }}'
