@@ -16,7 +16,7 @@ jobs:
               issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
-              body: "Thanks for creating this pull request! It will soon be deployed to https://lambdulus.github.io/staging/${{ github.event.pull_request.head.ref }}.  In case there are any issues in the app, try clearing your local-storage in the browser."
+              body: "Thanks for creating this pull request! It will soon be deployed to https://lambdulus.github.io/staging/pr/${{ github.event.pull_request.head.ref }}.  In case there are any issues in the app, try clearing your local-storage in the browser."
             })
 
   build:
