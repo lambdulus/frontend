@@ -19,7 +19,7 @@ import {
     UnaryExprNode,
     ValueNode,
     VarNode
-} from "@lambdulus/tiny-lisp-core/main";
+} from "@lambdulus/tiny-lisp-core/src/index";
 import React, {MouseEvent} from "react";
 import {ListNode} from "@lambdulus/tiny-lisp-core/src/AST/AST";
 

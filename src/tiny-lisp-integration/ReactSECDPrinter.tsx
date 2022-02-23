@@ -8,12 +8,13 @@ import {
     LetNode,
     SECDArray,
     SECDElement,
-    SECDValue, VarNode
-} from "@lambdulus/tiny-lisp-core/main"
+    SECDValue
+} from "@lambdulus/tiny-lisp-core/src/index"
 import React from "react";
 
-import './styles/Step.css'
 import {PrintedState} from "@lambdulus/tiny-lisp-core/src/utility/SECD/SECDArray";
+import './styles/Step.css'
+
 
 export default class ReactSECDPrinter {
     private rendered : JSX.Element | null = null
@@ -88,7 +89,7 @@ export default class ReactSECDPrinter {
         }
         else if(element instanceof SECDValue){
             let name: string = this.getClassName(element)
-            console.log("element: ", name, element.val)
+            console.log("element: ", name, element.val, this.colouredArray)
             if(element.val instanceof Instruction){
                 return <span className={name}>
                     {' '}
