@@ -5,8 +5,8 @@
 }
 
 .highlightFirstArgument {
-    padding-left: 1px;
-    padding-right: 1px;
+    
+    
     border-radius: 2px;
     background-color: #81c784;
 }
@@ -16,8 +16,8 @@
 }
 
 .highlightSecondArgument {
-    padding-left: 1px;
-    padding-right: 1px;
+    
+    
     border-radius: 2px;
     background-color: #818ac7;
 }
@@ -27,8 +27,8 @@
 }
 
 .highlightThirdArgument {
-    padding-left: 1px;
-    padding-right: 1px;
+    
+    
     border-radius: 2px;
     background-color: #c7c181;
 }
@@ -38,8 +38,8 @@
 }
 
 .highlightCurrent {
-    padding-left: 1px;
-    padding-right: 1px;
+    
+    
     border-radius: 2px;
     background-color: #d55374;
 }
@@ -49,8 +49,8 @@
 }
 
 .highlightOther {
-    padding-left: 1px;
-    padding-right: 1px;
+    
+    
     border-radius: 2px;
     background-color: #53d5d5;
 }
@@ -77,6 +77,6 @@ tab {
 }
 
 /*
-padding-left: 1px;
-padding-right: 1px;
+
+
 border-radius: 2px;*/
