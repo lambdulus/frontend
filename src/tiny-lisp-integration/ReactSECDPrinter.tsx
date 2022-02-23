@@ -4,24 +4,27 @@ import {
     FuncNode,
     InnerNode,
     Instruction,
-    MainNode,
+    LambdaNode,
+    LetNode,
     SECDArray,
     SECDElement,
-    SECDValue,
-    TopNode
+    SECDValue, VarNode
 } from "@lambdulus/tiny-lisp-core/main"
 import React from "react";
 
 import './styles/Step.css'
+import {PrintedState} from "@lambdulus/tiny-lisp-core/src/utility/SECD/SECDArray";
 
 export default class ReactSECDPrinter {
     private rendered : JSX.Element | null = null
     private colouredArray: boolean = false
+    private placeholders: Array<string> = []
 
     constructor(arr: SECDArray, public hasMouseOver: () => boolean, public parentHasMouseOver: (innerNode: InnerNode) => boolean) {
         console.log(arr)
         //super();
         this.visit(arr)
+        this.placeholders = []
     }
 
 
@@ -30,18 +33,31 @@ export default class ReactSECDPrinter {
     }
 
     visit(arr: SECDArray): void {
-        this.rendered = /*<ul id="horizontal-list">
-            {*/this.getElements(arr)/*}
-        </ul>*/
+        this.rendered = this.getElements(arr)
     }
 
     private getElements(element: SECDElement): JSX.Element{
         if(element instanceof SECDArray) {
-            if(element.printed)
-                return <span>
-                    [fact]
+            if(element.empty()) {
+                console.log("getElements: Empty arr", element)
+                return <span className={this.getClassName(element)}> [] </span>
+            }
+            if(element.printed !== PrintedState.NO) {
+                if (typeof (element.node) != "undefined") {
+                    console.log("(Func) Placeholder for: ", element, element.node, element.printed)
+                    let str = this.getFunctionName(element.node)
+                    if (str !== "") {
+                        this.placeholders.push(str)
+                        element.printInc()
+                        return <span>
+                    [{str}]
                 </span>
-            element.printed = true
+                    }
+                }
+            }
+            console.log("CHECKPOINT 1", element, element.printed)
+            element.printInc()
+            console.log("CHECKPOINT 2", element, element.printed)
             let array : JSX.Element[] = []
             console.log("array", element.arr)
             if(element.colour !== ColourType.None)
@@ -50,7 +66,19 @@ export default class ReactSECDPrinter {
             if(element.colour !== ColourType.None)
                 this.colouredArray = false
             let name: string = this.getClassName(element)
-            console.log("ABCDEFGH", array, element.node, element.arr)
+            console.log("ABCDEFGH", array, element.node, element.arr, element.printed)
+            // @ts-ignore
+            if(element.printed === PrintedState.More){
+                let str = this.getFunctionName(element.node)
+                console.log("Naming function", element)
+                if(str !== "")
+                    return <span className={name}>
+                                {str}
+                                {': ['}
+                                {array}
+                                {']'}
+                            </span>
+            }
             return <span className={name}>
                             {'['}
                             {array}
@@ -84,13 +112,13 @@ export default class ReactSECDPrinter {
         if(val.colour === ColourType.Return){
             return this.hasMouseOver() ? "highlightCurrent" : "underlineCurrent"
         }
-        let node = val.getNode()
+        let node = val.node//important
         if(typeof(node) != "undefined"){
             console.log(val, "Noda je defined.", node)
-            if(node instanceof TopNode)
+            /*if(node instanceof TopNode)
                 node = node.node
             if(node instanceof MainNode)
-                node = node.node
+                node = node.node*/
             if(node instanceof BinaryExprNode){
                 console.log("OPERATOR V GETCLASSNAME")
                 if(this.parentHasMouseOver(node.operator)){
@@ -141,5 +169,19 @@ export default class ReactSECDPrinter {
             default:
                 return "highlightOther"
         }
+    }
+
+    protected getFunctionName(node: InnerNode): string{
+        if(node instanceof FuncNode) {
+            return (node as FuncNode).func.print()
+        }
+        else if(node instanceof LetNode){
+            return ((node as LetNode).body as FuncNode).func.print()
+        }
+        else if(node instanceof LambdaNode){
+            console.log("NEJAKY DEBUG VYPIS", node._parent)
+            return ((node._parent as LetNode).body as FuncNode).func.print()
+        }
+        return ""
     }
 }
