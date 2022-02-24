@@ -1,7 +1,6 @@
 import { BoxType } from "../Types";
 import { TinyLispSettings, TinyLispState, TinyLispType } from "./Types"
 
-
 export const ADD_BOX_LABEL = '+ Lisp Expression'
 
 export const CODE_NAME = 'TINY_LISP'
