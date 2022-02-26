@@ -8,11 +8,11 @@ import {
     LetNode,
     SECDArray,
     SECDElement,
-    SECDValue
+    SECDValue,
+    PrintedState
 } from "@lambdulus/tiny-lisp-core"
 import React from "react";
 
-import {PrintedState} from "@lambdulus/tiny-lisp-core/dist/utility/SECD/SECDArray";
 import './styles/Step.css'
 
 
