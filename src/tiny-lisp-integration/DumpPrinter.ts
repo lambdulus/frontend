@@ -1,5 +1,5 @@
 import ReactSECDPrinter from "./ReactSECDPrinter";
-import {ColourType, InnerNode, SECDArray, SECDElement} from "@lambdulus/tiny-lisp-core/src/index"
+import {ColourType, InnerNode, SECDArray, SECDElement} from "@lambdulus/tiny-lisp-core"
 
 
 export default class DumpPrinter extends ReactSECDPrinter {
