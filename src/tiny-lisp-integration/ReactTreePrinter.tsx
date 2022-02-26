@@ -16,12 +16,12 @@ import {
     OperatorNode,
     StringNode,
     TopNode,
+    ListNode,
     UnaryExprNode,
     ValueNode,
     VarNode
 } from "@lambdulus/tiny-lisp-core";
 import React, {MouseEvent} from "react";
-import {ListNode} from "@lambdulus/tiny-lisp-core/dist/AST/AST";
 
 
 export default class ReactTreePrinter extends LispASTVisitor{
