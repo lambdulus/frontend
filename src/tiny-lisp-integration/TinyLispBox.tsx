@@ -1,5 +1,5 @@
 import React, {PureComponent} from 'react'
-import {BinaryExprNode, ColourType, InnerNode, Interpreter, Node, Parser, TopNode} from '@lambdulus/tiny-lisp-core'
+import {BinaryExprNode, ColourType, InnerNode, Interpreter, Node, Parser, TopNode} from '@lambdulus/tiny-lisp-core/dist/index'
 
 import {TinyLispState, TinyLispType} from './Types'
 import Editor from "../components/Editor";
