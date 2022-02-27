@@ -364,11 +364,12 @@ export default class ReactTreePrinter extends LispASTVisitor{
                 </span>
         }
         else {
+            node.vars.accept(this)
+            this.parentColoured = true
+            let rend1 = this.rendered
+            this.parentColoured = false
             if(node.colour === ColourType.Current || node.colour === ColourType.Coloured)
                 this.parentColoured = true
-
-            node.vars.accept(this)
-            let rend1 = this.rendered
             node.body.accept(this)
             let rend2 = this.rendered
             if (node.colour === ColourType.Current) {
@@ -405,9 +406,9 @@ export default class ReactTreePrinter extends LispASTVisitor{
                     <span className="#" onMouseOver={e => this.handleMouseOver(e, node)}
                           onMouseLeave={e => this.handleMouseLeft(e)}>
                         {'((lambda ('}
+                        {rend1}
+                        {')'}
                     </span>
-                    {rend1}
-                    {')'}
                     {tab2}
                     {rend2}
                     <span className="#" onMouseOver={e => this.handleMouseOver(e, node)}
