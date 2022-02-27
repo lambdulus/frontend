@@ -1,5 +1,5 @@
 import { BoxType, AbstractBoxState, AbstractIntegrationState, AbstractSettings } from "../Types"
-import {InnerNode, Interpreter} from "@lambdulus/tiny-lisp-core";
+import {InnerNode, Interpreter} from "@lambdulus/tiny-lisp-core/dist/index";
 
 
 export interface TinyLispState extends AbstractBoxState {
