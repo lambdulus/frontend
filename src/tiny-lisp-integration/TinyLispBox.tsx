@@ -48,6 +48,18 @@ export default class TinyLispBox extends PureComponent<Props> {
                         onShiftEnter={ () => void 0 }
                         onExecute={ () => void 0 } // fn
                     />
+                    <button
+                        title='Submit this Expression in the Evaluator (Ctrl + Enter)'
+                        type="button"
+                        className='open-as-debug btn'
+                        onClick={ this.onDebug }
+                    >
+                          <span
+                              className='tiny-lisp--submit-expression--btn-label'
+                          >
+                            Submit
+                          </span>
+                    </button>
                 </div>
 
             case TinyLispType.ORDINARY:
@@ -86,7 +98,7 @@ export default class TinyLispBox extends PureComponent<Props> {
                             onClick={ this.onStep }
                         >
                           <span
-                              className='untyped-lambda--submit-expression--btn-label'
+                              className='tiny-lisp--debug-expression--btn-label'
                           >
                             Debug
                           </span>
@@ -99,10 +111,21 @@ export default class TinyLispBox extends PureComponent<Props> {
   }
 
   onDebug(): void{
-      let parser = new Parser()
-      let arr = parser.parse(this.props.state.editor.content)
-      let interpreter = new Interpreter(arr, parser.topNode as TopNode)
-      this.props.setBoxState({...this.props.state, subtype: TinyLispType.ORDINARY, interpreter, })
+      try {
+          let parser = new Parser()
+          let arr = parser.parse(this.props.state.editor.content)
+          let interpreter = new Interpreter(arr, parser.topNode as TopNode)
+          this.props.setBoxState({...this.props.state, subtype: TinyLispType.ORDINARY, interpreter,})
+      }
+      catch (exception) {
+          this.props.setBoxState({
+              ...this.props.state,
+              editor : {
+                  ...this.props.state.editor,
+                  syntaxError : Error("Error when parsing"),
+              }
+          })
+      }
   }
 
   onContent(str: string): void{
