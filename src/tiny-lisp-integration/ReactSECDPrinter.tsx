@@ -44,7 +44,7 @@ export default class ReactSECDPrinter {
                 return <span className={this.getClassName(element)}> [] </span>
             }
             if(element.printed !== PrintedState.NO) {
-                if (typeof (element.node) != "undefined") {
+                if (typeof (element.getNode()) != "undefined") {
                     console.log("(Func) Placeholder for: ", element, element.node, element.printed)
                     let str = this.getFunctionName(element.node)
                     if (str !== "") {
@@ -55,6 +55,7 @@ export default class ReactSECDPrinter {
                 </span>
                     }
                 }
+                console.log("Invalid placeholder", element, element.node, element.printed)
             }
             console.log("CHECKPOINT 1", element, element.printed)
             element.printInc()
@@ -71,7 +72,7 @@ export default class ReactSECDPrinter {
             // @ts-ignore
             if(element.printed === PrintedState.More){
                 let str = this.getFunctionName(element.node)
-                console.log("Naming function", element)
+                console.log("Naming function", element, str)
                 if(str !== "")
                     return <span className={name}>
                                 {str}
