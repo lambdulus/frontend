@@ -10,7 +10,7 @@ import {
     SECDElement,
     SECDValue,
     PrintedState
-} from "@lambdulus/tiny-lisp-core/dist/index"
+} from "@lambdulus/tiny-lisp-core"
 import React from "react";
 
 import './styles/Step.css'
