@@ -4,7 +4,7 @@
   "private": true,
   "dependencies": {
     "@lambdulus/core": "^0.0.7",
-    "@lambdulus/tiny-lisp-core": "git+ssh://git@github.com:lambdulus/tiny-lisp-core.git",
+    "@lambdulus/tiny-lisp-core": "github:lambdulus/tiny-lisp-core",
     "@testing-library/jest-dom": "^5.14.1",
     "@testing-library/react": "^12.1.2",
     "@testing-library/user-event": "^13.5.0",
