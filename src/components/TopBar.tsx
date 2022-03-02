@@ -21,7 +21,7 @@ export default function TopBar (props : Props) : JSX.Element {
   const { name } : NotebookState = ntbk
 
   // const dehydrated : object = dehydrate(state)
-    const {parse, stringify} = require('flatted/cjs');
+    const {stringify} = require('flatted/cjs');
   const serialized : string = stringify(ntbk)
   const link : string = createURL(serialized)
 

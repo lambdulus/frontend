@@ -135,7 +135,7 @@ export function loadAppStateFromStorage () : AppState {
 }
 
 export function updateAppStateToStorage (state : AppState) : void {
-  const {parse, stringify} = require('flatted/cjs');
+  const {stringify} = require('flatted/cjs');
   localStorage.setItem('AppState', stringify(state))
 }
 
