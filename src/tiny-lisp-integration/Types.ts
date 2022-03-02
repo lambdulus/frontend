@@ -1,4 +1,4 @@
-import { BoxType, AbstractBoxState, AbstractIntegrationState, AbstractSettings } from "../Types"
+import { AbstractBoxState, AbstractSettings } from "../Types"
 import {InnerNode, Interpreter} from "@lambdulus/tiny-lisp-core";
 
 

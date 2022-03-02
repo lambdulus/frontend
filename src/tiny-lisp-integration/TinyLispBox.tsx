@@ -1,5 +1,5 @@
 import React, {PureComponent} from 'react'
-import {BinaryExprNode, ColourType, InnerNode, Interpreter, Node, Parser, TopNode} from '@lambdulus/tiny-lisp-core'
+import {InnerNode, Interpreter, Node, Parser, TopNode} from '@lambdulus/tiny-lisp-core'
 
 import {TinyLispState, TinyLispType} from './Types'
 import Editor from "../components/Editor";
@@ -29,8 +29,8 @@ export default class TinyLispBox extends PureComponent<Props> {
     }
 
     render () {
-        const { state, isActive, isFocused, setBoxState } : Props = this.props
-        const { expression, editor, interpreter, subtype } : TinyLispState = state
+        const { state } : Props = this.props
+        const { interpreter, subtype } : TinyLispState = state
         const renderBoxContent = () => {
             switch(subtype) {
                 case TinyLispType.EMPTY:
@@ -133,8 +133,8 @@ export default class TinyLispBox extends PureComponent<Props> {
     }
 
     onStep() : void {
-        const { state, isActive, isFocused, setBoxState } : Props = this.props
-        const { expression, editor, interpreter } : TinyLispState = state
+        const { state, setBoxState } : Props = this.props
+        const { interpreter } : TinyLispState = state
         if(interpreter == null){
             throw Error
         }
