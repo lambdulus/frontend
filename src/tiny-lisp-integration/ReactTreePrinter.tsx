@@ -57,6 +57,7 @@ export default class ReactTreePrinter extends LispASTVisitor{
     }
 
     onBinaryExprNode(node: BinaryExprNode): void {
+        let shortcut = InstructionShortcut[(node.operator as OperatorNode).operator]
         if(this.parentColoured){
             /*node.operator.accept(this)
             let rend1 = this.rendered*/
@@ -67,7 +68,7 @@ export default class ReactTreePrinter extends LispASTVisitor{
             console.log("BIN 0")
             this.rendered = <span className="#">
                 {'('}
-                {InstructionShortcut[node.operator.operator]}
+                {shortcut}
                 {' '}
                 {rend2}
                 {' '}
@@ -93,7 +94,7 @@ export default class ReactTreePrinter extends LispASTVisitor{
                     </span>
                     <span className="underlineCurrent" onMouseOver={e => this.handleMouseOver(e, node)}
                           onMouseLeave={e => this.handleMouseLeft(e)}>
-                        {InstructionShortcut[node.operator.operator]}
+                        {shortcut}
                     </span>
                     {' '}
                     <span className="underlineFirstArgument" onMouseOver={e => this.handleMouseOver(e, node.left)}
@@ -121,7 +122,7 @@ export default class ReactTreePrinter extends LispASTVisitor{
                 </span>
                 <span className="#" onMouseOver={e => this.handleMouseOver(e, node)}
                       onMouseLeave={e => this.handleMouseLeft(e)}>
-                    {InstructionShortcut[node.operator.operator]}
+                    {shortcut}
                 </span>
                     {' '}
                     <span className="#">
@@ -515,7 +516,8 @@ export default class ReactTreePrinter extends LispASTVisitor{
             node.body.accept(this)
             let rend3 = this.rendered
             if (node.colour === ColourType.Current) {
-                this.rendered = <span className="underlineCurrent" onMouseOver={e => this.handleMouseOver(e, node)} onMouseLeave={e => this.handleMouseLeft(e)}>
+                this.rendered = <span className="underlineCurrent" onMouseOver={e => this.handleMouseOver(e, node)}
+                                      onMouseLeave={e => this.handleMouseLeft(e)}>
                 <span className="#">
                         {'(let('}
                     {rend1}
