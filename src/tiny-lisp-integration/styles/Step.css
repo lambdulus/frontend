@@ -76,6 +76,12 @@ tab {
     margin-left: 20px;
 }
 
+
+.toRight {
+    display: flex;
+}
+
+
 /*
 
 
