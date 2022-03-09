@@ -8,7 +8,8 @@ import {
     SECDElement,
     SECDValue,
     PrintedState,
-    GeneralUtils
+    GeneralUtils,
+    EndNode
 } from "@lambdulus/tiny-lisp-core"
 import React from "react";
 
@@ -71,14 +72,15 @@ export default class ReactSECDPrinter {
             // @ts-ignore
             if(element.printed === PrintedState.More){
                 let str = GeneralUtils.getFunctionName(element.node)
-                console.log("Naming function", element, str)
-                if(str !== "")
+                if(str !== "") {
+                    console.log("Naming function", element, str, name)
                     return <span className={name}>
                                 {str}
                         {': ['}
                         {array}
                         {']'}
                             </span>
+                }
             }
             return <span className={name}>
                             {'['}
@@ -116,18 +118,17 @@ export default class ReactSECDPrinter {
         let node = val.node//important
         if(typeof(node) != "undefined"){
             console.log(val, "Noda je defined.", node)
-            /*if(node instanceof TopNode)
-                node = node.node
-            if(node instanceof MainNode)
-                node = node.node*/
             if(node instanceof BinaryExprNode){
                 console.log("OPERATOR V GETCLASSNAME")
                 if(this.parentHasMouseOver(node.operator)){
                     return this.highlight(val.colour)
                 }
             }
-            else if(node instanceof FuncNode && val.colour === ColourType.Current){
+            else if(node instanceof FuncNode && val.colour === ColourType.Current){//AP instruction is specificaly coloured
                 node = node.func
+                if(node instanceof EndNode){
+                    node = node.reduced//If func is recursive function then next is its name in code and reduced its lambda
+                }
             }
             if(this.parentHasMouseOver(node)){
                 console.log("Noda ma na sobe mys.", node, val.colour)
