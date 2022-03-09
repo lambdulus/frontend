@@ -1,5 +1,5 @@
 import React, {PureComponent} from 'react'
-import {InnerNode, Interpreter, Node, Parser, TopNode} from '@lambdulus/tiny-lisp-core'
+import {EndNode, InnerNode, Interpreter, MainNode, Parser, TopNode} from '@lambdulus/tiny-lisp-core'
 
 import {TinyLispState, TinyLispType} from './Types'
 import Editor from "../components/Editor";
@@ -69,8 +69,8 @@ export default class TinyLispBox extends PureComponent<Props> {
                     const staticLisp = new ReactTreePrinter(interpreter.topNode, this.onMouseOver, this.onMouseLeft).print()
                     const c = new ReactSECDPrinter(interpreter.code, this.hasMouseOver, this.parentHasMouseOver).print()
                     const s = new ReactSECDPrinter(interpreter.stack, this.hasMouseOver, this.parentHasMouseOver).print()
+                    console.log("ZACINA ENVIRONMENT: ", this.hasMouseOver)
                     const e = new ReactSECDPrinter(interpreter.environment, this.hasMouseOver, this.parentHasMouseOver).print()
-                    console.log("Funkce: ", this.hasMouseOver)
                     const d = new DumpPrinter(interpreter.dump, this.hasMouseOver, this.parentHasMouseOver).print()
                     interpreter.code.clearPrinted()
                     interpreter.stack.clearPrinted()
@@ -82,10 +82,13 @@ export default class TinyLispBox extends PureComponent<Props> {
                             LISP:
                             <br></br>
                             { staticLisp }
+                            <span className="toRight">
+                                stack: { s }
+
+                            </span>
                             <br></br>
                             code: { c }
-                            <br></br>
-                            stack: { s }
+
                             <br></br>
                             environment: { e }
                             <br></br>
@@ -100,7 +103,7 @@ export default class TinyLispBox extends PureComponent<Props> {
                           <span
                               className='tiny-lisp--debug-expression--btn-label'
                           >
-                            Debug
+                            Step
                           </span>
                             </button>
                         </div>
@@ -150,27 +153,27 @@ export default class TinyLispBox extends PureComponent<Props> {
 
     onMouseOver(node: InnerNode): void{
         console.log("Interpreter1: ", this)
-        let mouseOver = this.props.state.mouseOver
-        if(mouseOver !== null) {
-            mouseOver.setMouseOver(false)
-            console.log("Leaving node: ", mouseOver)
-        }/*
-      if(node instanceof BinaryExprNode)
-          node = node.operator*/
-        node.setMouseOver(true)
+        let tmp = node
+        let i = 0
+        while (tmp.hasParent()){
+            let tmp2 = tmp._parent
+            console.log("TMP NODE", tmp, tmp2)
+            if(tmp2 instanceof TopNode || tmp2 instanceof MainNode)
+                break
+            tmp2 = tmp._parent as InnerNode
+            if(tmp2 instanceof EndNode)
+                if(tmp2.reduced.isList())
+                    node = tmp2
+            tmp = tmp2 as InnerNode
+            if(i ++ > 10)
+                break
+        }
         this.props.setBoxState({...this.props.state, mouseOver: node})
         //console.log("Hazim tam: ", {...this.props.state, mouseOver: node})
         console.log("Props a node: ", this.props, node)
     }
 
     onMouseLeft(): void{
-        //console.log("Interpreter2: ", this)
-        let mouseOver = this.props.state.mouseOver
-        console.log("In mouse left", mouseOver)
-        if(mouseOver !== null) {
-            mouseOver.setMouseOver(false)
-            console.log("Levaing node: ", mouseOver)
-        }
         this.props.setBoxState({...this.props.state, mouseOver: null})
         //console.log("Hazim tam: ", {...this.props.state, mouseOver: null})
     }
@@ -181,11 +184,18 @@ export default class TinyLispBox extends PureComponent<Props> {
 
     parentHasMouseOver(node: InnerNode): boolean{
         console.log("IN parentHasMouseOver method", node, this.props.state.mouseOver)
-        if(node.mouseOver) {
+        if(typeof(this.props.state.mouseOver) == "undefined" || !this.props.state.mouseOver)
+            return false
+        let condNode
+        /*if(this.props.state.mouseOver instanceof EndNode) {
+            condNode = this.props.state.mouseOver.next
+        }*/
+        condNode = this.props.state.mouseOver
+        if(node === condNode) {
             console.log("RETURNING TRUE")
             return true
         }
-        let parent: Node = node._parent as Node
+        let parent = node._parent
         if(!(parent instanceof InnerNode)) {
             console.log("RETURNING FALSE")
             return false

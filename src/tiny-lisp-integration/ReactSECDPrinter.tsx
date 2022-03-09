@@ -4,12 +4,11 @@ import {
     FuncNode,
     InnerNode,
     Instruction,
-    LambdaNode,
-    LetNode,
     SECDArray,
     SECDElement,
     SECDValue,
-    PrintedState
+    PrintedState,
+    GeneralUtils
 } from "@lambdulus/tiny-lisp-core"
 import React from "react";
 
@@ -46,13 +45,13 @@ export default class ReactSECDPrinter {
             if(element.printed !== PrintedState.NO) {
                 if (typeof (element.getNode()) != "undefined") {
                     console.log("(Func) Placeholder for: ", element, element.node, element.printed)
-                    let str = this.getFunctionName(element.node)
+                    let str = GeneralUtils.getFunctionName(element.node)
                     if (str !== "") {
                         this.placeholders.push(str)
                         element.printInc()
                         return <span>
-                    [{str}]
-                </span>
+                            [{str}]
+                        </span>
                     }
                 }
                 console.log("Invalid placeholder", element, element.node, element.printed)
@@ -71,7 +70,7 @@ export default class ReactSECDPrinter {
             console.log("ABCDEFGH", array, element.node, element.arr, element.printed)
             // @ts-ignore
             if(element.printed === PrintedState.More){
-                let str = this.getFunctionName(element.node)
+                let str = GeneralUtils.getFunctionName(element.node)
                 console.log("Naming function", element, str)
                 if(str !== "")
                     return <span className={name}>
@@ -111,9 +110,9 @@ export default class ReactSECDPrinter {
     protected getClassName(val: SECDElement): string{
         if(this.colouredArray)
             return this.underline(val.colour)
-        if(val.colour === ColourType.Return){
+        /*if(val.colour === ColourType.Return){
             return this.hasMouseOver() ? "highlightCurrent" : "underlineCurrent"
-        }
+        }*/
         let node = val.node//important
         if(typeof(node) != "undefined"){
             console.log(val, "Noda je defined.", node)
@@ -171,19 +170,5 @@ export default class ReactSECDPrinter {
             default:
                 return "highlightOther"
         }
-    }
-
-    protected getFunctionName(node: InnerNode): string{
-        if(node instanceof FuncNode) {
-            return (node as FuncNode).func.print()
-        }
-        else if(node instanceof LetNode){
-            return ((node as LetNode).body as FuncNode).func.print()
-        }
-        else if(node instanceof LambdaNode){
-            console.log("NEJAKY DEBUG VYPIS", node._parent)
-            return ((node._parent as LetNode).body as FuncNode).func.print()
-        }
-        return ""
     }
 }
