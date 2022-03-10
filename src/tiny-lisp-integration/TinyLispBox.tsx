@@ -1,5 +1,5 @@
 import React, {PureComponent} from 'react'
-import {EndNode, InnerNode, Interpreter, MainNode, Parser, TopNode} from '@lambdulus/tiny-lisp-core'
+import {DefineNode, EndNode, InnerNode, Instruction, Interpreter, MainNode, Parser, TopNode, VarNode} from '@lambdulus/tiny-lisp-core'
 
 import {TinyLispState, TinyLispType} from './Types'
 import Editor from "../components/Editor";
@@ -31,6 +31,7 @@ export default class TinyLispBox extends PureComponent<Props> {
     render () {
         const { state } : Props = this.props
         const { interpreter, subtype } : TinyLispState = state
+
         const renderBoxContent = () => {
             switch(subtype) {
                 case TinyLispType.EMPTY:
@@ -67,11 +68,11 @@ export default class TinyLispBox extends PureComponent<Props> {
                         throw Error//TODO zmenit asi na log a vratit neco v poradku - jinak crashne cela appka
                     }
                     const staticLisp = new ReactTreePrinter(interpreter.topNode, this.onMouseOver, this.onMouseLeft).print()
-                    const c = new ReactSECDPrinter(interpreter.code, this.hasMouseOver, this.parentHasMouseOver).print()
-                    const s = new ReactSECDPrinter(interpreter.stack, this.hasMouseOver, this.parentHasMouseOver).print()
+                    const c = new ReactSECDPrinter(interpreter.code, this.hasMouseOver, this.parentHasMouseOver, state.current).print()
+                    const s = new ReactSECDPrinter(interpreter.stack, this.hasMouseOver, this.parentHasMouseOver, state.current).print()
                     console.log("ZACINA ENVIRONMENT: ", this.hasMouseOver)
-                    const e = new ReactSECDPrinter(interpreter.environment, this.hasMouseOver, this.parentHasMouseOver).print()
-                    const d = new DumpPrinter(interpreter.dump, this.hasMouseOver, this.parentHasMouseOver).print()
+                    const e = new ReactSECDPrinter(interpreter.environment, this.hasMouseOver, this.parentHasMouseOver, state.current).print()
+                    const d = new DumpPrinter(interpreter.dump, this.hasMouseOver, this.parentHasMouseOver, state.current).print()
                     interpreter.code.clearPrinted()
                     interpreter.stack.clearPrinted()
                     interpreter.environment.clearPrinted()
@@ -142,13 +143,16 @@ export default class TinyLispBox extends PureComponent<Props> {
             throw Error
         }
         console.log("Interpreter On Step", interpreter)
+        console.log("$$$$", interpreter.lastInstruction)
         interpreter.detectAction()
+        console.log("$$$$", interpreter.lastInstruction)
+        let current = (interpreter.lastInstruction.val as unknown as Instruction).shortcut
         interpreter.code.clearPrinted()
         interpreter.stack.clearPrinted()
         interpreter.dump.clearPrinted()
         interpreter.environment.clearPrinted()
         console.log("Interpreter After Step", interpreter)
-        setBoxState({...state, interpreter})
+        setBoxState({...state, interpreter, current})
     }
 
     onMouseOver(node: InnerNode): void{
@@ -162,7 +166,7 @@ export default class TinyLispBox extends PureComponent<Props> {
                 break
             tmp2 = tmp._parent as InnerNode
             if(tmp2 instanceof EndNode)
-                if(tmp2.reduced.isList())
+                if(tmp2.reduced.isLeaf())
                     node = tmp2
             tmp = tmp2 as InnerNode
             if(i ++ > 10)
@@ -186,11 +190,13 @@ export default class TinyLispBox extends PureComponent<Props> {
         console.log("IN parentHasMouseOver method", node, this.props.state.mouseOver)
         if(typeof(this.props.state.mouseOver) == "undefined" || !this.props.state.mouseOver)
             return false
-        let condNode
-        /*if(this.props.state.mouseOver instanceof EndNode) {
-            condNode = this.props.state.mouseOver.next
-        }*/
-        condNode = this.props.state.mouseOver
+        if (this.props.state.mouseOver instanceof DefineNode && node instanceof VarNode){
+            if(this.props.state.mouseOver.name === node.variable){
+                console.log("RETURNING TRUE", node.variable)
+                return true
+            }
+        }
+        let condNode = this.props.state.mouseOver
         if(node === condNode) {
             console.log("RETURNING TRUE")
             return true
