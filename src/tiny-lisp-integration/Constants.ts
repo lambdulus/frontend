@@ -1,3 +1,4 @@
+import { InstructionShortcut } from "@lambdulus/tiny-lisp-core";
 import { BoxType } from "../Types";
 import { TinyLispSettings, TinyLispState, TinyLispType } from "./Types"
 
@@ -25,6 +26,7 @@ export function createNewTinyLispExpression (defaultSettings : TinyLispSettings)
             content : '',
             caretPosition : -1,
             syntaxError : null,
-        }
+        },
+        current : InstructionShortcut.DUMMY
     };
 }

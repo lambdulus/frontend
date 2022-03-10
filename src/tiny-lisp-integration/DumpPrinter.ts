@@ -1,12 +1,13 @@
 import ReactSECDPrinter from "./ReactSECDPrinter";
-import {ColourType, InnerNode, SECDArray, SECDElement} from "@lambdulus/tiny-lisp-core"
+import {ColourType, InnerNode, InstructionShortcut, SECDArray, SECDElement} from "@lambdulus/tiny-lisp-core"
 
 
 export default class DumpPrinter extends ReactSECDPrinter {
 
 
-    constructor(arr: SECDArray, public hasMouseOver: () => boolean, public parentHasMouseOver: (innerNode: InnerNode) => boolean) {
-        super(arr, hasMouseOver, parentHasMouseOver)
+    constructor(arr: SECDArray, public hasMouseOver: () => boolean, public parentHasMouseOver: (innerNode: InnerNode) => boolean,
+                current: InstructionShortcut) {
+        super(arr, hasMouseOver, parentHasMouseOver, current)
     }
 
     protected getClassName(val: SECDElement): string {

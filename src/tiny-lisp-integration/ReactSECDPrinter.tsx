@@ -4,6 +4,7 @@ import {
     FuncNode,
     InnerNode,
     Instruction,
+    InstructionShortcut,
     SECDArray,
     SECDElement,
     SECDValue,
@@ -21,7 +22,8 @@ export default class ReactSECDPrinter {
     private colouredArray: boolean = false
     private placeholders: Array<string> = []
 
-    constructor(arr: SECDArray, public hasMouseOver: () => boolean, public parentHasMouseOver: (innerNode: InnerNode) => boolean) {
+    constructor(arr: SECDArray, public hasMouseOver: () => boolean, public parentHasMouseOver: (innerNode: InnerNode) => boolean,
+               readonly current: InstructionShortcut) {
         console.log(arr)
         //super();
         this.visit(arr)
@@ -56,6 +58,7 @@ export default class ReactSECDPrinter {
                     }
                 }
                 console.log("Invalid placeholder", element, element.node, element.printed)
+
             }
             console.log("CHECKPOINT 1", element, element.printed)
             element.printInc()
@@ -70,7 +73,7 @@ export default class ReactSECDPrinter {
             let name: string = this.getClassName(element)
             console.log("ABCDEFGH", array, element.node, element.arr, element.printed)
             // @ts-ignore
-            if(element.printed === PrintedState.More){
+            if(element.printed === PrintedState.More && element.node){
                 let str = GeneralUtils.getFunctionName(element.node)
                 if(str !== "") {
                     console.log("Naming function", element, str, name)

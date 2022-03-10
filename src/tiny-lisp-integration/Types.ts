@@ -1,5 +1,5 @@
 import { AbstractBoxState, AbstractSettings } from "../Types"
-import {InnerNode, Interpreter} from "@lambdulus/tiny-lisp-core";
+import {InnerNode, InstructionShortcut, Interpreter} from "@lambdulus/tiny-lisp-core";
 
 
 export interface TinyLispState extends AbstractBoxState {
@@ -14,6 +14,7 @@ export interface TinyLispState extends AbstractBoxState {
     caretPosition : number
     syntaxError : Error | null
   }
+  current: InstructionShortcut
 }
 
 export interface TinyLispSettings extends AbstractSettings {
