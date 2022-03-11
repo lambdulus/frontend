@@ -10,7 +10,8 @@ import {
     SECDValue,
     PrintedState,
     GeneralUtils,
-    EndNode
+    EndNode,
+    SECDInvalid
 } from "@lambdulus/tiny-lisp-core"
 import React from "react";
 
@@ -36,10 +37,10 @@ export default class ReactSECDPrinter {
     }
 
     visit(arr: SECDArray): void {
-        this.rendered = this.getElements(arr)
+        this.rendered = this.getElements(arr, true)
     }
 
-    private getElements(element: SECDElement): JSX.Element{
+    private getElements(element: SECDElement, top: boolean): JSX.Element{
         if(element instanceof SECDArray) {
             if(element.empty()) {
                 console.log("getElements: Empty arr", element)
@@ -67,10 +68,10 @@ export default class ReactSECDPrinter {
             console.log("array", element.arr)
             if(element.colour !== ColourType.None)
                 this.colouredArray = true
-            array = element.arr.map<JSX.Element>(value => this.getElements(value));
+            array = element.arr.map<JSX.Element>(value => this.getElements(value, false));
             if(element.colour !== ColourType.None)
                 this.colouredArray = false
-            let name: string = this.getClassName(element)
+            let name: string = top ? "normalInstruction" : this.getClassName(element)
             console.log("ABCDEFGH", array, element.node, element.arr, element.printed)
             // @ts-ignore
             if(element.printed === PrintedState.More && element.node){
@@ -108,6 +109,9 @@ export default class ReactSECDPrinter {
                 {' '}
                 </span>
 
+        }
+        else if(element instanceof SECDInvalid){
+            return <span/>
         }
         throw Error()
     }

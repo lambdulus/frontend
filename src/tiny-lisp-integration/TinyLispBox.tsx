@@ -31,7 +31,7 @@ export default class TinyLispBox extends PureComponent<Props> {
     render () {
         const { state } : Props = this.props
         const { interpreter, subtype } : TinyLispState = state
-
+        console.log("ZACINA RENDER")
         const renderBoxContent = () => {
             switch(subtype) {
                 case TinyLispType.EMPTY:
@@ -68,12 +68,17 @@ export default class TinyLispBox extends PureComponent<Props> {
                         throw Error//TODO zmenit asi na log a vratit neco v poradku - jinak crashne cela appka
                     }
                     const staticLisp = new ReactTreePrinter(interpreter.topNode, this.onMouseOver, this.onMouseLeft).print()
+                    console.log("ZACINA CODE: ", this.hasMouseOver)
                     const c = new ReactSECDPrinter(interpreter.code, this.hasMouseOver, this.parentHasMouseOver, state.current).print()
+                    console.log("ZACINA STACK")
                     const s = new ReactSECDPrinter(interpreter.stack, this.hasMouseOver, this.parentHasMouseOver, state.current).print()
                     console.log("ZACINA ENVIRONMENT: ", this.hasMouseOver)
                     const e = new ReactSECDPrinter(interpreter.environment, this.hasMouseOver, this.parentHasMouseOver, state.current).print()
+                    console.log("ZACINA DUMP: ", this.hasMouseOver)
                     const d = new DumpPrinter(interpreter.dump, this.hasMouseOver, this.parentHasMouseOver, state.current).print()
+                    console.log("*****$$$$$", interpreter.code)
                     interpreter.code.clearPrinted()
+                    console.log("*****$$$$$", interpreter.code)
                     interpreter.stack.clearPrinted()
                     interpreter.environment.clearPrinted()
                     interpreter.dump.clearPrinted()
