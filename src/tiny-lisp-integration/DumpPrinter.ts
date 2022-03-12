@@ -5,7 +5,7 @@ import {ColourType, InnerNode, InstructionShortcut, SECDArray, SECDElement} from
 export default class DumpPrinter extends ReactSECDPrinter {
 
 
-    constructor(arr: SECDArray, public hasMouseOver: () => boolean, public parentHasMouseOver: (innerNode: InnerNode) => boolean,
+    constructor(arr: SECDArray, public hasMouseOver: () => boolean, public parentHasMouseOver: (innerNode: InnerNode, returnTrueIfColoured: boolean) => boolean,
                 current: InstructionShortcut) {
         super(arr, hasMouseOver, parentHasMouseOver, current)
     }

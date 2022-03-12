@@ -164,13 +164,13 @@ export default class ReactTreePrinter extends LispASTVisitor{
     }
 
     onEndNode(node: EndNode): void {
-        if(this.parentColoured || !node.next.isLeaf()) {
+        //if(this.parentColoured || !node.next.isLeaf()) {
             node.next.accept(this)
             let rend = this.rendered
             this.rendered = <span className="#">
                 {rend}
             </span>
-        }
+        /*}
         else {
             this.parentColoured = true
             node.next.accept(this)
@@ -180,7 +180,7 @@ export default class ReactTreePrinter extends LispASTVisitor{
                                   onMouseLeave={e => this.handleMouseLeft(e)}>
                 {rend}
             </span>
-        }
+        }*/
     }
 
     onFuncNode(node: FuncNode): void {
