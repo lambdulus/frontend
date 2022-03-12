@@ -20,10 +20,10 @@ import './styles/Step.css'
 
 export default class ReactSECDPrinter {
     private rendered : JSX.Element | null = null
-    private colouredArray: boolean = false
+    private enclosingArrayColoured: boolean = false
     private placeholders: Array<string> = []
 
-    constructor(arr: SECDArray, public hasMouseOver: () => boolean, public parentHasMouseOver: (innerNode: InnerNode) => boolean,
+    constructor(arr: SECDArray, public hasMouseOver: () => boolean, public parentHasMouseOver: (innerNode: InnerNode, returnTrueIfColoured: boolean) => boolean,
                readonly current: InstructionShortcut) {
         console.log(arr)
         //super();
@@ -37,10 +37,10 @@ export default class ReactSECDPrinter {
     }
 
     visit(arr: SECDArray): void {
-        this.rendered = this.getElements(arr, true)
+        this.rendered = this.getElements(arr)
     }
 
-    private getElements(element: SECDElement, top: boolean): JSX.Element{
+    private getElements(element: SECDElement): JSX.Element{
         if(element instanceof SECDArray) {
             if(element.empty()) {
                 console.log("getElements: Empty arr", element)
@@ -53,7 +53,10 @@ export default class ReactSECDPrinter {
                     if (str !== "") {
                         this.placeholders.push(str)
                         element.printInc()
-                        return <span>
+                        let colour: ColourType = this.enclosingArrayColoured ? ColourType.None : element.colour//If node is coloured, colour also placeholder
+                        let name = this.parentHasMouseOver(element.node, colour !== ColourType.None)
+                            && !this.enclosingArrayColoured ? this.highlight(colour) : this.underline(colour)
+                        return <span className={name}>
                             [{str}]
                         </span>
                     }
@@ -67,11 +70,11 @@ export default class ReactSECDPrinter {
             let array : JSX.Element[] = []
             console.log("array", element.arr)
             if(element.colour !== ColourType.None)
-                this.colouredArray = true
-            array = element.arr.map<JSX.Element>(value => this.getElements(value, false));
+                this.enclosingArrayColoured = true
+            array = element.arr.map<JSX.Element>(value => this.getElements(value));
             if(element.colour !== ColourType.None)
-                this.colouredArray = false
-            let name: string = top ? "normalInstruction" : this.getClassName(element)
+                this.enclosingArrayColoured = false
+            let name: string = this.getClassName(element)
             console.log("ABCDEFGH", array, element.node, element.arr, element.printed)
             // @ts-ignore
             if(element.printed === PrintedState.More && element.node){
@@ -95,7 +98,7 @@ export default class ReactSECDPrinter {
         }
         else if(element instanceof SECDValue){
             let name: string = this.getClassName(element)
-            console.log("element: ", name, element.val, this.colouredArray)
+            console.log("element: ", name, element.val, this.enclosingArrayColoured)
             if(element.val instanceof Instruction){
                 return <span className={name}>
                     {' '}
@@ -117,17 +120,18 @@ export default class ReactSECDPrinter {
     }
 
     protected getClassName(val: SECDElement): string{
-        if(this.colouredArray)
+        if(this.enclosingArrayColoured)
             return this.underline(val.colour)
         /*if(val.colour === ColourType.Return){
             return this.hasMouseOver() ? "highlightCurrent" : "underlineCurrent"
         }*/
         let node = val.node//important
         if(typeof(node) != "undefined"){
-            console.log(val, "Noda je defined.", node)
+            let coloured = val.colour !== ColourType.None
+            console.log(val, "Noda je defined.", node, coloured)
             if(node instanceof BinaryExprNode){
                 console.log("OPERATOR V GETCLASSNAME")
-                if(this.parentHasMouseOver(node.operator)){
+                if(this.parentHasMouseOver(node.operator, coloured)){
                     return this.highlight(val.colour)
                 }
             }
@@ -137,7 +141,7 @@ export default class ReactSECDPrinter {
                     node = node.reduced//If func is recursive function then next is its name in code and reduced its lambda
                 }
             }
-            if(this.parentHasMouseOver(node)){
+            if(this.parentHasMouseOver(node, coloured)){
                 console.log("Noda ma na sobe mys.", node, val.colour)
                 return this.highlight(val.colour)
             }

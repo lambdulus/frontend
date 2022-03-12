@@ -1,5 +1,5 @@
 import React, {PureComponent} from 'react'
-import {DefineNode, EndNode, InnerNode, Instruction, Interpreter, MainNode, Parser, TopNode, VarNode} from '@lambdulus/tiny-lisp-core'
+import {ColourType, DefineNode, EndNode, InnerNode, Instruction, Interpreter, MainNode, Parser, TopNode, VarNode} from '@lambdulus/tiny-lisp-core'
 
 import {TinyLispState, TinyLispType} from './Types'
 import Editor from "../components/Editor";
@@ -161,15 +161,18 @@ export default class TinyLispBox extends PureComponent<Props> {
     }
 
     onMouseOver(node: InnerNode): void{
-        console.log("Interpreter1: ", this)
+        console.log("Interpreter1: ", this, node)
         let tmp = node
         let i = 0
+        let colour = node.colour
         while (tmp.hasParent()){
             let tmp2 = tmp._parent
             console.log("TMP NODE", tmp, tmp2)
             if(tmp2 instanceof TopNode || tmp2 instanceof MainNode)
                 break
             tmp2 = tmp._parent as InnerNode
+            if(tmp2.colour !== ColourType.None)
+                break
             if(tmp2 instanceof EndNode)
                 if(tmp2.reduced.isLeaf())
                     node = tmp2
@@ -177,6 +180,7 @@ export default class TinyLispBox extends PureComponent<Props> {
             if(i ++ > 10)
                 break
         }
+        node.colour = colour//If predecessor node is chosed it should have the same colour
         this.props.setBoxState({...this.props.state, mouseOver: node})
         //console.log("Hazim tam: ", {...this.props.state, mouseOver: node})
         console.log("Props a node: ", this.props, node)
@@ -191,10 +195,12 @@ export default class TinyLispBox extends PureComponent<Props> {
         return this.props.state.mouseOver != null
     }
 
-    parentHasMouseOver(node: InnerNode): boolean{
-        console.log("IN parentHasMouseOver method", node, this.props.state.mouseOver)
+    parentHasMouseOver(node: InnerNode, returnTrueIfColoured: boolean): boolean {//TODO optimize
+        console.log("IN parentHasMouseOver method", node, this.props.state.mouseOver, returnTrueIfColoured)
         if(typeof(this.props.state.mouseOver) == "undefined" || !this.props.state.mouseOver)
             return false
+        if(!returnTrueIfColoured && this.props.state.mouseOver.colour !== ColourType.None)
+            return false//TODO optimize
         if (this.props.state.mouseOver instanceof DefineNode && node instanceof VarNode){
             if(this.props.state.mouseOver.name === node.variable){
                 console.log("RETURNING TRUE", node.variable)
@@ -211,7 +217,7 @@ export default class TinyLispBox extends PureComponent<Props> {
             console.log("RETURNING FALSE")
             return false
         }
-        return this.parentHasMouseOver(parent)
+        return this.parentHasMouseOver(parent, returnTrueIfColoured)
     }
 
 }
