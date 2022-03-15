@@ -174,7 +174,7 @@ export default class TinyLispBox extends PureComponent<Props> {
             if(tmp2.colour !== ColourType.None)
                 break
             if(tmp2 instanceof EndNode)
-                if(tmp2.reduced.isLeaf())
+                if(tmp2.reduced().isLeaf())
                     node = tmp2
             tmp = tmp2 as InnerNode
             if(i ++ > 10)
