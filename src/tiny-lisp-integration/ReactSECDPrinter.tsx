@@ -122,23 +122,20 @@ export default class ReactSECDPrinter {
     protected getClassName(val: SECDElement): string{
         if(this.enclosingArrayColoured)
             return this.underline(val.colour)
-        /*if(val.colour === ColourType.Return){
-            return this.hasMouseOver() ? "highlightCurrent" : "underlineCurrent"
-        }*/
         let node = val.node//important
         if(typeof(node) != "undefined"){
             let coloured = val.colour !== ColourType.None
             console.log(val, "Noda je defined.", node, coloured)
             if(node instanceof BinaryExprNode){
                 console.log("OPERATOR V GETCLASSNAME")
-                if(this.parentHasMouseOver(node.operator, coloured)){
+                if(this.parentHasMouseOver(node.operator(), coloured)){
                     return this.highlight(val.colour)
                 }
             }
             else if(node instanceof FuncNode && val.colour === ColourType.Current){//AP instruction is specificaly coloured
-                node = node.func
+                node = node.func()
                 if(node instanceof EndNode){
-                    node = node.reduced//If func is recursive function then next is its name in code and reduced its lambda
+                    node = node.reduced()//If func is recursive function then next is its name in code and reduced its lambda
                 }
             }
             if(this.parentHasMouseOver(node, coloured)){
