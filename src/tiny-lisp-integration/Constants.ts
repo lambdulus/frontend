@@ -19,6 +19,7 @@ export function createNewTinyLispExpression (defaultSettings : TinyLispSettings)
         subtype: TinyLispType.EMPTY,
         expression : '',
         mouseOver: null,
+        cleanNeeded: false,
         interpreter: null,
 
         editor : {
