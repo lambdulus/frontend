@@ -10,7 +10,7 @@ import {
     SECDValue,
     PrintedState,
     GeneralUtils,
-    EndNode,
+    ReduceNode,
     SECDInvalid
 } from "@lambdulus/tiny-lisp-core"
 import React from "react";
@@ -134,7 +134,7 @@ export default class ReactSECDPrinter {
             }
             else if(node instanceof FuncNode && val.colour === ColourType.Current){//AP instruction is specificaly coloured
                 node = node.func()
-                if(node instanceof EndNode){
+                if(node instanceof ReduceNode){
                     node = node.reduced()//If func is recursive function then next is its name in code and reduced its lambda
                 }
             }

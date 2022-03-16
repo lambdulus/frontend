@@ -5,6 +5,7 @@ import {InnerNode, InstructionShortcut, Interpreter} from "@lambdulus/tiny-lisp-
 export interface TinyLispState extends AbstractBoxState {
   expression : string
   mouseOver: InnerNode | null
+  cleanNeeded: boolean
   interpreter : Interpreter | null
   subtype: TinyLispType
 

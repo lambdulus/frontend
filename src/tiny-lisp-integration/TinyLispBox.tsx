@@ -1,5 +1,5 @@
 import React, {PureComponent} from 'react'
-import {ColourType, DefineNode, EndNode, InnerNode, Instruction, Interpreter, MainNode, Parser, TopNode, VarNode} from '@lambdulus/tiny-lisp-core'
+import {ColourType, DefineNode, ReduceNode, InnerNode, Instruction, Interpreter, MainNode, Parser, TopNode, VarNode} from '@lambdulus/tiny-lisp-core'
 
 import {TinyLispState, TinyLispType} from './Types'
 import Editor from "../components/Editor";
@@ -162,10 +162,13 @@ export default class TinyLispBox extends PureComponent<Props> {
 
     onMouseOver(node: InnerNode): void{
         console.log("Interpreter1: ", this, node)
+        if(this.props.state.cleanNeeded)
+            if(this.props.state.mouseOver)
+                this.props.state.mouseOver.colour = ColourType.None
         let tmp = node
         let i = 0
         let colour = node.colour
-        while (tmp.hasParent()){
+        while (tmp.hasParent()){//Find predecessor ReduceNode so reduced values can be coloured
             let tmp2 = tmp._parent
             console.log("TMP NODE", tmp, tmp2)
             if(tmp2 instanceof TopNode || tmp2 instanceof MainNode)
@@ -173,21 +176,28 @@ export default class TinyLispBox extends PureComponent<Props> {
             tmp2 = tmp._parent as InnerNode
             if(tmp2.colour !== ColourType.None)
                 break
-            if(tmp2 instanceof EndNode)
+            if(tmp2 instanceof ReduceNode)
                 if(tmp2.reduced().isLeaf())
                     node = tmp2
             tmp = tmp2 as InnerNode
             if(i ++ > 10)
                 break
         }
-        node.colour = colour//If predecessor node is chosed it should have the same colour
-        this.props.setBoxState({...this.props.state, mouseOver: node})
+        let cleanNeaded = false
+        if(node.colour === ColourType.None) {//If predecessor node is chosed it should have the same colour
+            node.colour = colour
+            cleanNeaded = true
+        }
+        this.props.setBoxState({...this.props.state, mouseOver: node, cleanNeeded: cleanNeaded})
         //console.log("Hazim tam: ", {...this.props.state, mouseOver: node})
         console.log("Props a node: ", this.props, node)
     }
 
     onMouseLeft(): void{
-        this.props.setBoxState({...this.props.state, mouseOver: null})
+        if(this.props.state.cleanNeeded)
+            if(this.props.state.mouseOver)
+                this.props.state.mouseOver.colour = ColourType.None
+        this.props.setBoxState({...this.props.state, mouseOver: null, cleanNeeded: false})
         //console.log("Hazim tam: ", {...this.props.state, mouseOver: null})
     }
 
