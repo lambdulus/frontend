@@ -32,6 +32,7 @@ export default class ReactTreePrinter extends LispASTVisitor{
     private parentColoured: boolean = false
     private lowestEndNode: boolean = false
     private lookAtPredecessors: boolean = true
+    private quoted = false
     private tabs: Array<JSX.Element> = []
 
     constructor(public readonly node: TopNode, public mouseOver: (node: InnerNode) => void, public mouseLeft: () => void) {
@@ -172,9 +173,14 @@ export default class ReactTreePrinter extends LispASTVisitor{
             }
         })
         acc.slice(0, -1)//remove last ' '
-        this.rendered = <span>
-            {acc}
-        </span>
+        if(this.quoted)
+            this.rendered = <span>
+                ({acc})
+            </span>
+        else
+            this.rendered = <span>
+                {acc}
+            </span>
     }
 
     onReduceNode(node: ReduceNode): void {
@@ -473,7 +479,7 @@ export default class ReactTreePrinter extends LispASTVisitor{
                     {')'}
                     <ul id="horizontal-list">
                         {rend2}
-                        {')'}
+                        {'))'}
                     </ul>
             </span>
         }
@@ -486,7 +492,7 @@ export default class ReactTreePrinter extends LispASTVisitor{
                 {')'}
                 <ul id="horizontal-list">
                         {rend2}
-                    {')'}
+                    {'))'}
                     </ul>
             </span>
         }
@@ -498,7 +504,9 @@ export default class ReactTreePrinter extends LispASTVisitor{
                                 {'('+ defineStr + ' '}
                                 {name}
                             </span>
-                            ({rend1})
+                            (
+                            {rend1}
+                            )
                             <ul id="horizontal-list">
                                 {rend2}
                                 )
@@ -520,10 +528,8 @@ export default class ReactTreePrinter extends LispASTVisitor{
             node.body().accept(this)
             let rend3 = this.rendered
             this.rendered = <span className="#">
-                {'(let(('}
+                {'(let' + (node.recursive ? 'rec' : '') + '(('}
                 {rend1}
-                {')'}
-                {'('}
                 {rend2}
                 {'))'}
                 <br></br>
@@ -545,11 +551,9 @@ export default class ReactTreePrinter extends LispASTVisitor{
                 this.rendered = <span className="underlineCurrent" onMouseOver={e => this.handleMouseOver(e, node)}
                                       onMouseLeave={e => this.handleMouseLeft(e)}>
                 <span className="#">
-                        {'(let(('}
+                    {'(let' + (node.recursive ? 'rec' : '') + '(('}
                     {rend1}
-                    {')'}
                     </span>
-                    {'('}
                     {rend2}
                     {'))'}
                     <br></br>
@@ -564,11 +568,9 @@ export default class ReactTreePrinter extends LispASTVisitor{
                 this.rendered = <span className="#">
                 <span className="#" onMouseOver={e => this.handleMouseOver(e, node)}
                       onMouseLeave={e => this.handleMouseLeft(e)}>
-                        {'(let(('}
+                    {'(let' + (node.recursive ? 'rec' : '') + '(('}
                     {rend1}
-                    {')'}
                     </span>
-                    {'('}
                     {rend2}
                     {'))'}
                     <br></br>
@@ -738,16 +740,12 @@ export default class ReactTreePrinter extends LispASTVisitor{
     onStringNode(node: StringNode) {
         if(this.parentColoured)
             this.rendered = <span className={ReactTreePrinter.getClassName(node)}>
-                "
                 {node.str}
-                "
             </span>
         else
             this.rendered = <span className={ReactTreePrinter.getClassName(node)} onMouseOver={e => this.handleMouseOver(e, node)}
                                   onMouseLeave={e => this.handleMouseLeft(e)}>
-                "
                 {node.str}
-                "
             </span>
     }
 
@@ -777,6 +775,7 @@ export default class ReactTreePrinter extends LispASTVisitor{
 
 
     onQuoteNode(node: QuoteNode){
+        this.quoted = true
         if(this.parentColoured) {
             node.node().accept(this)
             let rend = this.rendered
@@ -794,15 +793,16 @@ export default class ReactTreePrinter extends LispASTVisitor{
             this.rendered = <span>
                 <span className={ReactTreePrinter.getClassName(node)} onMouseOver={e => this.handleMouseOver(e, node)}
                       onMouseLeave={e => this.handleMouseLeft(e)}>
-                    `(
+                    `
                 </span>
                 {rend}
                 <span className={ReactTreePrinter.getClassName(node)} onMouseOver={e => this.handleMouseOver(e, node)}
                       onMouseLeave={e => this.handleMouseLeft(e)}>
-                    )
+
                 </span>
             </span>
         }
+        this.quoted = false
     }
 
 
