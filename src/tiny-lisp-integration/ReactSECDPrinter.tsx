@@ -11,7 +11,8 @@ import {
     PrintedState,
     GeneralUtils,
     ReduceNode,
-    SECDInvalid
+    SECDInvalid,
+    SECDMacro
 } from "@lambdulus/tiny-lisp-core"
 import React from "react";
 
@@ -116,6 +117,12 @@ export default class ReactSECDPrinter {
         else if(element instanceof SECDInvalid){
             return <span/>
         }
+        else if(element instanceof SECDMacro){
+            let name: string = this.getClassName(element)
+            return <span className={name}>
+                '{element.macro}'
+            </span>
+        }
         throw Error()
     }
 
@@ -134,7 +141,7 @@ export default class ReactSECDPrinter {
             }
             else if(node instanceof FuncNode && val.colour === ColourType.Current){//AP instruction is specificaly coloured
                 node = node.func()
-                if(node instanceof ReduceNode){
+                if(node instanceof ReduceNode   ){
                     node = node.reduced()//If func is recursive function then next is its name in code and reduced its lambda
                 }
             }

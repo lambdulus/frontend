@@ -122,11 +122,14 @@ export default class TinyLispBox extends PureComponent<Props> {
     onDebug(): void{
         try {
             let parser = new Parser()
+            console.log("Before parse", this.props.state.editor.content)
             let arr = parser.parse(this.props.state.editor.content)
+            console.log("Parsed")
             let interpreter = new Interpreter(arr, parser.topNode as TopNode)
             this.props.setBoxState({...this.props.state, subtype: TinyLispType.ORDINARY, interpreter,})
         }
         catch (exception) {
+            console.log("Exception trown", exception)
             this.props.setBoxState({
                 ...this.props.state,
                 editor : {
@@ -149,15 +152,15 @@ export default class TinyLispBox extends PureComponent<Props> {
         }
         console.log("Interpreter On Step", interpreter)
         console.log("$$$$", interpreter.lastInstruction)
-        interpreter.detectAction()
+        let newInterpreterState: Interpreter = interpreter.step()
         console.log("$$$$", interpreter.lastInstruction)
-        let current = (interpreter.lastInstruction.val as unknown as Instruction).shortcut
-        interpreter.code.clearPrinted()
-        interpreter.stack.clearPrinted()
-        interpreter.dump.clearPrinted()
-        interpreter.environment.clearPrinted()
-        console.log("Interpreter After Step", interpreter)
-        setBoxState({...state, interpreter, current})
+        let current = (newInterpreterState.lastInstruction.val as unknown as Instruction).shortcut
+        newInterpreterState.code.clearPrinted()
+        newInterpreterState.stack.clearPrinted()
+        newInterpreterState.dump.clearPrinted()
+        newInterpreterState.environment.clearPrinted()
+        console.log("Interpreter After Step", newInterpreterState)
+        setBoxState({...state, interpreter: newInterpreterState, current})
     }
 
     onMouseOver(node: InnerNode): void{
