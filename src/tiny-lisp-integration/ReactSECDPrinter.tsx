@@ -1,5 +1,4 @@
 import {
-    BinaryExprNode,
     ColourType,
     FuncNode,
     InnerNode,
@@ -41,19 +40,25 @@ export default class ReactSECDPrinter {
         this.rendered = this.getElements(arr)
     }
 
+    /**
+     * Generate React Component for SECDElement
+     * @param element
+     * @private
+     */
+
     private getElements(element: SECDElement): JSX.Element{
         if(element instanceof SECDArray) {
-            if(element.empty()) {
+            if(element.empty()) {//If empty than no need for recursion
                 console.log("getElements: Empty arr", element)
                 return <span className={this.getClassName(element)}> [] </span>
             }
-            if(element.printed !== PrintedState.NO) {
+            if(element.printedState !== PrintedState.Not) {//If already printed and placeholder string can be used, use the placeholder
                 if (typeof (element.getNode()) != "undefined") {
-                    console.log("(Func) Placeholder for: ", element, element.node, element.printed)
+                    console.log("(Func) Placeholder for: ", element, element.node, element.printedState)
                     let str = GeneralUtils.getFunctionName(element.node)
                     if (str !== "") {
                         this.placeholders.push(str)
-                        element.printInc()
+                        element.printedInc()
                         let colour: ColourType = this.enclosingArrayColoured ? ColourType.None : element.colour//If node is coloured, colour also placeholder
                         let name = this.parentHasMouseOver(element.node, colour !== ColourType.None)
                             && !this.enclosingArrayColoured ? this.highlight(colour) : this.underline(colour)
@@ -62,23 +67,21 @@ export default class ReactSECDPrinter {
                         </span>
                     }
                 }
-                console.log("Invalid placeholder", element, element.node, element.printed)
+                console.log("Invalid placeholder", element, element.node, element.printedState)
 
             }
-            console.log("CHECKPOINT 1", element, element.printed)
-            element.printInc()
-            console.log("CHECKPOINT 2", element, element.printed)
+            element.printedInc()//Array is printed so update its printed state
             let array : JSX.Element[] = []
             console.log("array", element.arr)
-            if(element.colour !== ColourType.None)
+            if(element.colour !== ColourType.None)//If this array is coloured, don't colour inner elements
                 this.enclosingArrayColoured = true
             array = element.arr.map<JSX.Element>(value => this.getElements(value));
             if(element.colour !== ColourType.None)
                 this.enclosingArrayColoured = false
-            let name: string = this.getClassName(element)
-            console.log("ABCDEFGH", array, element.node, element.arr, element.printed)
+            let name: string = this.getClassName(element)// get class name
+            console.log("ABCDEFGH", array, element.node, element.arr, element.printedState)
             // @ts-ignore
-            if(element.printed === PrintedState.More && element.node){
+            if(element.printedState === PrintedState.More && element.node){//If array is inside itself, declare a placeholder
                 let str = GeneralUtils.getFunctionName(element.node)
                 if(str !== "") {
                     console.log("Naming function", element, str, name)
@@ -126,22 +129,22 @@ export default class ReactSECDPrinter {
         throw Error()
     }
 
+    /**
+     * Returns className picked based on elements colour. 
+     * If elements node or its predecesor is coloured className start as highlighte, othrewise it starts as underline.
+     * @param val
+     * @protected
+     */
+
     protected getClassName(val: SECDElement): string{
         if(this.enclosingArrayColoured)
             return this.underline(val.colour)
         let node = val.node//important
         if(typeof(node) != "undefined"){
             let coloured = val.colour !== ColourType.None
-            console.log(val, "Noda je defined.", node, coloured)
-            if(node instanceof BinaryExprNode){
-                console.log("OPERATOR V GETCLASSNAME")
-                if(this.parentHasMouseOver(node.operator(), coloured)){
-                    return this.highlight(val.colour)
-                }
-            }
-            else if(node instanceof FuncNode && val.colour === ColourType.Current){//AP instruction is specificaly coloured
+            if(node instanceof FuncNode && val.colour === ColourType.Current){//AP instruction is specificaly coloured
                 node = node.func()
-                if(node instanceof ReduceNode   ){
+                if(node instanceof ReduceNode){
                     node = node.reduced()//If func is recursive function then next is its name in code and reduced its lambda
                 }
             }
