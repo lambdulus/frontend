@@ -7,6 +7,7 @@ export interface TinyLispState extends AbstractBoxState {
   mouseOver: InnerNode | null
   cleanNeeded: boolean
   interpreter : Interpreter | null
+  errorMsg: string | null
   subtype: TinyLispType
 
   editor : {
@@ -18,11 +19,13 @@ export interface TinyLispState extends AbstractBoxState {
   current: InstructionShortcut
 }
 
+
 export interface TinyLispSettings extends AbstractSettings {
 
 }
 
 export enum TinyLispType {
   EMPTY = 'EMPTY',
-  ORDINARY = 'ORDINARY'
+  ORDINARY = 'ORDINARY',
+  PARSER_ERROR = 'PARSER_ERROR'
 }

@@ -1,5 +1,5 @@
 import React, {PureComponent} from 'react'
-import {ColourType, DefineNode, ReduceNode, InnerNode, Instruction, Interpreter, MainNode, Parser, TopNode, VarNode} from '@lambdulus/tiny-lisp-core'
+import {ColourType, DefineNode, ReduceNode, InnerNode, Instruction, Interpreter, MainNode, Parser, TopNode, VarNode, LexerError, InterpreterError, ParserError, SyntaxError} from '@lambdulus/tiny-lisp-core'
 
 import {TinyLispState, TinyLispType} from './Types'
 import Editor from "../components/Editor";
@@ -114,6 +114,39 @@ export default class TinyLispBox extends PureComponent<Props> {
                             </button>
                         </div>
                     )
+                case TinyLispType.PARSER_ERROR:
+                    return (
+                    <div>
+                        <Editor
+                            placeholder={ "" } // data
+                            content={ this.props.state.editor.content } // data
+                            syntaxError={ null } // data
+                            submitOnEnter={ false } // data
+                            shouldReplaceLambda={ false }
+
+                            onContent={ this.onContent } // fn
+                            onEnter={ () => void 0 } // fn
+                            onCtrlEnter={ this.onDebug }
+                            onShiftEnter={ () => void 0 }
+                            onExecute={ () => void 0 } // fn
+                        />
+                        <button
+                            title='Submit this Expression in the Evaluator (Ctrl + Enter)'
+                            type="button"
+                            className='open-as-debug btn'
+                            onClick={ this.onDebug }
+                        >
+                          <span
+                              className='tiny-lisp--submit-expression--btn-label'
+                          >
+                            Submit
+                          </span>
+                        </button>
+                        <br></br>
+                        <br></br>
+                        {this.props.state.errorMsg}
+                        </div>
+                    )
             }
         }
         return renderBoxContent()
@@ -129,9 +162,15 @@ export default class TinyLispBox extends PureComponent<Props> {
             this.props.setBoxState({...this.props.state, subtype: TinyLispType.ORDINARY, interpreter,})
         }
         catch (exception) {
+            let msg = "Error while parsing: "
+            if(exception instanceof ParserError || exception instanceof SyntaxError || exception instanceof LexerError){
+                msg += this.props.state.editor.content + "\n\n" + exception.value
+            }
             console.log("Exception trown", exception)
             this.props.setBoxState({
                 ...this.props.state,
+                errorMsg: msg,
+                subtype: TinyLispType.PARSER_ERROR,
                 editor : {
                     ...this.props.state.editor,
                     syntaxError : Error("Error when parsing"),
@@ -152,15 +191,22 @@ export default class TinyLispBox extends PureComponent<Props> {
         }
         console.log("Interpreter On Step", interpreter)
         console.log("$$$$", interpreter.lastInstruction)
-        let newInterpreterState: Interpreter = interpreter.step()
-        console.log("$$$$", interpreter.lastInstruction)
-        let current = (newInterpreterState.lastInstruction.val as unknown as Instruction).shortcut
-        newInterpreterState.code.clearPrinted()
-        newInterpreterState.stack.clearPrinted()
-        newInterpreterState.dump.clearPrinted()
-        newInterpreterState.environment.clearPrinted()
-        console.log("Interpreter After Step", newInterpreterState)
-        setBoxState({...state, interpreter: newInterpreterState, current})
+        try {
+            let newInterpreterState: Interpreter = interpreter.step()
+            console.log("$$$$", interpreter.lastInstruction)
+            let current = (newInterpreterState.lastInstruction.val as unknown as Instruction).shortcut
+            newInterpreterState.code.clearPrinted()
+            newInterpreterState.stack.clearPrinted()
+            newInterpreterState.dump.clearPrinted()
+            newInterpreterState.environment.clearPrinted()
+            console.log("Interpreter After Step", newInterpreterState)
+            setBoxState({...state, interpreter: newInterpreterState, current})
+        }
+        catch (error){
+            if(error instanceof InterpreterError){
+                setBoxState({...state, subtype: TinyLispType.PARSER_ERROR, errorMsg: error.value})
+            }
+        }
     }
 
     onMouseOver(node: InnerNode): void{
