@@ -84,7 +84,7 @@ export class Painter {
             case InstructionShortcut.CONSP:
             case InstructionShortcut.CAR:
             case InstructionShortcut.CDR:
-                (<UnaryExprNode> this.state.code.get(0).getNode().parent).expr().setColour(ColourType.Current)
+                (this.state.code.get(0).getNode().parent as UnaryExprNode).expr().setColour(ColourType.Current)
                 this.state.stack.get(this.state.stack.length() - 1).colour = ColourType.Coloured;
                 break
             case InstructionShortcut.ADD:
@@ -98,8 +98,8 @@ export class Painter {
             case InstructionShortcut.HT:
             case InstructionShortcut.HE:
                 this.state.code.get(0).getNode().setColour(ColourType.Current);
-                (<BinaryExprNode> this.state.code.get(0).getNode().parent).left().setColour(ColourType.Coloured);
-                (<BinaryExprNode> this.state.code.get(0).getNode().parent).right().setColour(ColourType.SecondColoured);
+                (this.state.code.get(0).getNode().parent as BinaryExprNode).left().setColour(ColourType.Coloured);
+                (this.state.code.get(0).getNode().parent as BinaryExprNode).right().setColour(ColourType.SecondColoured);
                 this.state.stack.get(this.state.stack.length() - 1).colour = ColourType.Coloured
                 this.state.stack.get(this.state.stack.length() - 2).colour = ColourType.SecondColoured
                 break
@@ -136,9 +136,9 @@ export class Painter {
                         this.state.stack.get(this.state.stack.length() - 2).node.setColour(ColourType.Coloured)
                     //Because of recursive functions where argument is in code just once
                     else
-                        (<SECDArray> this.state.stack.get(this.state.stack.length() - 2)).forEach(element => element.getNode().setColour(ColourType.Coloured));
+                        (this.state.stack.get(this.state.stack.length() - 2) as SECDArray).forEach(element => element.getNode().setColour(ColourType.Coloured));
                 }
-                (<SECDArray> this.state.stack.get(this.state.stack.length() - 2)).forEach(element => element.colour = ColourType.Coloured);
+                (this.state.stack.get(this.state.stack.length() - 2) as SECDArray).forEach(element => element.colour = ColourType.Coloured);
                 break
             case InstructionShortcut.RAP:
                 this.state.stack.get(this.state.stack.length() - 1).colour = ColourType.Current
