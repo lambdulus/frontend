@@ -102,17 +102,17 @@ export default class ReactSECDPrinter {
         }
         else if(element instanceof SECDValue){
             let name: string = this.getClassName(element)
-            console.log("element: ", name, element.val, this.enclosingArrayColoured)
-            if(element.val instanceof Instruction){
+            console.log("element: ", name, element.constant, this.enclosingArrayColoured)
+            if(element.constant instanceof Instruction){
                 return <span className={name}>
                     {' '}
-                    {element.val.toString()}
+                    {element.constant.toString()}
                     {' '}
                 </span>
             }
             return <span className={name}>
                     {' '}
-                {element.val}
+                {element.constant}
                 {' '}
                 </span>
 
