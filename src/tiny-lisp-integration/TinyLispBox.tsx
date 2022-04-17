@@ -1,11 +1,12 @@
 import React, {PureComponent} from 'react'
-import {ColourType, DefineNode, ReduceNode, InnerNode, Instruction, Interpreter, MainNode, Parser, TopNode, VarNode, LexerError, InterpreterError, ParserError, SyntaxError} from '@lambdulus/tiny-lisp-core'
+import {ColourType, DefineNode, ReduceNode, InnerNode, Interpreter, MainNode, Parser, TopNode, VarNode, LexerError, InterpreterError, ParserError, SyntaxError} from '@lambdulus/tiny-lisp-core'
 
 import {TinyLispState, TinyLispType} from './Types'
 import Editor from "../components/Editor";
 import ReactSECDPrinter from "./ReactSECDPrinter";
 import ReactTreePrinter from "./ReactTreePrinter";
 import DumpPrinter from "./DumpPrinter";
+import { Painter } from './Painter';
 
 
 interface Props {
@@ -22,6 +23,7 @@ export default class TinyLispBox extends PureComponent<Props> {
         this.onStep = this.onStep.bind(this)
         this.onContent = this.onContent.bind(this)
         this.onDebug = this.onDebug.bind(this)
+        this.onRun = this.onRun.bind(this)
         this.onMouseOver = this.onMouseOver.bind(this)
         this.onMouseLeft = this.onMouseLeft.bind(this)
         this.hasMouseOver = this.hasMouseOver.bind(this)
@@ -67,21 +69,21 @@ export default class TinyLispBox extends PureComponent<Props> {
                     if(interpreter == null){
                         throw Error//TODO zmenit asi na log a vratit neco v poradku - jinak crashne cela appka
                     }
-                    const staticLisp = new ReactTreePrinter(interpreter.topNode, this.onMouseOver, this.onMouseLeft).print()
+                    const staticLisp = new ReactTreePrinter(interpreter.state.topNode, this.onMouseOver, this.onMouseLeft).print()
                     console.log("ZACINA CODE: ", this.hasMouseOver)
-                    const c = new ReactSECDPrinter(interpreter.code, this.hasMouseOver, this.parentHasMouseOver, state.current).print()
+                    const c = new ReactSECDPrinter(interpreter.state.code, this.hasMouseOver, this.parentHasMouseOver, state.current).print()
                     console.log("ZACINA STACK")
-                    const s = new ReactSECDPrinter(interpreter.stack, this.hasMouseOver, this.parentHasMouseOver, state.current).print()
+                    const s = new ReactSECDPrinter(interpreter.state.stack, this.hasMouseOver, this.parentHasMouseOver, state.current).print()
                     console.log("ZACINA ENVIRONMENT: ", this.hasMouseOver)
-                    const e = new ReactSECDPrinter(interpreter.environment, this.hasMouseOver, this.parentHasMouseOver, state.current).print()
+                    const e = new ReactSECDPrinter(interpreter.state.environment, this.hasMouseOver, this.parentHasMouseOver, state.current).print()
                     console.log("ZACINA DUMP: ", this.hasMouseOver)
-                    const d = new DumpPrinter(interpreter.dump, this.hasMouseOver, this.parentHasMouseOver, state.current).print()
-                    console.log("*****$$$$$", interpreter.code)
-                    interpreter.code.clearPrinted()
-                    console.log("*****$$$$$", interpreter.code)
-                    interpreter.stack.clearPrinted()
-                    interpreter.environment.clearPrinted()
-                    interpreter.dump.clearPrinted()
+                    const d = new DumpPrinter(interpreter.state.dump, this.hasMouseOver, this.parentHasMouseOver, state.current).print()
+                    console.log("*****$$$$$", interpreter.state.code)
+                    interpreter.state.code.clearPrinted()
+                    console.log("*****$$$$$", interpreter.state.code)
+                    interpreter.state.stack.clearPrinted()
+                    interpreter.state.environment.clearPrinted()
+                    interpreter.state.dump.clearPrinted()
                     console.log("DEBUG--------------------------!!!!!!!!!!!!!!!!!!!!!!!!------------------------")
                     return (
                         <div>
@@ -101,17 +103,30 @@ export default class TinyLispBox extends PureComponent<Props> {
                             dump: { d }
                             <br></br>
                             <button
-                                title='Debug this Expression in the Evaluator (Ctrl + Enter)'
+                                title='do step in the evaluator'
                                 type="button"
                                 className='open-as-debug btn'
                                 onClick={ this.onStep }
                             >
                           <span
-                              className='tiny-lisp--debug-expression--btn-label'
+                              className='tiny-lisp--step--btn-label'
                           >
                             Step
                           </span>
                             </button>
+                            <button
+                                title='run the evaluator'
+                                type="button"
+                                className='open-as-debug btn'
+                                onClick={ this.onRun }
+                            >
+                          <span
+                              className='tiny-lisp--run--btn-label'
+                          >
+                            Run
+                          </span>
+                            </button>
+
                         </div>
                     )
                 case TinyLispType.PARSER_ERROR:
@@ -184,6 +199,7 @@ export default class TinyLispBox extends PureComponent<Props> {
     }
 
     onStep() : void {
+        console.log(this.props)
         const { state, setBoxState } : Props = this.props
         const { interpreter } : TinyLispState = state
         if(interpreter == null){
@@ -192,15 +208,32 @@ export default class TinyLispBox extends PureComponent<Props> {
         console.log("Interpreter On Step", interpreter)
         console.log("$$$$", interpreter.lastInstruction)
         try {
-            let newInterpreterState: Interpreter = interpreter.step()
+            interpreter.step()
+            let painter = new Painter(interpreter.state)
+            painter.colourArray(interpreter.lastInstruction)
             console.log("$$$$", interpreter.lastInstruction)
-            let current = (newInterpreterState.lastInstruction.val as unknown as Instruction).shortcut
-            newInterpreterState.code.clearPrinted()
-            newInterpreterState.stack.clearPrinted()
-            newInterpreterState.dump.clearPrinted()
-            newInterpreterState.environment.clearPrinted()
-            console.log("Interpreter After Step", newInterpreterState)
-            setBoxState({...state, interpreter: newInterpreterState, current})
+            let current = interpreter.lastInstruction.shortcut
+            console.log("Interpreter After Step", interpreter)
+            setBoxState({...state, interpreter, current})
+        }
+        catch (error){
+            if(error instanceof InterpreterError){
+                setBoxState({...state, subtype: TinyLispType.PARSER_ERROR, errorMsg: error.value})
+            }
+        }
+    }
+
+    onRun() : void {
+        console.log(this.props)
+        const { state, setBoxState } : Props = this.props
+        const { interpreter } : TinyLispState = state
+        if(interpreter == null){
+            throw Error
+        }
+        try {
+            interpreter.run()
+            console.log("Konec run methody")
+            setBoxState({...state, interpreter})
         }
         catch (error){
             if(error instanceof InterpreterError){
@@ -226,8 +259,7 @@ export default class TinyLispBox extends PureComponent<Props> {
             if(tmp2.colour !== ColourType.None)
                 break
             if(tmp2 instanceof ReduceNode)
-                if(tmp2.reduced().isLeaf())
-                    node = tmp2
+                node = tmp2
             tmp = tmp2 as InnerNode
             if(i ++ > 10)
                 break

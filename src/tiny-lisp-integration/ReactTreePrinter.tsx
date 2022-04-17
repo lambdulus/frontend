@@ -172,6 +172,8 @@ export default class ReactTreePrinter extends LispASTVisitor{
                     {' '}
                 </span>)
             }
+            else
+                throw Error()
         })
         acc.slice(0, -1)//remove last ' '
         if(this.quoted)
@@ -186,7 +188,7 @@ export default class ReactTreePrinter extends LispASTVisitor{
 
     onReduceNode(node: ReduceNode): void {
         //if(this.parentColoured || !node.next.isLeaf()) {
-            node.next().accept(this)
+            node.original().accept(this)
             let rend = this.rendered
             this.rendered = <span className="#">
                 {rend}
