@@ -1,4 +1,4 @@
-import {ColourType, IfNode, Instruction, InstructionShortcut, Interpreter,
+import {ColourType, IfNode, Instruction, InstructionShortcut, InterpreterUtils,
     InterpreterState, SECDArray, SECDElement, SECDValue } from "@lambdulus/tiny-lisp-core"
 import {BinaryExprNode, CompositeNode, FuncNode, InnerNode, QuoteNode, ReduceNode, UnaryExprNode } from "@lambdulus/tiny-lisp-core/dist/AST/AST"
 
@@ -23,6 +23,9 @@ export class Painter {
     
     colourArray(instruction: Instruction) {
         this.clean()
+        if(instruction.shortcut === InstructionShortcut.DUMMY){
+            return
+        }
         let instructionShortcut = instruction.shortcut
         let element: SECDElement
         this.state.code.get(0).colour = ColourType.Current
@@ -48,7 +51,7 @@ export class Painter {
                     let val2 = (element.get(1) as SECDValue).constant
                     if ((typeof (val1) != "number") && (typeof (val2) != "number"))
                         throw Error()
-                    loaded = Interpreter.evaluateLoad(this.state.environment, val1 as unknown as number, val2 as unknown as number)
+                    loaded = InterpreterUtils.evaluateLoad(this.state.environment, val1 as unknown as number, val2 as unknown as number)
 
                     if (loaded.getNode().parent instanceof QuoteNode) {//If it is quoted list colour it all
                         loaded.getNode().parent.colour = ColourType.Coloured
@@ -103,11 +106,7 @@ export class Painter {
                 this.state.stack.get(this.state.stack.length() - 1).colour = ColourType.Coloured
                 this.state.stack.get(this.state.stack.length() - 2).colour = ColourType.SecondColoured
                 break
-            case InstructionShortcut.CONS:/*
-                let secondOnstack = this.stack.get(this.stack.length() - 2)
-                if(secondOnstack instanceof SECDArray)
-                    if(secondOnstack.length() == 0)
-                        secondOnstack.node = this.code.get(0).node//If cons called on empty array without node it should be coloured*/
+            case InstructionShortcut.CONS:
                 this.state.code.get(0).getNode().setColour(ColourType.Coloured)
                 this.state.stack.get(this.state.stack.length() - 1).colour = ColourType.Coloured
                 this.state.stack.get(this.state.stack.length() - 2).colour = ColourType.SecondColoured;
