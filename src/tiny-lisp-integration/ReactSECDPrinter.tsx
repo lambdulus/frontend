@@ -10,8 +10,7 @@ import {
     PrintedState,
     GeneralUtils,
     ReduceNode,
-    SECDInvalid,
-    SECDMacro
+    SECDHidden
 } from "@lambdulus/tiny-lisp-core"
 import React from "react";
 
@@ -117,14 +116,8 @@ export default class ReactSECDPrinter {
                 </span>
 
         }
-        else if(element instanceof SECDInvalid){
+        else if(element instanceof SECDHidden){
             return <span/>
-        }
-        else if(element instanceof SECDMacro){
-            let name: string = this.getClassName(element)
-            return <span className={name}>
-                '{element.macro}'
-            </span>
         }
         throw Error()
     }

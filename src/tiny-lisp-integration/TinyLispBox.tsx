@@ -90,17 +90,19 @@ export default class TinyLispBox extends PureComponent<Props> {
                             LISP:
                             <br></br>
                             { staticLisp }
-                            <span className="toRight">
-                                stack: { s }
-
-                            </span>
+                            <br></br>
                             <br></br>
                             code: { c }
-
+                            <br></br>
+                            <br></br>
+                            stack: { s }
+                            <br></br>
                             <br></br>
                             environment: { e }
                             <br></br>
+                            <br></br>
                             dump: { d }
+                            <br></br>
                             <br></br>
                             <button
                                 title='do step in the evaluator'
@@ -179,7 +181,7 @@ export default class TinyLispBox extends PureComponent<Props> {
         catch (exception) {
             let msg = "Error while parsing: "
             if(exception instanceof ParserError || exception instanceof SyntaxError || exception instanceof LexerError){
-                msg += this.props.state.editor.content + "\n\n" + exception.value
+                msg += exception.value
             }
             console.log("Exception trown", exception)
             this.props.setBoxState({
@@ -299,6 +301,12 @@ export default class TinyLispBox extends PureComponent<Props> {
             }
         }
         let condNode = this.props.state.mouseOver
+        if(node instanceof ReduceNode){//highlight reduce nodes
+            if(node.original() === condNode){
+                console.log("RETURNING TRUE")
+                return true
+            }
+        }
         if(node === condNode) {
             console.log("RETURNING TRUE")
             return true
