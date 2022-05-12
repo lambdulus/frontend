@@ -1,6 +1,6 @@
 import {
     ColourType,
-    FuncNode,
+    ApplicationNode,
     InnerNode,
     Instruction,
     InstructionShortcut,
@@ -24,8 +24,6 @@ export default class ReactSECDPrinter {
 
     constructor(arr: SECDArray, public hasMouseOver: () => boolean, public parentHasMouseOver: (innerNode: InnerNode, returnTrueIfColoured: boolean) => boolean,
                readonly current: InstructionShortcut) {
-        console.log(arr)
-        //super();
         this.visit(arr)
         this.placeholders = []
     }
@@ -48,12 +46,11 @@ export default class ReactSECDPrinter {
     private getElements(element: SECDElement): JSX.Element{
         if(element instanceof SECDArray) {
             if(element.empty()) {//If empty than no need for recursion
-                console.log("getElements: Empty arr", element)
                 return <span className={this.getClassName(element)}> [] </span>
             }
             if(element.printedState !== PrintedState.Not) {//If already printed and placeholder string can be used, use the placeholder
-                if (typeof (element.getNode()) != "undefined") {
-                    console.log("(Func) Placeholder for: ", element, element.node, element.printedState)
+                if (typeof (element.node) != "undefined") {
+                    console.log("01245648684", element)
                     let str = GeneralUtils.getFunctionName(element.node)
                     if (str !== "") {
                         this.placeholders.push(str)
@@ -66,24 +63,20 @@ export default class ReactSECDPrinter {
                         </span>
                     }
                 }
-                console.log("Invalid placeholder", element, element.node, element.printedState)
-
             }
             element.printedInc()//Array is printed so update its printed state
             let array : JSX.Element[] = []
-            console.log("array", element.arr)
             if(element.colour !== ColourType.None)//If this array is coloured, don't colour inner elements
                 this.enclosingArrayColoured = true
-            array = element.arr.map<JSX.Element>(value => this.getElements(value));
+            array = element.arr.map<JSX.Element>(value => this.getElements(value)).reverse();//call getElements on values and reverse so top of registers will be on left
             if(element.colour !== ColourType.None)
                 this.enclosingArrayColoured = false
             let name: string = this.getClassName(element)// get class name
-            console.log("ABCDEFGH", array, element.node, element.arr, element.printedState)
             // @ts-ignore
             if(element.printedState === PrintedState.More && element.node){//If array is inside itself, declare a placeholder
                 let str = GeneralUtils.getFunctionName(element.node)
+                console.log("jhkjbhll", element)
                 if(str !== "") {
-                    console.log("Naming function", element, str, name)
                     return <span className={name}>
                                 {str}
                         {': ['}
@@ -101,7 +94,6 @@ export default class ReactSECDPrinter {
         }
         else if(element instanceof SECDValue){
             let name: string = this.getClassName(element)
-            console.log("element: ", name, element.constant, this.enclosingArrayColoured)
             if(element.constant instanceof Instruction){
                 return <span className={name}>
                     {' '}
@@ -135,18 +127,16 @@ export default class ReactSECDPrinter {
         let node = val.node//important
         if(typeof(node) != "undefined"){
             let coloured = val.colour !== ColourType.None
-            if(node instanceof FuncNode && val.colour === ColourType.Current){//AP instruction is specificaly coloured
+            if(node instanceof ApplicationNode && val.colour === ColourType.Current){//AP instruction is specificaly coloured
                 node = node.func()
                 if(node instanceof ReduceNode){
                     node = node.reduced()//If func is recursive function then next is its name in code and reduced its lambda
                 }
             }
             if(this.parentHasMouseOver(node, coloured)){
-                console.log("Noda ma na sobe mys.", node, val.colour)
                 return this.highlight(val.colour)
             }
         }
-        console.log(val, "No highlight")
         return this.underline(val.colour)
     }
 
@@ -161,7 +151,6 @@ export default class ReactSECDPrinter {
             case ColourType.ThirdColoured:
                 return "underlineThirdArgument"
             case ColourType.None:
-            case ColourType.Return:
             default:
                 return "normalInstruction"
         }
@@ -178,7 +167,6 @@ export default class ReactSECDPrinter {
             case ColourType.ThirdColoured:
                 return "highlightThirdArgument"
             case ColourType.None:
-            case ColourType.Return:
             default:
                 return "highlightOther"
         }

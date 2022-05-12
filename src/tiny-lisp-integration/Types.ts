@@ -3,20 +3,20 @@ import {InnerNode, InstructionShortcut, Interpreter} from "@lambdulus/tiny-lisp-
 
 
 export interface TinyLispState extends AbstractBoxState {
-  expression : string
-  mouseOver: InnerNode | null
+  expression : string //
+  mouseOver: InnerNode | null // node where the mouse currently hovers over
   cleanNeeded: boolean
-  interpreter : Interpreter | null
+  interpreter : Interpreter | null // interpreter
   errorMsg: string | null
-  subtype: TinyLispType
+  subtype: TinyLispType //Type of the box
 
   editor : {
     placeholder : string
     content : string
     caretPosition : number
-    syntaxError : Error | null
+    syntaxError : Error | null // Value of an error
   }
-  current: InstructionShortcut
+  current: InstructionShortcut // current instruction shortcut
 }
 
 
