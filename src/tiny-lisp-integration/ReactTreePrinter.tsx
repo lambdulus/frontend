@@ -637,10 +637,11 @@ export default class ReactTreePrinter extends LispASTVisitor{
     }
 
     onUnaryExprNode(node: UnaryExprNode): void {
-        let shortcut = Instruction.toSourceCode(node.operator().operator)
-        if(this.predecessorColoured){/*
-            node.operator.accept(this)
-            let rend1 = this.rendered*/
+        let operatorNode: InnerNode = node.operator()
+        let shortcut = Instruction.toSourceCode(operatorNode instanceof ReduceNode
+            ? (operatorNode.original() as OperatorNode).operator
+            : (operatorNode as OperatorNode).operator)
+        if(this.predecessorColoured){
             node.expr().accept(this)
             let rend2 = this.rendered
             this.rendered = <span className="#">
