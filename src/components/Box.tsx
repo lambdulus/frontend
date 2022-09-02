@@ -78,18 +78,4 @@ export default function Box (props : BoxProperties) : JSX.Element {
   //   )
   // }
 
-  // if (type === BoxType.MARKDOWN) {
-  //   return (
-  //     <div className=''>
-  //       <Note
-  //         state={ state as NoteState }
-  //         isActive={ isActive }
-
-  //         // addBox={ addBox }
-  //       />
-  //     </div>
-  //   )
-  // }
-
-  // return null as any // never happens
 }
