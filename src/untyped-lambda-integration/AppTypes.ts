@@ -32,8 +32,7 @@ export function createNewUntypedLambdaExpression (defaultSettings : UntypedLambd
     subtype : UntypedLambdaType.EMPTY,
     title : "Untyped λ Expression",
     minimized : false,
-    menuOpen : false,
-    settingsOpen : false,
+    settingsOpen : true,
     expression : "",
     ast : null,
     history : [],
@@ -53,7 +52,6 @@ export function createNewUntypedLambdaExpression (defaultSettings : UntypedLambd
     editor : {
       placeholder : "placeholder",
       content : "",
-      caretPosition : 0,
       syntaxError : null,
     }
   }
@@ -122,7 +120,6 @@ export function createNewUntypedLambdaBoxFromSource (source : string, defaultSet
       subtype,
       title : "Untyped λ Expression",
       minimized : false,
-      menuOpen : false,
       settingsOpen : false,
       expression : "",
       ast : null,
@@ -143,7 +140,6 @@ export function createNewUntypedLambdaBoxFromSource (source : string, defaultSet
       editor : {
         placeholder : "placeholder",
         content : source,
-        caretPosition : 0,
         syntaxError : null,
       }
     }
@@ -198,7 +194,6 @@ function createNewUntypedLambdaBoxFromSource2 (source : string, defaultSettings 
       subtype,
       title : "Untyped λ Expression",
       minimized : false,
-      menuOpen : false,
       settingsOpen : false,
       isRunning : false,
       breakpoints : [],
@@ -221,7 +216,6 @@ function createNewUntypedLambdaBoxFromSource2 (source : string, defaultSettings 
 
       editor : {
         content : source,
-        caretPosition : 0,
         placeholder : PromptPlaceholder.EVAL_MODE,
         syntaxError : null,
       }
@@ -254,7 +248,6 @@ export function resetUntypedLambdaBox (state : UntypedLambdaState) : UntypedLamb
     editor : {
       placeholder : "placeholder",
       content : "",
-      caretPosition : 0,
       syntaxError : null,
     }
   }

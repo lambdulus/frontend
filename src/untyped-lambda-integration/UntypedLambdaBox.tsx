@@ -102,7 +102,7 @@ export default class UntypedLambdaBox extends PureComponent<Props> {
         {
           settingsOpen ?
             <div className='box-settings'>
-              Box Local Settings:
+              Settings:
               <Settings
                 settings={ { type : BoxType.UNTYPED_LAMBDA, SLI, expandStandalones, strategy, SDE } }
                 settingsEnabled={ GLOBAL_SETTINGS_ENABLER }
@@ -122,7 +122,6 @@ export default class UntypedLambdaBox extends PureComponent<Props> {
           macrolistOpen ?
             <div className='untyped-lambda-box--macrolist'>
               <MacroList macroTable={ state.macrotable }  />
-              {/* // TODO: this will just get this? */}
             </div>
           :
             null
@@ -180,6 +179,7 @@ export default class UntypedLambdaBox extends PureComponent<Props> {
 
       setBoxState({
         ...state,
+        settingsOpen : false,
         ast,
         subtype,
         expression : content,
@@ -194,7 +194,6 @@ export default class UntypedLambdaBox extends PureComponent<Props> {
         } ],
         editor : {
           content : content,
-          caretPosition : 0,
           placeholder : PromptPlaceholder.EVAL_MODE,
           syntaxError : null,
         }
