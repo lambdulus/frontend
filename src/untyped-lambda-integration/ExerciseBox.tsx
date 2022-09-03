@@ -21,14 +21,12 @@ import Expression from './Expression'
 import { PromptPlaceholder, UntypedLambdaState, Evaluator, StepRecord, Breakpoint, UntypedLambdaType, UntypedLambdaExpressionState, StepMessage, StepValidity } from './Types'
 import { reportEvent } from '../misc'
 import { strategyToEvaluator, findSimplifiedReduction, MacroBeta, toMacroMap, tryMacroContraction } from './AppTypes'
-// import { MContext } from './MacroContext'
 
 
 export interface EvaluationProperties {
   state : UntypedLambdaExpressionState
   isActive : boolean
   isFocused : boolean
-  macroContext : { macrotable : MacroMap }
 
   setBoxState (state : UntypedLambdaExpressionState) : void
   addBox (box : UntypedLambdaState) : void
