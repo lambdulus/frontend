@@ -1,16 +1,44 @@
 import { BoxType } from '../Types'
-import { EvaluationStrategy, UntypedLambdaState, UntypedLambdaSettings, UntypedLambdaType, StepRecord, UntypedLambdaExpressionState, UntypedLambdaIntegrationState, SettingsEnabled, PromptPlaceholder, StepMessage, StepValidity } from "./Types"
-import { ASTReduction, AST, decodeFast as decodeUntypedLambdaFast, Evaluator, NormalEvaluator, None, Expansion, Macro, ASTReductionType, Alpha, Lambda, Beta, Eta, Application, ASTVisitor, Variable, ChurchNumeral, builtinMacros, MacroTable, Token, tokenize, parse, ApplicativeEvaluator, OptimizeEvaluator, NormalAbstractionEvaluator, MacroMap } from '@lambdulus/core'
+import  { EvaluationStrategy
+        , UntypedLambdaState
+        , UntypedLambdaSettings
+        , UntypedLambdaType
+        , StepRecord
+        , UntypedLambdaExpressionState
+        , SettingsEnabled
+        , PromptPlaceholder
+        , StepMessage
+        , StepValidity } from "./Types"
+import  { ASTReduction
+        , AST
+        , decodeFast as decodeUntypedLambdaFast
+        , Evaluator
+        , NormalEvaluator
+        , None
+        , Expansion
+        , Macro
+        , ASTReductionType
+        , Alpha
+        , Lambda
+        , Beta
+        , Eta
+        , Application
+        , ASTVisitor
+        , Variable
+        , ChurchNumeral
+        , builtinMacros
+        , MacroTable
+        , Token
+        , tokenize
+        , parse
+        , ApplicativeEvaluator
+        , OptimizeEvaluator
+        , NormalAbstractionEvaluator
+        , MacroMap } from '@lambdulus/core'
 import { Child, Binary } from '@lambdulus/core/dist/ast'
 import { TreeComparator } from './TreeComparator'
 import { reportEvent } from '../misc'
 
-// import macroctx from './MacroContext'
-
-// NOTE: let instead of const just for now
-export let UNTYPED_LAMBDA_INTEGRATION_STATE : UntypedLambdaIntegrationState = {
-  macrotable : {}
-}
 
 export const ADD_BOX_LABEL = '+ Untyped λ Expression'
 
@@ -46,7 +74,7 @@ export function createNewUntypedLambdaExpression (defaultSettings : UntypedLambd
     // standalones : false,
 
     macrolistOpen : false,
-    macrotable : { ...UNTYPED_LAMBDA_INTEGRATION_STATE.macrotable },
+    macrotable : { },
 
     
     editor : {
@@ -242,7 +270,7 @@ export function resetUntypedLambdaBox (state : UntypedLambdaState) : UntypedLamb
     timeout : 5,
     
     macrolistOpen : false,
-    macrotable : { ...UNTYPED_LAMBDA_INTEGRATION_STATE.macrotable },
+    macrotable : { },
 
     
     editor : {

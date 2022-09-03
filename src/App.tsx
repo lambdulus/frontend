@@ -2,7 +2,14 @@ import React, { Component } from 'react'
 
 import './App.css'
 
-import { updateSettingsInStorage, loadAppStateFromStorage, updateAppStateToStorage, updateNotebookStateToStorage, CLEAR_WORKSPACE_CONFIRMATION, loadSettingsFromStorage, initIntegrationStates, InitNotebookState, DEFAULT_WHITELIST } from './Constants'
+import  { updateSettingsInStorage
+        , loadAppStateFromStorage
+        , updateAppStateToStorage
+        , updateNotebookStateToStorage
+        , CLEAR_WORKSPACE_CONFIRMATION
+        , loadSettingsFromStorage
+        , InitNotebookState
+        , DEFAULT_WHITELIST } from './Constants'
 
 import TopBar from './components/TopBar'
 import MenuBar from './components/MenuBar'
@@ -10,7 +17,7 @@ import Notebook from './screens/Notebook'
 import Help from './screens/Help'
 import SettingsScreen from './screens/Settings'
 import { Screen, AppState, NotebookState, GlobalSettings, BoxType, BoxState } from './Types'
-import { UNTYPED_LAMBDA_INTEGRATION_STATE, createNewUntypedLambdaBoxFromSource, defaultSettings } from './untyped-lambda-integration/AppTypes'
+import { createNewUntypedLambdaBoxFromSource, defaultSettings } from './untyped-lambda-integration/AppTypes'
 import NotebookList from './screens/NotebookList'
 import { UntypedLambdaState, UntypedLambdaSettings, EvaluationStrategy, UntypedLambdaType } from './untyped-lambda-integration/Types'
 import { MacroTable } from '@lambdulus/core'
@@ -36,8 +43,6 @@ export default class App extends Component<Props, AppState> {
 
 
     this.state = loadAppStateFromStorage()
-
-    initIntegrationStates(this.state) // TODO: go and refactor the implementation of this fn
 
     this.setScreen = this.setScreen.bind(this)
     this.updateNotebook = this.updateNotebook.bind(this)
@@ -366,9 +371,9 @@ function createNewNotebook (name : string = 'Anonymous Notebook') : NotebookStat
     focusedBoxIndex : undefined,
     allowedBoxes : DEFAULT_WHITELIST,
     settings : loadSettingsFromStorage(),
-    integrationStates : {
-      'UNTYPED_LAMBDA' : UNTYPED_LAMBDA_INTEGRATION_STATE,
-    },
+    // integrationStates : {
+    //   'UNTYPED_LAMBDA' : UNTYPED_LAMBDA_INTEGRATION_STATE,
+    // },
 
     locked : false,
     menuOpen : false,
@@ -387,9 +392,9 @@ function createNewNotebookWithBox (name : string = 'Notebook from Link', box : B
     focusedBoxIndex : 0,
     allowedBoxes : DEFAULT_WHITELIST,
     settings : loadSettingsFromStorage(),
-    integrationStates : {
-      'UNTYPED_LAMBDA' : UNTYPED_LAMBDA_INTEGRATION_STATE,
-    },
+    // integrationStates : {
+    //   'UNTYPED_LAMBDA' : UNTYPED_LAMBDA_INTEGRATION_STATE,
+    // },
 
     locked : false,
     menuOpen : false,

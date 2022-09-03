@@ -11,7 +11,6 @@ import {
   ChurchNumeral,
   Macro,
   OptimizeEvaluator,
-  MacroMap,
   ASTReductionType,
 } from "@lambdulus/core"
 
@@ -24,14 +23,12 @@ import Expression from './Expression'
 import { PromptPlaceholder, UntypedLambdaState, Evaluator, StepRecord, Breakpoint, UntypedLambdaType, UntypedLambdaExpressionState, StepMessage, StepValidity } from './Types'
 import { reportEvent } from '../misc'
 import { findSimplifiedReduction, MacroBeta, tryMacroContraction, strategyToEvaluator } from './AppTypes'
-// import { MContext } from './MacroContext'
 
 
 export interface EvaluationProperties {
   state : UntypedLambdaExpressionState
   isActive : boolean
   isFocused : boolean
-  macroContext : { macrotable : MacroMap }
 
   setBoxState (state : UntypedLambdaExpressionState) : void
   addBox (box : UntypedLambdaState) : void
@@ -135,7 +132,7 @@ export default class ExpressionBox extends PureComponent<EvaluationProperties> {
       SLI,
       expandStandalones,
       macrolistOpen : false,
-      macrotable : { }, // ...macrotable, ...this.props.macroContext.macrotable
+      macrotable : { },
       editor : {
         placeholder : PromptPlaceholder.EVAL_MODE,
         content : Object.entries(macrotable).map(([name, definition] : [string, string]) => name + ' := ' + definition + ' ;\n' ).join('') + content,
