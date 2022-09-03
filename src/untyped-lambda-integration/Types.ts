@@ -1,4 +1,4 @@
-import { AbstractSettings, BoxType, AbstractBoxState } from "../Types"
+import { AbstractSettings, BoxType, BoxState } from "../Types"
 import { AST, ASTReduction, ASTReductionType, NormalEvaluator, ApplicativeEvaluator, OptimizeEvaluator, MacroMap } from "@lambdulus/core"
 
 
@@ -54,7 +54,7 @@ export type UntypedLambdaState = UntypedLambdaExpressionState // | UntypedLambda
 
 // TODO: consider abstract Untype Lambda State which will hold all common members
 
-export interface UntypedLambdaExpressionState extends AbstractBoxState {
+export interface UntypedLambdaExpressionState extends BoxState {
   __key : string
   type : BoxType
 
@@ -75,12 +75,6 @@ export interface UntypedLambdaExpressionState extends AbstractBoxState {
 
   macrolistOpen : boolean // this is gonna go out
   macrotable : MacroMap // this is gonna go out - WHY? I don't think so - it's gonna stay
-  
-  editor : {
-    placeholder : string
-    content : string
-    syntaxError : Error | null
-  }
 }
 
 export interface UntypedLambdaSettings extends AbstractSettings {

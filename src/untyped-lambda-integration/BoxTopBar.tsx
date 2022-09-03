@@ -24,7 +24,7 @@ export default function BoxTopBar (props : Props) : JSX.Element {
       <div
         onClick={ (e) => {
           e.stopPropagation()
-          updateBoxState({ ...state, macrolistOpen : ! macrolistOpen })
+          updateBoxState({ ...state, macrolistOpen : ! macrolistOpen } as UntypedLambdaState)
         } }
         className={ `untyped-lambda--top-bar-custom--button ${macrolistOpen ? 'menu-pressed-open' : ''}` }
         title={ macrolistOpen ? 'Hide Macros' : 'Show All Macros for This Box' }
