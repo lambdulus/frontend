@@ -220,7 +220,7 @@ export default class BoxTitleBar extends Component<Props, State> {
                   break
                 }
                 case BoxType.MARKDOWN: {
-                  updateBoxState({ ...state, isEditing : true })
+                  updateBoxState({ ...state, isEditing : true } as NoteState)
                   break
                 }
               }
