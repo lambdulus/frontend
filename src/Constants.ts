@@ -1,4 +1,4 @@
-import {  CODE_NAME as UNTYPED_CODE_NAME, decodeUntypedLambdaState, UNTYPED_LAMBDA_INTEGRATION_STATE } from './untyped-lambda-integration/AppTypes'
+import { CODE_NAME as UNTYPED_CODE_NAME, decodeUntypedLambdaState } from './untyped-lambda-integration/AppTypes'
 import { defaultSettings as UntypedLambdaDefaultSettings } from './untyped-lambda-integration/AppTypes'
 
 import { BoxType, Screen, BoxesWhitelist, AppState, GlobalSettings, NotebookState, BoxState } from "./Types"
@@ -38,9 +38,6 @@ export const InitNotebookState : NotebookState = {
   focusedBoxIndex : undefined,
   allowedBoxes : DEFAULT_WHITELIST,
   settings : getDefaultSettings(DEFAULT_WHITELIST),
-  integrationStates : {
-    'UNTYPED_LAMBDA' : UNTYPED_LAMBDA_INTEGRATION_STATE, // TODO: FIX THIS!!!
-  },
 
   locked : false,
   menuOpen : false,
@@ -181,23 +178,5 @@ export function decodeNotebook (notebook : NotebookState) : NotebookState | neve
   return {
     ...notebook,
     boxList,
-  }
-}
-
-// TODO: this should be refactored
-export function initIntegrationStates (appState : AppState) {
-  const { currentNotebook, notebookList } : AppState = appState
-  const notebook = notebookList[currentNotebook]
-
-  for (const [boxType, value] of Object.entries(notebook.integrationStates)) {
-    switch (boxType) {
-      case BoxType.UNTYPED_LAMBDA: {
-        value.macrotable = UNTYPED_LAMBDA_INTEGRATION_STATE.macrotable  // TODO: this is very informed - should be done by specific integration - leaving just for now
-        return
-      }
-    
-      default:
-        break;
-    }
   }
 }
