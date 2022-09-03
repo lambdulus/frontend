@@ -34,7 +34,7 @@ export default function BoxTopBar (props : Props) : JSX.Element {
             onClick={ (e) => {
               e.stopPropagation()
               if (isEditing === false) {
-                updateBoxState({ ...state, isEditing : true})
+                updateBoxState({ ...state, isEditing : true} as NoteState)
               }
             } }
           >
@@ -45,7 +45,7 @@ export default function BoxTopBar (props : Props) : JSX.Element {
             onClick={ (e) => {
               e.stopPropagation()
               if (isEditing === true) {
-                updateBoxState({ ...state, isEditing : false})
+                updateBoxState({ ...state, isEditing : false} as NoteState)
               }
             } }
           >

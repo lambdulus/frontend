@@ -1,5 +1,4 @@
-import { UntypedLambdaState, UntypedLambdaSettings } from "./untyped-lambda-integration/Types"
-import { NoteState } from "./markdown-integration/AppTypes"
+import { UntypedLambdaSettings } from "./untyped-lambda-integration/Types"
 
 export enum BoxType {
   UNTYPED_LAMBDA = 'UNTYPED_LAMBDA',
@@ -21,27 +20,31 @@ export type NoBox = -2
 // TODO: when building `Exam Mode`  allow only Array<BoxType> or NoBox
 export type BoxesWhitelist = Array<BoxType> | AnyBox | NoBox
 
-export interface AbstractBoxState {
+export interface BoxState {
   type : BoxType,
   __key : string, 
   title : String,
   minimized : boolean,
   settingsOpen : boolean,
+
+  editor : {
+    placeholder : string
+    content : string
+    syntaxError : Error | null
+  }
 }
 
 export interface AbstractSettings {
   type : BoxType,
 }
 
-export interface LispBox extends AbstractBoxState {
+export interface LispBox extends BoxState {
   // TODO: delete this placeholder and implement it
 }
 
 export interface LispSettings extends AbstractSettings {
   // TODO: delete this placeholder and implement it
 }
-
-export type BoxState = UntypedLambdaState | LispBox | NoteState // or other things in the future
 
 export type Settings = UntypedLambdaSettings | LispSettings // or other things in the future
 

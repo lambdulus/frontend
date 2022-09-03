@@ -1,17 +1,11 @@
-import { BoxType, AbstractBoxState } from "../Types"
+import { BoxType, BoxState } from "../Types"
 
 
-export interface NoteState extends AbstractBoxState {
+export interface NoteState extends BoxState {
   __key : string
   type : BoxType
   note : string
   isEditing : boolean
-  editor : {
-    placeholder : string
-    content : string
-    caretPosition : number
-    syntaxError : Error | null
-  }
 }
 
 export function createNewMarkdown () : NoteState {
@@ -26,7 +20,6 @@ export function createNewMarkdown () : NoteState {
     editor : {
       placeholder : PromptPlaceholder,
       content : '',
-      caretPosition : 0,
       syntaxError : null
     }
   }
@@ -41,7 +34,6 @@ export function resetMarkdownBox (state : NoteState) : NoteState {
     editor : {
       placeholder : PromptPlaceholder,
       content : '',
-      caretPosition : 0,
       syntaxError : null
     }
   }
