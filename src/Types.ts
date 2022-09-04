@@ -14,13 +14,6 @@ export enum Screen {
   NOTEBOOKS, // TODO: this will be the final solution to the `Multiple Notebooks` problem
 }
 
-export type AnyBox = -1
-
-export type NoBox = -2
-
-// TODO: when building `Exam Mode`  allow only Array<BoxType> or NoBox
-export type BoxesWhitelist = Array<BoxType> | AnyBox | NoBox
-
 export interface AbstractBoxState {
   type : BoxType,
   __key : string, 
@@ -55,7 +48,6 @@ export interface NotebookState {
   boxList : Array<BoxState>
   activeBoxIndex : number
   focusedBoxIndex : number | undefined
-  allowedBoxes : BoxesWhitelist
 
   locked : boolean
   menuOpen : boolean
