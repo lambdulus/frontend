@@ -1,9 +1,9 @@
 import {  CODE_NAME as UNTYPED_CODE_NAME, decodeUntypedLambdaState } from '../untyped-lambda-integration/AppTypes'
 import { defaultSettings as UntypedLambdaDefaultSettings } from '../untyped-lambda-integration/AppTypes'
 
-import { BoxType, BoxesWhitelist, AppState, GlobalSettings, NotebookState, BoxState } from '../Types'
+import { BoxType, AppState, GlobalSettings, NotebookState, BoxState } from '../Types'
 import { UntypedLambdaState } from '../untyped-lambda-integration/Types'
-import { NO_BOX, ANY_BOX, ALL_BOX_TYPES, EmptyAppState } from '../Constants'
+import { EmptyAppState } from '../Constants'
 
 
 
@@ -11,31 +11,8 @@ export function updateSettingsInStorage (settings : GlobalSettings) : void {
   window.localStorage.setItem('global-settings', JSON.stringify(settings))
 }
 
-export function getDefaultSettings (whitelist : BoxesWhitelist) : GlobalSettings {
-  let defaultSettings = {}
-
-  if (whitelist === NO_BOX) {
-    whitelist = []
-  }
-  else if (whitelist === ANY_BOX) {
-    whitelist = ALL_BOX_TYPES
-  }
-
-  for (const type of whitelist) {
-    switch (type) {
-      case BoxType.UNTYPED_LAMBDA:
-        defaultSettings = {
-          ...defaultSettings,
-          [UNTYPED_CODE_NAME] : UntypedLambdaDefaultSettings,
-        }
-        break;
-    
-      default:
-        break;
-    }
-  }
-
-  return defaultSettings
+export function getDefaultSettings () : GlobalSettings {
+  return { [UNTYPED_CODE_NAME] : UntypedLambdaDefaultSettings, }
 }
 
 export function loadSettingsFromStorage () : GlobalSettings {

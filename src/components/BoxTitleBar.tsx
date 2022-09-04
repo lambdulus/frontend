@@ -1,5 +1,5 @@
 import React, { Component, MouseEvent } from 'react'
-import { BoxType, BoxState, GlobalSettings, BoxesWhitelist } from '../Types'
+import { BoxType, BoxState, GlobalSettings } from '../Types'
 import UntypedLambdaBTB from '../untyped-lambda-integration/BoxTopBar'
 import { UntypedLambdaState } from '../untyped-lambda-integration/Types'
 
@@ -23,7 +23,6 @@ interface Props {
   addBoxBefore : (box : BoxState) => void
   addBoxAfter : (box : BoxState) => void
   settings : GlobalSettings
-  whiteList : BoxesWhitelist
 }
 
 interface State {

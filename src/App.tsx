@@ -8,8 +8,7 @@ import  { updateSettingsInStorage
         , updateNotebookStateToStorage
         , CLEAR_WORKSPACE_CONFIRMATION
         , loadSettingsFromStorage
-        , InitNotebookState
-        , DEFAULT_WHITELIST } from './Constants'
+        , InitNotebookState } from './Constants'
 
 import TopBar from './components/TopBar'
 import MenuBar from './components/MenuBar'
@@ -369,7 +368,6 @@ function createNewNotebook (name : string = 'Anonymous Notebook') : NotebookStat
     boxList : [],
     activeBoxIndex : NaN,
     focusedBoxIndex : undefined,
-    allowedBoxes : DEFAULT_WHITELIST,
     settings : loadSettingsFromStorage(),
     // integrationStates : {
     //   'UNTYPED_LAMBDA' : UNTYPED_LAMBDA_INTEGRATION_STATE,
@@ -390,7 +388,6 @@ function createNewNotebookWithBox (name : string = 'Notebook from Link', box : B
     boxList : [ box ],
     activeBoxIndex : 0,
     focusedBoxIndex : 0,
-    allowedBoxes : DEFAULT_WHITELIST,
     settings : loadSettingsFromStorage(),
     // integrationStates : {
     //   'UNTYPED_LAMBDA' : UNTYPED_LAMBDA_INTEGRATION_STATE,
