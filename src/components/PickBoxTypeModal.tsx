@@ -89,7 +89,7 @@ const addLispBox = (
       <div className='modal--create-box'>
         <div className='modal--create-box--container'>
           { addLambdaBox }
-          {/* { addLispBox } */}
+          { addLispBox }
           { addMDBox }
         </div>
       </div>
