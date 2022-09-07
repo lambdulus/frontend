@@ -13,7 +13,6 @@ export function createNewTinyLispExpression (defaultSettings : TinyLispSettings)
         type : BoxType.LISP,
         title : 'New Tiny Lisp Expression',
         minimized : false,
-        menuOpen : false,
         settingsOpen : false,
 
         subtype: TinyLispType.EMPTY,
