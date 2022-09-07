@@ -1,8 +1,11 @@
-import { AbstractBoxState, AbstractSettings } from "../Types"
+import { AbstractBoxState, AbstractSettings, BoxType } from "../Types"
 import {InnerNode, InstructionShortcut, Interpreter} from "@lambdulus/tiny-lisp-core";
 
 
 export interface TinyLispState extends AbstractBoxState {
+  __key : string
+  type : BoxType
+  
   expression : string //
   mouseOver: InnerNode | null // node where the mouse currently hovers over
   cleanNeeded: boolean
