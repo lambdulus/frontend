@@ -38,7 +38,7 @@ export default class Notebook extends PureComponent<Props> {
 
   render () {
     const { state, settings } = this.props
-    const { activeBoxIndex, focusedBoxIndex, boxList, allowedBoxes } = state
+    const { activeBoxIndex, focusedBoxIndex, boxList } = state
 
     return (
       <div className="mainSpace">
@@ -64,7 +64,6 @@ export default class Notebook extends PureComponent<Props> {
                 removeBox={ () => this.removeBox(i) }
                 updateBoxState={ (box : BoxState) => this.updateBoxState(i, box) }
                 onBlur={ () => this.onBlur(i) }
-                whiteList={ allowedBoxes }
                 settings={ settings }
               />
             </li>
@@ -75,7 +74,6 @@ export default class Notebook extends PureComponent<Props> {
               <div className='top-level--create-box'>
                 <CreateBox
                   addNew={ (box : BoxState) => this.insertBefore(state.boxList.length, box) }
-                  whiteList={ allowedBoxes }
                   settings={ settings }
                 />
               </div>

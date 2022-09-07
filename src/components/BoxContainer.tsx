@@ -2,7 +2,7 @@ import React, { MouseEvent, Component } from 'react'
 import { mapBoxTypeToStr } from '../Constants'
 import Box from './Box'
 import BoxTitleBar from './BoxTitleBar'
-import { BoxState, GlobalSettings, BoxesWhitelist } from '../Types'
+import { BoxState, GlobalSettings } from '../Types'
 
 import "../styles/BoxContainer.css"
 import PickBoxTypeModal from './PickBoxTypeModal'
@@ -20,7 +20,6 @@ interface Props {
   addBoxBefore : (state : BoxState) => void
   addBoxAfter : (state : BoxState) => void
   settings : GlobalSettings
-  whiteList : BoxesWhitelist
 }
 
 interface State {
@@ -72,7 +71,6 @@ export class BoxContainer extends Component<Props, State> {
             addBoxBefore={ addBoxBefore }
             addBoxAfter={ addBoxAfter }
             settings={ this.props.settings }
-            whiteList={ this.props.whiteList }
           />
           
           <Box
@@ -91,7 +89,6 @@ export class BoxContainer extends Component<Props, State> {
                 this.props.addBoxAfter(box)
                 this.setState({ modalOpen : false })
               } }
-              whiteList={ this.props.whiteList }
               settings={ this.props.settings }
             />
           :
