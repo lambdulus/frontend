@@ -1,9 +1,9 @@
 import React from 'react'
-import { GlobalSettings, BoxesWhitelist, BoxState, BoxType } from '../Types'
+import { GlobalSettings, BoxState } from '../Types'
 import { createNewMarkdown } from '../markdown-integration/AppTypes'
 import { UntypedLambdaSettings, UntypedLambdaState } from '../untyped-lambda-integration/Types'
+
 import { createNewUntypedLambdaExpression, ADD_BOX_LABEL as UNTYPED_ADD_BOX_LABEL, CODE_NAME as UNTYPED_CODE_NAME } from '../untyped-lambda-integration/AppTypes'
-import { ANY_BOX, NO_BOX } from '../Constants'
 import { CODE_NAME as TINY_LISP_CODE_NAME, ADD_BOX_LABEL as TINY_LISP_ADD_BOX_LABEL } from '../tiny-lisp-integration/Constants'
 
 
@@ -12,40 +12,29 @@ import { createNewTinyLispExpression } from '../tiny-lisp-integration/Constants'
 import { TinyLispSettings } from '../tiny-lisp-integration/Types'
 
 
-function anyBoxAllowed (whitelist : BoxesWhitelist) : boolean {
-  return whitelist === ANY_BOX
-}
-
-function noBoxAllowed (whitelist : BoxesWhitelist) : boolean {
-  return whitelist === NO_BOX
-}
-
-function isAllowed (type : BoxType, whitelist : BoxesWhitelist) : boolean {
-  console.log({ whitelist })
-  return anyBoxAllowed(whitelist) || (whitelist as Array<BoxType>).includes(type)
-}
-
 interface Props {
   addNew (box : BoxState) : void
-  whiteList : BoxesWhitelist
   settings : GlobalSettings
 }
 
 
 export default function PickBoxTypeModal (props : Props) : JSX.Element {
-  const { addNew, whiteList, settings } : Props = props
+  const { addNew, settings } : Props = props
 
   const untLSettings : UntypedLambdaSettings = settings[UNTYPED_CODE_NAME] as UntypedLambdaState
   const tinyLSettings : TinyLispSettings = settings[TINY_LISP_CODE_NAME] as TinyLispSettings
 
-  const addLambdaBoxIfAllowed = (allowed : boolean) => (
-    allowed ?
-      <div className='add-box--group'
-        onClick={ (e) => {
-          e.stopPropagation()
-          // this.setState({ opened : false })
-          addNew(createNewUntypedLambdaExpression(untLSettings)) }
-        }
+  const addLambdaBox = (
+    <div className='add-box--group'
+      onClick={ (e) => {
+        e.stopPropagation()
+        // this.setState({ opened : false })
+        addNew(createNewUntypedLambdaExpression(untLSettings)) }
+      }
+    >
+      <div
+        className='plusBtn'
+        title='Create new λ box'
       >
         <div
           className='plusBtn'
@@ -55,12 +44,11 @@ export default function PickBoxTypeModal (props : Props) : JSX.Element {
           <p className='creat-box--label'>{ UNTYPED_ADD_BOX_LABEL }</p>
         </div>
       </div>
-      :
-      null
+    </div>
   )
 
-  const addLispBoxIfAllowed = (allowed : boolean) => (
-    allowed ?
+
+const addLispBox = (
       <div className='add-box--group'
         onClick={ (e) => {
           e.stopPropagation()
@@ -76,12 +64,9 @@ export default function PickBoxTypeModal (props : Props) : JSX.Element {
           <p className='creat-box--label'>{ TINY_LISP_ADD_BOX_LABEL }</p>
         </div>
       </div>
-      :
-      null
-  )
+      )
 
-  const addMDBoxIfAllowed = (allowed : boolean) => (
-    allowed ?
+  const addMDBox = (
     <div className='add-box--group'
       onClick={ (e) => {
         e.stopPropagation()
@@ -97,26 +82,17 @@ export default function PickBoxTypeModal (props : Props) : JSX.Element {
         <p className='creat-box--label'>+ Markdown</p>
       </div>
     </div>
-    :
-    null
   )
 
   return (
     <div className='box-top-bar--modal--pick-box-type'>
-      {
-        noBoxAllowed(whiteList) ?
-          <h4>No Boxes Allowed</h4>
-          :
-          <div
-            className='modal--create-box'
-          >
-            <div className='modal--create-box--container'>
-              { addLambdaBoxIfAllowed(isAllowed (BoxType.UNTYPED_LAMBDA, whiteList)) }
-              { addLispBoxIfAllowed(isAllowed(BoxType.LISP, whiteList)) }
-              { addMDBoxIfAllowed(isAllowed(BoxType.MARKDOWN, whiteList)) }
-            </div>
-          </div>
-      }
+      <div className='modal--create-box'>
+        <div className='modal--create-box--container'>
+          { addLambdaBox }
+          {/* { addLispBox } */}
+          { addMDBox }
+        </div>
+      </div>
     </div>
   )
 }
