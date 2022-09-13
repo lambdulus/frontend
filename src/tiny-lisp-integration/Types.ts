@@ -1,5 +1,6 @@
+
 import { AbstractBoxState, AbstractSettings, BoxType } from "../Types"
-import {InnerNode, InstructionShortcut, Interpreter} from "@lambdulus/tiny-lisp-core";
+import {InnerNode, InstructionShortcut, InterpreterState} from "@lambdulus/tiny-lisp-core";
 
 
 export interface TinyLispState extends AbstractBoxState {
@@ -9,7 +10,7 @@ export interface TinyLispState extends AbstractBoxState {
   expression : string //
   mouseOver: InnerNode | null // node where the mouse currently hovers over
   cleanNeeded: boolean
-  interpreter : Interpreter | null // interpreter
+  interpreterState : InterpreterState | null // interpreter
   errorMsg: string | null
   subtype: TinyLispType //Type of the box
 

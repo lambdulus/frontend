@@ -1,5 +1,20 @@
 import React, {PureComponent} from 'react'
-import {ColourType, DefineNode, ReduceNode, InnerNode, Interpreter, MainNode, Parser, TopNode, VarNode, LexerError, InterpreterError, ParserError, SyntaxError} from '@lambdulus/tiny-lisp-core'
+import {
+    ColourType,
+    DefineNode,
+    ReduceNode,
+    InnerNode,
+    Interpreter,
+    MainNode,
+    Parser,
+    TopNode,
+    VarNode,
+    LexerError,
+    InterpreterError,
+    ParserError,
+    SyntaxError,
+    InterpreterState
+} from '@lambdulus/tiny-lisp-core'
 
 import {TinyLispState, TinyLispType} from './Types'
 import Editor from "../components/Editor";
@@ -31,7 +46,7 @@ export default class TinyLispBox extends PureComponent<Props> {
 
     render () {
         const { state } : Props = this.props
-        const { interpreter, subtype } : TinyLispState = state
+        const { interpreterState, subtype } : TinyLispState = state
         const renderBoxContent = () => {
             switch(subtype) {
                 case TinyLispType.EMPTY:
@@ -64,24 +79,24 @@ export default class TinyLispBox extends PureComponent<Props> {
                     </div>
 
                 case TinyLispType.ORDINARY:
-                    if(interpreter == null){
+                    if(interpreterState == null){
                         throw Error
                     }
                     //print source code
-                    const staticLisp = new ReactTreePrinter(interpreter.state.topNode, this.onMouseOver, this.onMouseLeft).print()
+                    const staticLisp = new ReactTreePrinter(interpreterState.topNode, this.onMouseOver, this.onMouseLeft).print()
                     //print code register
-                    const c = new ReactSECDPrinter(interpreter.state.code, this.hasMouseOver, this.parentHasMouseOver, state.current).print()
+                    const c = new ReactSECDPrinter(interpreterState.code, this.hasMouseOver, this.parentHasMouseOver, state.current).print()
                     //print stack register
-                    const s = new ReactSECDPrinter(interpreter.state.stack, this.hasMouseOver, this.parentHasMouseOver, state.current).print()
+                    const s = new ReactSECDPrinter(interpreterState.stack, this.hasMouseOver, this.parentHasMouseOver, state.current).print()
                     //print environment register
-                    const e = new ReactSECDPrinter(interpreter.state.environment, this.hasMouseOver, this.parentHasMouseOver, state.current).print()
+                    const e = new ReactSECDPrinter(interpreterState.environment, this.hasMouseOver, this.parentHasMouseOver, state.current).print()
                     //print dump register
-                    const d = new ReactSECDPrinter(interpreter.state.dump, this.hasMouseOver, this.parentHasMouseOver, state.current).print()
+                    const d = new ReactSECDPrinter(interpreterState.dump, this.hasMouseOver, this.parentHasMouseOver, state.current).print()
                     //set printedState of all arrays in registers to None
-                    interpreter.state.code.clearPrinted()
-                    interpreter.state.stack.clearPrinted()
-                    interpreter.state.environment.clearPrinted()
-                    interpreter.state.dump.clearPrinted()
+                    interpreterState.code.clearPrinted()
+                    interpreterState.stack.clearPrinted()
+                    interpreterState.environment.clearPrinted()
+                    interpreterState.dump.clearPrinted()
                     return (
                         <div>
                             LISP:
@@ -171,8 +186,8 @@ export default class TinyLispBox extends PureComponent<Props> {
             //Parse the source code and start an interpreter with parse code
             let parser = new Parser()
             let arr = parser.parse(this.props.state.editor.content)
-            let interpreter = new Interpreter(arr, parser.topNode as TopNode)
-            this.props.setBoxState({...this.props.state, subtype: TinyLispType.ORDINARY, interpreter,})
+            let interpreterState = new InterpreterState(arr, parser.topNode as TopNode)
+            this.props.setBoxState({...this.props.state, subtype: TinyLispType.ORDINARY, interpreterState,})
         }
         catch (exception) {
             //If there is an error, render the error msg
@@ -198,16 +213,17 @@ export default class TinyLispBox extends PureComponent<Props> {
 
     onStep() : void {
         const { state, setBoxState } : Props = this.props
-        const { interpreter } : TinyLispState = state
-        if(interpreter == null){
+        const { interpreterState } : TinyLispState = state
+        if(interpreterState == null){
             throw Error
         }
         try {
+            let interpreter = new Interpreter(interpreterState)
             interpreter.step()//Perform step of the interpreter
-            let painter = new Painter(interpreter.state)
+            let painter = new Painter(interpreterState)
             painter.colourArray(interpreter.lastInstruction)//Colour registers
             let current = interpreter.lastInstruction.shortcut//Update last instruction
-            setBoxState({...state, interpreter, current})
+            setBoxState({...state, interpreterState, current})
         }
         catch (error){
             if(error instanceof InterpreterError){//If error caught, update the error message
@@ -218,14 +234,15 @@ export default class TinyLispBox extends PureComponent<Props> {
 
     onRun() : void {
         const { state, setBoxState } : Props = this.props
-        const { interpreter } : TinyLispState = state
-        if(interpreter == null){
+        const { interpreterState } : TinyLispState = state
+        if(interpreterState == null){
             throw Error
         }
         try {
+            let interpreter = new Interpreter(interpreterState)
             interpreter.run()
-            new Painter(interpreter.state).clean()
-            setBoxState({...state, interpreter})
+            new Painter(interpreterState).clean()
+            setBoxState({...state, interpreterState})
         }
         catch (error){
             if(error instanceof InterpreterError){
