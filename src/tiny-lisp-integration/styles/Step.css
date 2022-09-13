@@ -1,0 +1,88 @@
+
+
+.underlineFirstArgument {
+    border-bottom: 2px solid #81c784;
+}
+
+.highlightFirstArgument {
+
+
+    border-radius: 2px;
+    background-color: #81c784;
+}
+
+.underlineSecondArgument {
+    border-bottom: 2px solid #818ac7;
+}
+
+.highlightSecondArgument {
+
+
+    border-radius: 2px;
+    background-color: #818ac7;
+}
+
+.underlineThirdArgument {
+    border-bottom: 2px solid #c7c181;
+}
+
+.highlightThirdArgument {
+
+
+    border-radius: 2px;
+    background-color: #c7c181;
+}
+
+.underlineCurrent {
+    border-bottom: 2px solid #d55374;
+}
+
+.highlightCurrent {
+
+
+    border-radius: 2px;
+    background-color: #d55374;
+}
+
+.underlineOther {
+    border-bottom: 2px solid #53d5b7;
+}
+
+.highlightOther {
+
+
+    border-radius: 2px;
+    background-color: #53d5d5;
+}
+
+.normalInstruction {
+
+}
+
+ul#horizontal-list {/*
+    min-width: 696px;
+    list-style: none;
+    padding-top: 20px;
+    display: inline;*/
+}
+
+ul#horizontal-list li {
+    display: inline;
+}
+
+
+tab {
+    display:inline-block;
+    margin-left: 20px;
+}
+
+
+.toRight {
+    display: flex;
+}
+
+
+/*
+
+
+border-radius: 2px;*/

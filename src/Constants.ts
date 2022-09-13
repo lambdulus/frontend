@@ -10,7 +10,6 @@ export const CLEAR_WORKSPACE_CONFIRMATION : string =
 
                                           Are you sure?`
 
-
 export function mapBoxTypeToStr (type : BoxType) : string {
   switch (type) {
     case BoxType.UNTYPED_LAMBDA:
@@ -75,6 +74,7 @@ export function loadSettingsFromStorage () : GlobalSettings {
 
 
 export function loadAppStateFromStorage () : AppState {
+  return EmptyAppState/*
   const maybeState : string | null = localStorage.getItem('AppState')
 
   if (maybeState === null) {
@@ -90,11 +90,12 @@ export function loadAppStateFromStorage () : AppState {
 
       return EmptyAppState
     }
-  }
+  }*/
 }
 
 export function updateAppStateToStorage (state : AppState) : void {
-  localStorage.setItem('AppState', JSON.stringify(state))
+  const {stringify} = require('flatted/cjs');
+  localStorage.setItem('AppState', stringify(state))
 }
 
 export function updateNotebookStateToStorage (notebook : NotebookState, index : number) {

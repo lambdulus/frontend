@@ -1,5 +1,6 @@
 import { UntypedLambdaState, UntypedLambdaSettings } from "./untyped-lambda-integration/Types"
 import { NoteState } from "./markdown-integration/AppTypes"
+import { TinyLispState } from "./tiny-lisp-integration/Types"
 
 export enum BoxType {
   UNTYPED_LAMBDA = 'UNTYPED_LAMBDA',
@@ -26,15 +27,11 @@ export interface AbstractSettings {
   type : BoxType,
 }
 
-export interface LispBox extends AbstractBoxState {
-  // TODO: delete this placeholder and implement it
-}
-
 export interface LispSettings extends AbstractSettings {
   // TODO: delete this placeholder and implement it
 }
 
-export type BoxState = UntypedLambdaState | LispBox | NoteState // or other things in the future
+export type BoxState = UntypedLambdaState | TinyLispState | NoteState // or other things in the future
 
 export type Settings = UntypedLambdaSettings | LispSettings // or other things in the future
 
