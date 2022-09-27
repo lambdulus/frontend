@@ -42,6 +42,7 @@ export const EmptyAppState : AppState = {
   notebookList : [ InitNotebookState ],
   currentNotebook : 0,
   currentScreen : Screen.MAIN,
+  darkmode : false
 }
 
 

@@ -16,10 +16,22 @@
   margin-top: 20px;
 }
 
+.dark .add_box_after {
+  background-color: rgb(50, 50, 50);
+}
+
 .add_box_after:hover {
   color: rgb(167, 167, 167);
 
   background-color: rgb(240, 240, 240);
+
+
+}
+
+.dark .add_box_after:hover {
+  color: rgb(167, 167, 167);
+
+  background-color: rgb(100, 100, 100);
 
 
 }

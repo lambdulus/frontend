@@ -13,6 +13,7 @@ import { BoxContainer } from '../components/BoxContainer'
 interface Props {
   state : NotebookState
   settings : GlobalSettings
+  darkmode : boolean
 
   updateNotebook (notebook : Partial<NotebookState>) : void
 }
@@ -37,7 +38,7 @@ export default class Notebook extends PureComponent<Props> {
   // }
 
   render () {
-    const { state, settings } = this.props
+    const { state, settings, darkmode } = this.props
     const { activeBoxIndex, focusedBoxIndex, boxList } = state
 
     return (
@@ -65,6 +66,7 @@ export default class Notebook extends PureComponent<Props> {
                 updateBoxState={ (box : BoxState) => this.updateBoxState(i, box) }
                 onBlur={ () => this.onBlur(i) }
                 settings={ settings }
+                darkmode={ darkmode }
               />
             </li>
           ) }

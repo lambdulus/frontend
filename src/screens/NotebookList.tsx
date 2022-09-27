@@ -6,6 +6,7 @@ import Notebook from './Notebook'
 
 interface Props {
   state : AppState
+  darkmode : boolean
 
   onSelectNotebook (index : number) : void
   onRemoveNotebook (index : number) : void
@@ -14,7 +15,7 @@ interface Props {
 }
 
 export default function NotebookList (props : Props) : JSX.Element {
-  const { state, onSelectNotebook, onRemoveNotebook, onUpdateNotebook, onAddNotebook } : Props = props
+  const { state, onSelectNotebook, onRemoveNotebook, onUpdateNotebook, onAddNotebook, darkmode } : Props = props
   const { notebookList } : AppState = state
 
   return (
@@ -47,6 +48,7 @@ export default function NotebookList (props : Props) : JSX.Element {
                   state={ notebook }
                   settings={ notebook.settings }
                   updateNotebook={ () => void 0 }
+                  darkmode={ darkmode }
                 />
               </div>
               <div className='notebook-list--notebook-footer'>

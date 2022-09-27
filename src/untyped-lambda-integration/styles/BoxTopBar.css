@@ -13,7 +13,18 @@
   border-radius: 5px;
 }
 
+.dark .untyped-lambda--top-bar-custom--button:hover {
+  background-color: rgb(100, 100, 100);
+  border-radius: 5px;
+}
+
 .untyped-lambda--top-bar-custom--button.menu-pressed-open {
   background-color: rgb(241, 241, 241);
+  border-radius: 5px;
+}
+
+
+.dark .untyped-lambda--top-bar-custom--button.menu-pressed-open {
+  background-color: rgb(100, 100, 100);
   border-radius: 5px;
 }

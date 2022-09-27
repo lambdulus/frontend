@@ -29,6 +29,14 @@
   /* background-color:  */
 }
 
+.dark .macro-name {
+  color: rgb(150, 150, 255);
+  padding-right: 5px;
+  font-weight: 700;
+  /* background-color:  */
+}
+
+
 .dense-LI {
   /* margin-bottom: 2px; */
   margin: 10px;
