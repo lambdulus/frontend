@@ -160,3 +160,14 @@
   background-color: white;
   padding: 0;
 }
+
+.dark
+.boxExercise .activeStep .substitutedArg,
+.boxExercise .activeStep .redex,
+.boxExercise .churchnumeral.redex.argument.abstraction,
+.boxExercise .left.extended-redex,
+.boxExercise .right.extended-redex {
+  border: none;
+  background-color: black;
+  padding: 0;
+}

@@ -67,6 +67,11 @@
   border-radius: 5px;
 }
 
+.dark .box-top-bar--controls-item:hover {
+  background-color: rgb(100, 100, 100);
+  border-radius: 5px;
+}
+
 
 /* .box-top-bar--controls--imize {
   padding-top: 5px;
