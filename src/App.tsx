@@ -2,7 +2,13 @@ import React, { Component } from 'react'
 
 import './App.css'
 
-import { updateSettingsInStorage, loadAppStateFromStorage, updateAppStateToStorage, updateNotebookStateToStorage, CLEAR_WORKSPACE_CONFIRMATION, loadSettingsFromStorage, initIntegrationStates, InitNotebookState, DEFAULT_WHITELIST } from './Constants'
+import  { updateSettingsInStorage
+        , loadAppStateFromStorage
+        , updateAppStateToStorage
+        , updateNotebookStateToStorage
+        , CLEAR_WORKSPACE_CONFIRMATION
+        , loadSettingsFromStorage
+        , InitNotebookState } from './Constants'
 
 import TopBar from './components/TopBar'
 import MenuBar from './components/MenuBar'
@@ -10,7 +16,7 @@ import Notebook from './screens/Notebook'
 import Help from './screens/Help'
 import SettingsScreen from './screens/Settings'
 import { Screen, AppState, NotebookState, GlobalSettings, BoxType, BoxState } from './Types'
-import { UNTYPED_LAMBDA_INTEGRATION_STATE, createNewUntypedLambdaBoxFromSource, defaultSettings } from './untyped-lambda-integration/AppTypes'
+import { createNewUntypedLambdaBoxFromSource, defaultSettings } from './untyped-lambda-integration/AppTypes'
 import NotebookList from './screens/NotebookList'
 import { UntypedLambdaState, UntypedLambdaSettings, EvaluationStrategy, UntypedLambdaType } from './untyped-lambda-integration/Types'
 import { MacroTable } from '@lambdulus/core'
@@ -37,8 +43,6 @@ export default class App extends Component<Props, AppState> {
 
     this.state = loadAppStateFromStorage()
 
-    initIntegrationStates(this.state) // TODO: go and refactor the implementation of this fn
-
     this.setScreen = this.setScreen.bind(this)
     this.updateNotebook = this.updateNotebook.bind(this)
     this.changeNotebook = this.changeNotebook.bind(this)
@@ -53,6 +57,7 @@ export default class App extends Component<Props, AppState> {
     this.clearWorkspace = this.clearWorkspace.bind(this)
     this.selectNotebook = this.selectNotebook.bind(this)
     this.updateNthNotebook = this.updateNthNotebook.bind(this)
+    this.toggleDarkMode = this.toggleDarkMode.bind(this)
 
     this.createNotebookFromURL = this.createNotebookFromURL.bind(this)
   }
@@ -139,12 +144,12 @@ export default class App extends Component<Props, AppState> {
 
   // NOTE: render is OK
   render () {
-    const { notebookList, currentNotebook, currentScreen } = this.state
+    const { notebookList, currentNotebook, currentScreen, darkmode } = this.state
     const state = notebookList[currentNotebook]
     const { settings } = state
 
     return (
-      <div id='app'>
+      <div id='app' className={ darkmode ? 'dark' : 'light' }>
         <div id="bad-screen-message">
           Lambdulus only runs on screens at least 900 pixels wide.
         </div>
@@ -153,6 +158,7 @@ export default class App extends Component<Props, AppState> {
           onScreenChange={ this.setScreen }
           onImport={ this.importNotebook }
           onClearWorkspace={ this.clearWorkspace }
+          onDarkModeChange={ this.toggleDarkMode }
         />
 
 
@@ -164,7 +170,7 @@ export default class App extends Component<Props, AppState> {
         { (() => {
           switch (currentScreen) {
             case Screen.MAIN:
-              return <Notebook state={ state } updateNotebook={ this.updateNotebook } settings={ settings } />
+              return <Notebook state={ state } updateNotebook={ this.updateNotebook } settings={ settings } darkmode={ darkmode } />
 
             case Screen.NOTEBOOKS:
               return  <NotebookList
@@ -173,10 +179,11 @@ export default class App extends Component<Props, AppState> {
                       onRemoveNotebook={ this.removeNotebook }
                       onUpdateNotebook={ this.updateNthNotebook }
                       onAddNotebook={ this.addNotebook }
+                      darkmode={ darkmode }
                     />
 
             case Screen.HELP:
-              return <Help/>
+              return <Help darkmode={ darkmode } />
 
             case Screen.SETTINGS:
               return <SettingsScreen settings={ settings } updateSettings={ this.updateSettings } />
@@ -357,6 +364,14 @@ export default class App extends Component<Props, AppState> {
       // this.setState(loadAppStateFromStorage())
     }
   }
+
+  toggleDarkMode () : void {
+    const { darkmode } = this.state
+
+    this.setState({ darkmode : ! darkmode })
+    updateAppStateToStorage({ ...this.state, darkmode : ! darkmode })
+  }
+
 }
 
 function createNewNotebook (name : string = 'Anonymous Notebook') : NotebookState {
@@ -364,11 +379,10 @@ function createNewNotebook (name : string = 'Anonymous Notebook') : NotebookStat
     boxList : [],
     activeBoxIndex : NaN,
     focusedBoxIndex : undefined,
-    allowedBoxes : DEFAULT_WHITELIST,
     settings : loadSettingsFromStorage(),
-    integrationStates : {
-      'UNTYPED_LAMBDA' : UNTYPED_LAMBDA_INTEGRATION_STATE,
-    },
+    // integrationStates : {
+    //   'UNTYPED_LAMBDA' : UNTYPED_LAMBDA_INTEGRATION_STATE,
+    // },
 
     locked : false,
     menuOpen : false,
@@ -385,11 +399,10 @@ function createNewNotebookWithBox (name : string = 'Notebook from Link', box : B
     boxList : [ box ],
     activeBoxIndex : 0,
     focusedBoxIndex : 0,
-    allowedBoxes : DEFAULT_WHITELIST,
     settings : loadSettingsFromStorage(),
-    integrationStates : {
-      'UNTYPED_LAMBDA' : UNTYPED_LAMBDA_INTEGRATION_STATE,
-    },
+    // integrationStates : {
+    //   'UNTYPED_LAMBDA' : UNTYPED_LAMBDA_INTEGRATION_STATE,
+    // },
 
     locked : false,
     menuOpen : false,

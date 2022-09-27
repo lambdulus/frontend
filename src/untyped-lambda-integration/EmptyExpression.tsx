@@ -1,7 +1,7 @@
-import React, { ChangeEvent } from 'react'
+import React from 'react'
 
 import Editor from '../components/Editor'
-import { UntypedLambdaExpressionState, EvaluationStrategy } from './Types'
+import { UntypedLambdaExpressionState } from './Types'
 
 import './styles/EmptyExpression.css'
 
@@ -13,10 +13,9 @@ interface EmptyExpressionProps {
   editor : {
     placeholder : string
     content : string
-    caretPosition : number
     syntaxError : Error | null
   }
-  // history : Array<StepRecord>
+  darkmode : boolean
 
   onContent (content : string) : void
   onDebug () : void
@@ -26,18 +25,18 @@ interface EmptyExpressionProps {
 
 
 export default function EmptyExpression(props : EmptyExpressionProps) : JSX.Element{
-  const { className, isActive, editor, isMinimized, setBoxState, state } = props
+  const { className, isActive, editor, isMinimized, darkmode /*, state  */ } = props
   const {
     placeholder,
     content,
     syntaxError,
   } = editor
-  const { SDE, strategy, SLI } = state
+  // const { SDE, strategy, SLI } = state
 
   // this is just a dirty-quick implementation to get an unique identifier
   const array = new Uint32Array(2)
   window.crypto.getRandomValues(array)
-  const uniq : string = `${Date.now()}-${Math.random()}-${array[0]}-${array[1]}`
+  // const uniq : string = `${Date.now()}-${Math.random()}-${array[0]}-${array[1]}`
 
   // const makeActive = useContext(MakeActiveContext)
   // const deleteBox = useContext(DeleteBox)
@@ -56,6 +55,7 @@ export default function EmptyExpression(props : EmptyExpressionProps) : JSX.Elem
                 syntaxError={ syntaxError } // data
                 submitOnEnter={ false } // data
                 shouldReplaceLambda={ true }
+                darkmode={ darkmode }
 
                 onContent={ props.onContent } // fn
                 onEnter={ () => void 0 } // fn
@@ -78,19 +78,14 @@ export default function EmptyExpression(props : EmptyExpressionProps) : JSX.Elem
                   </span>
                 </button>
                 
-                {
-                  // SDE ? /* TODO: this is just for now -- because I am not sure students will know how to exercise with simplified */
-                    // null
-                  // :
-                  <button
-                    title='Exercise this Expression Yourself (Shift + Enter)'
-                    type="button"
-                    className='open-as-exercise btn'
-                    onClick={ props.onExercise }
-                  >
-                    <span className='untyped-lambda--submit-expression--btn-label'>Exercise</span>
-                  </button>
-                }
+                <button
+                  title='Exercise this Expression Yourself (Shift + Enter)'
+                  type="button"
+                  className='open-as-exercise btn'
+                  onClick={ props.onExercise }
+                >
+                  <span className='untyped-lambda--submit-expression--btn-label'>Exercise</span>
+                </button>
                 
               </div>
             </div>
@@ -106,7 +101,7 @@ export default function EmptyExpression(props : EmptyExpressionProps) : JSX.Elem
       }
 
 
-      <div
+      {/* <div
         className='untyped-lambda--pick-strategy untyped-lambda-settings-strategies inlineblock'
         style={ { height: '2.5em' } }
       >
@@ -148,10 +143,10 @@ export default function EmptyExpression(props : EmptyExpressionProps) : JSX.Elem
             Applicative
           </label>
         </span>
-      </div>
+      </div> */}
 
       {/* Here add SDE switch/checkbox */}
-      {
+      {/* {
         <span
           className='untyped-lambda-settings-SDE-'
           title='Simplified Evaluation'>
@@ -171,9 +166,9 @@ export default function EmptyExpression(props : EmptyExpressionProps) : JSX.Elem
             Simplified Evaluation
           </label>
         </span>
-      }
+      } */}
 
-      <span
+      {/* <span
         className='untyped-lambda-settings-SLI-'
         title='Single Letters as Names without Spaces'>
         <input
@@ -191,7 +186,7 @@ export default function EmptyExpression(props : EmptyExpressionProps) : JSX.Elem
         <label className='untyped-lambda-settings-label' htmlFor={ `untyped-lambda-settings--SLI-${uniq}` }>
           Single Letter Names
         </label>
-      </span>
+      </span> */}
   </div>
   )
 }

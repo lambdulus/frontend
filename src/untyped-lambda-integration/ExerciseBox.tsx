@@ -21,14 +21,13 @@ import Expression from './Expression'
 import { PromptPlaceholder, UntypedLambdaState, Evaluator, StepRecord, Breakpoint, UntypedLambdaType, UntypedLambdaExpressionState, StepMessage, StepValidity } from './Types'
 import { reportEvent } from '../misc'
 import { strategyToEvaluator, findSimplifiedReduction, MacroBeta, toMacroMap, tryMacroContraction } from './AppTypes'
-// import { MContext } from './MacroContext'
 
 
 export interface EvaluationProperties {
   state : UntypedLambdaExpressionState
   isActive : boolean
   isFocused : boolean
-  macroContext : { macrotable : MacroMap }
+  darkmode : boolean
 
   setBoxState (state : UntypedLambdaExpressionState) : void
   addBox (box : UntypedLambdaState) : void
@@ -54,7 +53,7 @@ export default class ExerciseBox extends PureComponent<EvaluationProperties> {
   }
 
   render () : JSX.Element {
-    const { state, isActive, addBox } : EvaluationProperties = this.props
+    const { state, isActive, addBox, darkmode } : EvaluationProperties = this.props
     const {
       minimized,
       history,
@@ -94,6 +93,7 @@ export default class ExerciseBox extends PureComponent<EvaluationProperties> {
         editor={ editor }
         isNormalForm={ isNormalForm }
         shouldShowDebugControls={ isActive }
+        darkmode={ darkmode }
 
         createBoxFrom={ this.createBoxFrom }
         setBoxState={ this.props.setBoxState }
@@ -123,7 +123,6 @@ export default class ExerciseBox extends PureComponent<EvaluationProperties> {
       subtype : UntypedLambdaType.EMPTY,
       title : `Copy of ${state.title}`,
       minimized : false,
-      menuOpen : false,
       settingsOpen : false,
       expression : "",
       ast : null,
@@ -141,7 +140,6 @@ export default class ExerciseBox extends PureComponent<EvaluationProperties> {
       editor : {
         placeholder : PromptPlaceholder.EVAL_MODE,
         content : Object.entries(macrotable).map(([name, definition] : [string, string]) => name + ' := ' + definition + ' ;\n').join('') + content,
-        caretPosition : content.length,
         syntaxError : null,
       }
     }
@@ -213,7 +211,6 @@ export default class ExerciseBox extends PureComponent<EvaluationProperties> {
         } ],
         editor : {
           content : '',
-          caretPosition : 0,
           placeholder : PromptPlaceholder.EVAL_MODE,
           syntaxError : null,
         }
@@ -350,7 +347,6 @@ export default class ExerciseBox extends PureComponent<EvaluationProperties> {
         editor : {
           ...state.editor,
           content : Object.entries(newMacrotable).map(([name, definition] : [string, string]) => name + ' := ' + definition + ' ;\n').join('') + ast.toString(),
-          caretPosition : 0,
           placeholder : PromptPlaceholder.VALIDATE_MODE,
           syntaxError : null,
         }
@@ -478,7 +474,6 @@ export default class ExerciseBox extends PureComponent<EvaluationProperties> {
         editor : {
           ...state.editor,
           content : Object.entries(newMacrotable).map(([name, definition] : [string, string]) => name + ' := ' + definition + ' ;\n').join('') + ast.toString(),
-          caretPosition : 0,
           placeholder : PromptPlaceholder.VALIDATE_MODE,
           syntaxError : null,
         }
