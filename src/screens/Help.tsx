@@ -1,21 +1,14 @@
 import React from 'react'
-import 'github-markdown-css/github-markdown-light.css'
 
-import guide from '../misc/UserGuide'
-import ReactMarkdown from'react-markdown'
+import LightHelp from './LightHelp'
+import DarkHelp from './DarkHelp'
 
-export default function Help (props : {}) : JSX.Element {
-  (window as any).guide = guide
-  return (
-  <div className='helpSpace'>
-    <ReactMarkdown className='markdown-body'>
-      { guide }
-    </ReactMarkdown>
-    <br />
-    <br />
-    <br />
-    { `version: ${process.env.REACT_APP_VERSION_INFO}` }
-    <br />
-    { `commit hash: ${process.env.REACT_APP_COMMIT}` }
-  </div>)
+export default function Help (props : { darkmode : boolean }) : JSX.Element {
+  const { darkmode } = props
+  if (darkmode) {
+    return <DarkHelp/>
+  }
+  else {
+    return <LightHelp/>
+  }
 }

@@ -64,4 +64,5 @@ export interface AppState {
   notebookList : Array<NotebookState>,
   currentNotebook : number,
   currentScreen : Screen,
+  darkmode : boolean
 }
