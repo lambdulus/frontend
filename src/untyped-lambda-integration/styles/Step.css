@@ -161,12 +161,11 @@
   padding: 0;
 }
 
-.dark
-.boxExercise .activeStep .substitutedArg,
-.boxExercise .activeStep .redex,
-.boxExercise .churchnumeral.redex.argument.abstraction,
-.boxExercise .left.extended-redex,
-.boxExercise .right.extended-redex {
+.dark .boxExercise .activeStep .substitutedArg,
+.dark .boxExercise .activeStep .redex,
+.dark .boxExercise .churchnumeral.redex.argument.abstraction,
+.dark .boxExercise .left.extended-redex,
+.dark .boxExercise .right.extended-redex {
   border: none;
   background-color: black;
   padding: 0;
