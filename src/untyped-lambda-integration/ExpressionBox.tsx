@@ -29,6 +29,7 @@ export interface EvaluationProperties {
   state : UntypedLambdaExpressionState
   isActive : boolean
   isFocused : boolean
+  darkmode : boolean
 
   setBoxState (state : UntypedLambdaExpressionState) : void
   addBox (box : UntypedLambdaState) : void
@@ -50,7 +51,7 @@ export default class ExpressionBox extends PureComponent<EvaluationProperties> {
   }
 
   render () : JSX.Element {
-    const { state, isActive, addBox } : EvaluationProperties = this.props
+    const { state, isActive, addBox, darkmode } : EvaluationProperties = this.props
     const {
       minimized,
       history,
@@ -90,6 +91,7 @@ export default class ExpressionBox extends PureComponent<EvaluationProperties> {
         editor={ editor }
         isNormalForm={ isNormalForm }
         shouldShowDebugControls={ isActive }
+        darkmode={ darkmode }
 
         createBoxFrom={ this.createBoxFrom }
         setBoxState={ this.props.setBoxState }

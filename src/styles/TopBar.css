@@ -102,6 +102,10 @@
   color: black;
 }
 
+.dark .export:link {
+  color: white;
+}
+
 .export:active {
   color: black;
 }

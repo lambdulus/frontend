@@ -15,6 +15,7 @@ interface EmptyExpressionProps {
     content : string
     syntaxError : Error | null
   }
+  darkmode : boolean
 
   onContent (content : string) : void
   onDebug () : void
@@ -24,7 +25,7 @@ interface EmptyExpressionProps {
 
 
 export default function EmptyExpression(props : EmptyExpressionProps) : JSX.Element{
-  const { className, isActive, editor, isMinimized /*, state  */ } = props
+  const { className, isActive, editor, isMinimized, darkmode /*, state  */ } = props
   const {
     placeholder,
     content,
@@ -54,6 +55,7 @@ export default function EmptyExpression(props : EmptyExpressionProps) : JSX.Elem
                 syntaxError={ syntaxError } // data
                 submitOnEnter={ false } // data
                 shouldReplaceLambda={ true }
+                darkmode={ darkmode }
 
                 onContent={ props.onContent } // fn
                 onEnter={ () => void 0 } // fn
