@@ -1,7 +1,7 @@
-import {  CODE_NAME as UNTYPED_CODE_NAME, decodeUntypedLambdaState, UNTYPED_LAMBDA_INTEGRATION_STATE } from './untyped-lambda-integration/AppTypes'
+import { CODE_NAME as UNTYPED_CODE_NAME, decodeUntypedLambdaState } from './untyped-lambda-integration/AppTypes'
 import { defaultSettings as UntypedLambdaDefaultSettings } from './untyped-lambda-integration/AppTypes'
 
-import { BoxType, Screen, BoxesWhitelist, AppState, GlobalSettings, NotebookState, BoxState } from "./Types"
+import { BoxType, Screen, AppState, GlobalSettings, NotebookState, BoxState } from "./Types"
 import { UntypedLambdaState } from './untyped-lambda-integration/Types'
 
 
@@ -9,15 +9,6 @@ export const CLEAR_WORKSPACE_CONFIRMATION : string =
 `This will delete this whole Notebook from your browser's memory.
 
                                           Are you sure?`
-
-// TODO: when building `Exam Mode` simply leave only non-evaluative BoxTypes
-export const ALL_BOX_TYPES : Array<BoxType> = [ BoxType.UNTYPED_LAMBDA, BoxType.LISP, BoxType.MARKDOWN ]
-
-export const ANY_BOX = -1
-
-export const NO_BOX = -2
-
-export const DEFAULT_WHITELIST : BoxesWhitelist = [ BoxType.UNTYPED_LAMBDA, BoxType.MARKDOWN ]
 
 
 export function mapBoxTypeToStr (type : BoxType) : string {
@@ -36,11 +27,7 @@ export const InitNotebookState : NotebookState = {
   boxList : [],
   activeBoxIndex : NaN,
   focusedBoxIndex : undefined,
-  allowedBoxes : DEFAULT_WHITELIST,
-  settings : getDefaultSettings(DEFAULT_WHITELIST),
-  integrationStates : {
-    'UNTYPED_LAMBDA' : UNTYPED_LAMBDA_INTEGRATION_STATE, // TODO: FIX THIS!!!
-  },
+  settings : { [UNTYPED_CODE_NAME] : UntypedLambdaDefaultSettings, },
 
   locked : false,
   menuOpen : false,
@@ -55,38 +42,12 @@ export const EmptyAppState : AppState = {
   notebookList : [ InitNotebookState ],
   currentNotebook : 0,
   currentScreen : Screen.MAIN,
+  darkmode : false
 }
 
 
 export function updateSettingsInStorage (settings : GlobalSettings) : void {
   window.localStorage.setItem('global-settings', JSON.stringify(settings))
-}
-
-export function getDefaultSettings (whitelist : BoxesWhitelist) : GlobalSettings {
-  let defaultSettings = {}
-
-  if (whitelist === NO_BOX) {
-    whitelist = []
-  }
-  else if (whitelist === ANY_BOX) {
-    whitelist = ALL_BOX_TYPES
-  }
-
-  for (const type of whitelist) {
-    switch (type) {
-      case BoxType.UNTYPED_LAMBDA:
-        defaultSettings = {
-          ...defaultSettings,
-          [UNTYPED_CODE_NAME] : UntypedLambdaDefaultSettings,
-        }
-        break;
-    
-      default:
-        break;
-    }
-  }
-
-  return defaultSettings
 }
 
 export function loadSettingsFromStorage () : GlobalSettings {
@@ -181,23 +142,5 @@ export function decodeNotebook (notebook : NotebookState) : NotebookState | neve
   return {
     ...notebook,
     boxList,
-  }
-}
-
-// TODO: this should be refactored
-export function initIntegrationStates (appState : AppState) {
-  const { currentNotebook, notebookList } : AppState = appState
-  const notebook = notebookList[currentNotebook]
-
-  for (const [boxType, value] of Object.entries(notebook.integrationStates)) {
-    switch (boxType) {
-      case BoxType.UNTYPED_LAMBDA: {
-        value.macrotable = UNTYPED_LAMBDA_INTEGRATION_STATE.macrotable  // TODO: this is very informed - should be done by specific integration - leaving just for now
-        return
-      }
-    
-      default:
-        break;
-    }
   }
 }

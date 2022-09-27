@@ -4,7 +4,7 @@ import 'github-markdown-css/github-markdown-light.css'
 import guide from '../misc/UserGuide'
 import ReactMarkdown from'react-markdown'
 
-export default function Help (props : {}) : JSX.Element {
+export default function Help (props : { darkmode : boolean }) : JSX.Element {
   (window as any).guide = guide
   return (
   <div className='helpSpace'>

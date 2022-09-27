@@ -1,7 +1,7 @@
- import React, { PureComponent, ChangeEvent } from 'react'
+ import React, { PureComponent } from 'react'
 
 import Step from './Step'
-import { UntypedLambdaState, Breakpoint, StepRecord, UntypedLambdaExpressionState, EvaluationStrategy } from './Types'
+import { UntypedLambdaState, Breakpoint, StepRecord, UntypedLambdaExpressionState } from './Types'
 import Editor from '../components/Editor'
 import { mapLeftFromTo } from '../misc'
 import DebugControls from '../components/DebugControls'
@@ -16,11 +16,11 @@ interface EvaluatorProps {
   editor : {
     placeholder : string
     content : string
-    caretPosition : number
     syntaxError : Error | null
   }
   isNormalForm : boolean
   isExercise : boolean
+  darkmode : boolean
 
   createBoxFrom (stepRecord : StepRecord) : UntypedLambdaState
   setBoxState (state : UntypedLambdaExpressionState) : void
@@ -39,9 +39,9 @@ export default class Expression extends PureComponent<EvaluatorProps> {
   }
 
   render () : JSX.Element {
-    const { className, state, editor, shouldShowDebugControls, isExercise, setBoxState } = this.props
+    const { className, state, editor, shouldShowDebugControls, isExercise, darkmode } = this.props
 
-    const { isRunning, strategy, SDE, macrotable } : UntypedLambdaExpressionState = state
+    const { isRunning, SDE, macrotable } : UntypedLambdaExpressionState = state
 
     const {
       placeholder,
@@ -52,7 +52,7 @@ export default class Expression extends PureComponent<EvaluatorProps> {
     // this is just a dirty-quick implementation to get an unique identifier
     const array = new Uint32Array(2)
     window.crypto.getRandomValues(array)
-    const uniq : string = `${Date.now()}-${Math.random()}-${array[0]}-${array[1]}`
+    // const uniq : string = `${Date.now()}-${Math.random()}-${array[0]}-${array[1]}`
 
 
 
@@ -115,6 +115,7 @@ export default class Expression extends PureComponent<EvaluatorProps> {
                 content={ content } // data
                 syntaxError={ syntaxError } // data
                 submitOnEnter={ true } // data
+                darkmode={ darkmode }
 
                 onContent={ this.props.onContent } // fn
                 onEnter={ this.props.onEnter } // fn // tohle asi bude potreba
@@ -125,27 +126,8 @@ export default class Expression extends PureComponent<EvaluatorProps> {
               />
 
 
-              <div className='untyped-lambda--pick-strategy untyped-lambda-settings-strategies inlineblock'>
+              {/* <div className='untyped-lambda--pick-strategy untyped-lambda-settings-strategies inlineblock'>
                 <p className='stratsLabel inlineblock'>Strategy:</p>
-                
-                {/* <span className='untyped-lambda-settings--strategy-radio-wrapper'>
-                  <input
-                    id={ `untyped-lambda-settings--simplified-strategy-${uniq}` }
-                    type='radio'
-                    name={ `untyped-lambda-settings--strategy-${uniq}` }
-                    // style="fill"
-                    checked={
-                      strategy === EvaluationStrategy.ABSTRACTION
-                    }
-                    
-                    onChange={
-                      () => setBoxState({ ...state, strategy : EvaluationStrategy.ABSTRACTION })
-                    }
-                  />
-                  <label className='untyped-lambda-settings-label' htmlFor={ `untyped-lambda-settings--simplified-strategy-${uniq}` }>
-                    Simplified
-                  </label>
-                </span> */}
 
                 <span className='untyped-lambda-settings--strategy-radio-wrapper'>
                   <input
@@ -184,10 +166,10 @@ export default class Expression extends PureComponent<EvaluatorProps> {
                     Applicative
                   </label>
                 </span>
-              </div>
+              </div> */}
 
               {/* Here add SDE switch/checkbox */}
-              {
+              {/* {
                   <span
                     className='untyped-lambda-settings-SDE-'
                     title='Simplified Evaluation'>
@@ -207,7 +189,7 @@ export default class Expression extends PureComponent<EvaluatorProps> {
                       Simplified Evaluation
                     </label>
                   </span>
-                }
+                } */}
 
                 {
                   // <span
@@ -244,27 +226,8 @@ export default class Expression extends PureComponent<EvaluatorProps> {
                   />
                 </span>
                 
-                <div className='untyped-lambda--pick-strategy untyped-lambda-settings-strategies inlineblock'>
+                {/* <div className='untyped-lambda--pick-strategy untyped-lambda-settings-strategies inlineblock'>
                   <p className='stratsLabel inlineblock'>Strategy:</p>
-                  
-                  {/* <span className='untyped-lambda-settings--strategy-radio-wrapper'>
-                    <input
-                      id={ `untyped-lambda-settings--simplified-strategy-${uniq}` }
-                      type='radio'
-                      name={ `untyped-lambda-settings--strategy-${uniq}` }
-                      // style="fill"
-                      checked={
-                        strategy === EvaluationStrategy.ABSTRACTION
-                      }
-                      
-                      onChange={
-                        () => setBoxState({ ...state, strategy : EvaluationStrategy.ABSTRACTION })
-                      }
-                    />
-                    <label className='untyped-lambda-settings-label' htmlFor={ `untyped-lambda-settings--simplified-strategy-${uniq}` }>
-                      Simplified
-                    </label>
-                  </span> */}
 
                   <span className='untyped-lambda-settings--strategy-radio-wrapper'>
                     <input
@@ -303,10 +266,10 @@ export default class Expression extends PureComponent<EvaluatorProps> {
                       Applicative
                     </label>
                   </span>
-                </div>
+                </div> */}
 
                 {/* Here add SDE switch/checkbox */}
-                {
+                {/* {
                   <span
                     className='untyped-lambda-settings-SDE-'
                     title='Simplified Evaluation'>
@@ -326,7 +289,7 @@ export default class Expression extends PureComponent<EvaluatorProps> {
                       Simplified Evaluation
                     </label>
                   </span>
-                }
+                } */}
 
                 {/* <span
                   className='untyped-lambda-settings-SLI-'

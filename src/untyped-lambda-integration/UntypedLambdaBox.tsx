@@ -3,22 +3,20 @@ import React, { PureComponent } from 'react'
 import { BoxType } from '../Types'
 import { UntypedLambdaState, UntypedLambdaType, UntypedLambdaSettings, PromptPlaceholder, StepMessage, StepValidity } from './Types'
 import ExpressionBox from './ExpressionBox'
-// import Macro from './Macro'
 import MacroList from './MacroList'
-import { UNTYPED_LAMBDA_INTEGRATION_STATE, GLOBAL_SETTINGS_ENABLER, strategyToEvaluator, findSimplifiedReduction, toMacroMap } from './AppTypes'
+import { GLOBAL_SETTINGS_ENABLER, strategyToEvaluator, findSimplifiedReduction, toMacroMap } from './AppTypes'
 import ExerciseBox from './ExerciseBox'
 import Settings from './Settings'
 import EmptyExpression from './EmptyExpression'
 import { reportEvent } from '../misc'
 import { None, Evaluator, Token, tokenize, parse, AST, OptimizeEvaluator, MacroMap } from '@lambdulus/core'
 
-// import macroctx from './MacroContext'
-
 
 interface Props {
   state : UntypedLambdaState
   isActive : boolean
   isFocused : boolean
+  darkmode : boolean
 
   setBoxState (state : UntypedLambdaState) : void
   addBox (box : UntypedLambdaState) : void
@@ -26,7 +24,7 @@ interface Props {
 
 export default class UntypedLambdaBox extends PureComponent<Props> {
   render () {
-    const { state, isActive, isFocused, setBoxState, addBox } : Props = this.props
+    const { state, isActive, isFocused, setBoxState, addBox, darkmode } : Props = this.props
     const { settingsOpen, subtype, macrolistOpen, SLI, expandStandalones, strategy, SDE, editor, minimized } : UntypedLambdaState = state
 
 
@@ -50,6 +48,7 @@ export default class UntypedLambdaBox extends PureComponent<Props> {
                   }
                 })
               }
+              darkmode={ darkmode }
               onDebug={ () => this.onSubmitExpression(UntypedLambdaType.ORDINARY) }
               onExercise={ () => this.onSubmitExpression(UntypedLambdaType.EXERCISE) }
               setBoxState={ setBoxState }
@@ -62,9 +61,9 @@ export default class UntypedLambdaBox extends PureComponent<Props> {
               state={ state }
               isActive={ isActive }
               isFocused={ isFocused }
-              macroContext={ UNTYPED_LAMBDA_INTEGRATION_STATE }
               setBoxState={ setBoxState }
               addBox={ addBox }
+              darkmode={ darkmode }
             />
           )
         
@@ -74,9 +73,9 @@ export default class UntypedLambdaBox extends PureComponent<Props> {
               state={ state }
               isActive={ isActive }
               isFocused={ isFocused }
-              macroContext={ UNTYPED_LAMBDA_INTEGRATION_STATE }
               setBoxState={ setBoxState }
               addBox={ addBox }
+              darkmode={ darkmode }
             />
           )
       }
@@ -102,7 +101,7 @@ export default class UntypedLambdaBox extends PureComponent<Props> {
         {
           settingsOpen ?
             <div className='box-settings'>
-              Box Local Settings:
+              Settings:
               <Settings
                 settings={ { type : BoxType.UNTYPED_LAMBDA, SLI, expandStandalones, strategy, SDE } }
                 settingsEnabled={ GLOBAL_SETTINGS_ENABLER }
@@ -122,7 +121,6 @@ export default class UntypedLambdaBox extends PureComponent<Props> {
           macrolistOpen ?
             <div className='untyped-lambda-box--macrolist'>
               <MacroList macroTable={ state.macrotable }  />
-              {/* // TODO: this will just get this? */}
             </div>
           :
             null
@@ -180,6 +178,7 @@ export default class UntypedLambdaBox extends PureComponent<Props> {
 
       setBoxState({
         ...state,
+        settingsOpen : false,
         ast,
         subtype,
         expression : content,
@@ -194,7 +193,6 @@ export default class UntypedLambdaBox extends PureComponent<Props> {
         } ],
         editor : {
           content : content,
-          caretPosition : 0,
           placeholder : PromptPlaceholder.EVAL_MODE,
           syntaxError : null,
         }

@@ -1,13 +1,12 @@
 import React, { Component } from 'react'
 
-import { BoxesWhitelist, BoxState, GlobalSettings } from '../Types'
+import { BoxState, GlobalSettings } from '../Types'
 
 import "../styles/CreateBox.css"
 import PickBoxTypeModal from './PickBoxTypeModal'
 
 interface Props {
   addNew : (box : BoxState) => void
-  whiteList : BoxesWhitelist
   settings : GlobalSettings
 }
 
@@ -46,7 +45,6 @@ export default class CreateBox extends Component <Props, State> {
             addNew(box)
             this.setState({ modalOpen : false })
           } }
-          whiteList={ this.props.whiteList }
           settings={ this.props.settings }
         />
       )
