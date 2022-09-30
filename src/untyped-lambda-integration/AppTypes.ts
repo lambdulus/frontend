@@ -180,7 +180,11 @@ export function createNewUntypedLambdaBoxFromSource (source : string, defaultSet
 function createNewUntypedLambdaBoxFromSource2 (source : string, defaultSettings : UntypedLambdaSettings, subtype : UntypedLambdaType, macrotable : MacroTable) : UntypedLambdaExpressionState {
   const { SDE, SLI, strategy } = defaultSettings
 
-  const expression = [Object.entries(macrotable).map(([name, def]) => `${name} := ${def}`).join(';\n') , source].join(';\n')
+  const macros : string = Object.entries(macrotable).map(([name, def]) => `${name} := ${def}`).join(';\n')
+
+  const expression = `${macros}${macros.length ? ';\n' : ''}${source}`
+  console.log({macros})
+  console.log({expression})
 
   const macromap : MacroMap = macrotable // toMacroMap(definitions, SLI)
   
