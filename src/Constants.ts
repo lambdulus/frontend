@@ -6,7 +6,7 @@ import { UntypedLambdaState } from './untyped-lambda-integration/Types'
 
 
 export const CLEAR_WORKSPACE_CONFIRMATION : string =
-`This will delete this whole Notebook from your browser's memory.
+`This will erase all of your boxes and reset all of your settings.
 
                                           Are you sure?`
 
@@ -33,7 +33,6 @@ export const InitNotebookState : NotebookState = {
   menuOpen : false,
 
   __key : Date.now().toString(),
-  name : "Default Ntbk",
   editingName : false,
 }
 

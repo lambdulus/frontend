@@ -55,7 +55,6 @@ export interface NotebookState {
   settings : GlobalSettings // TODO: refactor to use the Dictionary
 
   __key : string
-  name : string
   editingName : boolean
 }
 

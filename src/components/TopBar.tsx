@@ -19,8 +19,6 @@ export default function TopBar (props : Props) : JSX.Element {
   const { currentNotebook, notebookList, currentScreen, darkmode } : AppState = state
   const ntbk : NotebookState = notebookList[currentNotebook]
 
-  const { name } : NotebookState = ntbk
-
   // const dehydrated : object = dehydrate(state)
 
   const serialized : string = JSON.stringify(ntbk)
@@ -28,12 +26,6 @@ export default function TopBar (props : Props) : JSX.Element {
 
   return (
     <div className='top-bar'>
-      <div className='cursor-pointer top-bar--notebook-name-container' onClick={ () => onScreenChange(Screen.MAIN) } >
-        <span className='top-bar--notebook-name'>
-          { name }
-        </span>
-      </div>
-
       <span className='top-bar--item-container'>
 
         {/* SETTINGS */}
@@ -76,8 +68,6 @@ export default function TopBar (props : Props) : JSX.Element {
           onClick={ () => setTimeout(() => {
             // window.URL.revokeObjectURL(link)
             // TODO: I shouldn't NOT do this - but if I revoke I can't click it again without re-render
-
-            // reportEvent('Export notebook', `Notebook: ${serialized}`, '') // TODO: report event
           }, 10) }
         >
           <span
@@ -135,7 +125,6 @@ function onFiles (event : ChangeEvent<HTMLInputElement>, onImport : (notebook : 
     onImport(decodeNotebook(notebook))
 
     // onImport(hydrate(state))
-    // reportEvent('Import notebook', `Notebook named ${ file.name }`, '')
   }
 
   reader.readAsText(file) 

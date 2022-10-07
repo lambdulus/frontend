@@ -243,7 +243,6 @@ function createNewNotebookWithBox (name : string = 'Notebook from Link', box : B
     menuOpen : false,
     
     __key : Date.now().toString(),
-    name,
     editingName : false,
   }
 }
