@@ -17,7 +17,6 @@ import Help from './screens/Help'
 import SettingsScreen from './screens/Settings'
 import { Screen, AppState, NotebookState, GlobalSettings, BoxType, BoxState } from './Types'
 import { createNewUntypedLambdaBoxFromSource, defaultSettings } from './untyped-lambda-integration/AppTypes'
-import NotebookList from './screens/NotebookList'
 import { UntypedLambdaState, UntypedLambdaSettings, EvaluationStrategy, UntypedLambdaType } from './untyped-lambda-integration/Types'
 import { MacroTable } from '@lambdulus/core'
 
@@ -45,18 +44,9 @@ export default class App extends Component<Props, AppState> {
 
     this.setScreen = this.setScreen.bind(this)
     this.updateNotebook = this.updateNotebook.bind(this)
-    this.changeNotebook = this.changeNotebook.bind(this)
-    this.addNotebook = this.addNotebook.bind(this)
-    this.removeNotebook = this.removeNotebook.bind(this)
-    this.editNotebookName = this.editNotebookName.bind(this)
-    this.changeNotebookName = this.changeNotebookName.bind(this)
-    this.stopEditingNotebook = this.stopEditingNotebook.bind(this)
     this.updateSettings = this.updateSettings.bind(this)
     this.importNotebook = this.importNotebook.bind(this)
-    // this.importWorkspace = this.importWorkspace.bind(this)
     this.clearWorkspace = this.clearWorkspace.bind(this)
-    this.selectNotebook = this.selectNotebook.bind(this)
-    this.updateNthNotebook = this.updateNthNotebook.bind(this)
     this.toggleDarkMode = this.toggleDarkMode.bind(this)
 
     this.createNotebookFromURL = this.createNotebookFromURL.bind(this)
@@ -172,16 +162,6 @@ export default class App extends Component<Props, AppState> {
             case Screen.MAIN:
               return <Notebook state={ state } updateNotebook={ this.updateNotebook } settings={ settings } darkmode={ darkmode } />
 
-            case Screen.NOTEBOOKS:
-              return  <NotebookList
-                      state={ this.state }
-                      onSelectNotebook={ this.selectNotebook }
-                      onRemoveNotebook={ this.removeNotebook }
-                      onUpdateNotebook={ this.updateNthNotebook }
-                      onAddNotebook={ this.addNotebook }
-                      darkmode={ darkmode }
-                    />
-
             case Screen.HELP:
               return <Help darkmode={ darkmode } />
 
@@ -193,26 +173,6 @@ export default class App extends Component<Props, AppState> {
     )
   }
 
-  // NOTE: selectNotebook is ALMOST OK
-  selectNotebook (index : number) : void {
-    this.setState({
-      currentScreen : Screen.MAIN, // TODO: why am I setting the Screen too?
-      currentNotebook : index,
-    })
-
-    updateAppStateToStorage({
-      ...this.state,
-      currentScreen : Screen.MAIN, // TODO: why am I setting the Screen too?
-      currentNotebook : index,
-    })
-
-    // CHANGED:
-    // window.history.pushState(null, '', '/')
-    // NOTE: I think this is from the time, when prompt content was also propagated to the URL bar
-    // so it shouldn't be needed anymore
-  }
-
-  // NOTE: setScereen is OK
   setScreen (screen : Screen) : void {
     this.setState({ currentScreen : screen })
   }
@@ -231,34 +191,6 @@ export default class App extends Component<Props, AppState> {
     // NOTE: Carefuly around here - I kinda rely on the mutation of this.state.notebookList
   }
 
-  updateNthNotebook (notebook : NotebookState, index : number) : void {
-    const { notebookList } = this.state
-    notebookList[index] = notebook
-
-    this.setState({ notebookList })
-
-    updateNotebookStateToStorage(notebook, index)
-  }
-
-  changeNotebook (index : number) : void {
-    this.setState({ currentNotebook : index })
-    updateAppStateToStorage({ ...this.state, currentNotebook : index })
-  }
-
-  addNotebook (name : string = '') : void {
-    this.setState({
-      notebookList : [ ...this.state.notebookList, createNewNotebook(name) ],
-      currentNotebook : this.state.currentNotebook + 1
-    })
-
-    updateAppStateToStorage({
-      ...this.state,
-      currentScreen : Screen.MAIN,
-      notebookList : [ ...this.state.notebookList, createNewNotebook(name) ],
-      currentNotebook : this.state.currentNotebook + 1
-    })
-  }
-
   importNotebook (notebook : NotebookState) : void {
     this.setState({
       notebookList : [ ...this.state.notebookList, notebook ],
@@ -272,70 +204,6 @@ export default class App extends Component<Props, AppState> {
     })
   }
 
-  removeNotebook (index : number) : void {
-    // if (index === 0) return
-
-    const { notebookList, currentNotebook } = this.state
-    
-    const nearestValidIndex = (i : number) => {
-      if (i < currentNotebook) return currentNotebook - 1
-      if (i > currentNotebook) return currentNotebook
-      if (notebookList.length === 1) return NaN
-      if (i === 0) return i
-      return i - 1
-    }
-    
-    const newIndex : number = nearestValidIndex(index)
-    
-    if (Number.isNaN(newIndex)) return
-
-    notebookList.splice(index, 1)
-
-    this.setState({ notebookList, currentNotebook : newIndex })
-    updateAppStateToStorage({
-      ...this.state,
-      notebookList,
-      currentNotebook : newIndex,
-    })
-  }
-
-  editNotebookName (index : number) : void {
-    const { notebookList } = this.state
-
-    const notebook : NotebookState = notebookList[index]
-
-    notebookList[index] = { ...notebook, editingName : true, persistent : true }
-
-    this.setState({ notebookList })
-    updateNotebookStateToStorage(notebook, index)
-    // updateAppStateToStorage({ ...this.state })
-  }
-
-  changeNotebookName (index : number, name : string) : void {
-    const { notebookList } = this.state
-
-    const notebook : NotebookState = notebookList[index]
-
-    notebookList[index] = { ...notebook, name }
-
-    this.setState({ notebookList })
-    updateNotebookStateToStorage(notebook, index)
-
-    // updateAppStateToStorage({ ...this.state })
-  }
-
-  stopEditingNotebook (index : number) : void {
-    const { notebookList } = this.state
-
-    const notebook : NotebookState = notebookList[index]
-
-    notebookList[index] = { ...notebook, editingName : false }
-
-    this.setState({ notebookList })
-    updateNotebookStateToStorage(notebook, index)
-    // updateAppStateToStorage({ ...this.state })
-  }
-
   updateSettings (newSettings : GlobalSettings) : void {
     const { currentNotebook, notebookList } = this.state
     notebookList[currentNotebook].settings = newSettings
@@ -344,24 +212,14 @@ export default class App extends Component<Props, AppState> {
     updateSettingsInStorage(newSettings)
   }
 
-  // importWorkspace (state : AppState) : void {
-  //   this.setState(state)
-  //   updateAppStateToStorage(state)
-  // }
-
   clearWorkspace () : void {
     if (window.confirm(CLEAR_WORKSPACE_CONFIRMATION)) {
 
-      // localStorage.removeItem('AppState')
       const { currentNotebook, notebookList } = this.state
       notebookList[currentNotebook] = InitNotebookState
 
       this.setState({ notebookList })
       updateNotebookStateToStorage(InitNotebookState, currentNotebook)
-
-      // updateAppStateToStorage(this.state)
-
-      // this.setState(loadAppStateFromStorage())
     }
   }
 
@@ -374,42 +232,17 @@ export default class App extends Component<Props, AppState> {
 
 }
 
-function createNewNotebook (name : string = 'Anonymous Notebook') : NotebookState {
-  return {
-    boxList : [],
-    activeBoxIndex : NaN,
-    focusedBoxIndex : undefined,
-    settings : loadSettingsFromStorage(),
-    // integrationStates : {
-    //   'UNTYPED_LAMBDA' : UNTYPED_LAMBDA_INTEGRATION_STATE,
-    // },
-
-    locked : false,
-    menuOpen : false,
-    
-    __key : Date.now().toString(),
-    name,
-    editingName : false,
-    persistent : true, // TODO: you can change this if explicit save/rename is required for persistency
-  }
-}
-
 function createNewNotebookWithBox (name : string = 'Notebook from Link', box : BoxState) : NotebookState {
   return {
     boxList : [ box ],
     activeBoxIndex : 0,
     focusedBoxIndex : 0,
     settings : loadSettingsFromStorage(),
-    // integrationStates : {
-    //   'UNTYPED_LAMBDA' : UNTYPED_LAMBDA_INTEGRATION_STATE,
-    // },
 
     locked : false,
     menuOpen : false,
     
     __key : Date.now().toString(),
-    name,
     editingName : false,
-    persistent : true, // TODO: you can change this if explicit save/rename is required for persistency
   }
 }
