@@ -49,12 +49,6 @@ export default class Notebook extends PureComponent<Props> {
             (box : BoxState, i : number) =>
             <li className="LI" key={ box.__key }>
 
-              {/* <CreateBox
-                addNew={ (box : BoxState) => this.insertBefore(i, box) }
-                whiteList={ allowedBoxes }
-                settings={ settings }
-              /> */}
-
               <BoxContainer
                 box={ box}
                 isActiveBox={ activeBoxIndex === i}
