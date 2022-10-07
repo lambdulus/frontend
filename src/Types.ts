@@ -57,7 +57,6 @@ export interface NotebookState {
   __key : string
   name : string
   editingName : boolean
-  persistent : boolean
 }
 
 export interface AppState {

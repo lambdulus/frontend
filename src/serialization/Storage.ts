@@ -64,10 +64,6 @@ export function updateAppStateToStorage (state : AppState) : void {
 }
 
 export function updateNotebookStateToStorage (notebook : NotebookState, index : number) {
-  if ( ! notebook.persistent) {
-    return
-  }
-
   const state : AppState = loadAppStateFromStorage()
 
   state.notebookList[index] = notebook
