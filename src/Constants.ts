@@ -29,16 +29,13 @@ export const InitNotebookState : NotebookState = {
   focusedBoxIndex : undefined,
   settings : { [UNTYPED_CODE_NAME] : UntypedLambdaDefaultSettings, },
 
-  locked : false,
   menuOpen : false,
 
   __key : Date.now().toString(),
-  editingName : false,
 }
 
 export const EmptyAppState : AppState = {
-  notebookList : [ InitNotebookState ],
-  currentNotebook : 0,
+  notebook : InitNotebookState,
   currentScreen : Screen.MAIN,
   darkmode : false
 }
@@ -96,10 +93,10 @@ export function updateAppStateToStorage (state : AppState) : void {
   localStorage.setItem('AppState', JSON.stringify(state))
 }
 
-export function updateNotebookStateToStorage (notebook : NotebookState, index : number) {
+export function updateNotebookStateToStorage (notebook : NotebookState) {
   const state : AppState = loadAppStateFromStorage()
 
-  state.notebookList[index] = notebook
+  state.notebook = notebook
 
   updateAppStateToStorage(state)
 }
@@ -111,11 +108,11 @@ export function updateNotebookStateToStorage (notebook : NotebookState, index : 
  * @param state : Deserialized form of AppState
  */
 export function decode (state : AppState) : AppState | never {
-  const notebookList : Array<NotebookState> = state.notebookList.map(decodeNotebook)
+  const notebook : NotebookState = decodeNotebook(state.notebook)
   
   return {
     ...state,
-    notebookList,
+    notebook,
   }
 }
 
