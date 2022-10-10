@@ -12,7 +12,6 @@ export interface NoteProperties {
   state : NoteState
   isActive : boolean
   isFocused : boolean
-  darkmode : boolean
 
   setBoxState (state : NoteState) : void
 }
@@ -24,7 +23,6 @@ export default function Note (props : NoteProperties) : JSX.Element {
       editor : { placeholder, content, syntaxError },
       isEditing,
     },
-    darkmode,
     isActive,
     setBoxState,
   } = props
@@ -51,7 +49,6 @@ export default function Note (props : NoteProperties) : JSX.Element {
           syntaxError={ syntaxError } // data
           submitOnEnter={ false } // data
           shouldReplaceLambda={ false }
-          darkmode={ darkmode }
           
           onContent={ onContent } // fn
           onEnter={ () => void 0 } // fn

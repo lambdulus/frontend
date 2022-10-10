@@ -12,7 +12,6 @@ interface Props {
   isActiveBox : boolean
   isFocusedBox : boolean
   box : BoxState
-  darkmode : boolean
 
   makeActive : () => void
   onBlur : () => void
@@ -47,7 +46,6 @@ export class BoxContainer extends Component<Props, State> {
       addBoxBefore,
       addBoxAfter,
       removeBox,
-      darkmode
     } : Props = this.props
   
     const { modalOpen } = this.state
@@ -81,7 +79,6 @@ export class BoxContainer extends Component<Props, State> {
             isFocused={ isFocusedBox }
             updateBoxState={ updateBoxState }
             addBoxAfter={ addBoxAfter }
-            darkmode={ darkmode }
           />
         </div>
 
