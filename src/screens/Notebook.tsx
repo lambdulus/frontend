@@ -5,14 +5,13 @@
 
 import React, { PureComponent } from 'react'
 import CreateBox from '../components/CreateBox'
-import { BoxType, NotebookState, GlobalSettings, BoxState } from '../Types'
+import { BoxType, NotebookState, BoxState } from '../Types'
 
 import { onMarkDownBlur, NoteState, onMarkDownActive } from '../markdown-integration/AppTypes'
 import { BoxContainer } from '../components/BoxContainer'
 
 interface Props {
   state : NotebookState
-  settings : GlobalSettings
 
   updateNotebook (notebook : Partial<NotebookState>) : void
 }
@@ -37,7 +36,7 @@ export default class Notebook extends PureComponent<Props> {
   // }
 
   render () {
-    const { state, settings } = this.props
+    const { state } = this.props
     const { activeBoxIndex, focusedBoxIndex, boxList } = state
 
     return (
@@ -58,7 +57,6 @@ export default class Notebook extends PureComponent<Props> {
                 removeBox={ () => this.removeBox(i) }
                 updateBoxState={ (box : BoxState) => this.updateBoxState(i, box) }
                 onBlur={ () => this.onBlur(i) }
-                settings={ settings }
               />
             </li>
           ) }
@@ -68,7 +66,6 @@ export default class Notebook extends PureComponent<Props> {
               <div className='top-level--create-box'>
                 <CreateBox
                   addNew={ (box : BoxState) => this.insertBefore(state.boxList.length, box) }
-                  settings={ settings }
                 />
               </div>
             :

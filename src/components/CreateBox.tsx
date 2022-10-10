@@ -1,13 +1,12 @@
 import React, { Component } from 'react'
 
-import { BoxState, GlobalSettings } from '../Types'
+import { BoxState } from '../Types'
 
 import "../styles/CreateBox.css"
 import PickBoxTypeModal from './PickBoxTypeModal'
 
 interface Props {
   addNew : (box : BoxState) => void
-  settings : GlobalSettings
 }
 
 interface State {
@@ -45,7 +44,6 @@ export default class CreateBox extends Component <Props, State> {
             addNew(box)
             this.setState({ modalOpen : false })
           } }
-          settings={ this.props.settings }
         />
       )
     }

@@ -20,6 +20,7 @@ import { createNewUntypedLambdaBoxFromSource, defaultSettings } from './untyped-
 import { UntypedLambdaState, UntypedLambdaSettings, EvaluationStrategy, UntypedLambdaType } from './untyped-lambda-integration/Types'
 import { MacroTable } from '@lambdulus/core'
 import { Theme, ThemeContext } from './contexts/Theme'
+import { SettingsContext } from './contexts/Settings'
 
 
 export default class App extends Component<{}, AppState> {
@@ -129,38 +130,41 @@ export default class App extends Component<{}, AppState> {
 
     return (
       <ThemeContext.Provider value={ theme }>
-        <div id='app' className={ darkmode ? 'dark' : 'light' }>
-          <div id="bad-screen-message">
-            Lambdulus only runs on screens at least 900 pixels wide.
+        <SettingsContext.Provider value={ settings }>
+
+          <div id='app' className={ darkmode ? 'dark' : 'light' }>
+            <div id="bad-screen-message">
+              Lambdulus only runs on screens at least 900 pixels wide.
+            </div>
+            <TopBar
+              state={ this.state }
+              onScreenChange={ this.setScreen }
+              onImport={ this.importNotebook }
+              onClearWorkspace={ this.clearWorkspace }
+              onDarkModeChange={ this.toggleTheme }
+            />
+
+
+            <MenuBar
+              state={ this.state }
+              onScreenChange={ this.setScreen }
+            />
+
+            { (() => {
+              switch (currentScreen) {
+                case Screen.MAIN:
+                  return <Notebook state={ notebook } updateNotebook={ this.updateNotebook } />
+
+                case Screen.HELP:
+                  return <Help/>
+
+                case Screen.SETTINGS:
+                  return <SettingsScreen updateSettings={ this.updateSettings } />
+              }
+            })()}
           </div>
-          <TopBar
-            state={ this.state }
-            onScreenChange={ this.setScreen }
-            onImport={ this.importNotebook }
-            onClearWorkspace={ this.clearWorkspace }
-            onDarkModeChange={ this.toggleTheme }
-          />
 
-
-          <MenuBar
-            state={ this.state }
-            onScreenChange={ this.setScreen }
-          />
-
-          { (() => {
-            switch (currentScreen) {
-              case Screen.MAIN:
-                return <Notebook state={ notebook } updateNotebook={ this.updateNotebook } settings={ settings } />
-
-              case Screen.HELP:
-                return <Help/>
-
-              case Screen.SETTINGS:
-                return <SettingsScreen settings={ settings } updateSettings={ this.updateSettings } />
-            }
-          })()}
-        </div>
-
+        </SettingsContext.Provider>
       </ThemeContext.Provider>
     )
   }
