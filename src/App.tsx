@@ -48,7 +48,6 @@ export default class App extends Component<{}, AppState> {
   }
 
   // TODO: all of this needs to be moved to more apropriate component
-  // maybe something like Notebook or similar -- this just isn't right
 
   // I don't think it should get moved to the component, standalone helper function would be OK
   // OR -> split it --> there will be very simple top level abstraction implementation
