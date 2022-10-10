@@ -104,12 +104,11 @@ export default class App extends Component<Props, AppState> {
           const macrotable : MacroTable = JSON.parse(decodeURI(macros))
 
           const box : UntypedLambdaState = createNewUntypedLambdaBoxFromSource(decodeURI(source), settings, sub, macrotable)
-          const notebook : NotebookState = createNewNotebookWithBox('Notebook from Link' , box)
+          const notebook : NotebookState = createNewNotebookWithBox(box)
 
           this.setState({
             currentScreen : Screen.MAIN,
-            notebookList : [ notebook, ...this.state.notebookList ],
-            currentNotebook : 0
+            notebook,
           })
 
           window.history.pushState(null, '', '/') // TODO: decide if remove or leave
@@ -117,8 +116,7 @@ export default class App extends Component<Props, AppState> {
           updateAppStateToStorage({
             ...this.state,
             currentScreen : Screen.MAIN,
-            notebookList : [ ...this.state.notebookList, notebook ],
-            currentNotebook : this.state.notebookList.length - 1
+            notebook,
           })
         }
         catch (ex) {
@@ -134,9 +132,8 @@ export default class App extends Component<Props, AppState> {
 
   // NOTE: render is OK
   render () {
-    const { notebookList, currentNotebook, currentScreen, darkmode } = this.state
-    const state = notebookList[currentNotebook]
-    const { settings } = state
+    const { notebook, currentScreen, darkmode } = this.state
+    const { settings } = notebook
 
     return (
       <div id='app' className={ darkmode ? 'dark' : 'light' }>
@@ -160,7 +157,7 @@ export default class App extends Component<Props, AppState> {
         { (() => {
           switch (currentScreen) {
             case Screen.MAIN:
-              return <Notebook state={ state } updateNotebook={ this.updateNotebook } settings={ settings } darkmode={ darkmode } />
+              return <Notebook state={ notebook } updateNotebook={ this.updateNotebook } settings={ settings } darkmode={ darkmode } />
 
             case Screen.HELP:
               return <Help darkmode={ darkmode } />
@@ -177,49 +174,40 @@ export default class App extends Component<Props, AppState> {
     this.setState({ currentScreen : screen })
   }
 
-  updateNotebook (notebook : Partial<NotebookState>) : void {
-    const { notebookList, currentNotebook } = this.state
+  updateNotebook (notebookPatch : Partial<NotebookState>) : void {
+    const { notebook } = this.state
+    const newNotebook = { ...notebook, ...notebookPatch }
 
-    notebookList[currentNotebook] = {
-      ...notebookList[currentNotebook],
-      ...notebook,
-    }
+    this.setState({ notebook : newNotebook })
 
-    this.setState({ notebookList })
-
-    updateNotebookStateToStorage(notebookList[currentNotebook], currentNotebook)
-    // NOTE: Carefuly around here - I kinda rely on the mutation of this.state.notebookList
+    updateNotebookStateToStorage(newNotebook)
   }
 
   importNotebook (notebook : NotebookState) : void {
     this.setState({
-      notebookList : [ ...this.state.notebookList, notebook ],
-      currentNotebook : this.state.currentNotebook + 1
+      notebook,
     })
 
     updateAppStateToStorage({
       ...this.state,
-      notebookList : [ ...this.state.notebookList, notebook ],
-      currentNotebook : this.state.currentNotebook + 1
+      notebook,
     })
   }
 
   updateSettings (newSettings : GlobalSettings) : void {
-    const { currentNotebook, notebookList } = this.state
-    notebookList[currentNotebook].settings = newSettings
+    const { notebook } = this.state
+    // notebookList[currentNotebook].settings = newSettings
 
-    this.setState({ notebookList : [...notebookList] })
+
+    this.setState({ notebook : { ...notebook, settings : newSettings} })
     updateSettingsInStorage(newSettings)
   }
 
   clearWorkspace () : void {
     if (window.confirm(CLEAR_WORKSPACE_CONFIRMATION)) {
 
-      const { currentNotebook, notebookList } = this.state
-      notebookList[currentNotebook] = InitNotebookState
-
-      this.setState({ notebookList })
-      updateNotebookStateToStorage(InitNotebookState, currentNotebook)
+      this.setState({ notebook : InitNotebookState })
+      updateNotebookStateToStorage(InitNotebookState)
     }
   }
 
@@ -232,17 +220,15 @@ export default class App extends Component<Props, AppState> {
 
 }
 
-function createNewNotebookWithBox (name : string = 'Notebook from Link', box : BoxState) : NotebookState {
+function createNewNotebookWithBox (box : BoxState) : NotebookState {
   return {
     boxList : [ box ],
     activeBoxIndex : 0,
     focusedBoxIndex : 0,
     settings : loadSettingsFromStorage(),
 
-    locked : false,
     menuOpen : false,
-    
+
     __key : Date.now().toString(),
-    editingName : false,
   }
 }
