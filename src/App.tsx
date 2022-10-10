@@ -196,7 +196,6 @@ export default class App extends Component<Props, AppState> {
 
   updateSettings (newSettings : GlobalSettings) : void {
     const { notebook } = this.state
-    // notebookList[currentNotebook].settings = newSettings
 
 
     this.setState({ notebook : { ...notebook, settings : newSettings} })

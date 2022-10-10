@@ -10,8 +10,7 @@ export enum BoxType {
 export enum Screen {
   MAIN,
   HELP,
-  SETTINGS,
-  NOTEBOOKS, // TODO: this will be the final solution to the `Multiple Notebooks` problem
+  SETTINGS
 }
 
 export interface AbstractBoxState {
