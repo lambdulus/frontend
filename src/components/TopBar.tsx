@@ -16,8 +16,7 @@ interface Props {
 
 export default function TopBar (props : Props) : JSX.Element {
   const { state, onImport, onClearWorkspace, onScreenChange, onDarkModeChange } : Props = props
-  const { currentNotebook, notebookList, currentScreen, darkmode } : AppState = state
-  const ntbk : NotebookState = notebookList[currentNotebook]
+  const { notebook : ntbk, currentScreen, darkmode } : AppState = state
 
   // const dehydrated : object = dehydrate(state)
 
