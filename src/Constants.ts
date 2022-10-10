@@ -24,11 +24,15 @@ export function mapBoxTypeToStr (type : BoxType) : string {
   }
 }
 
+export const DefaultSettings : GlobalSettings
+  = { [UNTYPED_CODE_NAME] : UntypedLambdaDefaultSettings }
+
+
 export const InitNotebookState : NotebookState = {
   boxList : [],
   activeBoxIndex : NaN,
   focusedBoxIndex : undefined,
-  settings : { [UNTYPED_CODE_NAME] : UntypedLambdaDefaultSettings, },
+  settings : DefaultSettings,
 
   menuOpen : false,
 
