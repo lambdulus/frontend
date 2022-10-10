@@ -49,18 +49,15 @@ export interface NotebookState {
   activeBoxIndex : number
   focusedBoxIndex : number | undefined
 
-  locked : boolean
   menuOpen : boolean
 
   settings : GlobalSettings // TODO: refactor to use the Dictionary
 
   __key : string
-  editingName : boolean
 }
 
 export interface AppState {
-  notebookList : Array<NotebookState>,
-  currentNotebook : number,
+  notebook : NotebookState,
   currentScreen : Screen,
   darkmode : boolean
 }
