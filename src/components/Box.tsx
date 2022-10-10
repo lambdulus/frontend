@@ -22,14 +22,13 @@ interface BoxProperties {
   state : BoxState
   isActive : boolean
   isFocused : boolean
-  darkmode : boolean
 
   updateBoxState (box : BoxState) : void
   addBoxAfter (box : BoxState) : void
 }
 
 export default function Box (props : BoxProperties) : JSX.Element {
-  const { state, isActive, isFocused, updateBoxState, addBoxAfter, darkmode } : BoxProperties = props
+  const { state, isActive, isFocused, updateBoxState, addBoxAfter } : BoxProperties = props
   const { type } = state
 
   // const macroTable = useContext(MacroTableContext)
@@ -42,8 +41,6 @@ export default function Box (props : BoxProperties) : JSX.Element {
         state={ state as UntypedLambdaState }
         isActive={ isActive }
         isFocused={ isFocused }
-        // macroTable={ macroTable }
-        darkmode={ darkmode }
         
         setBoxState={ updateBoxState }
         addBox={ addBoxAfter }
@@ -56,7 +53,6 @@ export default function Box (props : BoxProperties) : JSX.Element {
         state={ state as NoteState }
         isActive={ isActive }
         isFocused={ isFocused }
-        darkmode={ darkmode }
 
         setBoxState={ updateBoxState }
       />
