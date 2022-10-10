@@ -16,7 +16,6 @@ interface Props {
   state : UntypedLambdaState
   isActive : boolean
   isFocused : boolean
-  darkmode : boolean
 
   setBoxState (state : UntypedLambdaState) : void
   addBox (box : UntypedLambdaState) : void
@@ -24,7 +23,7 @@ interface Props {
 
 export default class UntypedLambdaBox extends PureComponent<Props> {
   render () {
-    const { state, isActive, isFocused, setBoxState, addBox, darkmode } : Props = this.props
+    const { state, isActive, isFocused, setBoxState, addBox } : Props = this.props
     const { settingsOpen, subtype, macrolistOpen, SLI, expandStandalones, strategy, SDE, editor, minimized } : UntypedLambdaState = state
 
 
@@ -48,7 +47,6 @@ export default class UntypedLambdaBox extends PureComponent<Props> {
                   }
                 })
               }
-              darkmode={ darkmode }
               onDebug={ () => this.onSubmitExpression(UntypedLambdaType.ORDINARY) }
               onExercise={ () => this.onSubmitExpression(UntypedLambdaType.EXERCISE) }
               setBoxState={ setBoxState }
@@ -63,7 +61,6 @@ export default class UntypedLambdaBox extends PureComponent<Props> {
               isFocused={ isFocused }
               setBoxState={ setBoxState }
               addBox={ addBox }
-              darkmode={ darkmode }
             />
           )
         
@@ -75,7 +72,6 @@ export default class UntypedLambdaBox extends PureComponent<Props> {
               isFocused={ isFocused }
               setBoxState={ setBoxState }
               addBox={ addBox }
-              darkmode={ darkmode }
             />
           )
       }

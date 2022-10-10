@@ -1,5 +1,6 @@
 import { UntypedLambdaState, UntypedLambdaSettings } from "./untyped-lambda-integration/Types"
 import { NoteState } from "./markdown-integration/AppTypes"
+import { Theme } from "./contexts/Theme"
 
 export enum BoxType {
   UNTYPED_LAMBDA = 'UNTYPED_LAMBDA',
@@ -58,5 +59,5 @@ export interface NotebookState {
 export interface AppState {
   notebook : NotebookState,
   currentScreen : Screen,
-  darkmode : boolean
+  theme : Theme
 }

@@ -3,6 +3,7 @@ import { defaultSettings as UntypedLambdaDefaultSettings } from './untyped-lambd
 
 import { BoxType, Screen, AppState, GlobalSettings, NotebookState, BoxState } from "./Types"
 import { UntypedLambdaState } from './untyped-lambda-integration/Types'
+import { Theme } from './contexts/Theme'
 
 
 export const CLEAR_WORKSPACE_CONFIRMATION : string =
@@ -37,7 +38,7 @@ export const InitNotebookState : NotebookState = {
 export const EmptyAppState : AppState = {
   notebook : InitNotebookState,
   currentScreen : Screen.MAIN,
-  darkmode : false
+  theme : Theme.Light
 }
 
 
