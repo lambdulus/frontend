@@ -3,6 +3,7 @@ import { defaultSettings as UntypedLambdaDefaultSettings } from './untyped-lambd
 
 import { BoxType, Screen, AppState, GlobalSettings, NotebookState, BoxState } from "./Types"
 import { UntypedLambdaState } from './untyped-lambda-integration/Types'
+import { Theme } from './contexts/Theme'
 
 
 export const CLEAR_WORKSPACE_CONFIRMATION : string =
@@ -23,11 +24,15 @@ export function mapBoxTypeToStr (type : BoxType) : string {
   }
 }
 
+export const DefaultSettings : GlobalSettings
+  = { [UNTYPED_CODE_NAME] : UntypedLambdaDefaultSettings }
+
+
 export const InitNotebookState : NotebookState = {
   boxList : [],
   activeBoxIndex : NaN,
   focusedBoxIndex : undefined,
-  settings : { [UNTYPED_CODE_NAME] : UntypedLambdaDefaultSettings, },
+  settings : DefaultSettings,
 
   menuOpen : false,
 
@@ -37,7 +42,7 @@ export const InitNotebookState : NotebookState = {
 export const EmptyAppState : AppState = {
   notebook : InitNotebookState,
   currentScreen : Screen.MAIN,
-  darkmode : false
+  theme : Theme.Light
 }
 
 

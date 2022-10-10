@@ -20,7 +20,6 @@ interface EvaluatorProps {
   }
   isNormalForm : boolean
   isExercise : boolean
-  darkmode : boolean
 
   createBoxFrom (stepRecord : StepRecord) : UntypedLambdaState
   setBoxState (state : UntypedLambdaExpressionState) : void
@@ -39,7 +38,7 @@ export default class Expression extends PureComponent<EvaluatorProps> {
   }
 
   render () : JSX.Element {
-    const { className, state, editor, shouldShowDebugControls, isExercise, darkmode } = this.props
+    const { className, state, editor, shouldShowDebugControls, isExercise } = this.props
 
     const { isRunning, SDE, macrotable } : UntypedLambdaExpressionState = state
 
@@ -115,7 +114,6 @@ export default class Expression extends PureComponent<EvaluatorProps> {
                 content={ content } // data
                 syntaxError={ syntaxError } // data
                 submitOnEnter={ true } // data
-                darkmode={ darkmode }
 
                 onContent={ this.props.onContent } // fn
                 onEnter={ this.props.onEnter } // fn // tohle asi bude potreba

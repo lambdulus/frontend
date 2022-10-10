@@ -1,40 +1,47 @@
 import React from 'react'
-import { GlobalSettings, BoxState } from '../Types'
+import { BoxState } from '../Types'
 import { createNewMarkdown } from '../markdown-integration/AppTypes'
 import { UntypedLambdaSettings, UntypedLambdaState } from '../untyped-lambda-integration/Types'
 import { createNewUntypedLambdaExpression, ADD_BOX_LABEL, CODE_NAME as UNTYPED_CODE_NAME } from '../untyped-lambda-integration/AppTypes'
 
 
 import '../styles/PickBoxTypeModal.css'
+import { SettingsContext } from '../contexts/Settings'
 
 
 interface Props {
   addNew (box : BoxState) : void
-  settings : GlobalSettings
 }
 
 
 export default function PickBoxTypeModal (props : Props) : JSX.Element {
-  const { addNew, settings } : Props = props
+  const { addNew } : Props = props
 
-  const untLSettings : UntypedLambdaSettings = settings[UNTYPED_CODE_NAME] as UntypedLambdaState
-
+  
   const addLambdaBox = (
-    <div className='add-box--group'
-      onClick={ (e) => {
-        e.stopPropagation()
-        // this.setState({ opened : false })
-        addNew(createNewUntypedLambdaExpression(untLSettings)) }
+    <SettingsContext.Consumer>
+      {
+        settings => {
+          const untLSettings : UntypedLambdaSettings = settings[UNTYPED_CODE_NAME] as UntypedLambdaState
+          
+          return  <div className='add-box--group'
+                    onClick={ (e) => {
+                      e.stopPropagation()
+                      // this.setState({ opened : false })
+                      addNew(createNewUntypedLambdaExpression(untLSettings)) }
+                    }
+                  >
+                    <div
+                      className='plusBtn'
+                      title='Create new λ box'
+                    >
+                      <p className='create-box--big'>λ</p>
+                      <p className='creat-box--label'>{ ADD_BOX_LABEL }</p>
+                    </div>
+                  </div>
+        }
       }
-    >
-      <div
-        className='plusBtn'
-        title='Create new λ box'
-      >
-        <p className='create-box--big'>λ</p>
-        <p className='creat-box--label'>{ ADD_BOX_LABEL }</p>
-      </div>
-    </div>
+    </SettingsContext.Consumer>
   )
 
   // const addLispBox = (

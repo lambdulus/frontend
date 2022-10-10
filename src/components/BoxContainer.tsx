@@ -2,7 +2,7 @@ import React, { MouseEvent, Component } from 'react'
 import { mapBoxTypeToStr } from '../Constants'
 import Box from './Box'
 import BoxTitleBar from './BoxTitleBar'
-import { BoxState, GlobalSettings } from '../Types'
+import { BoxState } from '../Types'
 
 import "../styles/BoxContainer.css"
 import PickBoxTypeModal from './PickBoxTypeModal'
@@ -12,7 +12,6 @@ interface Props {
   isActiveBox : boolean
   isFocusedBox : boolean
   box : BoxState
-  darkmode : boolean
 
   makeActive : () => void
   onBlur : () => void
@@ -20,7 +19,6 @@ interface Props {
   removeBox : () => void
   addBoxBefore : (state : BoxState) => void
   addBoxAfter : (state : BoxState) => void
-  settings : GlobalSettings
 }
 
 interface State {
@@ -47,7 +45,6 @@ export class BoxContainer extends Component<Props, State> {
       addBoxBefore,
       addBoxAfter,
       removeBox,
-      darkmode
     } : Props = this.props
   
     const { modalOpen } = this.state
@@ -72,7 +69,6 @@ export class BoxContainer extends Component<Props, State> {
             updateBoxState={ updateBoxState }
             addBoxBefore={ addBoxBefore }
             addBoxAfter={ addBoxAfter }
-            settings={ this.props.settings }
           />
           
           <Box
@@ -81,7 +77,6 @@ export class BoxContainer extends Component<Props, State> {
             isFocused={ isFocusedBox }
             updateBoxState={ updateBoxState }
             addBoxAfter={ addBoxAfter }
-            darkmode={ darkmode }
           />
         </div>
 
@@ -92,7 +87,6 @@ export class BoxContainer extends Component<Props, State> {
                 this.props.addBoxAfter(box)
                 this.setState({ modalOpen : false })
               } }
-              settings={ this.props.settings }
             />
           :
           <div className="add_box_after" onMouseDown={ () => this.setState({ modalOpen : true }) } >
