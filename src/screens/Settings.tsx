@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useContext } from 'react'
 
 import UntypedLambdaCalculusSet from '../untyped-lambda-integration/Settings'
 import {
@@ -16,28 +16,24 @@ interface Props {
 
 export default function SettingsScreen (props : Props) : JSX.Element {
   const { updateSettings } = props
+  const settings = useContext(SettingsContext)
+  const untypedSettings : UntypedLambdaSettings = settings[UNTYPED_CODE_NAME] as UntypedLambdaSettings
 
   return (
-    <SettingsContext.Consumer>
-      {
-        settings => {
-          const untypedSettings : UntypedLambdaSettings = settings[UNTYPED_CODE_NAME] as UntypedLambdaSettings
-          
-          return  <div className='settingsSpace'>
-                    <h2>
-                      Settings for Untyped Lambda Calculus:
-                    </h2>
-                    <UntypedLambdaCalculusSet
-                      settings={ untypedSettings }
-                      settingsEnabled={ UNTYPED_GLOBAL_SETTINGS_ENABLER }
-                      change={
-                        (unTypLSet : UntypedLambdaSettings) =>
-                          updateSettings({ ...settings, [UNTYPED_CODE_NAME] : unTypLSet })
-                      }
-                    />
-                  </div>
+    <div className='settingsSpace'>
+      <h2>
+        Settings for Untyped Lambda Calculus:
+      </h2>
+      <UntypedLambdaCalculusSet
+        settings={ untypedSettings }
+        settingsEnabled={ UNTYPED_GLOBAL_SETTINGS_ENABLER }
+        change={
+          (unTypLSet : UntypedLambdaSettings) => {
+            console.log("updating settings", unTypLSet)
+            updateSettings({ ...settings, [UNTYPED_CODE_NAME] : unTypLSet })
+          }
         }
-      }
-    </SettingsContext.Consumer>
+      />
+    </div>
   )
 }
