@@ -1,10 +1,5 @@
 import React from 'react'
 
-// import Evaluator from './ExpressionBox'
-// import MacroDefinition from './MacroDefinition'
-// import Note from './Note'
-// import { MacroTableContext } from './EvaluatorSpace'
-// import { SetBoxContext } from './BoxSpace'
 import { BoxType, BoxState } from '../Types'
 
 import { UntypedLambdaState } from '../untyped-lambda-integration/Types'
@@ -16,7 +11,6 @@ import Note from '../markdown-integration/Note'
 
 import Empty from '../empty-integration'
 
-// import { BoxState } from '../AppTypes'
 
 interface BoxProperties {
   state : BoxState
@@ -63,18 +57,5 @@ export default function Box (props : BoxProperties) : JSX.Element {
       <Empty />
     )
   }
-
-  // if (type === BoxType.MACRO) {
-  //   return (
-  //     <div className=''>
-  //       <MacroDefinition
-  //         state={ state as MacroDefinitionState }
-  //         setBoxState={ setBoxState }
-
-  //         // addBox={ addBox }
-  //       />
-  //     </div>
-  //   )
-  // }
 
 }

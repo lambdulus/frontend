@@ -7,8 +7,6 @@ import '../styles/MenuBar.css'
 
 interface MenuBarProperties {
   state : AppState
-  // onImport (state : AppState) : void
-  // onClearWorkspace () : void
   onScreenChange (screen : Screen) : void
 }
 
@@ -27,21 +25,6 @@ export default function MenuBar (props : MenuBarProperties) : JSX.Element {
         <span className='lambdulusIcon'>λ</span>
         <p className='iconLabel'>Lambdulus</p>
       </div>
-
-      {/* <div className='separator' /> */}
-
-      {/* NOTEBOOK */}
-      {/* <div
-        className={ currentScreen === Screen.NOTEBOOKS ? 'currentTab tab tab-hoverable' : 'tab tab-hoverable' }
-        title='Show All Notebooks'
-        onClick={ () => onScreenChange(Screen.NOTEBOOKS) }
-      >
-        <i
-          // className="icon far fa-file-alt"
-          className="icon far fa-copy"
-        />
-        <p className='iconLabel'>Notebooks</p>
-      </div> */}
 
       <div className='menu-bar--bottom-part'>
         {/* Issues */}
