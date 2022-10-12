@@ -9,7 +9,7 @@ import { NoteState } from '../markdown-integration/AppTypes'
 import EmptyBTB from '../empty-integration/BoxTopBar'
 
 import '../styles/BoxTopBar.css'
-import { resetUntypedLambdaBox } from '../untyped-lambda-integration/AppTypes'
+import { resetUntypedLambdaBox } from '../untyped-lambda-integration/Constants'
 
 
 type BoxPlace = 'before' | 'after'
