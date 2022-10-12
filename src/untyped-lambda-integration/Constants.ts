@@ -4,7 +4,6 @@ import  { EvaluationStrategy
         , UntypedLambdaSettings
         , UntypedLambdaType
         , StepRecord
-        , UntypedLambdaExpressionState
         , SettingsEnabled
         , PromptPlaceholder
         , StepMessage
@@ -51,7 +50,7 @@ export const defaultSettings : UntypedLambdaSettings = {
   SDE : true,
 }
 
-export function createNewUntypedLambdaExpression (defaultSettings : UntypedLambdaSettings) : UntypedLambdaExpressionState {
+export function createNewUntypedLambdaExpression (defaultSettings : UntypedLambdaSettings) : UntypedLambdaState {
   return {
     ...defaultSettings,
     __key : Date.now().toString(),
@@ -138,7 +137,7 @@ export function toMacroMap (definitions : Array<string>, SLI : boolean) : MacroM
   // can be absolutely unopionanted about the expansions and stuff
 }
 
-export function createNewUntypedLambdaBoxFromSource (source : string, defaultSettings : UntypedLambdaSettings, subtype : UntypedLambdaType, macrotable : MacroTable) : UntypedLambdaExpressionState {
+export function createNewUntypedLambdaBoxFromSource (source : string, defaultSettings : UntypedLambdaSettings, subtype : UntypedLambdaType, macrotable : MacroTable) : UntypedLambdaState {
   if (subtype === UntypedLambdaType.EMPTY) {
     return {
       ...defaultSettings,
@@ -176,7 +175,7 @@ export function createNewUntypedLambdaBoxFromSource (source : string, defaultSet
   }
 }
 
-function createNewUntypedLambdaBoxFromSource2 (source : string, defaultSettings : UntypedLambdaSettings, subtype : UntypedLambdaType, macrotable : MacroTable) : UntypedLambdaExpressionState {
+function createNewUntypedLambdaBoxFromSource2 (source : string, defaultSettings : UntypedLambdaSettings, subtype : UntypedLambdaType, macrotable : MacroTable) : UntypedLambdaState {
   const { SDE, SLI, strategy } = defaultSettings
 
   const macros : string = Object.entries(macrotable).map(([name, def]) => `${name} := ${def}`).join(';\n')
@@ -280,11 +279,11 @@ export function resetUntypedLambdaBox (state : UntypedLambdaState) : UntypedLamb
 }
 
 export function decodeUntypedLambdaState (box : UntypedLambdaState) : UntypedLambdaState {
-  return decodeUntypedLambdaExpression(box as UntypedLambdaExpressionState)
+  return decodeUntypedLambdaExpression(box as UntypedLambdaState)
 }
 
-function decodeUntypedLambdaExpression (box : UntypedLambdaExpressionState) : UntypedLambdaExpressionState {
-  const untypedLambdaBox : UntypedLambdaExpressionState = box as UntypedLambdaExpressionState
+function decodeUntypedLambdaExpression (box : UntypedLambdaState) : UntypedLambdaState {
+  const untypedLambdaBox : UntypedLambdaState = box as UntypedLambdaState
 
   if (untypedLambdaBox.expression === '') {
     return untypedLambdaBox

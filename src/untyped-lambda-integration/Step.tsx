@@ -36,13 +36,6 @@ interface StepProperties {
 const StepMemo = memo(Step, (props : StepProperties) => !props.lastStep)
 
 export default function StepWrapper (props : StepWrapperProperties) : JSX.Element {
-  // return(
-  //   <StrategyContext.Consumer>
-  //     { 
-  //       (strategy : EvaluationStrategy) => <StepMemo { ...props } strategy={ strategy } />
-  //     }
-  //   </StrategyContext.Consumer>
-  // )
   return(
     <StepMemo { ...props } />
   )
@@ -57,7 +50,6 @@ function Step (props : StepProperties) : JSX.Element | null {
     return null
   }
 
-  // const evaluator : Evaluator = new (strategyToEvaluator(strategy) as any)(tree)
   const newast : AST = tree.clone()
   let nextReduction = (() => {
     if (SDE) {

@@ -1,10 +1,10 @@
 import React from 'react'
 
 import Step from './Step'
-// import { AddBoxContext } from './MethodInjector'
+
 import { Breakpoint, StepRecord, UntypedLambdaState, EvaluationStrategy } from './Types'
 import { MacroMap } from '@lambdulus/core'
-// import { DeleteBox, MakeActiveContext } from './BoxSpace'
+
 
 interface InactiveExpressionProps {
   className : string
@@ -48,13 +48,3 @@ export default function InactiveExpression (props : InactiveExpressionProps) : J
     </div>
   )
 }
-
-// This was inside the <Step> </Step>
-/* <AddBoxContext.Consumer>
-              {
-                (addBox : (boxState : BoxState) => void) => <i
-                  className="hiddenIcon far fa-clone"
-                  onClick={ () => addBox(props.createBoxFrom(props.history[0])) }
-                />
-              }
-            </AddBoxContext.Consumer> */

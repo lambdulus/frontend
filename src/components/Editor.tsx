@@ -27,7 +27,6 @@ interface EditorProperties {
   onShiftEnter () : void
   onCtrlEnter () : void
   onEnter () : void
-  onExecute () : void // TODO:delete
   // onReset () : void
 }
 
@@ -43,7 +42,6 @@ export default function Editor (props : EditorProperties) : JSX.Element {
     onEnter,
     onShiftEnter,
     onCtrlEnter,
-    // onExecute,
   } : EditorProperties = props
 
   const onChange = (content : string) => {
