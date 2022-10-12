@@ -21,7 +21,6 @@ import { BoxType } from '../Types'
 import InactiveEvaluator from './InactiveExpression'
 import Expression from './Expression'
 import { PromptPlaceholder, UntypedLambdaState, Evaluator, StepRecord, Breakpoint, UntypedLambdaType, UntypedLambdaExpressionState, StepMessage, StepValidity } from './Types'
-import { reportEvent } from '../misc'
 import { findSimplifiedReduction, MacroBeta, tryMacroContraction, strategyToEvaluator } from './AppTypes'
 
 
@@ -245,8 +244,6 @@ export default class ExpressionBox extends PureComponent<EvaluationProperties> {
         if (etaEvaluator.nextReduction instanceof None) {
           isNowNormalForm = true
           message.message = 'Expression is in normal form.'
-          
-          reportEvent('Evaluation Step', 'Step Normal Form Reached', ast.toString())
         }
       }
     }
@@ -256,7 +253,6 @@ export default class ExpressionBox extends PureComponent<EvaluationProperties> {
       history : [ ...history, { ast : newast, lastReduction : nextReduction, step : step + 1, message, isNormalForm : isNowNormalForm, exerciseStep : false } ],
     })
 
-    reportEvent('Evaluation Step', 'Step Normal Form Reached', ast.toString())
     return
     
     // {
@@ -356,8 +352,6 @@ export default class ExpressionBox extends PureComponent<EvaluationProperties> {
         setBoxState({
           ...state,
         })
-        
-        reportEvent('Evaluation Step', 'Step Normal Form Reached', ast.toString())
   
         return
       }
@@ -381,8 +375,6 @@ export default class ExpressionBox extends PureComponent<EvaluationProperties> {
         if (etaEvaluator.nextReduction instanceof None) {
           isNormal = true
           message.message = 'Expression is in normal form.'
-          
-          reportEvent('Evaluation Step', 'Step Normal Form Reached', ast.toString())  
         }
       }
     }
@@ -407,8 +399,6 @@ export default class ExpressionBox extends PureComponent<EvaluationProperties> {
       history : [ ...history, { ast, lastReduction, step : step + 1, message, isNormalForm : isNormal, exerciseStep : false } ],
 
     })
-
-    reportEvent('Evaluation Step', 'Step', ast.toString())
   }
 
   onExecute () : void {
@@ -445,10 +435,6 @@ export default class ExpressionBox extends PureComponent<EvaluationProperties> {
           timeoutID : window.setTimeout(this.onRun, timeout),
         })
       }
-
-      
-
-      reportEvent('Execution', 'Run Evaluation', ast.toString())
     }
   }
 
@@ -509,7 +495,6 @@ export default class ExpressionBox extends PureComponent<EvaluationProperties> {
     
       // completely same code as in breakpoint section -- TODO: refactor and unify pls
       window.clearTimeout(timeoutID)
-      reportEvent('Evaluation Run Ended', 'Breakpoint was reached', ast.toString())
 
       breakpoints.push({ type : ASTReductionType.GAMA, context : nextReduction.applications[0], broken : new Set([ nextReduction.applications[0] ]) })
 
@@ -539,8 +524,6 @@ export default class ExpressionBox extends PureComponent<EvaluationProperties> {
       }
 
       window.clearTimeout(timeoutID)
-      reportEvent('Evaluation Run Ended', 'Breakpoint was reached', ast.toString())
-
 
       setBoxState({
         ...state,
@@ -631,8 +614,6 @@ export default class ExpressionBox extends PureComponent<EvaluationProperties> {
       }
 
       window.clearTimeout(timeoutID)
-      reportEvent('Evaluation Run Ended', 'Breakpoint was reached', ast.toString())
-
 
       setBoxState({
         ...state,
