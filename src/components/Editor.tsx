@@ -27,7 +27,6 @@ interface EditorProperties {
   onShiftEnter () : void
   onCtrlEnter () : void
   onEnter () : void
-  onExecute () : void // TODO:delete
   // onReset () : void
 }
 
@@ -43,13 +42,9 @@ export default function Editor (props : EditorProperties) : JSX.Element {
     onEnter,
     onShiftEnter,
     onCtrlEnter,
-    // onExecute,
   } : EditorProperties = props
 
   const onChange = (content : string) => {
-    // let { target : { value : content } } : { target : { value : string } } = event
-    // const caretPosition : number = event.target.selectionEnd
-
     if (shouldReplaceLambda) {
       content = content.replace(/\\/g, 'λ')
     }
@@ -78,12 +73,6 @@ export default function Editor (props : EditorProperties) : JSX.Element {
       event.preventDefault()
       onCtrlEnter()
     }
-
-    // TODO: not yet
-    // if (event.ctrlKey && event.key === 'r') {
-    //   event.preventDefault()
-    //   onReset()
-    // }
   }
 
   return (
@@ -112,7 +101,6 @@ export default function Editor (props : EditorProperties) : JSX.Element {
 interface InputProps {
   placeholder : string
   content : string
-  // onChange (event : ChangeEvent<HTMLTextAreaElement>) : void
   onContent (content : string) : void
   onKeyDown (event : KeyboardEvent<HTMLDivElement>) : void
 }
