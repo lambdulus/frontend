@@ -2,7 +2,6 @@ import React from 'react'
 
 import { ASTVisitor, Lambda, Variable, Beta, AST, Application, ChurchNumeral, Expansion, Macro, ASTReduction, Alpha, Gama, ASTReductionType } from "@lambdulus/core"
 import { Breakpoint } from './Types'
-import { reportEvent } from '../misc';
 import { MacroBeta } from './AppTypes';
 
 
@@ -87,7 +86,6 @@ export default class ReactPrinter extends ASTVisitor {
             onClick={ () => {
               (context as any).identifier = Symbol()
               this.onClick({ type : ASTReductionType.BETA, context, broken : new Set() })
-              reportEvent('Breakpoint added to argument', 'Breakpoint was added', '')
             }
             }
           >
@@ -285,7 +283,6 @@ export default class ReactPrinter extends ASTVisitor {
           onClick={ () => {
             (context as any).identifier = Symbol()
             this.onClick({ type : ASTReductionType.BETA, context, broken : new Set() })
-            reportEvent('Breakpoint added to argument', 'Breakpoint was added', '')
           }
           }
         >{ lambda.argument.name() }
@@ -343,7 +340,6 @@ export default class ReactPrinter extends ASTVisitor {
                 onClick={ () => {
                   (context as any).identifier = Symbol()
                   this.onClick({ type : ASTReductionType.BETA, context, broken : new Set() })
-                  reportEvent('Breakpoint added', 'Breakpoint was added', '')
                 }
                 }
             >
@@ -399,7 +395,6 @@ export default class ReactPrinter extends ASTVisitor {
         onClick={ () => {
           (churchNumber as any).identifier = Symbol()
           this.onClick({ type: ASTReductionType.EXPANSION, context : churchNumber, broken : new Set() })
-          reportEvent('Breakpoint added to ChurchNumeral', 'Breakpoint was added', '')
         }
         }
       >
@@ -464,7 +459,6 @@ export default class ReactPrinter extends ASTVisitor {
         onClick={ () => {
           (macro as any).identifier = Symbol()
           this.onClick({ type: ASTReductionType.EXPANSION, context : macro, broken : new Set() })
-          reportEvent('Breakpoint added to Macro', 'Breakpoint was added', '')
         }
         }
       >
