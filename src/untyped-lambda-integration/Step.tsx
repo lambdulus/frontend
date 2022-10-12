@@ -6,7 +6,7 @@ import './styles/Step.css'
 import ReactPrinter from './ReactPrinter'
 import { EvaluationStrategy, StepRecord, Breakpoint, Evaluator, StepValidity } from './Types'
 import ReductionMessage from './ReductionMessage'
-import { strategyToEvaluator, findSimplifiedReduction, MacroBeta } from './AppTypes'
+import { strategyToEvaluator, findSimplifiedReduction, MacroBeta } from './Constants'
 
 
 interface StepWrapperProperties {

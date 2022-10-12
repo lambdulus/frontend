@@ -2,7 +2,7 @@ import React from 'react'
 
 import { ASTVisitor, Lambda, Variable, Beta, AST, Application, ChurchNumeral, Expansion, Macro, ASTReduction, Alpha, Gama, ASTReductionType } from "@lambdulus/core"
 import { Breakpoint } from './Types'
-import { MacroBeta } from './AppTypes';
+import { MacroBeta } from './Constants';
 
 
 export default class ReactPrinter extends ASTVisitor {
