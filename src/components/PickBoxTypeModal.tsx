@@ -2,7 +2,7 @@ import React from 'react'
 import { BoxState } from '../Types'
 import { createNewMarkdown } from '../markdown-integration/AppTypes'
 import { UntypedLambdaSettings, UntypedLambdaState } from '../untyped-lambda-integration/Types'
-import { createNewUntypedLambdaExpression, ADD_BOX_LABEL, CODE_NAME as UNTYPED_CODE_NAME } from '../untyped-lambda-integration/AppTypes'
+import { createNewUntypedLambdaExpression, ADD_BOX_LABEL, CODE_NAME as UNTYPED_CODE_NAME } from '../untyped-lambda-integration/Constants'
 
 
 import '../styles/PickBoxTypeModal.css'

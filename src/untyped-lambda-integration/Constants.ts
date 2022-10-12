@@ -279,86 +279,8 @@ export function resetUntypedLambdaBox (state : UntypedLambdaState) : UntypedLamb
   }
 }
 
-// export function createNewUntypedLambdaExercise (defaultSettings : UntypedLambdaSettings) : UntypedLambdaState {
-//   return {
-//     ...defaultSettings,
-//     __key : Date.now().toString(),
-//     type : BoxType.UNTYPED_LAMBDA,
-//     subtype : UntypedLambdaType.EXERCISE,
-//     title : "Untyped λ Exercise",
-//     minimized : false,
-//     menuOpen : false,
-//     settingsOpen : false,
-//     expression : "",
-//     ast : null,
-//     history : [],
-//     isRunning : false,
-//     breakpoints : [],
-//     timeoutID : undefined,
-//     timeout : 5,
-    
-//     // strategy : EvaluationStrategy.NORMAL,
-//     // singleLetterNames : false,
-//     // standalones : false,
-
-//     macrolistOpen : false,
-//     macrotable : { ...UNTYPED_LAMBDA_INTEGRATION_STATE.macrotable },
-
-    
-//     editor : {
-//       placeholder : "placeholder",
-//       content : "",
-//       caretPosition : 0,
-//       syntaxError : null,
-//     }
-//   }
-// }
-
-// export function createNewUntypedLambdaMacro (defaultSettings : UntypedLambdaSettings) : UntypedLambdaMacroState {
-//   return (
-//     {
-//       ...defaultSettings,
-//       __key : Date.now().toString(),
-//       type : BoxType.UNTYPED_LAMBDA,
-//       title : "Untyped λ Macro Expression",
-//       minimized : false,
-//       menuOpen : false,
-//       settingsOpen : false,
-    
-//       subtype : UntypedLambdaType.MACRO,
-//       expression : '',
-//       ast : null,
-//       macroName : '',
-//       macroExpression : '',
-
-//       macrolistOpen : false,
-//       macrotable : { ...UNTYPED_LAMBDA_INTEGRATION_STATE.macrotable },
-
-      
-//       editor : {
-//         placeholder : PromptPlaceholder.MACRO,
-//         content : '',
-//         caretPosition : 0,
-//         syntaxError : null
-//       }
-//     }
-//   )
-// }
-
-
 export function decodeUntypedLambdaState (box : UntypedLambdaState) : UntypedLambdaState {
   return decodeUntypedLambdaExpression(box as UntypedLambdaExpressionState)
-
-  // switch (box.subtype) {
-  //   case UntypedLambdaType.ORDINARY:
-  //     return decodeUntypedLambdaExpression(box as UntypedLambdaExpressionState)
-      
-    // case UntypedLambdaType.MACRO:
-    //   return box //TODO: implement -- it's not really needed
-
-    // case UntypedLambdaType.EXERCISE:
-    //   return decodeUntypedLambdaExpression(box as UntypedLambdaExpressionState)
-  // }
 }
 
 function decodeUntypedLambdaExpression (box : UntypedLambdaExpressionState) : UntypedLambdaExpressionState {
@@ -415,12 +337,6 @@ export const GLOBAL_SETTINGS_ENABLER : SettingsEnabled = {
   expandStandalones : true,
   strategy : true,
 }
-
-// export const MACRO_SETTINGS_ENABLER : SettingsEnabled = {
-//   SLI : true,
-//   expandStandalones : false,
-//   strategy : false,
-// }
 
 type PerformEvaluation = (ast : AST) => AST
 
@@ -798,26 +714,7 @@ export function findSimplifiedReduction (ast : AST, strategy : EvaluationStrateg
     }
   }
   else {
-    // console.log("_________________________________ just normal stuff")
     return [nextReduction, (ast) => evaluator.perform()]
-
-  // {
-  //   const astCopy : AST = ast.clone()
-  //   const evaluator : Evaluator = new (strategyToEvaluator(strategy) as any)(astCopy)
-    
-  //   if (evaluator.nextReduction instanceof None) {
-  //     isNormal = true
-  //     message = 'Expression is in normal form.'
-      
-  //     reportEvent('Evaluation Step', 'Step Normal Form Reached', ast.toString())  
-  //   }
-
-  //   setBoxState({
-  //     ...state,
-  //     history : [ ...history, { ast, lastReduction, step : step + 1, message, isNormalForm : isNormal } ],
-
-  //   })
-  // }
   }
 }
 

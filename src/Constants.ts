@@ -1,5 +1,5 @@
-import { CODE_NAME as UNTYPED_CODE_NAME, decodeUntypedLambdaState } from './untyped-lambda-integration/AppTypes'
-import { defaultSettings as UntypedLambdaDefaultSettings } from './untyped-lambda-integration/AppTypes'
+import { CODE_NAME as UNTYPED_CODE_NAME, decodeUntypedLambdaState } from './untyped-lambda-integration/Constants'
+import { defaultSettings as UntypedLambdaDefaultSettings } from './untyped-lambda-integration/Constants'
 
 import { BoxType, Screen, AppState, GlobalSettings, NotebookState, BoxState } from "./Types"
 import { UntypedLambdaState } from './untyped-lambda-integration/Types'

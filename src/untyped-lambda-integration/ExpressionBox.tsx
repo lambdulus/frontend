@@ -21,7 +21,7 @@ import { BoxType } from '../Types'
 import InactiveEvaluator from './InactiveExpression'
 import Expression from './Expression'
 import { PromptPlaceholder, UntypedLambdaState, Evaluator, StepRecord, Breakpoint, UntypedLambdaType, UntypedLambdaExpressionState, StepMessage, StepValidity } from './Types'
-import { findSimplifiedReduction, MacroBeta, tryMacroContraction, strategyToEvaluator } from './AppTypes'
+import { findSimplifiedReduction, MacroBeta, tryMacroContraction, strategyToEvaluator } from './Constants'
 
 
 export interface EvaluationProperties {

@@ -4,7 +4,7 @@ import UntypedLambdaCalculusSet from '../untyped-lambda-integration/Settings'
 import {
   CODE_NAME as UNTYPED_CODE_NAME,
   GLOBAL_SETTINGS_ENABLER as UNTYPED_GLOBAL_SETTINGS_ENABLER
-} from '../untyped-lambda-integration/AppTypes'
+} from '../untyped-lambda-integration/Constants'
 import { GlobalSettings } from '../Types'
 import { UntypedLambdaSettings } from '../untyped-lambda-integration/Types'
 import { SettingsContext } from '../contexts/Settings'
