@@ -8,7 +8,6 @@ import { GLOBAL_SETTINGS_ENABLER, strategyToEvaluator, findSimplifiedReduction, 
 import ExerciseBox from './ExerciseBox'
 import Settings from './Settings'
 import EmptyExpression from './EmptyExpression'
-import { reportEvent } from '../misc'
 import { None, Evaluator, Token, tokenize, parse, AST, OptimizeEvaluator, MacroMap } from '@lambdulus/core'
 
 
@@ -168,7 +167,6 @@ export default class UntypedLambdaBox extends PureComponent<Props> {
         if (etaEvaluator.nextReduction instanceof None) {
           isNormal = true
           message.message = 'Expression is in normal form.'
-          reportEvent('Evaluation Step', 'Step Normal Form Reached', ast.toString())
         }
       }
 
@@ -193,8 +191,6 @@ export default class UntypedLambdaBox extends PureComponent<Props> {
           syntaxError : null,
         }
       })
-
-      reportEvent('Submit Expression', 'submit valid', content)
     } catch (exception) {
       let errorMessage : string = "Something is wrong with your expression. Please inspect it closely."
       console.error((exception as Error).toString())
@@ -215,8 +211,6 @@ export default class UntypedLambdaBox extends PureComponent<Props> {
           syntaxError : new Error(errorMessage),
         }
       })
-
-      reportEvent('Submit Expression', 'submit invalid', content)
     }
   }
 

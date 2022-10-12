@@ -19,7 +19,6 @@ import { TreeComparator } from './TreeComparator'
 import InactiveEvaluator from './InactiveExpression'
 import Expression from './Expression'
 import { PromptPlaceholder, UntypedLambdaState, Evaluator, StepRecord, Breakpoint, UntypedLambdaType, UntypedLambdaExpressionState, StepMessage, StepValidity } from './Types'
-import { reportEvent } from '../misc'
 import { strategyToEvaluator, findSimplifiedReduction, MacroBeta, toMacroMap, tryMacroContraction } from './AppTypes'
 
 
@@ -191,8 +190,6 @@ export default class ExerciseBox extends PureComponent<EvaluationProperties> {
       if (evaluator.nextReduction instanceof None) {
         isNormal = true
         message.message = 'Expression is in normal form.'
-        
-        reportEvent('Evaluation Step', 'Step Normal Form Reached', ast.toString())  
       }
 
       setBoxState({
@@ -213,8 +210,6 @@ export default class ExerciseBox extends PureComponent<EvaluationProperties> {
           syntaxError : null,
         }
       })
-
-      reportEvent('Submit Expression', 'submit valid', content)
     } catch (exception) {
       let errorMessage : string = "Something is wrong with your expression. Please inspect it closely."
       console.error((exception as Error).toString())
@@ -233,8 +228,6 @@ export default class ExerciseBox extends PureComponent<EvaluationProperties> {
           syntaxError : Error(errorMessage),
         }
       })
-
-      reportEvent('Submit Expression', 'submit invalid', content)
     }
   }
 
@@ -265,8 +258,6 @@ export default class ExerciseBox extends PureComponent<EvaluationProperties> {
           ...state,
         })
 
-        reportEvent('Exercise Step', 'Step Already in normal form', content)
-
         return
       }
     
@@ -287,9 +278,7 @@ export default class ExerciseBox extends PureComponent<EvaluationProperties> {
           setBoxState({
             ...state,
           })
-  
-          reportEvent('Simplified Exercise Step', 'Step Already in Normal Form', content)
-          
+
           return
         }
 
@@ -315,7 +304,6 @@ export default class ExerciseBox extends PureComponent<EvaluationProperties> {
 
           if (etaEvaluator.nextReduction instanceof None) {
             isNormal = true
-            reportEvent('Simplified Evaluation Step', 'Step Normal Form Reached', ast.toString())  
           }
         }
       }
@@ -326,8 +314,6 @@ export default class ExerciseBox extends PureComponent<EvaluationProperties> {
       if (comparator.equals) {
         ast = userAst
         message.message = 'Correct.'
-
-        reportEvent('Exercise Step', 'Valid Step', content)
       }
       else {
         // TODO: say user it was incorrect
@@ -335,8 +321,6 @@ export default class ExerciseBox extends PureComponent<EvaluationProperties> {
         // console.log('Incorrect step')
         message.message = `Incorrect step. ${content}`
         message.validity = StepValidity.INCORRECT
-
-        reportEvent('Exercise Step', 'Invalid Step', content)
       }
 
       setBoxState({
@@ -354,8 +338,6 @@ export default class ExerciseBox extends PureComponent<EvaluationProperties> {
       // TODO: do it localy - no missuse of onSubmit
 
       // TODO: print syntax error
-
-      reportEvent('Exercise Step', 'Syntax error in Step', content)
     }
 
 
@@ -397,8 +379,6 @@ export default class ExerciseBox extends PureComponent<EvaluationProperties> {
           ...state,
         })
 
-        reportEvent('Exercise Step', 'Step Already in normal form', content)
-
         return
       }
     
@@ -417,9 +397,7 @@ export default class ExerciseBox extends PureComponent<EvaluationProperties> {
           setBoxState({
             ...state,
           })
-  
-          reportEvent('Exercise Step', 'Step Already in Normal Form', content)
-          
+            
           return
         }
 
@@ -441,8 +419,6 @@ export default class ExerciseBox extends PureComponent<EvaluationProperties> {
 
           if (etaEvaluator.nextReduction instanceof None) {
             isNormal = true
-
-            reportEvent('Evaluation Step', 'Step Normal Form Reached', ast.toString())  
           }
         }
       }
@@ -453,8 +429,6 @@ export default class ExerciseBox extends PureComponent<EvaluationProperties> {
       if (comparator.equals) {
         ast = userAst
         message.message = 'Correct.'
-
-        reportEvent('Exercise Step', 'Valid Step', content)
       }
       else {
         // TODO: say user it was incorrect
@@ -462,8 +436,6 @@ export default class ExerciseBox extends PureComponent<EvaluationProperties> {
         // console.log('Incorrect step')
         message.message = `Incorrect step. ${content}`
         message.validity = StepValidity.INCORRECT
-
-        reportEvent('Exercise Step', 'Invalid Step', content)
       }
 
       setBoxState({
@@ -481,8 +453,6 @@ export default class ExerciseBox extends PureComponent<EvaluationProperties> {
       // TODO: do it localy - no missuse of onSubmit
 
       // TODO: print syntax error
-
-      reportEvent('Exercise Step', 'Syntax error in Step', content)
     }
   }
 
@@ -575,8 +545,6 @@ export default class ExerciseBox extends PureComponent<EvaluationProperties> {
         if (etaEvaluator.nextReduction instanceof None) {
           isNowNormalForm = true
           message.message = 'Expression is in normal form.'
-          
-          reportEvent('Evaluation Step', 'Step Normal Form Reached', ast.toString())  
         }
       }
     }
@@ -590,7 +558,6 @@ export default class ExerciseBox extends PureComponent<EvaluationProperties> {
       history : [ ...history, { ast : newast, lastReduction : nextReduction, step : step + 1, message, isNormalForm : isNowNormalForm, exerciseStep : true } ],
     })
 
-    reportEvent('Evaluation Step', 'Step Normal Form Reached', ast.toString())
     return
     
     // {
@@ -692,9 +659,7 @@ export default class ExerciseBox extends PureComponent<EvaluationProperties> {
         setBoxState({
           ...state,
         })
-        
-        reportEvent('Evaluation Step', 'Step Normal Form Reached', ast.toString())
-  
+
         return
       }
 
@@ -717,8 +682,6 @@ export default class ExerciseBox extends PureComponent<EvaluationProperties> {
         if (etaEvaluator.nextReduction instanceof None) {
           isNormal = true
           message.message = 'Expression is in normal form.'
-          
-          reportEvent('Evaluation Step', 'Step Normal Form Reached', ast.toString())  
         }
       }
     }
@@ -747,8 +710,6 @@ export default class ExerciseBox extends PureComponent<EvaluationProperties> {
       history : [ ...history, { ast, lastReduction, step : step + 1, message, isNormalForm : isNormal, exerciseStep : true } ],
 
     })
-
-    reportEvent('Exercise Empty Evaluation Step', 'Step', ast.toString())
   }
 
   onExecute () : void {

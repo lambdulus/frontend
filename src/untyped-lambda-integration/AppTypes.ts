@@ -37,7 +37,6 @@ import  { ASTReduction
         , MacroMap } from '@lambdulus/core'
 import { Child, Binary } from '@lambdulus/core/dist/ast'
 import { TreeComparator } from './TreeComparator'
-import { reportEvent } from '../misc'
 
 
 export const ADD_BOX_LABEL = '+ Untyped λ Expression'
@@ -212,11 +211,7 @@ function createNewUntypedLambdaBoxFromSource2 (source : string, defaultSettings 
     if (nextReduction instanceof None) {
       isNormal = true
       message.message = 'Expression is in normal form.'
-      
-      reportEvent('Evaluation Step', 'Step Normal Form Reached', ast.toString())  
     }
-
-    reportEvent('Submit Expression from Link', 'submit valid', source)
 
 
     return {
@@ -254,7 +249,6 @@ function createNewUntypedLambdaBoxFromSource2 (source : string, defaultSettings 
     }
 
   } catch (exception) {
-    reportEvent('Submit Expression from Link', 'submit invalid', source)
     throw exception
   }
 }
