@@ -20,16 +20,16 @@ import { BoxType } from '../Types'
 
 import InactiveEvaluator from './InactiveExpression'
 import Expression from './Expression'
-import { PromptPlaceholder, UntypedLambdaState, Evaluator, StepRecord, Breakpoint, UntypedLambdaType, UntypedLambdaExpressionState, StepMessage, StepValidity } from './Types'
+import { PromptPlaceholder, UntypedLambdaState, Evaluator, StepRecord, Breakpoint, UntypedLambdaType, StepMessage, StepValidity } from './Types'
 import { findSimplifiedReduction, MacroBeta, tryMacroContraction, strategyToEvaluator } from './Constants'
 
 
 export interface EvaluationProperties {
-  state : UntypedLambdaExpressionState
+  state : UntypedLambdaState
   isActive : boolean
   isFocused : boolean
 
-  setBoxState (state : UntypedLambdaExpressionState) : void
+  setBoxState (state : UntypedLambdaState) : void
   addBox (box : UntypedLambdaState) : void
 }
 
@@ -57,7 +57,7 @@ export default class ExpressionBox extends PureComponent<EvaluationProperties> {
       editor,
       SDE,
       macrotable,
-    } : UntypedLambdaExpressionState = state
+    } : UntypedLambdaState = state
 
     let className : string = 'box boxEval'
     const { isNormalForm } = history.length ? history[history.length - 1] : { isNormalForm : false }
@@ -108,7 +108,7 @@ export default class ExpressionBox extends PureComponent<EvaluationProperties> {
       SDE,
       expandStandalones,
       macrotable,
-    } : UntypedLambdaExpressionState = state
+    } : UntypedLambdaState = state
     const { ast } = stepRecord
     const content = ast.toString()
 

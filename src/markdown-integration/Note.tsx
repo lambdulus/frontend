@@ -54,7 +54,6 @@ export default function Note (props : NoteProperties) : JSX.Element {
           onEnter={ () => void 0 } // fn
           onCtrlEnter={ () => void 0 }
           onShiftEnter={ () => void 0 }
-          onExecute={ () => {} } // fn
           // onReset={ this.onClear } // fn not yet
         />
       </div>

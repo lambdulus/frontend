@@ -50,11 +50,7 @@ export enum EvaluationStrategy {
   ABSTRACTION = 'Abstraction / Simplified Evaluation'
 }
 
-export type UntypedLambdaState = UntypedLambdaExpressionState // | UntypedLambdaMacroState
-
-// TODO: consider abstract Untype Lambda State which will hold all common members
-
-export interface UntypedLambdaExpressionState extends AbstractBoxState {
+export interface UntypedLambdaState extends AbstractBoxState {
   __key : string
   type : BoxType
 
@@ -66,15 +62,14 @@ export interface UntypedLambdaExpressionState extends AbstractBoxState {
   breakpoints : Array<Breakpoint>
   timeoutID : number | undefined
   timeout : number
-  // isExercise : boolean
   
   strategy : EvaluationStrategy
   SDE : boolean // Semantics Drive Evaluation (Strategy) -- formerly called Simplified Strategy
   SLI : boolean
   expandStandalones : boolean
 
-  macrolistOpen : boolean // this is gonna go out
-  macrotable : MacroMap // this is gonna go out - WHY? I don't think so - it's gonna stay
+  macrolistOpen : boolean
+  macrotable : MacroMap
   
   editor : {
     placeholder : string
