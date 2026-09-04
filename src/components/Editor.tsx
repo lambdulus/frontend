@@ -1,7 +1,11 @@
 import React, { KeyboardEvent } from 'react'
-import MonacoEditor from 'react-monaco-editor'
+import MonacoEditor, { loader } from '@monaco-editor/react'
+import * as monaco from 'monaco-editor'
 
 import { Theme, ThemeContext } from '../contexts/Theme'
+
+// Bundle monaco locally instead of loading it from a CDN.
+loader.config({ monaco })
 
 import '../styles/Editor.css'
 
@@ -130,9 +134,8 @@ function InputField (props : InputProps) : JSX.Element {
                 scrollbar : {
                   // handleMouseWheel : false,
                 } } }
-              onChange={ (content : string) => onContent(content) }
-              // editorDidMount={ ::this.editorDidMount }
-              editorDidMount={ (editor, _monaco) => editor.focus() }
+              onChange={ (content : string | undefined) => onContent(content ?? '') }
+              onMount={ (editor) => editor.focus() }
             />
         }
 

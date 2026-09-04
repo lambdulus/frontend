@@ -36,10 +36,6 @@ jobs:
     - run: npm ci
     - run: npm test -- --watchAll=false
     - run: npm run build --if-present
-      env:
-        # Stopgap: CRA4/webpack4 needs the legacy OpenSSL provider on Node 17+.
-        # Remove once react-scripts is upgraded.
-        NODE_OPTIONS: --openssl-legacy-provider
 
   deploy:
     runs-on: ubuntu-latest
