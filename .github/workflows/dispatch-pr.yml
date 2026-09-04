@@ -8,7 +8,7 @@ jobs:
   comment:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/github-script@v5
+      - uses: actions/github-script@v7
         with:
 #           github-token: ${{secrets.ACCESS_TOKEN}}
           script: |
@@ -49,7 +49,7 @@ jobs:
     steps:
       - name: Event Dispatch - the deployment process
         run: |
-          curl -X POST https://api.github.com/repos/lambdulus/staging/dispatches \
+          curl --fail --show-error -X POST https://api.github.com/repos/lambdulus/staging/dispatches \
           -H 'Accept: application/vnd.github.everest-preview+json' \
           -u ${{ secrets.ACCESS_TOKEN }} \
           --data '{"event_type": "pr-deploy-staging", "client_payload": { "repository": "'"$GITHUB_REPOSITORY"'", "branch": "'"${{ github.event.pull_request.head.ref }}"'" }}'
