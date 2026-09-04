@@ -82,9 +82,6 @@ export class TreeComparator {
     }
     else {
       this.equals = false
-      console.log('something is not equal')
-      console.log(left.toString(), left.type)
-      console.log(right.toString(), right.type)
     }
   }
 }
