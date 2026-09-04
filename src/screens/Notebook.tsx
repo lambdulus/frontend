@@ -30,7 +30,7 @@ export default class Notebook extends PureComponent<Props> {
 
     return (
       <div className="mainSpace">
-        {/* TODO: This will be refactore out to standalone component. */}
+        {/* TODO: This will be refactored out to standalone component. */}
         <ul className="boxList UL">
           { boxList.map(
             (box : BoxState, i : number) =>
@@ -101,7 +101,6 @@ export default class Notebook extends PureComponent<Props> {
   }
 
   updateBoxState (index : number, box : BoxState) : void {
-    // console.log('UPDATING BOX STATE')
     const { boxList } = this.props.state
     boxList[index] = { ...box }
 
@@ -110,7 +109,6 @@ export default class Notebook extends PureComponent<Props> {
   }
 
   makeActive (index : number) : void {
-    // console.log("CLICKED ON               MAKE ACTIVE " + index)
     const { activeBoxIndex, focusedBoxIndex, boxList } = this.props.state
 
     const currentType : BoxType = boxList[activeBoxIndex].type
@@ -161,8 +159,6 @@ export default class Notebook extends PureComponent<Props> {
     // I am thinking - right now all it does is this:
     // it un-focuses currently focused Box
     // if this is not really needed - then maybe I should not have this feature
-    // console.log('..................................')
-    // console.log("                  BLUR " + index)
 
     const { boxList, activeBoxIndex } = this.props.state
 

@@ -200,7 +200,6 @@ export default class BoxTitleBar extends Component<Props, State> {
             // the previous line is a black hole for the mousedown event
             // that way it can't cause losing focus for the box, because it is stoped
             onClick={ (e) => {
-              console.log('clicked on the EDIT button')
               e.stopPropagation()
 
               switch (type) {

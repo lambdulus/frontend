@@ -280,7 +280,6 @@ export default class ExerciseBox extends PureComponent<EvaluationProperties> {
         }
 
         ast = etaEvaluator.perform()
-        // console.log("next step ale dala se udelat eta", ast.toString(), userAst.toString())
         lastReduction = etaEvaluator.nextReduction
       }
       else {
@@ -315,7 +314,6 @@ export default class ExerciseBox extends PureComponent<EvaluationProperties> {
       else {
         // TODO: say user it was incorrect
         // TODO: na to se pouzije uvnitr EvaluatorState prop messages nebo tak neco
-        // console.log('Incorrect step')
         message.message = `Incorrect step. ${content}`
         message.validity = StepValidity.INCORRECT
       }
@@ -342,7 +340,6 @@ export default class ExerciseBox extends PureComponent<EvaluationProperties> {
   }
 
   onExerciseStep () {
-    // console.log('EXERCISE STEP')
     const { state, setBoxState } = this.props
     const { strategy, history, editor : { content }, SDE, macrotable, SLI } = state
     
@@ -430,7 +427,6 @@ export default class ExerciseBox extends PureComponent<EvaluationProperties> {
       else {
         // TODO: say user it was incorrect
         // TODO: na to se pouzije uvnitr EvaluatorState prop messages nebo tak neco
-        // console.log('Incorrect step')
         message.message = `Incorrect step. ${content}`
         message.validity = StepValidity.INCORRECT
       }
@@ -454,8 +450,6 @@ export default class ExerciseBox extends PureComponent<EvaluationProperties> {
   }
 
   onSimplifiedStep () : void {
-    // console.log("DOIN ONE STEP       _______     SIMPLIFIED")
-    // console.log('simplified step')
 
 
     const { state, setBoxState } = this.props
@@ -469,19 +463,15 @@ export default class ExerciseBox extends PureComponent<EvaluationProperties> {
       return
     }
 
-    // console.log('looooooooooooooooooooooooooooking')
 
     //                                                    fix this part please
     let [nextReduction, evaluateReduction] : [ASTReduction, (ast : AST) => AST] = findSimplifiedReduction(ast, strategy, macrotable)
-    // console.log('BACK TO THE WORLD HERE')
     
     let message : StepMessage = { validity : StepValidity.CORRECT, userInput : content, message : '' }
     let isNowNormalForm = false
 
-    // console.log(nextReduction)
 
     if (nextReduction instanceof MacroBeta) {
-      // console.log("YES MACRO BETA HERE")
       // z macrobeta si vytahnu aritu makra
       const arity : number = nextReduction.arity
 
@@ -489,7 +479,6 @@ export default class ExerciseBox extends PureComponent<EvaluationProperties> {
       if (nextReduction.applications.length !== arity) {
         // pokud arita nesedi - je vetsi nez delka pole aplikaci -->
         // --> musim vyhlasit warning a rict, ze tenhle krok neni uplne gooda
-        // console.log("ARITY IS WRONG - probably too few arguments")
         stepRecord.message.message = `Macro ${tryMacroContraction(nextReduction.applications[0].left, macrotable)} is given too few arguments.`
 
         newast = evaluateReduction(newast)
@@ -531,7 +520,6 @@ export default class ExerciseBox extends PureComponent<EvaluationProperties> {
 
 
     {
-      // console.log('copak se tohle vubec neprovadi????????????????')
       const astCopy : AST = newast.clone()
       const [nextReduction] : [ASTReduction, (ast : AST) => AST] = findSimplifiedReduction(astCopy, strategy, macrotable)
       // const evaluator : Evaluator = new (strategyToEvaluator(strategy) as any)(astCopy)
@@ -559,7 +547,6 @@ export default class ExerciseBox extends PureComponent<EvaluationProperties> {
   }
 
   onStep () : void {
-    // console.log('DOIN ONE STEP')
     const { state, setBoxState } = this.props
     const { strategy, history, SDE } = state
     const stepRecord = history[history.length - 1]
@@ -568,7 +555,6 @@ export default class ExerciseBox extends PureComponent<EvaluationProperties> {
     ast = ast.clone()
   
     if (isNormalForm) {
-      // console.log('normal form bro')
       
       return
     }
@@ -578,7 +564,6 @@ export default class ExerciseBox extends PureComponent<EvaluationProperties> {
       return
     }
 
-    console.log('normal step')
 
     let evaluator : Evaluator = new (strategyToEvaluator(strategy) as any)(ast)
     lastReduction = evaluator.nextReduction
@@ -587,7 +572,6 @@ export default class ExerciseBox extends PureComponent<EvaluationProperties> {
       const etaEvaluator : Evaluator = new OptimizeEvaluator(ast)
 
       if (etaEvaluator.nextReduction instanceof None) {
-        // console.log('NEXT IS NONE')
         stepRecord.isNormalForm = true
         stepRecord.message.message = 'Expression is in normal form.'
         
@@ -628,7 +612,6 @@ export default class ExerciseBox extends PureComponent<EvaluationProperties> {
     // then it can say - it is in the Normal Form - if some settings enables it - not by default though
     //
     // if (ast instanceof Macro || ast instanceof ChurchNumeral) {
-    //   console.log('CURRENT IS MACRO OR NUMBER')
 
     //   stepRecord.isNormalForm = true
     //   stepRecord.message = 'Expression is in normal form.'
@@ -684,9 +667,7 @@ export default class ExerciseBox extends PureComponent<EvaluationProperties> {
 
   // THROWS Exceptions
   parseExpression (expression : string, macrotable : MacroMap) : AST {
-    console.log('parsing expression ', expression)
     // const { macrotable } = this.props.macroContext
-    console.log('my macrotable ', macrotable)
 
     const { SLI : singleLetterVars } = this.props.state
 
