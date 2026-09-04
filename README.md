@@ -1,16 +1,34 @@
+# Lambdulus Frontend
+
+The web notebook for playing with lambda calculus (teaching at FIT CTU).
+Vite + React 18 + TypeScript. The compute engine is `@lambdulus/core`,
+consumed straight from its git tag (see `package.json`, no npm registry).
+
+Requires Node 20+.
+
 ## Available Scripts
 
-In the project directory, you can run:
+- `npm start` - dev server with the current git date/commit stamped in
+- `npm run build` - typecheck (`tsc --noEmit`) + production build to `build/`
+- `npm test` - vitest suite
+- `npm run preview` - serve the production build locally
 
-### `npm start`
+## Branches and deploys
 
-Runs the app in the development mode.<br />
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+- `develop` is staging: every push builds, tests, and dispatches to the
+  `lambdulus/staging` repo, which publishes to
+  https://lambdulus.github.io/staging/
+- Pull requests into `develop` get per-PR previews at
+  `https://lambdulus.github.io/staging/pr/<branch>` (purged on close)
+- `master` is production: merging `develop` builds, tests, and dispatches
+  to `lambdulus/lambdulus.github.io`, which publishes to
+  https://lambdulus.github.io/
 
-The page will reload if you make edits.<br />
-You will also see any lint errors in the console.
+Builds bake in `VITE_VERSION_INFO`/`VITE_COMMIT` stamps (shown in Help and
+the dev console). Assets use relative URLs, so one build serves every
+path above.
 
-### `Building and Deploying`
+## Docs
 
-To build and deploy the Frontend App you have to open a merge request into the `master` branch and merge it.
-There is an action which will take care of the rest.
+- `AUDIT.md` - repo audit (2026 cleanup)
+- `TODO.md` - triaged TODO list with open decisions
