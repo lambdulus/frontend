@@ -18,18 +18,16 @@ import { BoxType } from '../Types'
 import { TreeComparator } from './TreeComparator'
 import InactiveEvaluator from './InactiveExpression'
 import Expression from './Expression'
-import { PromptPlaceholder, UntypedLambdaState, Evaluator, StepRecord, Breakpoint, UntypedLambdaType, UntypedLambdaExpressionState, StepMessage, StepValidity } from './Types'
-import { reportEvent } from '../misc'
-import { strategyToEvaluator, findSimplifiedReduction, MacroBeta, toMacroMap, tryMacroContraction } from './AppTypes'
+import { PromptPlaceholder, UntypedLambdaState, Evaluator, StepRecord, Breakpoint, UntypedLambdaType, StepMessage, StepValidity } from './Types'
+import { strategyToEvaluator, findSimplifiedReduction, MacroBeta, toMacroMap, tryMacroContraction } from './Constants'
 
 
 export interface EvaluationProperties {
-  state : UntypedLambdaExpressionState
+  state : UntypedLambdaState
   isActive : boolean
   isFocused : boolean
-  darkmode : boolean
 
-  setBoxState (state : UntypedLambdaExpressionState) : void
+  setBoxState (state : UntypedLambdaState) : void
   addBox (box : UntypedLambdaState) : void
 }
 
@@ -45,15 +43,12 @@ export default class ExerciseBox extends PureComponent<EvaluationProperties> {
     this.onSimplifiedExerciseStep = this.onSimplifiedExerciseStep.bind(this)
     this.onStep = this.onStep.bind(this)
     this.onSimplifiedStep = this.onSimplifiedStep.bind(this)
-    this.onExecute = this.onExecute.bind(this)
-    this.onRun = this.onRun.bind(this)
-    this.onStop = this.onStop.bind(this)
     this.shouldBreak = this.shouldBreak.bind(this)
     this.createBoxFrom = this.createBoxFrom.bind(this)
   }
 
   render () : JSX.Element {
-    const { state, isActive, addBox, darkmode } : EvaluationProperties = this.props
+    const { state, isActive, addBox } : EvaluationProperties = this.props
     const {
       minimized,
       history,
@@ -61,7 +56,7 @@ export default class ExerciseBox extends PureComponent<EvaluationProperties> {
       editor,
       SDE,
       macrotable,
-    } : UntypedLambdaExpressionState = state
+    } : UntypedLambdaState = state
 
     let className : string = 'box boxEval boxExercise'
     const { isNormalForm } = history.length ? history[history.length - 1] : { isNormalForm : false }
@@ -93,13 +88,12 @@ export default class ExerciseBox extends PureComponent<EvaluationProperties> {
         editor={ editor }
         isNormalForm={ isNormalForm }
         shouldShowDebugControls={ isActive }
-        darkmode={ darkmode }
 
         createBoxFrom={ this.createBoxFrom }
         setBoxState={ this.props.setBoxState }
         onContent={ this.onContent }
         onEnter={ this.onEnter }
-        onExecute={ this.onExecute }
+        onExecute={ () => void 0 }
         addBox={ addBox }
       />
     )
@@ -113,7 +107,7 @@ export default class ExerciseBox extends PureComponent<EvaluationProperties> {
       SDE,
       expandStandalones,
       macrotable,
-    } : UntypedLambdaExpressionState = state
+    } : UntypedLambdaState = state
     const { ast } = stepRecord
     const content = ast.toString()
 
@@ -193,8 +187,6 @@ export default class ExerciseBox extends PureComponent<EvaluationProperties> {
       if (evaluator.nextReduction instanceof None) {
         isNormal = true
         message.message = 'Expression is in normal form.'
-        
-        reportEvent('Evaluation Step', 'Step Normal Form Reached', ast.toString())  
       }
 
       setBoxState({
@@ -215,8 +207,6 @@ export default class ExerciseBox extends PureComponent<EvaluationProperties> {
           syntaxError : null,
         }
       })
-
-      reportEvent('Submit Expression', 'submit valid', content)
     } catch (exception) {
       let errorMessage : string = "Something is wrong with your expression. Please inspect it closely."
       console.error((exception as Error).toString())
@@ -235,8 +225,6 @@ export default class ExerciseBox extends PureComponent<EvaluationProperties> {
           syntaxError : Error(errorMessage),
         }
       })
-
-      reportEvent('Submit Expression', 'submit invalid', content)
     }
   }
 
@@ -267,8 +255,6 @@ export default class ExerciseBox extends PureComponent<EvaluationProperties> {
           ...state,
         })
 
-        reportEvent('Exercise Step', 'Step Already in normal form', content)
-
         return
       }
     
@@ -289,9 +275,7 @@ export default class ExerciseBox extends PureComponent<EvaluationProperties> {
           setBoxState({
             ...state,
           })
-  
-          reportEvent('Simplified Exercise Step', 'Step Already in Normal Form', content)
-          
+
           return
         }
 
@@ -317,7 +301,6 @@ export default class ExerciseBox extends PureComponent<EvaluationProperties> {
 
           if (etaEvaluator.nextReduction instanceof None) {
             isNormal = true
-            reportEvent('Simplified Evaluation Step', 'Step Normal Form Reached', ast.toString())  
           }
         }
       }
@@ -328,8 +311,6 @@ export default class ExerciseBox extends PureComponent<EvaluationProperties> {
       if (comparator.equals) {
         ast = userAst
         message.message = 'Correct.'
-
-        reportEvent('Exercise Step', 'Valid Step', content)
       }
       else {
         // TODO: say user it was incorrect
@@ -337,8 +318,6 @@ export default class ExerciseBox extends PureComponent<EvaluationProperties> {
         // console.log('Incorrect step')
         message.message = `Incorrect step. ${content}`
         message.validity = StepValidity.INCORRECT
-
-        reportEvent('Exercise Step', 'Invalid Step', content)
       }
 
       setBoxState({
@@ -356,8 +335,6 @@ export default class ExerciseBox extends PureComponent<EvaluationProperties> {
       // TODO: do it localy - no missuse of onSubmit
 
       // TODO: print syntax error
-
-      reportEvent('Exercise Step', 'Syntax error in Step', content)
     }
 
 
@@ -399,8 +376,6 @@ export default class ExerciseBox extends PureComponent<EvaluationProperties> {
           ...state,
         })
 
-        reportEvent('Exercise Step', 'Step Already in normal form', content)
-
         return
       }
     
@@ -419,9 +394,7 @@ export default class ExerciseBox extends PureComponent<EvaluationProperties> {
           setBoxState({
             ...state,
           })
-  
-          reportEvent('Exercise Step', 'Step Already in Normal Form', content)
-          
+            
           return
         }
 
@@ -443,8 +416,6 @@ export default class ExerciseBox extends PureComponent<EvaluationProperties> {
 
           if (etaEvaluator.nextReduction instanceof None) {
             isNormal = true
-
-            reportEvent('Evaluation Step', 'Step Normal Form Reached', ast.toString())  
           }
         }
       }
@@ -455,8 +426,6 @@ export default class ExerciseBox extends PureComponent<EvaluationProperties> {
       if (comparator.equals) {
         ast = userAst
         message.message = 'Correct.'
-
-        reportEvent('Exercise Step', 'Valid Step', content)
       }
       else {
         // TODO: say user it was incorrect
@@ -464,8 +433,6 @@ export default class ExerciseBox extends PureComponent<EvaluationProperties> {
         // console.log('Incorrect step')
         message.message = `Incorrect step. ${content}`
         message.validity = StepValidity.INCORRECT
-
-        reportEvent('Exercise Step', 'Invalid Step', content)
       }
 
       setBoxState({
@@ -483,8 +450,6 @@ export default class ExerciseBox extends PureComponent<EvaluationProperties> {
       // TODO: do it localy - no missuse of onSubmit
 
       // TODO: print syntax error
-
-      reportEvent('Exercise Step', 'Syntax error in Step', content)
     }
   }
 
@@ -577,8 +542,6 @@ export default class ExerciseBox extends PureComponent<EvaluationProperties> {
         if (etaEvaluator.nextReduction instanceof None) {
           isNowNormalForm = true
           message.message = 'Expression is in normal form.'
-          
-          reportEvent('Evaluation Step', 'Step Normal Form Reached', ast.toString())  
         }
       }
     }
@@ -592,70 +555,7 @@ export default class ExerciseBox extends PureComponent<EvaluationProperties> {
       history : [ ...history, { ast : newast, lastReduction : nextReduction, step : step + 1, message, isNormalForm : isNowNormalForm, exerciseStep : true } ],
     })
 
-    reportEvent('Evaluation Step', 'Step Normal Form Reached', ast.toString())
     return
-    
-    // {
-    //   // None
-    //   // console.log("_________________________________ NONE")
-    //   // stepRecord.isNormalForm = true
-    //   // stepRecord.message = 'Expression is in normal form.'
-      
-    //   // setBoxState({
-    //   //   ...state,
-    //   // })
-      
-    //   // reportEvent('Evaluation Step', 'Step Normal Form Reached', ast.toString())
-
-    //   // return
-    // }
-    // {
-    //   // Expansion -> then None
-    //   // stepRecord.lastReduction = newreduction
-    //   // stepRecord.isNormalForm = true
-    //   // stepRecord.message = 'Expression is in normal form.'
-      
-    //   // setBoxState({
-    //   //   ...state,
-    //   // })
-      
-    //   // reportEvent('Evaluation Step', 'Step Normal Form Reached', ast.toString())
-
-    //   // return
-    // }
-    // {
-    //   // Expandion -> then Any ASTReduction inside the expanded Macro --> need to Expand first
-    //   // ast = newAst
-
-    //   // let message = ''
-    //   // let isNormal = false
-
-    //   // setBoxState({
-    //   //   ...state,
-    //   //   history : [ ...history, { ast, lastReduction, step : step + 1, message, isNormalForm : isNormal } ]
-    //   // })
-    //   // return
-    // }
-    // {
-    //   // Expansion -> then Any ASTReduction completely outside of Macro --> skip the Expansion and do the next thing instead
-    //   // ast = newevaluator.perform()
-    //   // const p = parent as AST
-    //   // const ts = treeSide as String
-    //   // (p as any)[ts as any] = M
-    //   // // parent should be not-null
-    //   // // because if there was a Macro which we were able to Expand
-    //   // // and then there has been found Redex which is not part of the newly expanded sub-tree
-    //   // // the new Redex simply has to be in different part of the tree --> which means - M (original Macro) is not the root
-
-    //   // let message = ''
-    //   // let isNormal = false
-
-    //   // setBoxState({
-    //   //   ...state,
-    //   //   history : [ ...history, { ast, lastReduction, step : step + 1, message, isNormalForm : isNormal } ]
-    //   // })
-    //   // return
-    // }
   }
 
   onStep () : void {
@@ -694,9 +594,7 @@ export default class ExerciseBox extends PureComponent<EvaluationProperties> {
         setBoxState({
           ...state,
         })
-        
-        reportEvent('Evaluation Step', 'Step Normal Form Reached', ast.toString())
-  
+
         return
       }
 
@@ -719,8 +617,6 @@ export default class ExerciseBox extends PureComponent<EvaluationProperties> {
         if (etaEvaluator.nextReduction instanceof None) {
           isNormal = true
           message.message = 'Expression is in normal form.'
-          
-          reportEvent('Evaluation Step', 'Step Normal Form Reached', ast.toString())  
         }
       }
     }
@@ -749,146 +645,6 @@ export default class ExerciseBox extends PureComponent<EvaluationProperties> {
       history : [ ...history, { ast, lastReduction, step : step + 1, message, isNormalForm : isNormal, exerciseStep : true } ],
 
     })
-
-    reportEvent('Exercise Empty Evaluation Step', 'Step', ast.toString())
-  }
-
-  onExecute () : void {
-    // const { state, setBoxState } = this.props
-    // const { isRunning } = state
-
-    // // if (isExercise) {
-    // //   // TODO: exercises can not be run - some message to user???
-    // //   return
-    // // }
-
-    // if (isRunning) {
-    //   this.onStop()
-    // }
-    // else {
-    //   const { timeout, history } = state
-    //   const stepRecord = history[history.length - 1]
-  
-    //   if (stepRecord.isNormalForm) {
-    //     return
-    //   }
-      
-    //   const { ast, step, lastReduction, isNormalForm, message } = stepRecord
-    //   history.push(history[history.length - 1])
-    //   history[history.length - 2] = { ast : ast.clone(), step, lastReduction, message : 'Skipping some steps...', isNormalForm }
-
-    //   setBoxState({
-    //     ...state,
-    //     isRunning : true,
-    //     timeoutID : window.setTimeout(this.onRun, timeout),
-    //   })
-
-    //   reportEvent('Execution', 'Run Evaluation', ast.toString())
-    // }
-  }
-
-  onRun () : void {
-    // const { state, setBoxState } = this.props
-    // const { strategy } = state
-    // let { history, isRunning, breakpoints, timeoutID, timeout } = state
-    // const stepRecord : StepRecord = history[history.length - 1]
-    // const { isNormalForm, step } = stepRecord
-    // let { lastReduction } = stepRecord
-
-    // if ( ! isRunning) {
-    //   return
-    // }
-    
-    // if (isNormalForm) {
-    //   setBoxState({
-    //     ...state,
-    //     isRunning : false,
-    //     timeoutID : undefined,
-    //   })
-  
-    //   return
-    // }
-  
-    // let { ast } = stepRecord
-    // const normal : Evaluator = new (strategyToEvaluator(strategy) as any)(ast)
-    // lastReduction = normal.nextReduction
-    
-    // if (normal.nextReduction instanceof None) {
-    //   // TODO: consider immutability
-    //   history.pop()
-    //   history.push({
-    //     ast,
-    //     lastReduction : stepRecord.lastReduction,
-    //     step,
-    //     message : 'Expression is in normal form.',
-    //     isNormalForm : true
-    //   })
-  
-    //   setBoxState({
-    //     ...state,
-    //     isRunning : false,
-    //     timeoutID : undefined,
-    //   })
-  
-    //   return
-    // }
-  
-    // // TODO: maybe refactor a little
-    // const breakpoint : Breakpoint | undefined = breakpoints.find(
-    //   (breakpoint : Breakpoint) =>
-    //     this.shouldBreak(breakpoint, normal.nextReduction)
-    // )
-
-    // if (breakpoint !== undefined) {
-    //   // TODO: consider immutability
-    //   if (normal.nextReduction instanceof Expansion) {
-    //     breakpoint.broken.add(normal.nextReduction.target)
-    //   }
-    //   if (normal.nextReduction instanceof Beta && normal.nextReduction.redex.left instanceof Lambda) {
-    //     breakpoint.broken.add(normal.nextReduction.redex.left.argument)
-    //   }
-
-    //   window.clearTimeout(timeoutID)
-    //   reportEvent('Evaluation Run Ended', 'Breakpoint was reached', ast.toString())
-
-
-    //   setBoxState({
-    //     ...state,
-    //     isRunning : false,
-    //     timeoutID,
-    //   })
-
-    //   return
-    // }
-  
-    // ast = normal.perform()
-
-    // history[history.length - 1] = { ast, lastReduction, step : step + 1, message : '', isNormalForm }
-
-    // // NOTE: Same thing as #0023
-    // // if (ast instanceof Macro || ast instanceof ChurchNumeral) {
-    // //   history[history.length - 1] = { ast, lastReduction, step : step + 1, message : 'Expression is in normal form.', isNormalForm : true }
-
-    // //   reportEvent('Evaluation Run Ended', 'Step Normal Form Reached with Number or Macro', ast.toString())
-    // // }
-    
-    // setBoxState({
-    //   ...state,
-    //   timeoutID : window.setTimeout(this.onRun, timeout)
-    // })
-  }
-
-  onStop () : void {
-    // const { state, setBoxState } = this.props
-    // const { timeoutID } = state
-  
-    // window.clearTimeout(timeoutID)
-  
-    // setBoxState({
-    //   ...state,
-    //   isRunning : false,
-    //   timeoutID : undefined
-    // })
   }
 
   // TODO: breakpointy se pak jeste musi predelat

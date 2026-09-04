@@ -1,8 +1,9 @@
-import { CODE_NAME as UNTYPED_CODE_NAME, decodeUntypedLambdaState } from './untyped-lambda-integration/AppTypes'
-import { defaultSettings as UntypedLambdaDefaultSettings } from './untyped-lambda-integration/AppTypes'
+import { CODE_NAME as UNTYPED_CODE_NAME, decodeUntypedLambdaState } from './untyped-lambda-integration/Constants'
+import { defaultSettings as UntypedLambdaDefaultSettings } from './untyped-lambda-integration/Constants'
 
 import { BoxType, Screen, AppState, GlobalSettings, NotebookState, BoxState } from "./Types"
 import { UntypedLambdaState } from './untyped-lambda-integration/Types'
+import { Theme } from './contexts/Theme'
 
 
 export const CLEAR_WORKSPACE_CONFIRMATION : string =
@@ -23,53 +24,25 @@ export function mapBoxTypeToStr (type : BoxType) : string {
   }
 }
 
+export const DefaultSettings : GlobalSettings
+  = { [UNTYPED_CODE_NAME] : UntypedLambdaDefaultSettings }
+
+
 export const InitNotebookState : NotebookState = {
   boxList : [],
   activeBoxIndex : NaN,
   focusedBoxIndex : undefined,
-  settings : { [UNTYPED_CODE_NAME] : UntypedLambdaDefaultSettings, },
+  settings : DefaultSettings,
 
-  locked : false,
   menuOpen : false,
 
   __key : Date.now().toString(),
-  editingName : false,
 }
 
 export const EmptyAppState : AppState = {
-  notebookList : [ InitNotebookState ],
-  currentNotebook : 0,
+  notebook : InitNotebookState,
   currentScreen : Screen.MAIN,
-  darkmode : false
-}
-
-
-export function updateSettingsInStorage (settings : GlobalSettings) : void {
-  window.localStorage.setItem('global-settings', JSON.stringify(settings))
-}
-
-export function loadSettingsFromStorage () : GlobalSettings {
-  const defaultSettings = {
-    [UNTYPED_CODE_NAME] : {}
-  }
-
-  const serialized : string | null = window.localStorage.getItem('global-settings')
-  const deserialized : GlobalSettings =  serialized === null ? defaultSettings : JSON.parse(serialized)
-
-  
-  for (const [key, value] of Object.entries(deserialized)) {
-    switch (key) {
-      case UNTYPED_CODE_NAME:
-        deserialized[key] = { ...UntypedLambdaDefaultSettings, ...value }
-        break;
-    
-      default:
-        console.error("Settings CODE NAME is not one of known Code Names.")
-        break;
-    }
-  }
-
-  return deserialized
+  theme : Theme.Light
 }
 
 
@@ -96,10 +69,10 @@ export function updateAppStateToStorage (state : AppState) : void {
   localStorage.setItem('AppState', JSON.stringify(state))
 }
 
-export function updateNotebookStateToStorage (notebook : NotebookState, index : number) {
+export function updateNotebookStateToStorage (notebook : NotebookState) {
   const state : AppState = loadAppStateFromStorage()
 
-  state.notebookList[index] = notebook
+  state.notebook = notebook
 
   updateAppStateToStorage(state)
 }
@@ -111,11 +84,11 @@ export function updateNotebookStateToStorage (notebook : NotebookState, index : 
  * @param state : Deserialized form of AppState
  */
 export function decode (state : AppState) : AppState | never {
-  const notebookList : Array<NotebookState> = state.notebookList.map(decodeNotebook)
+  const notebook : NotebookState = decodeNotebook(state.notebook)
   
   return {
     ...state,
-    notebookList,
+    notebook,
   }
 }
 

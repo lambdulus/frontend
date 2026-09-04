@@ -1,10 +1,5 @@
 import React from 'react'
 
-// import Evaluator from './ExpressionBox'
-// import MacroDefinition from './MacroDefinition'
-// import Note from './Note'
-// import { MacroTableContext } from './EvaluatorSpace'
-// import { SetBoxContext } from './BoxSpace'
 import { BoxType, BoxState } from '../Types'
 
 import { UntypedLambdaState } from '../untyped-lambda-integration/Types'
@@ -16,20 +11,18 @@ import Note from '../markdown-integration/Note'
 
 import Empty from '../empty-integration'
 
-// import { BoxState } from '../AppTypes'
 
 interface BoxProperties {
   state : BoxState
   isActive : boolean
   isFocused : boolean
-  darkmode : boolean
 
   updateBoxState (box : BoxState) : void
   addBoxAfter (box : BoxState) : void
 }
 
 export default function Box (props : BoxProperties) : JSX.Element {
-  const { state, isActive, isFocused, updateBoxState, addBoxAfter, darkmode } : BoxProperties = props
+  const { state, isActive, isFocused, updateBoxState, addBoxAfter } : BoxProperties = props
   const { type } = state
 
   // const macroTable = useContext(MacroTableContext)
@@ -42,8 +35,6 @@ export default function Box (props : BoxProperties) : JSX.Element {
         state={ state as UntypedLambdaState }
         isActive={ isActive }
         isFocused={ isFocused }
-        // macroTable={ macroTable }
-        darkmode={ darkmode }
         
         setBoxState={ updateBoxState }
         addBox={ addBoxAfter }
@@ -56,7 +47,6 @@ export default function Box (props : BoxProperties) : JSX.Element {
         state={ state as NoteState }
         isActive={ isActive }
         isFocused={ isFocused }
-        darkmode={ darkmode }
 
         setBoxState={ updateBoxState }
       />
@@ -67,18 +57,5 @@ export default function Box (props : BoxProperties) : JSX.Element {
       <Empty />
     )
   }
-
-  // if (type === BoxType.MACRO) {
-  //   return (
-  //     <div className=''>
-  //       <MacroDefinition
-  //         state={ state as MacroDefinitionState }
-  //         setBoxState={ setBoxState }
-
-  //         // addBox={ addBox }
-  //       />
-  //     </div>
-  //   )
-  // }
 
 }

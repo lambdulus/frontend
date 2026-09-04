@@ -4,11 +4,10 @@ import { BoxType } from '../Types'
 import { UntypedLambdaState, UntypedLambdaType, UntypedLambdaSettings, PromptPlaceholder, StepMessage, StepValidity } from './Types'
 import ExpressionBox from './ExpressionBox'
 import MacroList from './MacroList'
-import { GLOBAL_SETTINGS_ENABLER, strategyToEvaluator, findSimplifiedReduction, toMacroMap } from './AppTypes'
+import { GLOBAL_SETTINGS_ENABLER, strategyToEvaluator, findSimplifiedReduction, toMacroMap } from './Constants'
 import ExerciseBox from './ExerciseBox'
 import Settings from './Settings'
 import EmptyExpression from './EmptyExpression'
-import { reportEvent } from '../misc'
 import { None, Evaluator, Token, tokenize, parse, AST, OptimizeEvaluator, MacroMap } from '@lambdulus/core'
 
 
@@ -16,7 +15,6 @@ interface Props {
   state : UntypedLambdaState
   isActive : boolean
   isFocused : boolean
-  darkmode : boolean
 
   setBoxState (state : UntypedLambdaState) : void
   addBox (box : UntypedLambdaState) : void
@@ -24,7 +22,7 @@ interface Props {
 
 export default class UntypedLambdaBox extends PureComponent<Props> {
   render () {
-    const { state, isActive, isFocused, setBoxState, addBox, darkmode } : Props = this.props
+    const { state, isActive, isFocused, setBoxState, addBox } : Props = this.props
     const { settingsOpen, subtype, macrolistOpen, SLI, expandStandalones, strategy, SDE, editor, minimized } : UntypedLambdaState = state
 
 
@@ -48,7 +46,6 @@ export default class UntypedLambdaBox extends PureComponent<Props> {
                   }
                 })
               }
-              darkmode={ darkmode }
               onDebug={ () => this.onSubmitExpression(UntypedLambdaType.ORDINARY) }
               onExercise={ () => this.onSubmitExpression(UntypedLambdaType.EXERCISE) }
               setBoxState={ setBoxState }
@@ -63,7 +60,6 @@ export default class UntypedLambdaBox extends PureComponent<Props> {
               isFocused={ isFocused }
               setBoxState={ setBoxState }
               addBox={ addBox }
-              darkmode={ darkmode }
             />
           )
         
@@ -75,7 +71,6 @@ export default class UntypedLambdaBox extends PureComponent<Props> {
               isFocused={ isFocused }
               setBoxState={ setBoxState }
               addBox={ addBox }
-              darkmode={ darkmode }
             />
           )
       }
@@ -172,7 +167,6 @@ export default class UntypedLambdaBox extends PureComponent<Props> {
         if (etaEvaluator.nextReduction instanceof None) {
           isNormal = true
           message.message = 'Expression is in normal form.'
-          reportEvent('Evaluation Step', 'Step Normal Form Reached', ast.toString())
         }
       }
 
@@ -197,8 +191,6 @@ export default class UntypedLambdaBox extends PureComponent<Props> {
           syntaxError : null,
         }
       })
-
-      reportEvent('Submit Expression', 'submit valid', content)
     } catch (exception) {
       let errorMessage : string = "Something is wrong with your expression. Please inspect it closely."
       console.error((exception as Error).toString())
@@ -219,8 +211,6 @@ export default class UntypedLambdaBox extends PureComponent<Props> {
           syntaxError : new Error(errorMessage),
         }
       })
-
-      reportEvent('Submit Expression', 'submit invalid', content)
     }
   }
 

@@ -2,12 +2,10 @@ import React, { Component } from 'react'
 
 import './App.css'
 
-import  { updateSettingsInStorage
-        , loadAppStateFromStorage
+import  { loadAppStateFromStorage
         , updateAppStateToStorage
         , updateNotebookStateToStorage
         , CLEAR_WORKSPACE_CONFIRMATION
-        , loadSettingsFromStorage
         , InitNotebookState } from './Constants'
 
 import TopBar from './components/TopBar'
@@ -16,24 +14,15 @@ import Notebook from './screens/Notebook'
 import Help from './screens/Help'
 import SettingsScreen from './screens/Settings'
 import { Screen, AppState, NotebookState, GlobalSettings, BoxType, BoxState } from './Types'
-import { createNewUntypedLambdaBoxFromSource, defaultSettings } from './untyped-lambda-integration/AppTypes'
+import { CODE_NAME as UNTYPED_LAMBDA_CODE_NAME, createNewUntypedLambdaBoxFromSource, defaultSettings } from './untyped-lambda-integration/Constants'
 import { UntypedLambdaState, UntypedLambdaSettings, EvaluationStrategy, UntypedLambdaType } from './untyped-lambda-integration/Types'
 import { MacroTable } from '@lambdulus/core'
+import { Theme, ThemeContext } from './contexts/Theme'
+import { SettingsContext } from './contexts/Settings'
 
 
-
-/**
- * This is the main Application
- * in the future - when building Exam Mode - I will need to replace some part of the application components
- * if it's only some component at the top, it can be done easily
- * if it's gonna replace some deeper stuff I will need to implement some Namespace FROM which app and integrations
- * will inport parts and this Namespace will take care of that
- */
-
-
-interface Props {}
-export default class App extends Component<Props, AppState> {
-  constructor (props : Props) {
+export default class App extends Component<{}, AppState> {
+  constructor (props : {}) {
     super(props)
 
     console.log(`VERSION: ${process.env.REACT_APP_VERSION_INFO}`)
@@ -47,7 +36,7 @@ export default class App extends Component<Props, AppState> {
     this.updateSettings = this.updateSettings.bind(this)
     this.importNotebook = this.importNotebook.bind(this)
     this.clearWorkspace = this.clearWorkspace.bind(this)
-    this.toggleDarkMode = this.toggleDarkMode.bind(this)
+    this.toggleTheme = this.toggleTheme.bind(this)
 
     this.createNotebookFromURL = this.createNotebookFromURL.bind(this)
   }
@@ -57,7 +46,6 @@ export default class App extends Component<Props, AppState> {
   }
 
   // TODO: all of this needs to be moved to more apropriate component
-  // maybe something like Notebook or similar -- this just isn't right
 
   // I don't think it should get moved to the component, standalone helper function would be OK
   // OR -> split it --> there will be very simple top level abstraction implementation
@@ -104,12 +92,11 @@ export default class App extends Component<Props, AppState> {
           const macrotable : MacroTable = JSON.parse(decodeURI(macros))
 
           const box : UntypedLambdaState = createNewUntypedLambdaBoxFromSource(decodeURI(source), settings, sub, macrotable)
-          const notebook : NotebookState = createNewNotebookWithBox('Notebook from Link' , box)
+          const notebook : NotebookState = createNewNotebookWithBox(box, { [UNTYPED_LAMBDA_CODE_NAME] : settings })
 
           this.setState({
             currentScreen : Screen.MAIN,
-            notebookList : [ notebook, ...this.state.notebookList ],
-            currentNotebook : 0
+            notebook,
           })
 
           window.history.pushState(null, '', '/') // TODO: decide if remove or leave
@@ -117,8 +104,7 @@ export default class App extends Component<Props, AppState> {
           updateAppStateToStorage({
             ...this.state,
             currentScreen : Screen.MAIN,
-            notebookList : [ ...this.state.notebookList, notebook ],
-            currentNotebook : this.state.notebookList.length - 1
+            notebook,
           })
         }
         catch (ex) {
@@ -134,42 +120,49 @@ export default class App extends Component<Props, AppState> {
 
   // NOTE: render is OK
   render () {
-    const { notebookList, currentNotebook, currentScreen, darkmode } = this.state
-    const state = notebookList[currentNotebook]
-    const { settings } = state
+    const { notebook, currentScreen, theme } = this.state
+    const { settings } = notebook
+
+    const darkmode = theme === Theme.Dark
 
     return (
-      <div id='app' className={ darkmode ? 'dark' : 'light' }>
-        <div id="bad-screen-message">
-          Lambdulus only runs on screens at least 900 pixels wide.
-        </div>
-        <TopBar
-          state={ this.state }
-          onScreenChange={ this.setScreen }
-          onImport={ this.importNotebook }
-          onClearWorkspace={ this.clearWorkspace }
-          onDarkModeChange={ this.toggleDarkMode }
-        />
+      <ThemeContext.Provider value={ theme }>
+        <SettingsContext.Provider value={ settings }>
+
+          <div id='app' className={ darkmode ? 'dark' : 'light' }>
+            <div id="bad-screen-message">
+              Lambdulus only runs on screens at least 900 pixels wide.
+            </div>
+            <TopBar
+              state={ this.state }
+              onScreenChange={ this.setScreen }
+              onImport={ this.importNotebook }
+              onClearWorkspace={ this.clearWorkspace }
+              onDarkModeChange={ this.toggleTheme }
+            />
 
 
-        <MenuBar
-          state={ this.state }
-          onScreenChange={ this.setScreen }
-        />
+            <MenuBar
+              state={ this.state }
+              onScreenChange={ this.setScreen }
+            />
 
-        { (() => {
-          switch (currentScreen) {
-            case Screen.MAIN:
-              return <Notebook state={ state } updateNotebook={ this.updateNotebook } settings={ settings } darkmode={ darkmode } />
+            { (() => {
+              switch (currentScreen) {
+                case Screen.MAIN:
+                  return <Notebook state={ notebook } updateNotebook={ this.updateNotebook } />
 
-            case Screen.HELP:
-              return <Help darkmode={ darkmode } />
+                case Screen.HELP:
+                  return <Help/>
 
-            case Screen.SETTINGS:
-              return <SettingsScreen settings={ settings } updateSettings={ this.updateSettings } />
-          }
-        })()}
-      </div>
+                case Screen.SETTINGS:
+                  return <SettingsScreen updateSettings={ this.updateSettings } />
+              }
+            })()}
+          </div>
+
+        </SettingsContext.Provider>
+      </ThemeContext.Provider>
     )
   }
 
@@ -177,72 +170,62 @@ export default class App extends Component<Props, AppState> {
     this.setState({ currentScreen : screen })
   }
 
-  updateNotebook (notebook : Partial<NotebookState>) : void {
-    const { notebookList, currentNotebook } = this.state
+  updateNotebook (notebookPatch : Partial<NotebookState>) : void {
+    const { notebook } = this.state
+    const newNotebook = { ...notebook, ...notebookPatch }
 
-    notebookList[currentNotebook] = {
-      ...notebookList[currentNotebook],
-      ...notebook,
-    }
+    this.setState({ notebook : newNotebook })
 
-    this.setState({ notebookList })
-
-    updateNotebookStateToStorage(notebookList[currentNotebook], currentNotebook)
-    // NOTE: Carefuly around here - I kinda rely on the mutation of this.state.notebookList
+    updateNotebookStateToStorage(newNotebook)
   }
 
   importNotebook (notebook : NotebookState) : void {
     this.setState({
-      notebookList : [ ...this.state.notebookList, notebook ],
-      currentNotebook : this.state.currentNotebook + 1
+      notebook,
     })
 
     updateAppStateToStorage({
       ...this.state,
-      notebookList : [ ...this.state.notebookList, notebook ],
-      currentNotebook : this.state.currentNotebook + 1
+      notebook,
     })
   }
 
   updateSettings (newSettings : GlobalSettings) : void {
-    const { currentNotebook, notebookList } = this.state
-    notebookList[currentNotebook].settings = newSettings
+    const { notebook } = this.state
+    const newNotebook = { ...notebook, settings : newSettings }
 
-    this.setState({ notebookList : [...notebookList] })
-    updateSettingsInStorage(newSettings)
+
+    this.setState({ notebook : newNotebook })
+    updateNotebookStateToStorage(newNotebook)
   }
 
   clearWorkspace () : void {
     if (window.confirm(CLEAR_WORKSPACE_CONFIRMATION)) {
 
-      const { currentNotebook, notebookList } = this.state
-      notebookList[currentNotebook] = InitNotebookState
-
-      this.setState({ notebookList })
-      updateNotebookStateToStorage(InitNotebookState, currentNotebook)
+      this.setState({ notebook : InitNotebookState })
+      updateNotebookStateToStorage(InitNotebookState)
     }
   }
 
-  toggleDarkMode () : void {
-    const { darkmode } = this.state
+  toggleTheme () : void {
+    const { theme } = this.state
+    const opposite = theme === Theme.Dark ? Theme.Light : Theme.Dark
 
-    this.setState({ darkmode : ! darkmode })
-    updateAppStateToStorage({ ...this.state, darkmode : ! darkmode })
+    this.setState({ theme : opposite })
+    updateAppStateToStorage({ ...this.state, theme : opposite })
   }
 
 }
 
-function createNewNotebookWithBox (name : string = 'Notebook from Link', box : BoxState) : NotebookState {
+function createNewNotebookWithBox (box : BoxState, settings : GlobalSettings) : NotebookState {
   return {
     boxList : [ box ],
     activeBoxIndex : 0,
     focusedBoxIndex : 0,
-    settings : loadSettingsFromStorage(),
+    settings,
 
-    locked : false,
     menuOpen : false,
-    
+
     __key : Date.now().toString(),
-    editingName : false,
   }
 }

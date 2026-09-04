@@ -1,22 +1,22 @@
-import React from 'react'
+import React, { useContext } from 'react'
 
 import UntypedLambdaCalculusSet from '../untyped-lambda-integration/Settings'
 import {
   CODE_NAME as UNTYPED_CODE_NAME,
   GLOBAL_SETTINGS_ENABLER as UNTYPED_GLOBAL_SETTINGS_ENABLER
-} from '../untyped-lambda-integration/AppTypes'
+} from '../untyped-lambda-integration/Constants'
 import { GlobalSettings } from '../Types'
 import { UntypedLambdaSettings } from '../untyped-lambda-integration/Types'
+import { SettingsContext } from '../contexts/Settings'
 
 
 interface Props {
-  settings : GlobalSettings
   updateSettings : (settings : GlobalSettings) => void
 }
 
 export default function SettingsScreen (props : Props) : JSX.Element {
-  const { settings, updateSettings } = props
-
+  const { updateSettings } = props
+  const settings = useContext(SettingsContext)
   const untypedSettings : UntypedLambdaSettings = settings[UNTYPED_CODE_NAME] as UntypedLambdaSettings
 
   return (
@@ -28,8 +28,10 @@ export default function SettingsScreen (props : Props) : JSX.Element {
         settings={ untypedSettings }
         settingsEnabled={ UNTYPED_GLOBAL_SETTINGS_ENABLER }
         change={
-          (unTypLSet : UntypedLambdaSettings) =>
+          (unTypLSet : UntypedLambdaSettings) => {
+            console.log("updating settings", unTypLSet)
             updateSettings({ ...settings, [UNTYPED_CODE_NAME] : unTypLSet })
+          }
         }
       />
     </div>

@@ -4,6 +4,7 @@ import { AppState, Screen, NotebookState } from '../Types'
 
 import '../styles/TopBar.css'
 import { decodeNotebook } from '../Constants'
+import { Theme } from '../contexts/Theme'
 
 
 interface Props {
@@ -16,8 +17,9 @@ interface Props {
 
 export default function TopBar (props : Props) : JSX.Element {
   const { state, onImport, onClearWorkspace, onScreenChange, onDarkModeChange } : Props = props
-  const { currentNotebook, notebookList, currentScreen, darkmode } : AppState = state
-  const ntbk : NotebookState = notebookList[currentNotebook]
+  const { notebook : ntbk, currentScreen, theme } : AppState = state
+
+  const darkmode : boolean = theme === Theme.Dark
 
   // const dehydrated : object = dehydrate(state)
 

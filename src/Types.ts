@@ -1,5 +1,6 @@
 import { UntypedLambdaState, UntypedLambdaSettings } from "./untyped-lambda-integration/Types"
 import { NoteState } from "./markdown-integration/AppTypes"
+import { Theme } from "./contexts/Theme"
 
 export enum BoxType {
   UNTYPED_LAMBDA = 'UNTYPED_LAMBDA',
@@ -10,8 +11,7 @@ export enum BoxType {
 export enum Screen {
   MAIN,
   HELP,
-  SETTINGS,
-  NOTEBOOKS, // TODO: this will be the final solution to the `Multiple Notebooks` problem
+  SETTINGS
 }
 
 export interface AbstractBoxState {
@@ -49,18 +49,15 @@ export interface NotebookState {
   activeBoxIndex : number
   focusedBoxIndex : number | undefined
 
-  locked : boolean
   menuOpen : boolean
 
   settings : GlobalSettings // TODO: refactor to use the Dictionary
 
   __key : string
-  editingName : boolean
 }
 
 export interface AppState {
-  notebookList : Array<NotebookState>,
-  currentNotebook : number,
+  notebook : NotebookState,
   currentScreen : Screen,
-  darkmode : boolean
+  theme : Theme
 }
