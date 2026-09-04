@@ -20,11 +20,6 @@ export default function BoxTopBar (props : Props) : JSX.Element {
 
   return (
     <div className=''>
-      {
-      // TODO: Remove This
-      /* <div className='topBarTitle' contentEditable={ true } suppressContentEditableWarning={true} onBlur={ (e) => updateBoxState({ ...state, title : e.target.textContent || "" }) }>
-        { title === "" ? "Click Here to Change the Title" : title }
-      </div> */}
       <div className='markdown-controls' title='Edit as Markdown'>
         
         {/* This will be separated into it's own component */}
