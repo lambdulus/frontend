@@ -15,7 +15,7 @@
 
 .disabled {
   cursor: auto;
-  color: grey;
+  color: var(--muted);
 }
 
 .controls i {

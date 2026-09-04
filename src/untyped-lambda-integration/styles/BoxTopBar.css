@@ -1,30 +1,18 @@
 .untyped-lambda--top-bar-custom--button {
-  padding-top: 5px;
-  padding-bottom: 5px;
+  padding: 5px 8px;
   text-align: center;
   cursor: pointer;
   float: left;
-  padding-left: 8.5px;
-  padding-right: 8.5px;
+  border-radius: 6px;
+  color: var(--muted);
 }
 
 .untyped-lambda--top-bar-custom--button:hover {
-  background-color: rgb(221, 221, 221);
-  border-radius: 5px;
-}
-
-.dark .untyped-lambda--top-bar-custom--button:hover {
-  background-color: rgb(100, 100, 100);
-  border-radius: 5px;
+  background-color: var(--raised);
+  color: var(--text);
 }
 
 .untyped-lambda--top-bar-custom--button.menu-pressed-open {
-  background-color: rgb(241, 241, 241);
-  border-radius: 5px;
-}
-
-
-.dark .untyped-lambda--top-bar-custom--button.menu-pressed-open {
-  background-color: rgb(100, 100, 100);
-  border-radius: 5px;
+  background-color: var(--raised);
+  color: var(--text);
 }

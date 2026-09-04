@@ -9,7 +9,6 @@ import  { loadAppStateFromStorage
         , InitNotebookState } from './Constants'
 
 import TopBar from './components/TopBar'
-import MenuBar from './components/MenuBar'
 import Notebook from './screens/Notebook'
 import Help from './screens/Help'
 import SettingsScreen from './screens/Settings'
@@ -141,11 +140,6 @@ export default class App extends Component<{}, AppState> {
               onDarkModeChange={ this.toggleTheme }
             />
 
-
-            <MenuBar
-              state={ this.state }
-              onScreenChange={ this.setScreen }
-            />
 
             { (() => {
               switch (currentScreen) {

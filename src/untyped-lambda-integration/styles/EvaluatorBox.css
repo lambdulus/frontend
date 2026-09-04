@@ -1,9 +1,9 @@
 .boxContainer.inactive:hover .inactiveMessage {
-  color: rgb(59, 59, 59);
+  color: var(--muted);
 }
 
 .inactiveStep {
-  color: gray;
+  color: var(--muted);
 }
 
 .hiddenIcon, .hiddenMacroIcon {
@@ -13,17 +13,17 @@
 
 li:hover > .step > .inlineblock > .hiddenIcon {
   display: inline;
-  color: black;
+  color: var(--text);
   cursor: pointer;
 }
 
 li:hover .hiddenMacroIcon {
-  color: black;
+  color: var(--text);
   display: inline;
 }
 
 .controlBtn {
-  --mdc-theme-primary: #1976d2;
+  --mdc-theme-primary: var(--accent);
   display: inline-block;
   font-size: 0.5em;
   margin-right: 1em;
@@ -50,7 +50,7 @@ li:hover .hiddenMacroIcon {
 }
 
 .inactiveMessage {
-  color: gray;
+  color: var(--muted);
   font-size: 0.6em;
   margin-left: 0;
 }
@@ -65,6 +65,6 @@ li:hover .hiddenMacroIcon {
 .boxExercise .activeStep .redex,
 .boxExercise .churchnumeral.redex.argument.abstraction {
   border: none;
-  background-color: white;
+  background-color: var(--surface);
   padding: 0;
 }

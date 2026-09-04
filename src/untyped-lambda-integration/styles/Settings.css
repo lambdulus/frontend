@@ -19,7 +19,7 @@
 
 .untyped-lambda-settings--strategy-radio-wrapper:first-of-type {
   padding-right: 10px;
-  border-right: 2px solid gray;
+  border-right: 1px solid var(--border);
 }
 
 .untyped-lambda-settings--strategy-radio-wrapper input {
@@ -32,8 +32,7 @@
   margin: auto;
   margin-top: 10px;
   padding-bottom: 20px;
-  /* width: 97%; */
-  border-bottom: 2px solid black;
+  border-bottom: 1px solid var(--border);
 }
 
 .untyped-lambda-settings-SLI {

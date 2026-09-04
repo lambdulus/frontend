@@ -1,11 +1,11 @@
 /* CSS RESET */
 .UL {
-  padding: 0px;
+  padding: 0;
 }
 
 .LI {
   list-style: none;
-  margin-bottom: 20px;
+  margin-bottom: 16px;
 }
 /* CSS RESET */
 
@@ -15,20 +15,18 @@
 
 body {
   overflow-x: hidden;
-  spellcheck: false;
 }
 
-#root {
-  /* height: 100%; */
-}
-
-#app.dark {
-  background-color: black;
+#app {
+  background-color: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
 }
 
 #bad-screen-message {
   display: none;
-  background-color: rgb(195, 195, 195);
+  background-color: var(--surface);
+  color: var(--text);
   height: 100vh;
   width: 100vw;
   position: fixed;
@@ -45,67 +43,49 @@ body {
   }
 }
 
-.app {
-  background-color: #f4f6f6;
-}
-
 .boxContainer {
   position: relative;
-  padding-left: 10px;
-  padding-top: 5px; /* NOTE: just trying more minimal design - less white space around boxes */
-  /* padding-bottom: 10px; */ /* To save space below each container */
-  /* padding-bottom: 5px; */ /* NOTE: just trying more minimal design - less white space around boxes */
-  font-size: 1.3em; /* NOTE: It may be better with smaller font-size */
-
-  /* -webkit-box-shadow: 6px 7px 16px -7px rgba(64,64,64,0.87);
-  -moz-box-shadow: 6px 7px 16px -7px rgba(64,64,64,0.87);
-  box-shadow: 6px 7px 16px -7px rgba(64,64,64,0.87); */
-  background-color: white;
+  background-color: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  box-shadow: var(--shadow);
+  padding: 12px 16px 14px;
+  font-size: 1.15em;
 }
-
-.dark .boxContainer {
-  background-color: black;
-  color: white;
-}
-
-/* .boxContainer.inactive {
-  border-left: 3px solid rgb(160, 186, 238);
-}
-
-.boxContainer.inactive:hover {
-  border-left-color: rgb(124, 166, 250);
-  /* border-left: 5px solid rgb(124, 166, 250);
-} */
 
 .mainSpace, .helpSpace, .settingsSpace {
-  width: 65%; /* TODO: consider */
+  max-width: 900px;
   margin: auto;
-  /* margin-left: 6em; */
-  padding-top: 6em;
-  min-height: 100vh; /* Stupid hack to fix the gap at the bottom visible in dark mode. */
-  padding-bottom: 10px; /* Stupid hack to fix the gap at the bottom visible in dark mode. */
+  padding: 76px 20px 40px;
+  min-height: 100vh;
 }
 
 .helpSpace {
-  padding-top: 5em;
   padding-bottom: 5em;
+  line-height: 1.6;
 }
 
-/* .notebooks-tabs {
-  width: 100%;
-  height: 3em;
-  margin-bottom: 3em;
-  overflow-x: scroll;
-} */
+.helpSpace a {
+  color: var(--accent);
+}
 
+.boxList, .UL {
+  margin: 0;
+}
+
+.box {
+  position: relative;
+  margin-top: 0.5em;
+}
+
+/* Notebook tabs (kept for compatibility) */
 .notebook-tab {
   padding: 10px;
   padding-left: 15px;
   padding-right: 5px;
   white-space: nowrap;
-  background-color: #0b83fb;
+  background-color: var(--raised);
   margin-bottom: 0;
-  /* border-bottom: 1px solid #3399ff; */
 }
 
 .edit-name {
@@ -115,11 +95,10 @@ body {
 
 .notebook-tab:hover .edit-name {
   display: inline;
-  color: white;
 }
 
 .current {
-  background-color: #4aa4ff;
+  color: var(--accent);
 }
 
 .notebook-tab:first-of-type {
@@ -132,11 +111,6 @@ body {
 
 .notebook-tab:hover {
   cursor: pointer;
-  background-color: #2592ff;
-}
-
-.notebook-tab:hover.current {
-  background-color: #4aa4ff;
 }
 
 .removeNtb {
@@ -144,7 +118,6 @@ body {
   top: -1.2em;
   right: 0.5em;
   cursor: pointer;
-  color: white;
 }
 
 .addNtb {
@@ -152,57 +125,24 @@ body {
   top: -1em;
   right: 0.5em;
   cursor: pointer;
-  color: white;
 }
 
 .notebook-tab:hover .addNtb {
-  color: rgb(89, 255, 89);
+  color: var(--accent);
 }
 
 .notebookIconWrapper:hover .removeNtb {
-  color: rgb(255, 8, 8);
+  color: var(--danger);
 }
-
-.boxList, .UL {
-  margin-right: 40px;
-}
-
-.box {
-  position: relative;
-  margin-top: 0.5em;
-  padding-top: 10px;
-}
-
-/*  nejradsi bych tyhle 3 dal do toho Box menu - |...| menu  */
-
-/* .removeBox {
-  position: absolute;
-  right: 65px;
-  top: 5px;
-  cursor: pointer;
-}
-
-.inactive .removeBox {
-  /* display: none; */
-  /* color: grey; */
-/* } */
-
-/* .removeBox:hover { */
-  /* color: black; */
-  /* background-color: rgb(143, 143, 143); */
-/* } */
-
-/*  */
 
 .notebookIcon {
   padding-top: 0.6em;
   padding-bottom: 0.6em;
-  /* height: 2em; */
-  background-color: #016ad2;
-  font-size: 1.6em;
-  /* margin: auto; */
-  border-radius: 0.25em;
+  background-color: var(--raised);
+  font-size: 1.4em;
+  border-radius: 8px;
   cursor: pointer;
+  text-align: center;
 }
 
 .notebooks.UL {
@@ -211,27 +151,26 @@ body {
 
 .notebooks .LI {
   width: 80%;
-
   margin: auto;
   margin-bottom: 20px;
 }
 
 .addNotebook {
   width: 80%;
-  font-size: 1.6em;
+  font-size: 1.4em;
   margin: auto;
   padding-top: 0.6em;
   padding-bottom: 0.6em;
-  background-color: #016ad2;
-  border-radius: 0.25em;
+  background-color: var(--raised);
+  border-radius: 8px;
   cursor: pointer;
+  text-align: center;
 }
 
 .separator {
   width: 85%;
   margin: auto;
-  border-bottom: 3px solid white;
-  border-radius: 0.5em;
+  border-bottom: 1px solid var(--border);
   margin-top: 0.5em;
   margin-bottom: 0.5em;
 }
