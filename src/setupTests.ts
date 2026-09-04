@@ -1,11 +1,18 @@
-// jest-dom adds custom jest matchers for asserting on DOM nodes.
-// allows you to do things like:
-// expect(element).toHaveTextContent(/react/i)
-// learn more: https://github.com/testing-library/jest-dom
-import '@testing-library/jest-dom/extend-expect';
+import '@testing-library/jest-dom/vitest'
+import { vi } from 'vitest'
+
+// @monaco-editor/react needs a browser + web workers; tests get a stub.
+// The bare 'monaco-editor' import is stubbed too - parts of it ship syntax
+// esbuild cannot transform in isolation.
+vi.mock('@monaco-editor/react', () => ({
+  __esModule: true,
+  default: (props : { value ?: string }) => null,
+  loader: { config: vi.fn() },
+}))
+vi.mock('monaco-editor', () => ({}))
 
 // jsdom does not implement URL.createObjectURL (used by TopBar to offer the
 // notebook download). A stub returning a fake blob URL is enough for tests.
 if (typeof window.URL.createObjectURL !== 'function') {
-  window.URL.createObjectURL = jest.fn(() : string => 'blob:mock-url');
+  window.URL.createObjectURL = vi.fn(() : string => 'blob:mock-url')
 }

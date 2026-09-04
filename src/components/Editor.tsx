@@ -1,7 +1,11 @@
 import React, { KeyboardEvent } from 'react'
-import MonacoEditor from 'react-monaco-editor'
+import MonacoEditor, { loader } from '@monaco-editor/react'
+import * as monaco from 'monaco-editor'
 
 import { Theme, ThemeContext } from '../contexts/Theme'
+
+// Bundle monaco locally instead of loading it from a CDN.
+loader.config({ monaco })
 
 import '../styles/Editor.css'
 
@@ -45,10 +49,6 @@ export default function Editor (props : EditorProperties) : JSX.Element {
   } : EditorProperties = props
 
   const onChange = (content : string) => {
-    if (shouldReplaceLambda) {
-      content = content.replace(/\\/g, 'λ')
-    }
-    
     onContent(content)
   }
 
@@ -90,6 +90,7 @@ export default function Editor (props : EditorProperties) : JSX.Element {
         <InputField
           placeholder={ placeholder }
           content={ content }
+          shouldReplaceLambda={ shouldReplaceLambda }
           onContent={ (content : string) => onChange(content) }
           onKeyDown={ onKeyDown }
         />
@@ -101,14 +102,51 @@ export default function Editor (props : EditorProperties) : JSX.Element {
 interface InputProps {
   placeholder : string
   content : string
+  shouldReplaceLambda : boolean
   onContent (content : string) : void
   onKeyDown (event : KeyboardEvent<HTMLDivElement>) : void
 }
 
 function InputField (props : InputProps) : JSX.Element {
-  const { content, onKeyDown, onContent } : InputProps = props
+  const { content, shouldReplaceLambda, onKeyDown, onContent } : InputProps = props
   const lines : number = content.split('\n').length
 
+  const editorRef = React.useRef<monaco.editor.IStandaloneCodeEditor | null>(null)
+
+  const handleMount = (editor : monaco.editor.IStandaloneCodeEditor) => {
+    editorRef.current = editor
+    editor.focus()
+  }
+
+  // Replace `\` with `λ` as a monaco edit so the cursor stays put.
+  // Routing it through the controlled `value` round-trip instead resets
+  // the caret to the end of the content.
+  const handleChange = (next : string | undefined) => {
+    const editor = editorRef.current
+    const value = next ?? ''
+
+    if (shouldReplaceLambda && value.includes('\\') && editor !== null) {
+      const model = editor.getModel()
+
+      if (model !== null) {
+        const position = editor.getPosition()
+        const edits = model.findMatches('\\', false, false, false, null, false)
+          .map((match) => ({ range : match.range, text : 'λ' }))
+
+        if (edits.length > 0) {
+          editor.executeEdits('lambda-replace', edits)
+
+          if (position !== null) {
+            editor.setPosition(position)
+          }
+
+          return // the model change re-fires onChange with clean text
+        }
+      }
+    }
+
+    onContent(value)
+  }
 
   return (
     <div
@@ -130,9 +168,8 @@ function InputField (props : InputProps) : JSX.Element {
                 scrollbar : {
                   // handleMouseWheel : false,
                 } } }
-              onChange={ (content : string) => onContent(content) }
-              // editorDidMount={ ::this.editorDidMount }
-              editorDidMount={ (editor, _monaco) => editor.focus() }
+              onChange={ handleChange }
+              onMount={ handleMount }
             />
         }
 
