@@ -14,8 +14,8 @@ export default function Help (props : {}) : JSX.Element {
     <br />
     <br />
     <br />
-    { `version: ${process.env.REACT_APP_VERSION_INFO}` }
+    { `version: ${import.meta.env.VITE_VERSION_INFO}` }
     <br />
-    { `commit hash: ${process.env.REACT_APP_COMMIT}` }
+    { `commit hash: ${import.meta.env.VITE_COMMIT}` }
   </div>)
 }
