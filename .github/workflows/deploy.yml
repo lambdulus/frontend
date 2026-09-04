@@ -1,4 +1,4 @@
-name: Dispatch remote deployment of the Lambdulus Frontend App.
+name: Production deploy
 
 on:
   push:
