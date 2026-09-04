@@ -3,7 +3,7 @@ import React, { ChangeEvent } from 'react'
 import 'pretty-checkbox'
 import './styles/ExerciseSwitch.css'
 
-const { Switch } = require('pretty-checkbox-react')
+import { Switch } from 'pretty-checkbox-react'
 
 
 export interface ControlsProps {
