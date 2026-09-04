@@ -9,17 +9,17 @@
 }
 
 .markdown-selected {
-  background-color: #1976d2;
-  border-radius: 5px;
-  color: white;
+  background-color: var(--accent);
+  border-radius: 6px;
+  color: var(--accent-ink);
 }
 
 .markdown-editing {
   margin-right: 30px;
   padding-top: 3px;
   padding-bottom: 3px;
-  border: 2px solid #1976d2;
-  border-radius: 5px;;
+  border: 1px solid var(--accent);
+  border-radius: 6px;
 }
 
 /* this shoudl go else where */

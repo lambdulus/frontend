@@ -2,38 +2,21 @@
   width: 60%;
   margin: auto;
   text-align: center;
-  border-radius: 2rem;
-  background-color: rgb(243, 243, 243);
+  border-radius: 8px;
+  background-color: var(--surface);
+  border: 1px solid var(--border);
   margin-bottom: 10px;
+  padding: 12px;
 }
 
 .create-box--container {
   display: inline-block;
 }
 
-/* .create-box--group {
-  display: inline-block;
-  margin-left: 5px;
-  margin-right: 5px;
-  border: 2px solid #1976d2;
-  border-radius: 2rem;
-}
-
-.create-box--group .plusBtn {
-  padding: 15px;
-  margin: 0;
-  border-radius: 2rem;
-}
-
-.create-box--group .plusBtn:hover {
-  background-color: #a0bddb;
-  cursor: pointer;
-} */
-
 .plusBtn {
   display: inline-block;
   font-weight: 500;
-  border-radius: 2rem;
+  border-radius: 8px;
 }
 
 .top-level--create-box {
@@ -42,28 +25,24 @@
   width: 65%;
 }
 
-
 .create-box-plus {
   position: fixed;
   top: 200px;
   left: 45vw;
-  /* width: 10em; */
-  /* height: 10em; */
   margin: auto;
   text-align: center;
   border-radius: 50%;
-  /* border-radius: 2rem; */
   padding: 1em;
   padding-left: 1.1em;
   padding-right: 1.1em;
   font-size: 2em;
-  color: rgb(160, 160, 160);
-
-  background-color: rgb(235, 235, 235);
+  color: var(--muted);
+  background-color: var(--surface);
+  border: 1px solid var(--border);
 }
 
 .create-box-plus:hover {
-  color:gray;
-  background-color: rgb(219, 219, 219);
+  color: var(--accent);
+  border-color: var(--accent);
   cursor: pointer;
 }

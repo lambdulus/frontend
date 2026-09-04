@@ -42,7 +42,7 @@ export const InitNotebookState : NotebookState = {
 export const EmptyAppState : AppState = {
   notebook : InitNotebookState,
   currentScreen : Screen.MAIN,
-  theme : Theme.Light
+  theme : Theme.Dark
 }
 
 

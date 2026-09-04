@@ -109,7 +109,7 @@
 } */
 
 .lastReduction {
-  color: gray;
+  color: var(--muted);
   font-size: 0.7em;
   margin: 0;
   margin-bottom: 4px;
@@ -118,7 +118,7 @@
 
 .stepNumber {
   /* display: none; */
-  color: gray;
+  color: var(--muted);
   display: inline-block;
   margin: 0;
   font-size: 0.5em;
@@ -135,15 +135,15 @@
 }
 
 .stepMessage.correct {
-  color: rgb(23, 131, 23);
+  color: var(--accent);
 }
 
 .stepMessage.incorrect {
-  color: rgb(218, 2, 2);
+  color: var(--danger);
 }
 
 .incorrect .userInput {
-  color: gray;
+  color: var(--muted);
   font-size: 1.3em;
 }
 
@@ -157,16 +157,6 @@
 .boxExercise .left.extended-redex,
 .boxExercise .right.extended-redex {
   border: none;
-  background-color: white;
-  padding: 0;
-}
-
-.dark .boxExercise .activeStep .substitutedArg,
-.dark .boxExercise .activeStep .redex,
-.dark .boxExercise .churchnumeral.redex.argument.abstraction,
-.dark .boxExercise .left.extended-redex,
-.dark .boxExercise .right.extended-redex {
-  border: none;
-  background-color: black;
+  background-color: var(--surface);
   padding: 0;
 }

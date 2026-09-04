@@ -21,94 +21,86 @@ export default function TopBar (props : Props) : JSX.Element {
 
   const darkmode : boolean = theme === Theme.Dark
 
-  // const dehydrated : object = dehydrate(state)
-
   const serialized : string = JSON.stringify(ntbk)
   const link : string = createURL(serialized)
 
   return (
     <div className='top-bar'>
-      <span className='top-bar--item-container'>
+      <div className='top-bar--inner'>
+        <div
+          className='top-bar--brand'
+          title='Back to the Notebook'
+          onClick={ () => onScreenChange(Screen.MAIN) }
+        >
+          <span className='top-bar--logo'>λ</span>
+          <span className='top-bar--name'>Lambdulus</span>
+        </div>
 
-        {/* SETTINGS */}
-        <span
-          className={ currentScreen === Screen.SETTINGS ? 'top-bar--item top-bar--item-hoverable top-bar--item-hoverable--active' : 'top-bar--item top-bar--item-hoverable' }
-          title='Go to the Settings'
-          onClick={ () => {
-            if (currentScreen === Screen.SETTINGS) {
-              onScreenChange(Screen.MAIN)
-            }
-            else {
-              onScreenChange(Screen.SETTINGS)
-            }
-          } }
-        >
-          <i
-            className="top-icon fas fa-cogs"
-          />
-          <p className='top-bar--icon-label'>Settings</p>
-        </span>
+        <nav className='top-bar--tabs'>
+          <button
+            className={ currentScreen === Screen.MAIN ? 'top-bar--tab top-bar--tab--active' : 'top-bar--tab' }
+            onClick={ () => onScreenChange(Screen.MAIN) }
+          >
+            Notebook
+          </button>
+          <button
+            className={ currentScreen === Screen.HELP ? 'top-bar--tab top-bar--tab--active' : 'top-bar--tab' }
+            onClick={ () => onScreenChange(Screen.HELP) }
+          >
+            Manual
+          </button>
+          <button
+            className={ currentScreen === Screen.SETTINGS ? 'top-bar--tab top-bar--tab--active' : 'top-bar--tab' }
+            onClick={ () => onScreenChange(Screen.SETTINGS) }
+          >
+            Settings
+          </button>
+        </nav>
 
-        {/* Clear the Whole Workspace */}
-        <span
-          className='top-bar--item top-bar--item-hoverable'
-          title='Clear the Whole Workspace'
-          onClick={ onClearWorkspace }
-        >
-          <i
-            className="top-icon fas fa-eraser"
-          />
-          <p className='top-bar--icon-label'>Clear All</p>
-        </span>
- 
-        {/* Export Notebook */}
-        
-        <a
-          className='export'
-          href={ link }
-          download="notebook_lambdulus.lus" // TODO: change the name according to the notebook name
-          onClick={ () => setTimeout(() => {
-            // window.URL.revokeObjectURL(link)
-            // TODO: I shouldn't NOT do this - but if I revoke I can't click it again without re-render
-          }, 10) }
-        >
-          <span
-            className='top-bar--item top-bar--item-hoverable'
+        <div className='top-bar--actions'>
+          <a
+            className='top-bar--action'
+            href={ link }
+            download="notebook_lambdulus.lus"
             title='Download this Notebook'
           >
-            <i id='download' className="top-icon fas fa-cloud-download-alt" />
-          
-          <p className='top-bar--icon-label'>Export</p>
-          </span>
-        </a>
- 
-        {/* Import Notebook */}
-        <input type="file" accept=".lus" id="input"
-          onChange={ (e) => onFiles(e, onImport) }
-        />
-          <label htmlFor="input">
-            <span
-              className='top-bar--item top-bar--item-hoverable'
-              title='Import a Notebook from Computer'
-            >
-              <i className="top-icon fas fa-cloud-upload-alt" />
-              <p className='top-bar--icon-label'>Import</p>
-            </span>
+            <i className="fas fa-download" />
+          </a>
+
+          <input type="file" accept=".lus" id="input"
+            onChange={ (e) => onFiles(e, onImport) }
+          />
+          <label htmlFor="input" className='top-bar--action' title='Import a Notebook from your computer'>
+            <i className="fas fa-upload" />
           </label>
 
-        {/* DARKMODE */}
-        <span
-          className='top-bar--item top-bar--item-hoverable'
-          title='Toggle the theme.'
-          onClick={ onDarkModeChange }
-        >
-          <i
-            className= { darkmode ? "top-icon fas fa-solid fa-sun" : "top-icon fas fa-solid fa-moon" }
-          />
-          <p className='top-bar--icon-label'>{ darkmode ? 'Light Mode' : 'Dark Mode' }</p>
-        </span>
+          <button
+            className='top-bar--action'
+            title='Clear the whole workspace'
+            onClick={ onClearWorkspace }
+          >
+            <i className="fas fa-eraser" />
+          </button>
 
-       </span>
+          <button
+            className='top-bar--action'
+            title='Toggle the theme'
+            onClick={ onDarkModeChange }
+          >
+            <i className={ darkmode ? "fas fa-sun" : "fas fa-moon" } />
+          </button>
+
+          <a
+            className='top-bar--action'
+            title='Submit a bug or a feature request'
+            target="_blank"
+            rel="noopener noreferrer"
+            href='https://github.com/lambdulus/frontend/issues'
+          >
+            <i className="fas fa-bug" />
+          </a>
+        </div>
+      </div>
     </div>
   )
 }
@@ -125,8 +117,6 @@ function onFiles (event : ChangeEvent<HTMLInputElement>, onImport : (notebook : 
     const notebook : NotebookState = JSON.parse(reader.result as string)
 
     onImport(decodeNotebook(notebook))
-
-    // onImport(hydrate(state))
   }
 
   reader.readAsText(file) 
