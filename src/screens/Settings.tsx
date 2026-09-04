@@ -29,7 +29,6 @@ export default function SettingsScreen (props : Props) : JSX.Element {
         settingsEnabled={ UNTYPED_GLOBAL_SETTINGS_ENABLER }
         change={
           (unTypLSet : UntypedLambdaSettings) => {
-            console.log("updating settings", unTypLSet)
             updateSettings({ ...settings, [UNTYPED_CODE_NAME] : unTypLSet })
           }
         }

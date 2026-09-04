@@ -17,7 +17,6 @@ interface Props {
 export default class DebugControls extends PureComponent<Props> {
   componentDidMount () : void {
     document.onkeydown = (event) => {
-      console.log('KEYDOWN', event.key)
       if ( ( ! event.shiftKey)
         && ( ! event.ctrlKey)
         && ( ! event.altKey)
