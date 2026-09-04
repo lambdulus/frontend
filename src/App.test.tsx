@@ -2,8 +2,9 @@ import React from 'react';
 import { render } from '@testing-library/react';
 import App from './App';
 
-test('renders learn react link', () => {
+test('renders the app shell (top-level smoke test)', () => {
   const { getByText } = render(<App />);
-  const linkElement = getByText(/learn react/i);
-  expect(linkElement).toBeInTheDocument();
+  // #bad-screen-message is always rendered by App, independent of screen state
+  const message = getByText(/Lambdulus only runs on screens at least 900 pixels wide\./i);
+  expect(message).toBeInTheDocument();
 });
