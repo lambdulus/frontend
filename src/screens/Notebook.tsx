@@ -30,7 +30,7 @@ export default class Notebook extends PureComponent<Props> {
 
     return (
       <div className="mainSpace">
-        {/* TODO: This will be refactore out to standalone component. */}
+        {/* TODO: This will be refactored out to standalone component. */}
         <ul className="boxList UL">
           { boxList.map(
             (box : BoxState, i : number) =>
