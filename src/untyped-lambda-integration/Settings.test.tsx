@@ -12,6 +12,7 @@ const baseSettings : UntypedLambdaSettings = {
   strategy : EvaluationStrategy.NORMAL,
   SDE : true,
   collapseOldSteps : true,
+  prettySteps : false,
 };
 
 const enabler : SettingsEnabled = {
@@ -33,6 +34,19 @@ test('collapse toggle reflects the setting and reports turning it off', () => {
 
   fireEvent.click(checkbox);
   expect(change).toHaveBeenCalledWith({ ...baseSettings, collapseOldSteps : false });
+});
+
+test('pretty toggle reports turning it on', () => {
+  const change = vi.fn();
+  const { getByLabelText } = render(
+    <Settings settings={ baseSettings } settingsEnabled={ enabler } change={ change } />
+  );
+
+  const checkbox = getByLabelText('Pretty Steps') as HTMLInputElement;
+  expect(checkbox.checked).toBe(false);
+
+  fireEvent.click(checkbox);
+  expect(change).toHaveBeenCalledWith({ ...baseSettings, prettySteps : true });
 });
 
 test('collapse toggle renders unchecked when the setting is off', () => {
