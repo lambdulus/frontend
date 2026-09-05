@@ -122,22 +122,27 @@
 }
 
 .box-top-bar--menu-item--notif {
-  color: var(--accent-ink);
-  font-size: 0.8em;
-  text-align: center;
-  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  padding: 6px 14px;
   position: absolute;
-  right: -6em;
-  margin: 20px;
-  margin-top: -5px;
-  margin-bottom: 0;
-  padding: 5px;
-  padding-left: 1em;
-  padding-right: 2em;
-  background-color: var(--accent);
-  border-radius: 6px;
-  float: left;
-  z-index: 9999;
+  top: 36px;
+  right: 4px;
+  z-index: 777;
+  font-size: 0.8em;
+  font-weight: 500;
+  color: var(--text);
+  background-color: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  box-shadow: var(--shadow);
+  white-space: nowrap;
+}
+
+.box-top-bar--menu-item--notif svg {
+  color: var(--accent);
 }
 
 .box-top-bar--menu-item--share-link {
