@@ -2,6 +2,7 @@ import { CODE_NAME as UNTYPED_CODE_NAME, decodeUntypedLambdaState } from './unty
 import { defaultSettings as UntypedLambdaDefaultSettings } from './untyped-lambda-integration/Constants'
 
 import { BoxType, AppState, GlobalSettings, NotebookState, BoxState } from "./Types"
+import { uniqueKey } from "./uniqueKey"
 import { UntypedLambdaState } from './untyped-lambda-integration/Types'
 import { createNewMarkdown, NoteState } from './markdown-integration/AppTypes'
 import guideContent from './misc/UserGuide'
@@ -45,7 +46,7 @@ export function createEmptyNotebook (name : string) : NotebookState {
 
     menuOpen : false,
 
-    __key : Date.now().toString(),
+    __key : uniqueKey(),
   }
 }
 
@@ -74,7 +75,7 @@ export function createManualNotebook () : NotebookState {
 
     menuOpen : false,
 
-    __key : Date.now().toString(),
+    __key : uniqueKey(),
   }
 }
 

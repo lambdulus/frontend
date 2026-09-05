@@ -1,4 +1,5 @@
 import { BoxType, AbstractBoxState } from "../Types"
+import { uniqueKey } from "../uniqueKey"
 
 
 export interface NoteState extends AbstractBoxState {
@@ -16,7 +17,7 @@ export interface NoteState extends AbstractBoxState {
 
 export function createNewMarkdown () : NoteState {
   return {
-    __key : Date.now().toString(),
+    __key : uniqueKey(),
     type : BoxType.MARKDOWN,
     title : 'Markdown Box',
     minimized : false,
