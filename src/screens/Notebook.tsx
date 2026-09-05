@@ -50,8 +50,18 @@ export default class Notebook extends PureComponent<Props> {
               }
             } }
             onBlur={ (e) => {
-              if ( ! locked) {
-                this.props.updateNotebook({ name : e.target.textContent?.trim() || name })
+              if (locked) {
+                return
+              }
+
+              const next : string = e.currentTarget.textContent?.trim() || ''
+              if (next.length === 0) {
+                // An empty heading would leave nothing to click on, and
+                // React will not repair edited content on its own.
+                e.currentTarget.textContent = name
+              }
+              else if (next !== name) {
+                this.props.updateNotebook({ name : next })
               }
             } }
           >
