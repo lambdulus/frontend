@@ -32,3 +32,13 @@
   border-color: var(--accent-strong);
   background-color: var(--raised);
 }
+
+/* Dark mode: one token step is imperceptible on the dark background,
+   so mix the strong accent clearly down. Light mode keeps its token. */
+#app.dark .create-box-plus {
+  border-color: color-mix(in srgb, var(--accent-strong) 65%, black);
+}
+
+#app.dark .create-box-plus:hover {
+  border-color: color-mix(in srgb, var(--accent-strong) 65%, black);
+}
