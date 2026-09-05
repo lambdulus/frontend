@@ -53,6 +53,7 @@ export default class Notebook extends PureComponent<Props> {
           {
             boxList.length === 0 ?
               <div className='top-level--create-box'>
+                <p className='empty-notebook-hint'>An empty notebook. Add your first box below.</p>
                 <CreateBox
                   addNew={ (box : BoxState) => this.insertBefore(state.boxList.length, box) }
                 />

@@ -20,29 +20,34 @@
 }
 
 .top-level--create-box {
-  position: fixed;
-  top: 180px;
-  width: 65%;
+  margin-top: 16vh;
+}
+
+.empty-notebook-hint {
+  text-align: center;
+  color: var(--muted);
+  margin: 0 0 20px;
+  font-size: 1.05em;
 }
 
 .create-box-plus {
-  position: fixed;
-  top: 200px;
-  left: 45vw;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
   margin: auto;
-  text-align: center;
-  border-radius: 50%;
-  padding: 1em;
-  padding-left: 1.1em;
-  padding-right: 1.1em;
-  font-size: 2em;
+  padding: 14px;
+  font-size: 1em;
   color: var(--muted);
-  background-color: var(--surface);
-  border: 1px solid var(--border);
+  background-color: transparent;
+  border: 1px dashed var(--border);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: color .15s ease-in-out, border-color .15s ease-in-out, background-color .15s ease-in-out;
 }
 
 .create-box-plus:hover {
   color: var(--accent);
   border-color: var(--accent);
-  cursor: pointer;
+  background-color: var(--surface);
 }

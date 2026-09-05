@@ -1,3 +1,10 @@
+.editorContainer {
+  background-color: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 12px 14px;
+}
+
 .box .editorError {
   font-size: 0.9em;
   margin: 5px;

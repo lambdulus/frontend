@@ -9,6 +9,10 @@
   display: none;
 }
 
+.box-exercise-input {
+  margin-top: 12px;
+}
+
 .box-eval-controls .debug-controls {
   padding-left: 0;
   margin-top: 0;
@@ -22,7 +26,7 @@
 }
 
 .box-history-scroll {
-  max-height: 80vh;
+  max-height: 65vh;
   overflow-y: auto;
   padding-right: 10px;
   scrollbar-width: thin;
