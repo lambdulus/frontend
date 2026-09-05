@@ -1,6 +1,10 @@
 /* Dark theme for rendered markdown (notes preview + manual).
    Light mode keeps github-markdown-light.css untouched. */
 
+.markdown-body {
+  background-color: transparent;
+}
+
 .dark .markdown-body {
   background-color: transparent;
   color: var(--text);
