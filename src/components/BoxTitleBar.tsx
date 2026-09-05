@@ -1,5 +1,5 @@
 import React, { Component, MouseEvent } from 'react'
-import { Link2, Maximize2, Minimize2, Pencil, Settings, Trash2 } from 'lucide-react'
+import { Check, Link2, Maximize2, Minimize2, Pencil, Settings, Trash2 } from 'lucide-react'
 import { BoxType, BoxState } from '../Types'
 import UntypedLambdaBTB from '../untyped-lambda-integration/BoxTopBar'
 import { UntypedLambdaState } from '../untyped-lambda-integration/Types'
@@ -248,7 +248,8 @@ export default class BoxTitleBar extends Component<Props, State> {
         {
           shareLinkOpen ?
             <p className='box-top-bar--menu-item--notif'>
-              Link Copied!
+              <Check size={ 14 } strokeWidth={ 2 } />
+              Link copied!
             </p>
             :
             null
