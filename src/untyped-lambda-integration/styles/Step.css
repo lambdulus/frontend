@@ -158,6 +158,21 @@
   text-indent: -1.25em;
 }
 
+/* Older steps collapse to a single ellipsized line; hovering one
+   expands it back to the full wrapped form. The latest step (which is
+   never .inactiveStep) always stays fully expanded. */
+.inactiveStep .inlineblock {
+  display: block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+li.inactiveStep:hover .inlineblock {
+  white-space: normal;
+  overflow: visible;
+}
+
 .boxExercise .activeStep .substitutedArg,
 .boxExercise .activeStep .redex,
 .boxExercise .churchnumeral.redex.argument.abstraction,
