@@ -16,6 +16,7 @@
   display: flex;
   align-items: center;
   gap: 24px;
+  position: relative;
 }
 
 .top-bar--brand {
@@ -98,6 +99,42 @@
 .top-bar--action:hover {
   color: var(--text);
   background-color: var(--raised);
+}
+
+.top-bar--action--active {
+  color: var(--accent);
+  background-color: var(--raised);
+}
+
+.top-bar--backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 887;
+  cursor: default;
+}
+
+.top-bar--settings-panel {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 20px;
+  width: 320px;
+  z-index: 888;
+  background-color: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  box-shadow: var(--shadow);
+  padding: 14px 16px 18px;
+}
+
+.top-bar--settings-panel .untyped-lambda-box--settings {
+  margin-top: 0;
+}
+
+.top-bar--settings-title {
+  margin: 0 0 4px;
+  font-size: 0.85em;
+  font-weight: 600;
+  color: var(--muted);
 }
 
 #input {

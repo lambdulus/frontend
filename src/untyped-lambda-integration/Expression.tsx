@@ -33,29 +33,29 @@ interface EvaluatorProps {
 
 export default class Expression extends PureComponent<EvaluatorProps> {
   private historyRef : React.RefObject<HTMLDivElement>
+  private followTail : boolean
 
   constructor (props : EvaluatorProps) {
     super(props)
 
     this.historyRef = React.createRef<HTMLDivElement>()
+    this.followTail = true
     this.addBreakpoint = this.addBreakpoint.bind(this)
   }
 
   componentDidUpdate (prevProps : EvaluatorProps) : void {
     // Follow the evaluation while the user is watching the tail;
-    // never yank the scroll away from someone inspecting older steps.
+    // stop following once they scroll up, resume at the bottom.
     if (prevProps.history.length === this.props.history.length) {
       return
     }
 
     const el : HTMLDivElement | null = this.historyRef.current
-    if (el === null) {
+    if (el === null || ! this.followTail) {
       return
     }
 
-    if (el.scrollHeight - el.scrollTop - el.clientHeight < 80) {
-      el.scrollTop = el.scrollHeight
-    }
+    el.scrollTop = el.scrollHeight
   }
 
   render () : JSX.Element {
@@ -104,7 +104,14 @@ export default class Expression extends PureComponent<EvaluatorProps> {
                 null
           }
         </div>
-        <div className='box-history-scroll' ref={ this.historyRef }>
+        <div
+          className='box-history-scroll'
+          ref={ this.historyRef }
+          onScroll={ (e) => {
+            const el : HTMLDivElement = e.currentTarget
+            this.followTail = el.scrollHeight - el.scrollTop - el.clientHeight < 40
+          } }
+        >
         <ul className='UL'>
           {
             mapLeftFromTo(0, this.props.history.length - 2, this.props.history, (stepRecord : StepRecord, i : Number) =>

@@ -14,8 +14,15 @@
   margin-top: 0;
 }
 
+/* The exercise editor must fill the row; as a bare flex item monaco
+   collapses to zero width and the box looks empty. */
+.box-eval-controls .editorContainer {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
 .box-history-scroll {
-  max-height: 26rem;
+  max-height: 80vh;
   overflow-y: auto;
   padding-right: 10px;
   scrollbar-width: thin;

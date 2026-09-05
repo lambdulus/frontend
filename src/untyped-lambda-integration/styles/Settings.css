@@ -2,11 +2,6 @@
   margin-top: 20px;
 }
 
-.settingsSpace h2 {
-  font-size: 1.1em;
-  font-weight: 600;
-}
-
 /* Box-local settings read as a small panel */
 .box-settings {
   padding: 12px 14px 16px;

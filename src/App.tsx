@@ -11,7 +11,6 @@ import  { loadAppStateFromStorage
 import TopBar from './components/TopBar'
 import Notebook from './screens/Notebook'
 import Help from './screens/Help'
-import SettingsScreen from './screens/Settings'
 import { Screen, AppState, NotebookState, GlobalSettings, BoxType, BoxState } from './Types'
 import { CODE_NAME as UNTYPED_LAMBDA_CODE_NAME, createNewUntypedLambdaBoxFromSource, defaultSettings } from './untyped-lambda-integration/Constants'
 import { UntypedLambdaState, UntypedLambdaSettings, EvaluationStrategy, UntypedLambdaType } from './untyped-lambda-integration/Types'
@@ -138,6 +137,7 @@ export default class App extends Component<{}, AppState> {
               onImport={ this.importNotebook }
               onClearWorkspace={ this.clearWorkspace }
               onDarkModeChange={ this.toggleTheme }
+              onSettingsChange={ this.updateSettings }
             />
 
 
@@ -149,8 +149,8 @@ export default class App extends Component<{}, AppState> {
                 case Screen.HELP:
                   return <Help/>
 
-                case Screen.SETTINGS:
-                  return <SettingsScreen updateSettings={ this.updateSettings } />
+                default:
+                  return <Notebook state={ notebook } updateNotebook={ this.updateNotebook } />
               }
             })()}
           </div>

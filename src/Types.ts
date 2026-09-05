@@ -11,7 +11,6 @@ export enum BoxType {
 export enum Screen {
   MAIN,
   HELP,
-  SETTINGS
 }
 
 export interface AbstractBoxState {
