@@ -158,10 +158,12 @@
   text-indent: -1.25em;
 }
 
-/* Older steps collapse to a visibly cut-off half line; clicking one
+/* Older steps collapse to a visibly cut-off line; clicking one
    (focus) expands it back to the full wrapped form until you click
-   elsewhere. The latest step (never .inactiveStep) stays expanded. */
-.inactiveStep .inlineblock {
+   elsewhere. The latest step (never .inactiveStep) stays expanded.
+   All of this only applies under .collapse-history, toggled by the
+   "Collapse Old Steps" setting (global default, per-box override). */
+.collapse-history .inactiveStep .inlineblock {
   display: block;
   max-width: 75%;
   white-space: nowrap;
@@ -170,12 +172,12 @@
   cursor: pointer;
 }
 
-li.inactiveStep {
+.collapse-history li.inactiveStep {
   outline: none;
 }
 
-li.inactiveStep:focus .inlineblock,
-li.inactiveStep:focus-within .inlineblock {
+.collapse-history li.inactiveStep:focus .inlineblock,
+.collapse-history li.inactiveStep:focus-within .inlineblock {
   max-width: none;
   white-space: normal;
   overflow: visible;

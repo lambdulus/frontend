@@ -67,6 +67,7 @@ export interface UntypedLambdaState extends AbstractBoxState {
   SDE : boolean // Semantics Drive Evaluation (Strategy) -- formerly called Simplified Strategy
   SLI : boolean
   expandStandalones : boolean
+  collapseOldSteps : boolean
 
   macrolistOpen : boolean
   macrotable : MacroMap
@@ -83,6 +84,7 @@ export interface UntypedLambdaSettings extends AbstractSettings {
   expandStandalones : boolean
   strategy : EvaluationStrategy
   SDE : boolean
+  collapseOldSteps : boolean
 }
 
 export type SettingsEnabled = {

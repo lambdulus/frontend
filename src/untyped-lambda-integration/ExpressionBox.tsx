@@ -108,6 +108,7 @@ export default class ExpressionBox extends PureComponent<EvaluationProperties> {
       SLI,
       SDE,
       expandStandalones,
+      collapseOldSteps,
       macrotable,
     } : UntypedLambdaState = state
     const { ast } = stepRecord
@@ -131,6 +132,7 @@ export default class ExpressionBox extends PureComponent<EvaluationProperties> {
       SDE,
       SLI,
       expandStandalones,
+      collapseOldSteps,
       macrolistOpen : false,
       macrotable : { },
       editor : {

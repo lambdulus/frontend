@@ -49,6 +49,7 @@ export const defaultSettings : UntypedLambdaSettings = {
   expandStandalones : false,
   strategy : EvaluationStrategy.NORMAL,
   SDE : true,
+  collapseOldSteps : true,
 }
 
 export function createNewUntypedLambdaExpression (defaultSettings : UntypedLambdaSettings) : UntypedLambdaState {

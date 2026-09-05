@@ -13,7 +13,7 @@ interface Props {
 
 export default function Settings (props : Props) : JSX.Element {
   const { settings, change, settingsEnabled } : Props = props
-  const { SLI, expandStandalones, strategy, SDE } : UntypedLambdaSettings = settings
+  const { SLI, expandStandalones, strategy, SDE, collapseOldSteps } : UntypedLambdaSettings = settings
   const { SLI : SLI_E, expandStandalones : expSt_E, strategy : strat_E } : SettingsEnabled = settingsEnabled
 
 
@@ -67,6 +67,27 @@ export default function Settings (props : Props) : JSX.Element {
           />
           <label className='untyped-lambda-settings-label' htmlFor={ `untyped-lambda-settings--SDE-${uniq}` }>
             Simplified Evaluation
+          </label>
+        </span>
+      }
+
+      {
+        <span
+          className='untyped-lambda-settings-collapse'
+          title='Shorten older reduction steps, click one to expand it'>
+          <input
+            id={ `untyped-lambda-settings--collapse-${uniq}` }
+            type='checkbox'
+            checked={ collapseOldSteps ?? true }
+            disabled={ false }
+
+            onChange={
+              (e : ChangeEvent<HTMLInputElement>) =>
+                change({ ...settings, collapseOldSteps : e.target.checked })
+            }
+          />
+          <label className='untyped-lambda-settings-label' htmlFor={ `untyped-lambda-settings--collapse-${uniq}` }>
+            Collapse Old Steps
           </label>
         </span>
       }
