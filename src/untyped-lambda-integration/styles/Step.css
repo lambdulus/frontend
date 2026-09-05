@@ -158,17 +158,25 @@
   text-indent: -1.25em;
 }
 
-/* Older steps collapse to a single ellipsized line; hovering one
-   expands it back to the full wrapped form. The latest step (which is
-   never .inactiveStep) always stays fully expanded. */
+/* Older steps collapse to a visibly cut-off half line; clicking one
+   (focus) expands it back to the full wrapped form until you click
+   elsewhere. The latest step (never .inactiveStep) stays expanded. */
 .inactiveStep .inlineblock {
   display: block;
+  max-width: 50%;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  cursor: pointer;
 }
 
-li.inactiveStep:hover .inlineblock {
+li.inactiveStep {
+  outline: none;
+}
+
+li.inactiveStep:focus .inlineblock,
+li.inactiveStep:focus-within .inlineblock {
+  max-width: none;
   white-space: normal;
   overflow: visible;
 }
