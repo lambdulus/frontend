@@ -88,7 +88,7 @@ export default class UntypedLambdaBox extends PureComponent<Props> {
             const boundingRect = elem.getBoundingClientRect()
             const viewportHeight : number = window.innerHeight
             if (boundingRect.bottom > viewportHeight) {
-              elem.scrollIntoView(false)
+              elem.scrollIntoView({ block : 'nearest' })
             }
           }
         } }

@@ -80,28 +80,14 @@ export default class Expression extends PureComponent<EvaluatorProps> {
       <div className={ className }>
         <div className='box-eval-controls'>
           {
-            (isExercise && ! this.props.isNormalForm) ?
-              <Editor
-                placeholder={ placeholder }
-                content={ content }
-                syntaxError={ syntaxError }
-                submitOnEnter={ true }
-
-                onContent={ this.props.onContent }
-                onEnter={ this.props.onEnter }
-                onShiftEnter={ () => void 0 }
-                onCtrlEnter={ () => void 0 }
-                shouldReplaceLambda={ true }
+            ( ! isExercise && ! this.props.isNormalForm && shouldShowDebugControls) ?
+              <DebugControls
+                isRunning={ isRunning }
+                onStep={ this.props.onEnter }
+                onRun={ this.props.onExecute }
               />
             :
-              ( ! this.props.isNormalForm && shouldShowDebugControls) ?
-                <DebugControls
-                  isRunning={ isRunning }
-                  onStep={ this.props.onEnter }
-                  onRun={ this.props.onExecute }
-                />
-              :
-                null
+              null
           }
         </div>
         <div
@@ -165,6 +151,25 @@ export default class Expression extends PureComponent<EvaluatorProps> {
           </li>
         </ul>
         </div>
+        {
+          (isExercise && ! this.props.isNormalForm) ?
+            <div className='box-exercise-input'>
+              <Editor
+                placeholder={ placeholder }
+                content={ content }
+                syntaxError={ syntaxError }
+                submitOnEnter={ true }
+
+                onContent={ this.props.onContent }
+                onEnter={ this.props.onEnter }
+                onShiftEnter={ () => void 0 }
+                onCtrlEnter={ () => void 0 }
+                shouldReplaceLambda={ true }
+              />
+            </div>
+          :
+            null
+        }
       </div>
     )
   }

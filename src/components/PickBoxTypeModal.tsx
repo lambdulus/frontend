@@ -1,4 +1,5 @@
 import React from 'react'
+import { FileText } from 'lucide-react'
 import { BoxState } from '../Types'
 import { createNewMarkdown } from '../markdown-integration/AppTypes'
 import { UntypedLambdaSettings, UntypedLambdaState } from '../untyped-lambda-integration/Types'
@@ -30,14 +31,13 @@ export default function PickBoxTypeModal (props : Props) : JSX.Element {
                       // this.setState({ opened : false })
                       addNew(createNewUntypedLambdaExpression(untLSettings)) }
                     }
+                    title='Create new λ box'
                   >
-                    <div
-                      className='plusBtn'
-                      title='Create new λ box'
-                    >
-                      <p className='create-box--big'>λ</p>
-                      <p className='creat-box--label'>{ ADD_BOX_LABEL }</p>
-                    </div>
+                    <span className='add-box--glyph'>λ</span>
+                    <span className='add-box--text'>
+                      <span className='add-box--title'>{ ADD_BOX_LABEL }</span>
+                      <span className='add-box--subtitle'>Evaluate and step through expressions</span>
+                    </span>
                   </div>
         }
       }
@@ -69,14 +69,15 @@ export default function PickBoxTypeModal (props : Props) : JSX.Element {
         // this.setState({ opened : false })
         addNew(createNewMarkdown()) }
       }
+      title='Create new MarkDown box'
     >
-      <div
-        className='plusBtn'
-        title='Create new MarkDown box'
-      >
-        <p className='create-box--big'>M&darr;</p>
-        <p className='creat-box--label'>+ Markdown</p>
-      </div>
+      <span className='add-box--glyph'>
+        <FileText size={ 22 } strokeWidth={ 1.75 } />
+      </span>
+      <span className='add-box--text'>
+        <span className='add-box--title'>+ Markdown</span>
+        <span className='add-box--subtitle'>Write notes between expressions</span>
+      </span>
     </div>
   )
 
