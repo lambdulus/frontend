@@ -32,7 +32,7 @@ export default class CreateBox extends Component <Props, State> {
     if (this.state.modalOpen === false) {
       return (
         <div className='create-box-plus' onClick={ () => this.setState({ modalOpen : ! modalOpen }) } >
-          <Plus size={ 16 } strokeWidth={ 1.75 } />
+          <Plus size={ 16 } strokeWidth={ 2 } />
           <span>New box</span>
         </div>
       )

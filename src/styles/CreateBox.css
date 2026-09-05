@@ -17,9 +17,10 @@
   margin: auto;
   padding: 14px;
   font-size: 1em;
-  color: var(--muted);
-  background-color: transparent;
-  border: 1px dashed var(--border);
+  font-weight: 500;
+  color: var(--accent);
+  background-color: var(--surface);
+  border: 1px dashed var(--accent);
   border-radius: 8px;
   cursor: pointer;
   transition: color .15s ease-in-out, border-color .15s ease-in-out, background-color .15s ease-in-out;
@@ -27,6 +28,7 @@
 
 .create-box-plus:hover {
   color: var(--accent);
+  border-style: solid;
   border-color: var(--accent);
-  background-color: var(--surface);
+  background-color: var(--raised);
 }
