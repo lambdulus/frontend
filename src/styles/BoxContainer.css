@@ -16,5 +16,5 @@
 .add_box_after:hover {
   opacity: 1;
   color: var(--accent);
-  background-color: var(--raised);
+  background-color: var(--surface);
 }
