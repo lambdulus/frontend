@@ -1,6 +1,7 @@
 import React from 'react'
 
 import 'github-markdown-css/github-markdown-light.css'
+import '../styles/Markdown.css'
 import { NoteState } from './AppTypes'
 import Editor from '../components/Editor'
 
@@ -22,6 +23,7 @@ export default function Note (props : NoteProperties) : JSX.Element {
       note,
       editor : { placeholder, content, syntaxError },
       isEditing,
+      readOnly,
     },
     isActive,
     setBoxState,
@@ -40,7 +42,7 @@ export default function Note (props : NoteProperties) : JSX.Element {
     // this.updateURL(expression) // tohle musim nejak vyresit - mozna ta metoda setBoxState v APP bude checkovat propisovat do URL
   }
 
-    if (isEditing) { // TODO: isFocused removed just for now
+    if (isEditing && ! readOnly) { // TODO: isFocused removed just for now
     return (
       <div className='box boxNoteEditor'>
         <Editor
@@ -64,8 +66,8 @@ export default function Note (props : NoteProperties) : JSX.Element {
   return (
     <div
       className='box boxNote'
-      onClick={ () => 
-        isActive &&
+      onClick={ () =>
+        isActive && ! readOnly &&
         setBoxState({
         ...props.state,
         isEditing : true,

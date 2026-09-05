@@ -1,4 +1,5 @@
 import React, { PureComponent } from 'react'
+import { uniqueKey } from '../uniqueKey'
 
 import {
   AST,
@@ -107,13 +108,14 @@ export default class ExpressionBox extends PureComponent<EvaluationProperties> {
       SLI,
       SDE,
       expandStandalones,
+      collapseOldSteps,
       macrotable,
     } : UntypedLambdaState = state
     const { ast } = stepRecord
     const content = ast.toString()
 
     return {
-      __key : Date.now().toString(),
+      __key : uniqueKey(),
       type : BoxType.UNTYPED_LAMBDA,
       subtype : UntypedLambdaType.EMPTY,
       title : `Copy of ${state.title}`,
@@ -130,6 +132,7 @@ export default class ExpressionBox extends PureComponent<EvaluationProperties> {
       SDE,
       SLI,
       expandStandalones,
+      collapseOldSteps,
       macrolistOpen : false,
       macrotable : { },
       editor : {

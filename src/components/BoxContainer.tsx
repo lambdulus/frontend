@@ -13,6 +13,7 @@ interface Props {
   isFocusedBox : boolean
   box : BoxState
 
+  seatBox : () => void
   makeActive : () => void
   onBlur : () => void
   updateBoxState : (state : BoxState) => void
@@ -26,11 +27,22 @@ interface State {
 }
 
 export class BoxContainer extends Component<Props, State> {
+  private modalRef : React.RefObject<HTMLDivElement>
+
   constructor (props: Props) {
     super(props)
 
+    this.modalRef = React.createRef<HTMLDivElement>()
     this.state = {
       modalOpen : false
+    }
+  }
+
+  componentDidUpdate (_prevProps : Props, prevState : State) : void {
+    // The add-box dialog opens below the button; nudge the page just
+    // enough to bring the whole dialog into view.
+    if ( ! prevState.modalOpen && this.state.modalOpen && this.modalRef.current !== null) {
+      this.modalRef.current.scrollIntoView({ block : 'nearest', behavior : 'smooth' })
     }
   }
 
@@ -39,6 +51,7 @@ export class BoxContainer extends Component<Props, State> {
       isActiveBox,
       isFocusedBox,
       box,
+      seatBox,
       makeActive,
       onBlur,
       updateBoxState,
@@ -62,6 +75,7 @@ export class BoxContainer extends Component<Props, State> {
             state={ box }
             isActive={ isActiveBox }
             isFocused={ isFocusedBox }
+            seatBox={ seatBox }
             removeBox={ (e : MouseEvent) => {
               e.stopPropagation()
               removeBox()
@@ -82,12 +96,14 @@ export class BoxContainer extends Component<Props, State> {
 
         {
           modalOpen ?
-            <PickBoxTypeModal
-              addNew={ (box : BoxState) => {
-                this.props.addBoxAfter(box)
-                this.setState({ modalOpen : false })
-              } }
-            />
+            <div ref={ this.modalRef }>
+              <PickBoxTypeModal
+                addNew={ (box : BoxState) => {
+                  this.props.addBoxAfter(box)
+                  this.setState({ modalOpen : false })
+                } }
+              />
+            </div>
           :
           <div className="add_box_after" onMouseDown={ () => this.setState({ modalOpen : true }) } >
             +

@@ -5,15 +5,16 @@ import './App.css'
 import  { loadAppStateFromStorage
         , updateAppStateToStorage
         , updateNotebookStateToStorage
-        , CLEAR_WORKSPACE_CONFIRMATION
-        , InitNotebookState } from './Constants'
+        , CLEAR_NOTEBOOK_CONFIRMATION
+        , RESET_WORKSPACE_CONFIRMATION
+        , createEmptyNotebook
+        , createManualNotebook } from './Constants'
+
+import { uniqueKey } from './uniqueKey'
 
 import TopBar from './components/TopBar'
-import MenuBar from './components/MenuBar'
 import Notebook from './screens/Notebook'
-import Help from './screens/Help'
-import SettingsScreen from './screens/Settings'
-import { Screen, AppState, NotebookState, GlobalSettings, BoxType, BoxState } from './Types'
+import { Accent, AppState, NotebookState, GlobalSettings, BoxType, BoxState } from './Types'
 import { CODE_NAME as UNTYPED_LAMBDA_CODE_NAME, createNewUntypedLambdaBoxFromSource, defaultSettings } from './untyped-lambda-integration/Constants'
 import { UntypedLambdaState, UntypedLambdaSettings, EvaluationStrategy, UntypedLambdaType } from './untyped-lambda-integration/Types'
 import { MacroTable } from '@lambdulus/core'
@@ -31,12 +32,16 @@ export default class App extends Component<{}, AppState> {
 
     this.state = loadAppStateFromStorage()
 
-    this.setScreen = this.setScreen.bind(this)
     this.updateNotebook = this.updateNotebook.bind(this)
     this.updateSettings = this.updateSettings.bind(this)
     this.importNotebook = this.importNotebook.bind(this)
-    this.clearWorkspace = this.clearWorkspace.bind(this)
+    this.clearNotebook = this.clearNotebook.bind(this)
+    this.resetWorkspace = this.resetWorkspace.bind(this)
+    this.updateAccent = this.updateAccent.bind(this)
     this.toggleTheme = this.toggleTheme.bind(this)
+    this.selectNotebook = this.selectNotebook.bind(this)
+    this.addNotebook = this.addNotebook.bind(this)
+    this.removeNotebook = this.removeNotebook.bind(this)
 
     this.createNotebookFromURL = this.createNotebookFromURL.bind(this)
   }
@@ -92,19 +97,20 @@ export default class App extends Component<{}, AppState> {
           const macrotable : MacroTable = JSON.parse(decodeURI(macros))
 
           const box : UntypedLambdaState = createNewUntypedLambdaBoxFromSource(decodeURI(source), settings, sub, macrotable)
-          const notebook : NotebookState = createNewNotebookWithBox(box, { [UNTYPED_LAMBDA_CODE_NAME] : settings })
+          const notebook : NotebookState = createNewNotebookWithBox('Shared', box, { [UNTYPED_LAMBDA_CODE_NAME] : settings })
+          const notebooks : Array<NotebookState> = [ ...this.state.notebooks, notebook ]
 
           this.setState({
-            currentScreen : Screen.MAIN,
-            notebook,
+            notebooks,
+            activeNotebookIndex : notebooks.length - 1,
           })
 
           window.history.pushState(null, '', '/') // TODO: decide if remove or leave
 
           updateAppStateToStorage({
             ...this.state,
-            currentScreen : Screen.MAIN,
-            notebook,
+            notebooks,
+            activeNotebookIndex : notebooks.length - 1,
           })
         }
         catch (ex) {
@@ -120,7 +126,8 @@ export default class App extends Component<{}, AppState> {
 
   // NOTE: render is OK
   render () {
-    const { notebook, currentScreen, theme } = this.state
+    const { notebooks, activeNotebookIndex, theme, accent } = this.state
+    const notebook : NotebookState = notebooks[activeNotebookIndex]
     const { settings } = notebook
 
     const darkmode = theme === Theme.Dark
@@ -129,36 +136,28 @@ export default class App extends Component<{}, AppState> {
       <ThemeContext.Provider value={ theme }>
         <SettingsContext.Provider value={ settings }>
 
-          <div id='app' className={ darkmode ? 'dark' : 'light' }>
+          <div id='app' className={ darkmode ? 'dark' : 'light' } data-accent={ accent }>
             <div id="bad-screen-message">
               Lambdulus only runs on screens at least 900 pixels wide.
             </div>
             <TopBar
-              state={ this.state }
-              onScreenChange={ this.setScreen }
+              notebooks={ notebooks }
+              activeNotebookIndex={ activeNotebookIndex }
+              theme={ theme }
+              accent={ accent }
+              settings={ settings }
+              onAccentChange={ this.updateAccent }
+              onNotebookSelect={ this.selectNotebook }
+              onNotebookAdd={ this.addNotebook }
+              onNotebookRemove={ this.removeNotebook }
               onImport={ this.importNotebook }
-              onClearWorkspace={ this.clearWorkspace }
+              onClearNotebook={ this.clearNotebook }
+              onResetWorkspace={ this.resetWorkspace }
               onDarkModeChange={ this.toggleTheme }
+              onSettingsChange={ this.updateSettings }
             />
 
-
-            <MenuBar
-              state={ this.state }
-              onScreenChange={ this.setScreen }
-            />
-
-            { (() => {
-              switch (currentScreen) {
-                case Screen.MAIN:
-                  return <Notebook state={ notebook } updateNotebook={ this.updateNotebook } />
-
-                case Screen.HELP:
-                  return <Help/>
-
-                case Screen.SETTINGS:
-                  return <SettingsScreen updateSettings={ this.updateSettings } />
-              }
-            })()}
+            <Notebook state={ notebook } updateNotebook={ this.updateNotebook } />
           </div>
 
         </SettingsContext.Provider>
@@ -166,45 +165,150 @@ export default class App extends Component<{}, AppState> {
     )
   }
 
-  setScreen (screen : Screen) : void {
-    this.setState({ currentScreen : screen })
-  }
-
   updateNotebook (notebookPatch : Partial<NotebookState>) : void {
-    const { notebook } = this.state
-    const newNotebook = { ...notebook, ...notebookPatch }
+    const { notebooks, activeNotebookIndex } = this.state
+    const newNotebook = { ...notebooks[activeNotebookIndex], ...notebookPatch }
+    const newNotebooks = [ ...notebooks ]
+    newNotebooks[activeNotebookIndex] = newNotebook
 
-    this.setState({ notebook : newNotebook })
+    this.setState({ notebooks : newNotebooks })
 
-    updateNotebookStateToStorage(newNotebook)
+    updateNotebookStateToStorage(activeNotebookIndex, newNotebook)
   }
 
   importNotebook (notebook : NotebookState) : void {
+    const notebooks : Array<NotebookState> = [ ...this.state.notebooks, notebook ]
+
     this.setState({
-      notebook,
+      notebooks,
+      activeNotebookIndex : notebooks.length - 1,
     })
 
     updateAppStateToStorage({
       ...this.state,
-      notebook,
+      notebooks,
+      activeNotebookIndex : notebooks.length - 1,
     })
   }
 
   updateSettings (newSettings : GlobalSettings) : void {
-    const { notebook } = this.state
-    const newNotebook = { ...notebook, settings : newSettings }
+    const { notebooks, activeNotebookIndex } = this.state
+    const newNotebook = { ...notebooks[activeNotebookIndex], settings : newSettings }
+    const newNotebooks = [ ...notebooks ]
+    newNotebooks[activeNotebookIndex] = newNotebook
 
 
-    this.setState({ notebook : newNotebook })
-    updateNotebookStateToStorage(newNotebook)
+    this.setState({ notebooks : newNotebooks })
+    updateNotebookStateToStorage(activeNotebookIndex, newNotebook)
   }
 
-  clearWorkspace () : void {
-    if (window.confirm(CLEAR_WORKSPACE_CONFIRMATION)) {
+  clearNotebook () : void {
+    const { notebooks, activeNotebookIndex } = this.state
+    const notebook : NotebookState = notebooks[activeNotebookIndex]
 
-      this.setState({ notebook : InitNotebookState })
-      updateNotebookStateToStorage(InitNotebookState)
+    if (notebook.locked) {
+      return
     }
+
+    if (window.confirm(CLEAR_NOTEBOOK_CONFIRMATION)) {
+      const cleared : NotebookState = {
+        ...notebook,
+        boxList : [],
+        activeBoxIndex : NaN,
+        focusedBoxIndex : undefined,
+      }
+      const newNotebooks = [ ...notebooks ]
+      newNotebooks[activeNotebookIndex] = cleared
+
+      this.setState({ notebooks : newNotebooks })
+      updateNotebookStateToStorage(activeNotebookIndex, cleared)
+    }
+  }
+
+  resetWorkspace () : void {
+    if (window.confirm(RESET_WORKSPACE_CONFIRMATION)) {
+      const notebooks : Array<NotebookState> = [ createManualNotebook(), createEmptyNotebook('Notebook') ]
+
+      this.setState({
+        notebooks,
+        activeNotebookIndex : 1,
+      })
+
+      updateAppStateToStorage({
+        ...this.state,
+        notebooks,
+        activeNotebookIndex : 1,
+      })
+    }
+  }
+
+  selectNotebook (index : number) : void {
+    const { notebooks } = this.state
+
+    if (index < 0 || index >= notebooks.length) {
+      return
+    }
+
+    this.setState({ activeNotebookIndex : index })
+
+    updateAppStateToStorage({
+      ...this.state,
+      activeNotebookIndex : index,
+    })
+  }
+
+  addNotebook () : void {
+    const { notebooks } = this.state
+    const names = notebooks.map((notebook : NotebookState) => notebook.name)
+
+    let name : string = 'Notebook'
+    let counter : number = 2
+    while (names.indexOf(name) !== -1) {
+      name = `Notebook ${counter}`
+      counter++
+    }
+
+    const newNotebooks = [ ...notebooks, createEmptyNotebook(name) ]
+
+    this.setState({
+      notebooks : newNotebooks,
+      activeNotebookIndex : newNotebooks.length - 1,
+    })
+
+    updateAppStateToStorage({
+      ...this.state,
+      notebooks : newNotebooks,
+      activeNotebookIndex : newNotebooks.length - 1,
+    })
+  }
+
+  removeNotebook (index : number) : void {
+    const { notebooks, activeNotebookIndex } = this.state
+
+    if (index < 0 || index >= notebooks.length || notebooks[index].locked) {
+      return
+    }
+
+    let newNotebooks : Array<NotebookState> = notebooks.filter((notebook : NotebookState, i : number) => i !== index)
+    if (newNotebooks.length === 0) {
+      newNotebooks = [ createEmptyNotebook('Notebook') ]
+    }
+
+    const newActiveIndex : number =
+      index < activeNotebookIndex ? activeNotebookIndex - 1
+      : index === activeNotebookIndex ? Math.min(index, newNotebooks.length - 1)
+      : activeNotebookIndex
+
+    this.setState({
+      notebooks : newNotebooks,
+      activeNotebookIndex : newActiveIndex,
+    })
+
+    updateAppStateToStorage({
+      ...this.state,
+      notebooks : newNotebooks,
+      activeNotebookIndex : newActiveIndex,
+    })
   }
 
   toggleTheme () : void {
@@ -215,10 +319,16 @@ export default class App extends Component<{}, AppState> {
     updateAppStateToStorage({ ...this.state, theme : opposite })
   }
 
+  updateAccent (accent : Accent) : void {
+    this.setState({ accent })
+    updateAppStateToStorage({ ...this.state, accent })
+  }
+
 }
 
-function createNewNotebookWithBox (box : BoxState, settings : GlobalSettings) : NotebookState {
+function createNewNotebookWithBox (name : string, box : BoxState, settings : GlobalSettings) : NotebookState {
   return {
+    name,
     boxList : [ box ],
     activeBoxIndex : 0,
     focusedBoxIndex : 0,
@@ -226,6 +336,6 @@ function createNewNotebookWithBox (box : BoxState, settings : GlobalSettings) : 
 
     menuOpen : false,
 
-    __key : Date.now().toString(),
+    __key : uniqueKey(),
   }
 }

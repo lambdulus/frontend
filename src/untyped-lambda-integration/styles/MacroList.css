@@ -1,7 +1,7 @@
 .untyped-lambda-box--macrolist {
   padding: 5px;
 
-  border-bottom: 2px solid gray;
+  border-bottom: 1px solid var(--border);
 }
 
 .builtinMacros, .userMacros {
@@ -13,27 +13,14 @@
 }
 
 .macro-definition {
-  /* display: inline; */
   padding: 10px;
-  /* padding-top: 5px; */
-  /* padding-bottom: 5px; */
-  /* padding-left: 20px; */
-  /* background-color: #c2e9ff; */
-  /* border-radius: 0.2rem; */
-  border-bottom: 1px solid gray;
+  border-bottom: 1px solid var(--border);
 }
 
 .macro-name {
-  color: blue;
-  padding-right: 5px;
-  /* background-color:  */
-}
-
-.dark .macro-name {
-  color: rgb(150, 150, 255);
+  color: var(--accent);
   padding-right: 5px;
   font-weight: 700;
-  /* background-color:  */
 }
 
 

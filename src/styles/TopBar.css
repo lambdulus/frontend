@@ -1,115 +1,299 @@
 .top-bar {
   position: fixed;
-  padding-top: 10px;
-  width: 100%;
-  height: 2.5em;
-  
-  padding-bottom: 20px;
+  top: 0;
+  left: 0;
+  right: 0;
   z-index: 888;
-  background-color: white;
-
-  /* -webkit-box-shadow: 0px 10px 15px -14px rgba(0,0,0,0.75); */
-  /* -moz-box-shadow: 0px 10px 15px -14px rgba(0,0,0,0.75); */
-  /* box-shadow: 0px 10px 15px -14px rgba(0,0,0,0.75); */
+  background-color: var(--surface);
+  border-bottom: 1px solid var(--border);
 }
 
-.dark .top-bar {
-  background-color: rgb(31, 31, 31);
-  color: white;
+.top-bar--inner {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 0 20px;
+  height: 52px;
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  position: relative;
 }
 
-.top-bar--notebook-name-container {
-  width: 65%;
-  margin: auto;
+.top-bar--brand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  flex-shrink: 0;
 }
 
-.top-bar--notebook-name {
-  max-width: 50%;
-  /* display: inline-block; */
+.top-bar--logo {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  background-color: var(--accent);
+  color: var(--accent-ink);
+  font-family: Comfortaa, sans-serif;
+  font-size: 1.1em;
+  font-weight: 700;
+}
+
+.top-bar--brand {
+  flex-shrink: 0;
+}
+
+.top-bar--tabs {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.top-bar--actions {
+  flex-shrink: 0;
+}
+
+.top-bar--tabs::-webkit-scrollbar {
+  display: none;
+}
+
+.top-bar--tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+  color: var(--muted);
+  font-size: 0.95em;
+  padding: 6px 8px 6px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.top-bar--tab:hover {
+  color: var(--text);
+  background-color: var(--raised);
+}
+
+.top-bar--tab--active {
+  color: var(--text);
+  background-color: var(--raised);
+}
+
+.top-bar--tab-name {
+  max-width: 140px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.top-bar--tab-close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 4px;
+  opacity: 0;
+}
+
+.top-bar--tab:hover .top-bar--tab-close {
+  opacity: 0.7;
+}
+
+.top-bar--tab-close:hover {
+  opacity: 1;
+  background-color: var(--border);
+}
+
+.top-bar--actions {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.top-bar--action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  border: none;
+  background: none;
+  color: var(--muted);
+  font-size: 0.95em;
+  cursor: pointer;
+  text-decoration: none;
+  font-family: inherit;
+}
+
+.top-bar--action:hover {
+  color: var(--text);
+  background-color: var(--raised);
+}
+
+.top-bar--action:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+.top-bar--action:disabled:hover {
+  color: var(--muted);
+  background: none;
+}
+
+.top-bar--action--active {
+  color: var(--accent);
+  background-color: var(--raised);
+}
+
+/* The bar chrome always sits above an open popover's backdrop, so
+   switching icons swaps panels in one click instead of being swallowed. */
+.top-bar--brand,
+.top-bar--tabs,
+.top-bar--actions,
+.top-bar--inner > .top-bar--action {
+  position: relative;
+  z-index: 2;
+}
+
+.top-bar--backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  cursor: default;
+}
+
+.top-bar--settings-panel {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 20px;
+  width: 320px;
+  z-index: 3;
+  background-color: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  box-shadow: var(--shadow);
+  padding: 14px 16px 18px;
+}
+
+.top-bar--settings-panel .untyped-lambda-box--settings {
+  margin-top: 0;
+}
+
+.top-bar--settings-title {
+  margin: 0 0 4px;
+  font-size: 0.85em;
+  font-weight: 600;
+  color: var(--muted);
+}
+
+.top-bar--clear-btn {
+  width: 100%;
+  margin-top: 8px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-
-  margin-top: 0.4em;
-  /* padding: 8px; */
-  /* padding-left: 10px; */
-  /* padding-right: 10px; */
-  font-size: 1.6em;
-  /* border-radius: 0.25em; */
-  /* background-color: rgb(223, 223, 223); */
-  float: left;
-  border-bottom: rgb(223, 223, 223) solid 2px;
 }
 
-.top-bar--item-container { 
+.btn-danger {
+  color: var(--danger);
+  border-color: var(--danger);
+}
+
+.btn-danger:hover {
+  background-color: var(--danger);
+  border-color: var(--danger);
+  color: #ffffff;
+}
+
+.btn-danger:disabled {
+  opacity: 0.45;
+}
+
+.top-bar--clear-divider {
+  border-top: 1px solid var(--border);
+  margin: 12px 0 4px;
+}
+
+.top-bar--theme-btn {
+  width: 100%;
+  margin-top: 8px;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--text);
+}
+
+.top-bar--theme-btn--emerald {
+  border-color: #10b981;
+}
+
+.top-bar--theme-btn--blue {
+  border-color: #0b83fb;
+}
+
+.top-bar--theme-btn--amber {
+  border-color: #f59e0b;
+}
+
+.top-bar--theme-btn--emerald.top-bar--theme-btn--active {
+  background-color: #10b981;
+  border-color: #10b981;
+  color: #06281c;
+  font-weight: 600;
+}
+
+.top-bar--theme-btn--blue.top-bar--theme-btn--active {
+  background-color: #0b83fb;
+  border-color: #0b83fb;
+  color: #ffffff;
+  font-weight: 600;
+}
+
+.top-bar--theme-btn--amber.top-bar--theme-btn--active {
+  background-color: #f59e0b;
+  border-color: #f59e0b;
+  color: #451a03;
+  font-weight: 600;
+}
+
+.top-bar--theme-swatch {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.top-bar--theme-swatch--emerald {
+  background-color: #10b981;
+}
+
+.top-bar--theme-swatch--blue {
+  background-color: #0b83fb;
+}
+
+.top-bar--theme-swatch--amber {
+  background-color: #f59e0b;
+}
+
+.top-bar--theme-btn svg:last-child {
+  margin-left: auto;
+}
+
+#input {
+  width: 0.1px;
+  height: 0.1px;
+  opacity: 0;
+  overflow: hidden;
   position: absolute;
-  right: 18.5%;
-  margin: auto;
-  top: 0;
-}
-
-.top-icon {
-  font-size: 1.2em;
-  color: rgb(66, 66, 66);
-}
-
-.dark .top-icon {
-  color: white;
-}
-
-
-.top-bar--item {
-  text-align: center;
-  padding-bottom: 13px;
-  border-radius: 0.4em;
-  float: left;
-  margin-right: 1em;
-  padding: 5px;
-  margin-top: 5px;
-}
-
-.top-bar--item-hoverable--active {
-  background-color: #e4e4e4;
-}
-
-.top-bar--item-hoverable:hover {
-  background-color: #dfdfdf;
-  cursor: pointer;
-}
-
-.dark .top-bar--item-hoverable:hover {
-  background-color: #6d6d6d;
-  cursor: pointer;
-}
-
-.top-bar--icon-label {
-  margin: 0;
-}
-
-.top-bar--item.current::before {
-  content: "";
-  position: absolute;
-  left: 0;
-  margin-top: 0.6em;
-  height: 3.7em;
-  width: 3px;
-  background-color: white;
-  border-top-right-radius: 5px;
-  border-bottom-right-radius: 5px;
-}
-
-.export:link {
-  color: black;
-}
-
-.dark .export:link {
-  color: white;
-}
-
-.export:active {
-  color: black;
-}
-
-.export:visited {
-  color: black;
+  z-index: -1;
 }
