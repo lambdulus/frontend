@@ -78,6 +78,12 @@ body {
   margin: 0;
 }
 
+/* Invisible scroll potential, grown on demand so a focused box near the
+   end of the notebook can still be seated with room below it. */
+.notebook-bottom-spacer {
+  height: 0;
+}
+
 .box {
   position: relative;
   margin-top: 0.5em;
