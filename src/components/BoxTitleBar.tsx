@@ -19,6 +19,7 @@ interface Props {
   state : BoxState
   isActive : boolean
   isFocused : boolean
+  seatBox : () => void
   removeBox : (e : MouseEvent) => void
   updateBoxState : (box : BoxState) => void
   addBoxBefore : (box : BoxState) => void
@@ -45,14 +46,17 @@ export default class BoxTitleBar extends Component<Props, State> {
   }
 
   render () : JSX.Element {
-    const { state, isActive, updateBoxState, removeBox } : Props = this.props
+    const { state, isActive, updateBoxState, removeBox, seatBox } : Props = this.props
     const { type, title, minimized } = state
 
     const { shareLinkOpen } : State = this.state
 
     return (
       <div className='boxTopBar'
-        onClick={ (e) => e.stopPropagation() }
+        onClick={ (e) => {
+          e.stopPropagation()
+          seatBox()
+        } }
       >
         <div
           className='topBarTitle'
@@ -140,6 +144,9 @@ export default class BoxTitleBar extends Component<Props, State> {
                 onClick={ (e) => {
                   e.stopPropagation()
                   updateBoxState({ ...state, settingsOpen : ! state.settingsOpen })
+                  // The panel opens (or closes) below the title; re-seat
+                  // once it has rendered so it stays in view either way.
+                  requestAnimationFrame(() => seatBox())
                 }}
               >
                 <Settings size={ 15 } strokeWidth={ 1.75 } />
