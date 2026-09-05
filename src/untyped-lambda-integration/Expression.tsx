@@ -32,10 +32,30 @@ interface EvaluatorProps {
 }
 
 export default class Expression extends PureComponent<EvaluatorProps> {
+  private historyRef : React.RefObject<HTMLDivElement>
+
   constructor (props : EvaluatorProps) {
     super(props)
 
+    this.historyRef = React.createRef<HTMLDivElement>()
     this.addBreakpoint = this.addBreakpoint.bind(this)
+  }
+
+  componentDidUpdate (prevProps : EvaluatorProps) : void {
+    // Follow the evaluation while the user is watching the tail;
+    // never yank the scroll away from someone inspecting older steps.
+    if (prevProps.history.length === this.props.history.length) {
+      return
+    }
+
+    const el : HTMLDivElement | null = this.historyRef.current
+    if (el === null) {
+      return
+    }
+
+    if (el.scrollHeight - el.scrollTop - el.clientHeight < 80) {
+      el.scrollTop = el.scrollHeight
+    }
   }
 
   render () : JSX.Element {
@@ -58,6 +78,33 @@ export default class Expression extends PureComponent<EvaluatorProps> {
 
     return (
       <div className={ className }>
+        <div className='box-eval-controls'>
+          {
+            (isExercise && ! this.props.isNormalForm) ?
+              <Editor
+                placeholder={ placeholder }
+                content={ content }
+                syntaxError={ syntaxError }
+                submitOnEnter={ true }
+
+                onContent={ this.props.onContent }
+                onEnter={ this.props.onEnter }
+                onShiftEnter={ () => void 0 }
+                onCtrlEnter={ () => void 0 }
+                shouldReplaceLambda={ true }
+              />
+            :
+              ( ! this.props.isNormalForm && shouldShowDebugControls) ?
+                <DebugControls
+                  isRunning={ isRunning }
+                  onStep={ this.props.onEnter }
+                  onRun={ this.props.onExecute }
+                />
+              :
+                null
+          }
+        </div>
+        <div className='box-history-scroll' ref={ this.historyRef }>
         <ul className='UL'>
           {
             mapLeftFromTo(0, this.props.history.length - 2, this.props.history, (stepRecord : StepRecord, i : Number) =>
@@ -110,39 +157,7 @@ export default class Expression extends PureComponent<EvaluatorProps> {
             </Step>
           </li>
         </ul>
-        {
-          (isExercise && ! this.props.isNormalForm) ?
-            <div>
-
-              <Editor
-                placeholder={ placeholder } // data
-                content={ content } // data
-                syntaxError={ syntaxError } // data
-                submitOnEnter={ true } // data
-
-                onContent={ this.props.onContent } // fn
-                onEnter={ this.props.onEnter } // fn // tohle asi bude potreba
-                onShiftEnter={ () => void 0 }
-                onCtrlEnter={ () => void 0 }
-                shouldReplaceLambda={ true }
-              />
-
-            </div>
-          :
-            ( ! this.props.isNormalForm && shouldShowDebugControls) ?
-              <div style={ { height: '2.5em' } }>
-                <span className='untyped-lambda--debug-ctrl'>
-                  <DebugControls
-                    isRunning={ isRunning }
-                    onStep={ this.props.onEnter }
-                    onRun={ this.props.onExecute }
-                    // disableRun={ SDE }
-                  />
-                </span>
-              </div>
-            :
-              null
-        }
+        </div>
       </div>
     )
   }
