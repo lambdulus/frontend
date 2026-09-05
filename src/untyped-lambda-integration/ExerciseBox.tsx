@@ -108,7 +108,6 @@ export default class ExerciseBox extends PureComponent<EvaluationProperties> {
       SDE,
       expandStandalones,
       collapseOldSteps,
-      prettySteps,
       macrotable,
     } : UntypedLambdaState = state
     const { ast } = stepRecord
@@ -133,7 +132,6 @@ export default class ExerciseBox extends PureComponent<EvaluationProperties> {
       SLI,
       expandStandalones,
       collapseOldSteps,
-      prettySteps,
       macrolistOpen : false,
       macrotable : { }, // ...macrotable, ...this.props.macroContext.macrotable
       editor : {

@@ -13,7 +13,7 @@ interface Props {
 
 export default function Settings (props : Props) : JSX.Element {
   const { settings, change, settingsEnabled } : Props = props
-  const { SLI, expandStandalones, strategy, SDE, collapseOldSteps, prettySteps } : UntypedLambdaSettings = settings
+  const { SLI, expandStandalones, strategy, SDE, collapseOldSteps } : UntypedLambdaSettings = settings
   const { SLI : SLI_E, expandStandalones : expSt_E, strategy : strat_E } : SettingsEnabled = settingsEnabled
 
 
@@ -88,27 +88,6 @@ export default function Settings (props : Props) : JSX.Element {
           />
           <label className='untyped-lambda-settings-label' htmlFor={ `untyped-lambda-settings--collapse-${uniq}` }>
             Collapse Old Steps
-          </label>
-        </span>
-      }
-
-      {
-        <span
-          className='untyped-lambda-settings-pretty'
-          title='Break each step over as many indented lines as it needs'>
-          <input
-            id={ `untyped-lambda-settings--pretty-${uniq}` }
-            type='checkbox'
-            checked={ prettySteps ?? false }
-            disabled={ false }
-
-            onChange={
-              (e : ChangeEvent<HTMLInputElement>) =>
-                change({ ...settings, prettySteps : e.target.checked })
-            }
-          />
-          <label className='untyped-lambda-settings-label' htmlFor={ `untyped-lambda-settings--pretty-${uniq}` }>
-            Pretty Steps
           </label>
         </span>
       }

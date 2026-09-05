@@ -63,7 +63,6 @@ export default class Expression extends PureComponent<EvaluatorProps> {
 
     const { isRunning, SDE, macrotable } : UntypedLambdaState = state
     const collapseOldSteps : boolean = state.collapseOldSteps ?? true
-    const prettySteps : boolean = state.prettySteps ?? false
 
     const {
       placeholder,
@@ -100,7 +99,7 @@ export default class Expression extends PureComponent<EvaluatorProps> {
             this.followTail = el.scrollHeight - el.scrollTop - el.clientHeight < 40
           } }
         >
-        <ul className={ `UL${ collapseOldSteps ? ' collapse-history' : '' }${ prettySteps ? ' pretty-steps' : '' }` }>
+        <ul className={ `UL${ collapseOldSteps ? ' collapse-history' : '' }` }>
           {
             mapLeftFromTo(0, this.props.history.length - 2, this.props.history, (stepRecord : StepRecord, i : Number) =>
               <li key={ i.toString() } className='inactiveStep LI' tabIndex={ collapseOldSteps ? 0 : undefined } title={ collapseOldSteps ? 'Click to expand this step' : undefined } >

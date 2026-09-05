@@ -27,8 +27,7 @@
 .untyped-lambda-settings-SLI,
 .untyped-lambda-settings-SDE,
 .untyped-lambda-settings-expand,
-.untyped-lambda-settings-collapse,
-.untyped-lambda-settings-pretty {
+.untyped-lambda-settings-collapse {
   margin-top: 10px;
   margin-bottom: 10px;
   display: flex;

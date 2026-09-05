@@ -183,22 +183,6 @@
   overflow: visible;
 }
 
-/* Pretty steps: each lambda body drops onto its own indented line
-   (the last span inside .function is always the body), while
-   application arguments stay inline and wrap naturally. Nesting
-   deepens the indent. Highlights, borders and clicks are untouched -
-   only flow. Collapsed older steps stay single-line until clicked
-   open; the restore rule below has the higher specificity. */
-.pretty-steps .function > span:last-child {
-  display: block;
-  margin-left: 2.5em;
-}
-
-.collapse-history.pretty-steps li.inactiveStep:not(:focus):not(:focus-within) .function > span:last-child {
-  display: inline;
-  margin-left: 0;
-}
-
 .boxExercise .activeStep .substitutedArg,
 .boxExercise .activeStep .redex,
 .boxExercise .churchnumeral.redex.argument.abstraction,
