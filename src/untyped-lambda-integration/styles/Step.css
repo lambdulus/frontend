@@ -158,6 +158,12 @@
   text-indent: -1.25em;
 }
 
+/* text-indent inherits: without this reset the shrink-wrapped step
+   number collapses to zero width and every number disappears. */
+.inlineblock > .stepNumber {
+  text-indent: 0;
+}
+
 /* Older steps collapse to a visibly cut-off line; clicking one
    (focus) expands it back to the full wrapped form until you click
    elsewhere. The latest step (never .inactiveStep) stays expanded.
