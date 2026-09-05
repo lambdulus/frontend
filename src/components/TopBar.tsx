@@ -1,4 +1,4 @@
-import React, { ChangeEvent, useState } from 'react'
+import React, { ChangeEvent, useEffect, useRef, useState } from 'react'
 import { Bug, Download, Eraser, Lock, Moon, Plus, Settings as SettingsIcon, Sun, Upload, X } from 'lucide-react'
 
 import { GlobalSettings, NotebookState } from '../Types'
@@ -44,11 +44,26 @@ export default function TopBar (props : Props) : JSX.Element {
   } : Props = props
 
   const [ settingsOpen, setSettingsOpen ] = useState(false)
+  const tabsRef = useRef<HTMLElement>(null)
+
+  // Keep the active tab visible when switching or adding notebooks.
+  useEffect(() => {
+    tabsRef.current
+      ?.querySelector('.top-bar--tab--active')
+      ?.scrollIntoView?.({ inline : 'nearest', block : 'nearest' })
+  }, [ activeNotebookIndex, notebooks.length ])
 
   const darkmode : boolean = theme === Theme.Dark
   const notebook : NotebookState = notebooks[activeNotebookIndex]
 
-  const serialized : string = JSON.stringify(notebook)
+  // Exported notebooks are always ordinary ones: protection stays with
+  // the workspace instead of travelling inside the .lus file.
+  const exportable : NotebookState = {
+    ...notebook,
+    locked : false,
+    boxList : notebook.boxList.map((box) => ({ ...box, readOnly : false })),
+  }
+  const serialized : string = JSON.stringify(exportable)
   const link : string = createURL(serialized)
   const fileName : string = `${ notebook.name.replace(/[^\w\- ]+/g, '').trim() || 'notebook' }.lus`
 
@@ -64,13 +79,16 @@ export default function TopBar (props : Props) : JSX.Element {
           <span className='top-bar--logo'>λ</span>
         </div>
 
-        <nav className='top-bar--tabs'>
+        <nav className='top-bar--tabs' ref={ tabsRef }>
           {
             notebooks.map((tab : NotebookState, i : number) =>
               <span
                 key={ tab.__key }
                 className={ i === activeNotebookIndex ? 'top-bar--tab top-bar--tab--active' : 'top-bar--tab' }
-                onClick={ () => onNotebookSelect(i) }
+                onClick={ (e) => {
+                  onNotebookSelect(i)
+                  e.currentTarget.scrollIntoView?.({ inline : 'nearest', block : 'nearest' })
+                } }
               >
                 <span className='top-bar--tab-name'>
                   { tab.name }
@@ -93,14 +111,14 @@ export default function TopBar (props : Props) : JSX.Element {
               </span>
             )
           }
-          <button
-            className='top-bar--action'
-            title='New notebook'
-            onClick={ onNotebookAdd }
-          >
-            <Plus size={ 17 } strokeWidth={ 1.75 } />
-          </button>
         </nav>
+        <button
+          className='top-bar--action'
+          title='New notebook'
+          onClick={ onNotebookAdd }
+        >
+          <Plus size={ 17 } strokeWidth={ 1.75 } />
+        </button>
 
         <div className='top-bar--actions'>
           <a
