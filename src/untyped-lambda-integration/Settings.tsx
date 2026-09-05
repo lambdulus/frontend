@@ -99,8 +99,8 @@ export default function Settings (props : Props) : JSX.Element {
 
       {
         strat_E ?
-          <div className='untyped-lambda-settings-strategies inlineblock'>
-            <p className='stratsLabel inlineblock'>Evaluation Strategies:</p>
+          <div className='untyped-lambda-settings-strategies'>
+            <p className='stratsLabel'>Evaluation Strategies:</p>
 
             <span className='untyped-lambda-settings--strategy-seg'>
             <span className='untyped-lambda-settings--strategy-radio-wrapper'>
