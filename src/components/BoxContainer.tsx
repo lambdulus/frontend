@@ -55,17 +55,7 @@ export class BoxContainer extends Component<Props, State> {
       <div>
         <div
           className={ `boxContainer ${ isActiveBox ? 'active' : 'inactive' } ${boxTypeClassName}` }
-          onClick={ (e) => {
-            makeActive()
-
-            // Keep the box chrome (title + controls) pinned in view while
-            // stepping: pull the box top just under the fixed bar when it
-            // is cut off, otherwise leave the page exactly where it is.
-            const top : number = e.currentTarget.getBoundingClientRect().top
-            if (top < 72) {
-              window.scrollTo({ top : window.scrollY + top - 72, behavior : 'smooth' })
-            }
-          } }
+          onClick={ makeActive }
           onBlur={ onBlur }
         >
           <BoxTitleBar

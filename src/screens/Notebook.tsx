@@ -12,8 +12,14 @@ interface Props {
 }
 
 export default class Notebook extends PureComponent<Props> {
+  private boxRefs : Array<HTMLLIElement | null>
+  private spacerRef : React.RefObject<HTMLDivElement>
+
   constructor (props : Props) {
     super(props)
+
+    this.boxRefs = []
+    this.spacerRef = React.createRef<HTMLDivElement>()
 
     this.insertBefore = this.insertBefore.bind(this)
     this.insertAfter = this.insertAfter.bind(this)
@@ -34,7 +40,11 @@ export default class Notebook extends PureComponent<Props> {
         <ul className="boxList UL">
           { boxList.map(
             (box : BoxState, i : number) =>
-            <li className="LI" key={ box.__key }>
+            <li
+              className="LI"
+              key={ box.__key }
+              ref={ (el : HTMLLIElement | null) => { this.boxRefs[i] = el } }
+            >
 
               <BoxContainer
                 box={ box}
@@ -62,6 +72,7 @@ export default class Notebook extends PureComponent<Props> {
             null
           }
         </ul>
+        <div className='notebook-bottom-spacer' ref={ this.spacerRef } />
       </div>
     )
   }
@@ -128,6 +139,8 @@ export default class Notebook extends PureComponent<Props> {
         break
     }
 
+    this.ensureFocusRoom(index)
+
     if (index !== activeBoxIndex || index !== focusedBoxIndex || boxList[index].minimized === true) {
       const futureType : BoxType = boxList[index].type
 
@@ -153,6 +166,46 @@ export default class Notebook extends PureComponent<Props> {
 
       this.props.updateNotebook({ activeBoxIndex : index, focusedBoxIndex : index, boxList })
     }
+  }
+
+  // Seat the focused box so stepping never moves the page: its top goes
+  // just under the fixed bar with room for a full history below it. When
+  // the document is too short for that, grow an invisible spacer at the
+  // bottom to create the missing scroll potential.
+  ensureFocusRoom (index : number) : void {
+    const el : HTMLLIElement | null | undefined = this.boxRefs[index]
+    if (el === null || el === undefined) {
+      return
+    }
+
+    const viewportHeight : number = window.innerHeight
+    const top : number = el.getBoundingClientRect().top
+    const wantBelow : number = Math.round(viewportHeight * 0.65) + 120
+
+    let targetTop : number = top
+    if (top < 72) {
+      targetTop = 72
+    }
+    else if (top + wantBelow > viewportHeight) {
+      targetTop = viewportHeight - wantBelow
+    }
+
+    targetTop = Math.max(72, targetTop)
+
+    const targetScrollY : number = window.scrollY + top - targetTop
+    if (Math.abs(targetScrollY - window.scrollY) < 2) {
+      return
+    }
+
+    const maxScrollY : number = document.documentElement.scrollHeight - viewportHeight
+    if (targetScrollY > maxScrollY) {
+      const spacer : HTMLDivElement | null = this.spacerRef.current
+      if (spacer !== null) {
+        spacer.style.height = `${ Math.ceil(targetScrollY - maxScrollY) + 20 }px`
+      }
+    }
+
+    window.scrollTo({ top : targetScrollY, behavior : 'smooth' })
   }
 
   onBlur (index : number) : void {
