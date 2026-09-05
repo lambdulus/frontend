@@ -222,17 +222,17 @@ export default class App extends Component<{}, AppState> {
 
   resetWorkspace () : void {
     if (window.confirm(RESET_WORKSPACE_CONFIRMATION)) {
-      const notebooks : Array<NotebookState> = [ createEmptyNotebook('Notebook'), createManualNotebook() ]
+      const notebooks : Array<NotebookState> = [ createManualNotebook(), createEmptyNotebook('Notebook') ]
 
       this.setState({
         notebooks,
-        activeNotebookIndex : 0,
+        activeNotebookIndex : 1,
       })
 
       updateAppStateToStorage({
         ...this.state,
         notebooks,
-        activeNotebookIndex : 0,
+        activeNotebookIndex : 1,
       })
     }
   }

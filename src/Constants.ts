@@ -79,8 +79,8 @@ export function createManualNotebook () : NotebookState {
 }
 
 export const EmptyAppState : AppState = {
-  notebooks : [ createEmptyNotebook('Notebook'), createManualNotebook() ],
-  activeNotebookIndex : 0,
+  notebooks : [ createManualNotebook(), createEmptyNotebook('Notebook') ],
+  activeNotebookIndex : 1,
   theme : Theme.Dark
 }
 
@@ -128,8 +128,8 @@ export function decode (state : AppState) : AppState | never {
   // Migrate the pre-tabs shape (a single notebook) into two notebooks.
   if ( ! Array.isArray(legacy.notebooks) && legacy.notebook) {
     return {
-      notebooks : [ decodeNotebook(legacy.notebook), createManualNotebook() ],
-      activeNotebookIndex : 0,
+      notebooks : [ createManualNotebook(), decodeNotebook(legacy.notebook) ],
+      activeNotebookIndex : 1,
       theme : state.theme ?? Theme.Dark,
     }
   }
