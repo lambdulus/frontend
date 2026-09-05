@@ -32,3 +32,13 @@
   border-color: var(--accent);
   background-color: var(--raised);
 }
+
+/* In light mode the default accent outline pops too much against the
+   pale background; the deeper per-theme strong accent calms it down. */
+#app.light .create-box-plus {
+  border-color: var(--accent-strong);
+}
+
+#app.light .create-box-plus:hover {
+  border-color: var(--accent-strong);
+}
