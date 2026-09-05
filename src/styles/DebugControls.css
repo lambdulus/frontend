@@ -3,18 +3,20 @@
 }
 
 .btn {
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   font-weight: 500;
   color: var(--text);
   text-align: center;
   vertical-align: middle;
   user-select: none;
-  background-color: var(--raised);
+  background-color: transparent;
   border: 1px solid var(--border);
-  padding: .3rem .5rem;
-  font-size: 1rem;
+  padding: .28rem .8rem;
+  font-size: .85rem;
   line-height: 1.5;
-  border-radius: 6px;
+  border-radius: 999px;
   transition: color .15s ease-in-out, background-color .15s ease-in-out, border-color .15s ease-in-out;
 }
 

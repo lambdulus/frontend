@@ -1,4 +1,5 @@
 import React, { MouseEvent } from 'react'
+import { List } from 'lucide-react'
 
 import { UntypedLambdaState } from './Types'
 import { BoxState } from '../Types'
@@ -29,7 +30,7 @@ export default function BoxTopBar (props : Props) : JSX.Element {
         className={ `untyped-lambda--top-bar-custom--button ${macrolistOpen ? 'menu-pressed-open' : ''}` }
         title={ macrolistOpen ? 'Hide Macros' : 'Show All Macros for This Box' }
       >
-        <i className="mini-icon fas fa-list-ul" />
+        <List size={ 15 } strokeWidth={ 1.75 } />
       </div>
 
       {/* {

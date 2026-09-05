@@ -1,4 +1,5 @@
  import React, { PureComponent } from 'react'
+import { Copy } from 'lucide-react'
 
 import Step from './Step'
 import { UntypedLambdaState, Breakpoint, StepRecord } from './Types'
@@ -70,14 +71,16 @@ export default class Expression extends PureComponent<EvaluatorProps> {
                   SDE={ SDE }
                   macrotable={ macrotable }
                 >
-                  <i
-                    className="hiddenIcon far fa-clone"
+                  <span
+                    className="hiddenIcon"
                     title='Clone this expression to the new box'
                     onClick={ (e : any) => {
                       e.stopPropagation()
                       this.props.addBox(this.props.createBoxFrom(stepRecord))
                     } }
-                  />
+                  >
+                    <Copy size={ 13 } strokeWidth={ 1.75 } />
+                  </span>
                 </Step>
               </li>)
           }
@@ -91,8 +94,8 @@ export default class Expression extends PureComponent<EvaluatorProps> {
               SDE={ SDE }
               macrotable={ macrotable }
             >
-                <i
-                  className="hiddenIcon far fa-clone"
+                <span
+                  className="hiddenIcon"
                   title='Clone this expression to the new box'
                   onClick={ (e : any) => {
                     e.stopPropagation() // TODO: maybe I shouldn't do this
@@ -101,7 +104,9 @@ export default class Expression extends PureComponent<EvaluatorProps> {
                     // I need to think this through
                     this.props.addBox(this.props.createBoxFrom(this.props.history[this.props.history.length - 1]))
                    } }
-                />
+                  >
+                    <Copy size={ 13 } strokeWidth={ 1.75 } />
+                  </span>
             </Step>
           </li>
         </ul>

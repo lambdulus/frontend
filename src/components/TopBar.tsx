@@ -1,4 +1,5 @@
 import React, { ChangeEvent } from 'react'
+import { Bug, Download, Eraser, Moon, Sun, Upload } from 'lucide-react'
 
 import { AppState, Screen, NotebookState } from '../Types'
 
@@ -64,14 +65,14 @@ export default function TopBar (props : Props) : JSX.Element {
             download="notebook_lambdulus.lus"
             title='Download this Notebook'
           >
-            <i className="fas fa-download" />
+            <Download size={ 17 } strokeWidth={ 1.75 } />
           </a>
 
           <input type="file" accept=".lus" id="input"
             onChange={ (e) => onFiles(e, onImport) }
           />
           <label htmlFor="input" className='top-bar--action' title='Import a Notebook from your computer'>
-            <i className="fas fa-upload" />
+            <Upload size={ 17 } strokeWidth={ 1.75 } />
           </label>
 
           <button
@@ -79,7 +80,7 @@ export default function TopBar (props : Props) : JSX.Element {
             title='Clear the whole workspace'
             onClick={ onClearWorkspace }
           >
-            <i className="fas fa-eraser" />
+            <Eraser size={ 17 } strokeWidth={ 1.75 } />
           </button>
 
           <button
@@ -87,7 +88,7 @@ export default function TopBar (props : Props) : JSX.Element {
             title='Toggle the theme'
             onClick={ onDarkModeChange }
           >
-            <i className={ darkmode ? "fas fa-sun" : "fas fa-moon" } />
+            { darkmode ? <Sun size={ 17 } strokeWidth={ 1.75 } /> : <Moon size={ 17 } strokeWidth={ 1.75 } /> }
           </button>
 
           <a
@@ -97,7 +98,7 @@ export default function TopBar (props : Props) : JSX.Element {
             rel="noopener noreferrer"
             href='https://github.com/lambdulus/frontend/issues'
           >
-            <i className="fas fa-bug" />
+            <Bug size={ 17 } strokeWidth={ 1.75 } />
           </a>
         </div>
       </div>

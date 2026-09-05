@@ -1,4 +1,5 @@
 import React, { Component } from 'react'
+import { Plus } from 'lucide-react'
 
 import { BoxState } from '../Types'
 
@@ -32,7 +33,7 @@ export default class CreateBox extends Component <Props, State> {
       return (
         <div className='create-box-plus' onClick={ () => this.setState({ modalOpen : ! modalOpen }) } >
           <div className='create-box-plus--button'>
-            <i className="fas fa-plus" />
+            <Plus size={ 20 } strokeWidth={ 1.75 } />
           </div>
         </div>
       )

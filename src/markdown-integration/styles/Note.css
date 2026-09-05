@@ -1,13 +1,9 @@
-.boxContainer.active.markDownBox {
-  min-height: 5em;
-  border-left: 5px solid var(--muted);
-}
-
+.boxContainer.active.markDownBox,
 .boxContainer.inactive.markDownBox {
   min-height: 5em;
-  border-left: 3px solid var(--border);
+  border-left: none;
 }
 
 .boxContainer.markDownBox:hover {
-  border-left-color: var(--muted);
+  border-left: none;
 }
