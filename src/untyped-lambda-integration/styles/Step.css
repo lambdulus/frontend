@@ -183,17 +183,18 @@
   overflow: visible;
 }
 
-/* Pretty steps: every applied argument drops onto its own line, one
-   indent deeper per nesting level, so a step takes as many lines as
-   it needs. Highlights, borders and clicks are untouched - only flow.
-   Collapsed older steps stay single-line until clicked open; the
-   restore rule below has the higher specificity. */
-.pretty-steps .application > .right {
+/* Pretty steps: each lambda body drops onto its own indented line
+   (the last span inside .function is always the body), while
+   application arguments stay inline and wrap naturally. Nesting
+   deepens the indent. Highlights, borders and clicks are untouched -
+   only flow. Collapsed older steps stay single-line until clicked
+   open; the restore rule below has the higher specificity. */
+.pretty-steps .function > span:last-child {
   display: block;
   margin-left: 1.5em;
 }
 
-.collapse-history.pretty-steps li.inactiveStep:not(:focus):not(:focus-within) .application > .right {
+.collapse-history.pretty-steps li.inactiveStep:not(:focus):not(:focus-within) .function > span:last-child {
   display: inline;
   margin-left: 0;
 }
