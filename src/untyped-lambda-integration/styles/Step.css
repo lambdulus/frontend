@@ -160,3 +160,46 @@
   background-color: var(--surface);
   padding: 0;
 }
+
+/* Dark mode: the pastel fills above were mixed for dark text on light
+   backgrounds. These deep tints of the same hues keep every category
+   distinct while carrying light text. Vivid borders are left untouched. */
+
+.dark .substitutedArg {
+  background-color: #1e4d2b;
+}
+
+.dark .argument.substitutedArg {
+  background-color: #2e7d46;
+}
+
+.dark .variable.alpha.substitutedArg,
+.dark .argument.alpha.substitutedArg {
+  background-color: #4a2a63;
+}
+
+.dark .macro.redex {
+  background-color: #174a6e;
+}
+
+.dark .macro.redex.abstraction {
+  background-color: #0e5a6b;
+}
+
+.dark .churchnumeral.redex {
+  background-color: #1e3f7a;
+}
+
+.dark .application.redex.abstraction.argument,
+.dark .churchnumeral.redex.abstraction.argument,
+.dark .macro.redex.abstraction.argument {
+  background-color: #0f4f4a;
+}
+
+.dark .left.extended-redex {
+  background-color: #0e5561;
+}
+
+.dark .breakpoint {
+  background-color: #b01e5a;
+}

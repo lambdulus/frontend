@@ -74,43 +74,10 @@ li:hover .hiddenMacroIcon {
   display: inline;
 }
 
-.controlBtn {
-  --mdc-theme-primary: var(--accent);
-  display: inline-block;
-  font-size: 0.5em;
-  margin-right: 1em;
-
-}
-
-.badge {
-  padding: 5px;
-  padding-left: 10px;
-  padding-right: 10px;
-  border: 2px solid black;
-  border-radius: 1rem;
-  display: inline-block;
-  font-size: 0.6em;
-  margin-right: 1em;
-}
-
-.makeBadge {
-  cursor: pointer;
-}
-
-.makeBadge:hover {
-  background-color: #BDBDBD;
-}
-
 .inactiveMessage {
   color: var(--muted);
   font-size: 0.6em;
   margin-left: 0;
-}
-
-.emptyStep {
-  margin-top: 0;
-  /* margin-bottom: -20px; */
-  /* font-size: 0.7em; */
 }
 
 .boxExercise .activeStep .substitutedArg,
