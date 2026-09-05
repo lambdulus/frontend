@@ -62,6 +62,7 @@ export default class Expression extends PureComponent<EvaluatorProps> {
     const { className, state, editor, shouldShowDebugControls, isExercise } = this.props
 
     const { isRunning, SDE, macrotable } : UntypedLambdaState = state
+    const collapseOldSteps : boolean = state.collapseOldSteps ?? true
 
     const {
       placeholder,
@@ -98,10 +99,10 @@ export default class Expression extends PureComponent<EvaluatorProps> {
             this.followTail = el.scrollHeight - el.scrollTop - el.clientHeight < 40
           } }
         >
-        <ul className='UL'>
+        <ul className={ `UL${ collapseOldSteps ? ' collapse-history' : '' }` }>
           {
             mapLeftFromTo(0, this.props.history.length - 2, this.props.history, (stepRecord : StepRecord, i : Number) =>
-              <li key={ i.toString() } className='inactiveStep LI' tabIndex={ 0 } title='Click to expand this step' >
+              <li key={ i.toString() } className='inactiveStep LI' tabIndex={ collapseOldSteps ? 0 : undefined } title={ collapseOldSteps ? 'Click to expand this step' : undefined } >
                 <Step
                   breakpoints={ this.props.breakpoints }
                   strategy={ this.props.state.strategy }
