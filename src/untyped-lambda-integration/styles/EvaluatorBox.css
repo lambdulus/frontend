@@ -60,7 +60,7 @@
    and "now" read apart without shifting text size while stepping. */
 li.activeStep {
   margin-top: 12px;
-  padding: 2px 0 2px 10px;
+  padding: 2px 0 2px 16px;
   border-left: 2px solid var(--accent);
 }
 
