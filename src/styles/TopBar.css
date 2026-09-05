@@ -214,6 +214,71 @@
   margin: 12px 0 4px;
 }
 
+.top-bar--theme-btn {
+  width: 100%;
+  margin-top: 8px;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--text);
+}
+
+.top-bar--theme-btn--emerald {
+  border-color: #10b981;
+}
+
+.top-bar--theme-btn--blue {
+  border-color: #0b83fb;
+}
+
+.top-bar--theme-btn--amber {
+  border-color: #f59e0b;
+}
+
+.top-bar--theme-btn--emerald.top-bar--theme-btn--active {
+  background-color: #10b981;
+  border-color: #10b981;
+  color: #06281c;
+  font-weight: 600;
+}
+
+.top-bar--theme-btn--blue.top-bar--theme-btn--active {
+  background-color: #0b83fb;
+  border-color: #0b83fb;
+  color: #ffffff;
+  font-weight: 600;
+}
+
+.top-bar--theme-btn--amber.top-bar--theme-btn--active {
+  background-color: #f59e0b;
+  border-color: #f59e0b;
+  color: #451a03;
+  font-weight: 600;
+}
+
+.top-bar--theme-swatch {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.top-bar--theme-swatch--emerald {
+  background-color: #10b981;
+}
+
+.top-bar--theme-swatch--blue {
+  background-color: #0b83fb;
+}
+
+.top-bar--theme-swatch--amber {
+  background-color: #f59e0b;
+}
+
+.top-bar--theme-btn svg:last-child {
+  margin-left: auto;
+}
+
 #input {
   width: 0.1px;
   height: 0.1px;
