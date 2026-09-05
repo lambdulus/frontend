@@ -13,6 +13,11 @@ export const CLEAR_NOTEBOOK_CONFIRMATION : string =
 
                                           Are you sure?`
 
+export const RESET_WORKSPACE_CONFIRMATION : string =
+`This will erase all of your notebooks and start over with the defaults.
+
+                                          Are you really sure?`
+
 
 export function mapBoxTypeToStr (type : BoxType) : string {
   switch (type) {

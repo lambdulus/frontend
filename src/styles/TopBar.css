@@ -186,6 +186,34 @@
   color: var(--muted);
 }
 
+.top-bar--clear-btn {
+  width: 100%;
+  margin-top: 8px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.btn-danger {
+  color: var(--danger);
+  border-color: var(--danger);
+}
+
+.btn-danger:hover {
+  background-color: var(--danger);
+  border-color: var(--danger);
+  color: #ffffff;
+}
+
+.btn-danger:disabled {
+  opacity: 0.45;
+}
+
+.top-bar--clear-divider {
+  border-top: 1px solid var(--border);
+  margin: 12px 0 4px;
+}
+
 #input {
   width: 0.1px;
   height: 0.1px;

@@ -24,6 +24,7 @@ interface Props {
   onNotebookRemove (index : number) : void
   onImport (notebook : NotebookState) : void
   onClearNotebook () : void
+  onResetWorkspace () : void
   onDarkModeChange () : void
   onSettingsChange (settings : GlobalSettings) : void
 }
@@ -39,11 +40,13 @@ export default function TopBar (props : Props) : JSX.Element {
     onNotebookRemove,
     onImport,
     onClearNotebook,
+    onResetWorkspace,
     onDarkModeChange,
     onSettingsChange,
   } : Props = props
 
   const [ settingsOpen, setSettingsOpen ] = useState(false)
+  const [ clearOpen, setClearOpen ] = useState(false)
   const tabsRef = useRef<HTMLElement>(null)
 
   // Keep the active tab visible when switching or adding notebooks.
@@ -138,10 +141,9 @@ export default function TopBar (props : Props) : JSX.Element {
           </label>
 
           <button
-            className='top-bar--action'
-            title={ notebook.locked ? 'The Manual notebook cannot be cleared' : 'Clear this notebook' }
-            disabled={ notebook.locked }
-            onClick={ onClearNotebook }
+            className={ clearOpen ? 'top-bar--action top-bar--action--active' : 'top-bar--action' }
+            title='Clearing options'
+            onClick={ () => setClearOpen(! clearOpen) }
           >
             <Eraser size={ 17 } strokeWidth={ 1.75 } />
           </button>
@@ -188,6 +190,40 @@ export default function TopBar (props : Props) : JSX.Element {
                     }
                   }
                 />
+              </div>
+            </React.Fragment>
+          :
+            null
+        }
+
+        {
+          clearOpen ?
+            <React.Fragment>
+              <div className='top-bar--backdrop' onClick={ () => setClearOpen(false) } />
+              <div className='top-bar--settings-panel'>
+                <p className='top-bar--settings-title'>Clearing options</p>
+                <button
+                  className='btn top-bar--clear-btn'
+                  title={ notebook.locked ? 'The Manual notebook cannot be cleared' : `Erase all boxes in ${notebook.name}` }
+                  disabled={ notebook.locked }
+                  onClick={ () => {
+                    setClearOpen(false)
+                    onClearNotebook()
+                  } }
+                >
+                  Clear notebook { notebook.name }
+                </button>
+                <div className='top-bar--clear-divider' />
+                <button
+                  className='btn btn-danger top-bar--clear-btn'
+                  title='Erase all notebooks and start over with the defaults'
+                  onClick={ () => {
+                    setClearOpen(false)
+                    onResetWorkspace()
+                  } }
+                >
+                  Clean entire workspace
+                </button>
               </div>
             </React.Fragment>
           :

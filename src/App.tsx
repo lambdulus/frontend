@@ -6,7 +6,9 @@ import  { loadAppStateFromStorage
         , updateAppStateToStorage
         , updateNotebookStateToStorage
         , CLEAR_NOTEBOOK_CONFIRMATION
-        , createEmptyNotebook } from './Constants'
+        , RESET_WORKSPACE_CONFIRMATION
+        , createEmptyNotebook
+        , createManualNotebook } from './Constants'
 
 import TopBar from './components/TopBar'
 import Notebook from './screens/Notebook'
@@ -32,6 +34,7 @@ export default class App extends Component<{}, AppState> {
     this.updateSettings = this.updateSettings.bind(this)
     this.importNotebook = this.importNotebook.bind(this)
     this.clearNotebook = this.clearNotebook.bind(this)
+    this.resetWorkspace = this.resetWorkspace.bind(this)
     this.toggleTheme = this.toggleTheme.bind(this)
     this.selectNotebook = this.selectNotebook.bind(this)
     this.addNotebook = this.addNotebook.bind(this)
@@ -144,6 +147,7 @@ export default class App extends Component<{}, AppState> {
               onNotebookRemove={ this.removeNotebook }
               onImport={ this.importNotebook }
               onClearNotebook={ this.clearNotebook }
+              onResetWorkspace={ this.resetWorkspace }
               onDarkModeChange={ this.toggleTheme }
               onSettingsChange={ this.updateSettings }
             />
@@ -213,6 +217,23 @@ export default class App extends Component<{}, AppState> {
 
       this.setState({ notebooks : newNotebooks })
       updateNotebookStateToStorage(activeNotebookIndex, cleared)
+    }
+  }
+
+  resetWorkspace () : void {
+    if (window.confirm(RESET_WORKSPACE_CONFIRMATION)) {
+      const notebooks : Array<NotebookState> = [ createEmptyNotebook('Notebook'), createManualNotebook() ]
+
+      this.setState({
+        notebooks,
+        activeNotebookIndex : 0,
+      })
+
+      updateAppStateToStorage({
+        ...this.state,
+        notebooks,
+        activeNotebookIndex : 0,
+      })
     }
   }
 
