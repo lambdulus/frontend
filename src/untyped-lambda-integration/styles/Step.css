@@ -5,6 +5,7 @@
 
 .left.redex {
   border-bottom: 1px solid #81c784;
+  padding-bottom: 2px;
 }
 
 .substitutedArg {
