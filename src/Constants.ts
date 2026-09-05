@@ -1,13 +1,15 @@
 import { CODE_NAME as UNTYPED_CODE_NAME, decodeUntypedLambdaState } from './untyped-lambda-integration/Constants'
 import { defaultSettings as UntypedLambdaDefaultSettings } from './untyped-lambda-integration/Constants'
 
-import { BoxType, Screen, AppState, GlobalSettings, NotebookState, BoxState } from "./Types"
+import { BoxType, AppState, GlobalSettings, NotebookState, BoxState } from "./Types"
 import { UntypedLambdaState } from './untyped-lambda-integration/Types'
+import { createNewMarkdown, NoteState } from './markdown-integration/AppTypes'
+import guideContent from './misc/UserGuide'
 import { Theme } from './contexts/Theme'
 
 
-export const CLEAR_WORKSPACE_CONFIRMATION : string =
-`This will erase all of your boxes and reset all of your settings.
+export const CLEAR_NOTEBOOK_CONFIRMATION : string =
+`This will erase all of your boxes in this notebook.
 
                                           Are you sure?`
 
@@ -28,20 +30,52 @@ export const DefaultSettings : GlobalSettings
   = { [UNTYPED_CODE_NAME] : UntypedLambdaDefaultSettings }
 
 
-export const InitNotebookState : NotebookState = {
-  boxList : [],
-  activeBoxIndex : NaN,
-  focusedBoxIndex : undefined,
-  settings : DefaultSettings,
+export function createEmptyNotebook (name : string) : NotebookState {
+  return {
+    name,
+    boxList : [],
+    activeBoxIndex : NaN,
+    focusedBoxIndex : undefined,
+    settings : DefaultSettings,
 
-  menuOpen : false,
+    menuOpen : false,
 
-  __key : Date.now().toString(),
+    __key : Date.now().toString(),
+  }
+}
+
+export function createManualNotebook () : NotebookState {
+  const manualBox : NoteState = {
+    ...createNewMarkdown(),
+    title : 'Manual',
+    note : guideContent,
+    isEditing : false,
+    readOnly : true,
+    editor : {
+      placeholder : '',
+      content : guideContent,
+      caretPosition : 0,
+      syntaxError : null,
+    },
+  }
+
+  return {
+    name : 'Manual',
+    locked : true,
+    boxList : [ manualBox ],
+    activeBoxIndex : 0,
+    focusedBoxIndex : undefined,
+    settings : DefaultSettings,
+
+    menuOpen : false,
+
+    __key : Date.now().toString(),
+  }
 }
 
 export const EmptyAppState : AppState = {
-  notebook : InitNotebookState,
-  currentScreen : Screen.MAIN,
+  notebooks : [ createEmptyNotebook('Notebook'), createManualNotebook() ],
+  activeNotebookIndex : 0,
   theme : Theme.Dark
 }
 
@@ -69,10 +103,10 @@ export function updateAppStateToStorage (state : AppState) : void {
   localStorage.setItem('AppState', JSON.stringify(state))
 }
 
-export function updateNotebookStateToStorage (notebook : NotebookState) {
+export function updateNotebookStateToStorage (index : number, notebook : NotebookState) {
   const state : AppState = loadAppStateFromStorage()
 
-  state.notebook = notebook
+  state.notebooks[index] = notebook
 
   updateAppStateToStorage(state)
 }
@@ -84,11 +118,34 @@ export function updateNotebookStateToStorage (notebook : NotebookState) {
  * @param state : Deserialized form of AppState
  */
 export function decode (state : AppState) : AppState | never {
-  const notebook : NotebookState = decodeNotebook(state.notebook)
-  
+  const legacy : any = state as any
+
+  // Migrate the pre-tabs shape (a single notebook) into two notebooks.
+  if ( ! Array.isArray(legacy.notebooks) && legacy.notebook) {
+    return {
+      notebooks : [ decodeNotebook(legacy.notebook), createManualNotebook() ],
+      activeNotebookIndex : 0,
+      theme : state.theme ?? Theme.Dark,
+    }
+  }
+
+  if ( ! Array.isArray(legacy.notebooks) || legacy.notebooks.length === 0) {
+    return EmptyAppState
+  }
+
+  const notebooks : Array<NotebookState> = legacy.notebooks.map(decodeNotebook)
+  const activeNotebookIndex : number =
+    typeof legacy.activeNotebookIndex === 'number'
+    && legacy.activeNotebookIndex >= 0
+    && legacy.activeNotebookIndex < notebooks.length ?
+      legacy.activeNotebookIndex
+    :
+      0
+
   return {
     ...state,
-    notebook,
+    notebooks,
+    activeNotebookIndex,
   }
 }
 
@@ -108,6 +165,7 @@ export function decodeNotebook (notebook : NotebookState) : NotebookState | neve
 
   return {
     ...notebook,
+    name : typeof notebook.name === 'string' && notebook.name.length > 0 ? notebook.name : 'Notebook',
     boxList,
   }
 }
