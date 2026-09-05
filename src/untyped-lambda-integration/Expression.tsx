@@ -1,4 +1,5 @@
  import React, { PureComponent } from 'react'
+import { Copy } from 'lucide-react'
 
 import Step from './Step'
 import { UntypedLambdaState, Breakpoint, StepRecord } from './Types'
@@ -31,16 +32,37 @@ interface EvaluatorProps {
 }
 
 export default class Expression extends PureComponent<EvaluatorProps> {
+  private historyRef : React.RefObject<HTMLDivElement>
+  private followTail : boolean
+
   constructor (props : EvaluatorProps) {
     super(props)
 
+    this.historyRef = React.createRef<HTMLDivElement>()
+    this.followTail = true
     this.addBreakpoint = this.addBreakpoint.bind(this)
+  }
+
+  componentDidUpdate (prevProps : EvaluatorProps) : void {
+    // Follow the evaluation while the user is watching the tail;
+    // stop following once they scroll up, resume at the bottom.
+    if (prevProps.history.length === this.props.history.length) {
+      return
+    }
+
+    const el : HTMLDivElement | null = this.historyRef.current
+    if (el === null || ! this.followTail) {
+      return
+    }
+
+    el.scrollTop = el.scrollHeight
   }
 
   render () : JSX.Element {
     const { className, state, editor, shouldShowDebugControls, isExercise } = this.props
 
     const { isRunning, SDE, macrotable } : UntypedLambdaState = state
+    const collapseOldSteps : boolean = state.collapseOldSteps ?? true
 
     const {
       placeholder,
@@ -57,10 +79,30 @@ export default class Expression extends PureComponent<EvaluatorProps> {
 
     return (
       <div className={ className }>
-        <ul className='UL'>
+        <div className='box-eval-controls'>
+          {
+            ( ! isExercise && ! this.props.isNormalForm && shouldShowDebugControls) ?
+              <DebugControls
+                isRunning={ isRunning }
+                onStep={ this.props.onEnter }
+                onRun={ this.props.onExecute }
+              />
+            :
+              null
+          }
+        </div>
+        <div
+          className='box-history-scroll'
+          ref={ this.historyRef }
+          onScroll={ (e) => {
+            const el : HTMLDivElement = e.currentTarget
+            this.followTail = el.scrollHeight - el.scrollTop - el.clientHeight < 40
+          } }
+        >
+        <ul className={ `UL${ collapseOldSteps ? ' collapse-history' : '' }` }>
           {
             mapLeftFromTo(0, this.props.history.length - 2, this.props.history, (stepRecord : StepRecord, i : Number) =>
-              <li key={ i.toString() } className='inactiveStep LI' >
+              <li key={ i.toString() } className='inactiveStep LI' tabIndex={ collapseOldSteps ? 0 : undefined } title={ collapseOldSteps ? 'Click to expand this step' : undefined } >
                 <Step
                   breakpoints={ this.props.breakpoints }
                   strategy={ this.props.state.strategy }
@@ -70,14 +112,16 @@ export default class Expression extends PureComponent<EvaluatorProps> {
                   SDE={ SDE }
                   macrotable={ macrotable }
                 >
-                  <i
-                    className="hiddenIcon far fa-clone"
+                  <span
+                    className="hiddenIcon"
                     title='Clone this expression to the new box'
                     onClick={ (e : any) => {
                       e.stopPropagation()
                       this.props.addBox(this.props.createBoxFrom(stepRecord))
                     } }
-                  />
+                  >
+                    <Copy size={ 13 } strokeWidth={ 1.75 } />
+                  </span>
                 </Step>
               </li>)
           }
@@ -91,8 +135,8 @@ export default class Expression extends PureComponent<EvaluatorProps> {
               SDE={ SDE }
               macrotable={ macrotable }
             >
-                <i
-                  className="hiddenIcon far fa-clone"
+                <span
+                  className="hiddenIcon"
                   title='Clone this expression to the new box'
                   onClick={ (e : any) => {
                     e.stopPropagation() // TODO: maybe I shouldn't do this
@@ -101,42 +145,31 @@ export default class Expression extends PureComponent<EvaluatorProps> {
                     // I need to think this through
                     this.props.addBox(this.props.createBoxFrom(this.props.history[this.props.history.length - 1]))
                    } }
-                />
+                  >
+                    <Copy size={ 13 } strokeWidth={ 1.75 } />
+                  </span>
             </Step>
           </li>
         </ul>
+        </div>
         {
           (isExercise && ! this.props.isNormalForm) ?
-            <div>
-
+            <div className='box-exercise-input'>
               <Editor
-                placeholder={ placeholder } // data
-                content={ content } // data
-                syntaxError={ syntaxError } // data
-                submitOnEnter={ true } // data
+                placeholder={ placeholder }
+                content={ content }
+                syntaxError={ syntaxError }
+                submitOnEnter={ true }
 
-                onContent={ this.props.onContent } // fn
-                onEnter={ this.props.onEnter } // fn // tohle asi bude potreba
+                onContent={ this.props.onContent }
+                onEnter={ this.props.onEnter }
                 onShiftEnter={ () => void 0 }
                 onCtrlEnter={ () => void 0 }
                 shouldReplaceLambda={ true }
               />
-
             </div>
           :
-            ( ! this.props.isNormalForm && shouldShowDebugControls) ?
-              <div style={ { height: '2.5em' } }>
-                <span className='untyped-lambda--debug-ctrl'>
-                  <DebugControls
-                    isRunning={ isRunning }
-                    onStep={ this.props.onEnter }
-                    onRun={ this.props.onExecute }
-                    // disableRun={ SDE }
-                  />
-                </span>
-              </div>
-            :
-              null
+            null
         }
       </div>
     )

@@ -1,69 +1,44 @@
-.create-box {
-  width: 60%;
-  margin: auto;
-  text-align: center;
-  border-radius: 2rem;
-  background-color: rgb(243, 243, 243);
-  margin-bottom: 10px;
-}
-
-.create-box--container {
-  display: inline-block;
-}
-
-/* .create-box--group {
-  display: inline-block;
-  margin-left: 5px;
-  margin-right: 5px;
-  border: 2px solid #1976d2;
-  border-radius: 2rem;
-}
-
-.create-box--group .plusBtn {
-  padding: 15px;
-  margin: 0;
-  border-radius: 2rem;
-}
-
-.create-box--group .plusBtn:hover {
-  background-color: #a0bddb;
-  cursor: pointer;
-} */
-
-.plusBtn {
-  display: inline-block;
-  font-weight: 500;
-  border-radius: 2rem;
-}
-
 .top-level--create-box {
-  position: fixed;
-  top: 180px;
-  width: 65%;
+  margin-top: 16vh;
 }
 
+.empty-notebook-hint {
+  text-align: center;
+  color: var(--muted);
+  margin: 0 0 20px;
+  font-size: 1.05em;
+}
 
 .create-box-plus {
-  position: fixed;
-  top: 200px;
-  left: 45vw;
-  /* width: 10em; */
-  /* height: 10em; */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
   margin: auto;
-  text-align: center;
-  border-radius: 50%;
-  /* border-radius: 2rem; */
-  padding: 1em;
-  padding-left: 1.1em;
-  padding-right: 1.1em;
-  font-size: 2em;
-  color: rgb(160, 160, 160);
-
-  background-color: rgb(235, 235, 235);
+  padding: 14px;
+  font-size: 1em;
+  font-weight: 500;
+  color: var(--accent);
+  background-color: var(--surface);
+  border: 1px dashed var(--accent-strong);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: color .15s ease-in-out, border-color .15s ease-in-out, background-color .15s ease-in-out;
 }
 
 .create-box-plus:hover {
-  color:gray;
-  background-color: rgb(219, 219, 219);
-  cursor: pointer;
+  color: var(--accent);
+  border-style: solid;
+  border-color: var(--accent-strong);
+  background-color: var(--raised);
+}
+
+/* Dark mode: one token step is imperceptible on the dark background,
+   so mix the strong accent clearly down. Light mode keeps its token. */
+#app.dark .create-box-plus {
+  border-color: color-mix(in srgb, var(--accent-strong) 65%, black);
+}
+
+#app.dark .create-box-plus:hover {
+  border-color: color-mix(in srgb, var(--accent-strong) 65%, black);
 }

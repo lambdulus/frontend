@@ -1,4 +1,5 @@
 import React, { PureComponent } from 'react'
+import { Play, SkipForward, Square } from 'lucide-react'
 
 import '../styles/DebugControls.css'
 
@@ -58,7 +59,7 @@ export default class DebugControls extends PureComponent<Props> {
             onClick={ onRun }
           >
             <span className='debug-controls--btn-label'>{ isRunning ? 'Stop' : 'Run' }</span>
-            <i className="mini-icon fas fa-play"></i>
+            { isRunning ? <Square size={ 13 } strokeWidth={ 1.75 } /> : <Play size={ 13 } strokeWidth={ 1.75 } /> }
           </button>
         }
         
@@ -71,7 +72,7 @@ export default class DebugControls extends PureComponent<Props> {
           disabled={ isRunning }
         >
           <span className='debug-controls--btn-label'>Step</span>
-          <i className="mini-icon fas fa-step-forward"></i>
+          <SkipForward size={ 13 } strokeWidth={ 1.75 } />
         </button>
       </div>
     )

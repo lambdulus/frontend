@@ -9,7 +9,9 @@ vi.mock('@monaco-editor/react', () => ({
   default: (props : { value ?: string }) => null,
   loader: { config: vi.fn() },
 }))
-vi.mock('monaco-editor', () => ({}))
+vi.mock('monaco-editor', () => ({
+  editor: { defineTheme: vi.fn() },
+}))
 
 // jsdom does not implement URL.createObjectURL (used by TopBar to offer the
 // notebook download). A stub returning a fake blob URL is enough for tests.

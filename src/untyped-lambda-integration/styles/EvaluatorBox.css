@@ -1,9 +1,67 @@
-.boxContainer.inactive:hover .inactiveMessage {
-  color: rgb(59, 59, 59);
+.box-eval-controls {
+  display: flex;
+  align-items: center;
+  min-height: 2.2em;
+  padding: 2px 0 10px;
 }
 
+.box-eval-controls:empty {
+  display: none;
+}
+
+.box-exercise-input {
+  margin-top: 12px;
+}
+
+.box-eval-controls .debug-controls {
+  padding-left: 0;
+  margin-top: 0;
+}
+
+/* The exercise editor must fill the row; as a bare flex item monaco
+   collapses to zero width and the box looks empty. */
+.box-eval-controls .editorContainer {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.box-history-scroll {
+  max-height: 65vh;
+  overflow-y: auto;
+  padding: 6px 10px 6px 0;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
+}
+
+.box-history-scroll::-webkit-scrollbar {
+  width: 8px;
+}
+
+.box-history-scroll::-webkit-scrollbar-thumb {
+  background-color: var(--border);
+  border-radius: 4px;
+}
+
+.box-history-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.boxContainer.inactive:hover .inactiveMessage {
+  color: var(--muted);
+}
+
+/* Past steps stay fully readable; the active step is distinguished by its
+   highlight colors, not by dimming everything else. */
 .inactiveStep {
-  color: gray;
+  color: var(--text);
+}
+
+/* The latest step gets air above it plus an accent bar, so "history"
+   and "now" read apart without shifting text size while stepping. */
+li.activeStep {
+  margin-top: 12px;
+  padding: 2px 0 2px 16px;
+  border-left: 2px solid var(--accent);
 }
 
 .hiddenIcon, .hiddenMacroIcon {
@@ -11,60 +69,31 @@
   display: none;
 }
 
+.hiddenIcon > svg {
+  vertical-align: -1px;
+}
+
 li:hover > .step > .inlineblock > .hiddenIcon {
   display: inline;
-  color: black;
+  color: var(--text);
   cursor: pointer;
 }
 
 li:hover .hiddenMacroIcon {
-  color: black;
+  color: var(--text);
   display: inline;
 }
 
-.controlBtn {
-  --mdc-theme-primary: #1976d2;
-  display: inline-block;
-  font-size: 0.5em;
-  margin-right: 1em;
-
-}
-
-.badge {
-  padding: 5px;
-  padding-left: 10px;
-  padding-right: 10px;
-  border: 2px solid black;
-  border-radius: 1rem;
-  display: inline-block;
-  font-size: 0.6em;
-  margin-right: 1em;
-}
-
-.makeBadge {
-  cursor: pointer;
-}
-
-.makeBadge:hover {
-  background-color: #BDBDBD;
-}
-
 .inactiveMessage {
-  color: gray;
+  color: var(--muted);
   font-size: 0.6em;
   margin-left: 0;
-}
-
-.emptyStep {
-  margin-top: 0;
-  /* margin-bottom: -20px; */
-  /* font-size: 0.7em; */
 }
 
 .boxExercise .activeStep .substitutedArg,
 .boxExercise .activeStep .redex,
 .boxExercise .churchnumeral.redex.argument.abstraction {
   border: none;
-  background-color: white;
+  background-color: var(--surface);
   padding: 0;
 }

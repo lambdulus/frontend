@@ -3,82 +3,79 @@
 }
 
 .btn {
-	display: inline-block;
-	font-weight: 400;
-	color: #212529;
-	text-align: center;
-	vertical-align: middle;
-	-webkit-user-select: none;
-	-moz-user-select: none;
-	-ms-user-select: none;
-	user-select: none;
-	background-color: transparent;
-	border: 1px solid transparent;
-	padding: .300rem .50rem;
-	font-size: 1rem;
-	line-height: 1.5;
-	border-radius: .25rem;
-	transition: color .15s ease-in-out,background-color .15s ease-in-out,border-color .15s ease-in-out,box-shadow .15s ease-in-out;
-}
-
-.dark .btn {
-	background-color: rgb(200, 200, 200);
-	font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 500;
+  color: var(--text);
+  text-align: center;
+  vertical-align: middle;
+  user-select: none;
+  background-color: transparent;
+  border: 1px solid var(--border);
+  padding: .28rem .8rem;
+  font-size: .85rem;
+  line-height: 1.5;
+  border-radius: 999px;
+  transition: color .15s ease-in-out, background-color .15s ease-in-out, border-color .15s ease-in-out;
 }
 
 .btn.disabled, .btn:disabled {
-	opacity: .65;
+  opacity: .45;
 }
 
 .btn:hover {
-	color: #212529;
   text-decoration: none;
+  border-color: var(--muted);
 }
 
 /* mozna smazat */
 [type="button"]:not(:disabled), [type="reset"]:not(:disabled), [type="submit"]:not(:disabled), button:not(:disabled) {
-	cursor: pointer;
+  cursor: pointer;
 }
 
 [type="button"], [type="reset"], [type="submit"], button {
-	-webkit-appearance: button;
+  -webkit-appearance: button;
 }
 
 button, select {
-	text-transform: none;
+  text-transform: none;
 }
 
 button, input, optgroup, select, textarea {
-	margin: 0;
-	font-family: inherit;
-	font-size: inherit;
-	line-height: inherit;
+  margin: 0;
+  font-family: inherit;
+  font-size: inherit;
+  line-height: inherit;
 }
 
 .debug-controls--run {
-	color: #28a745;
-	border-color: #28a745;
-	margin-right: 5px;
+  color: var(--accent);
+  border-color: var(--accent);
+  margin-right: 5px;
 }
 
 .debug-controls--run:hover {
-  background-color: #4ece6c;
+  background-color: var(--accent);
+  color: var(--accent-ink);
+  border-color: var(--accent);
 }
 
 .debug-controls--step {
-  color: #283ba7;
-	border-color: #283fa7;
+  color: var(--info);
+  border-color: var(--info);
 }
 
 .debug-controls--step:hover {
-  background-color: #6daeeb;
+  background-color: var(--info);
+  color: var(--accent-ink);
 }
 
 .debug-controls--step.disabled,
 .debug-controls--step:disabled {
-	color: #b6b6b6;
-	background-color: #61758a;
-	border-color: #415972;
+  color: var(--muted);
+  background-color: var(--raised);
+  border-color: var(--border);
 }
 
 /* -------------------------- */
@@ -89,5 +86,5 @@ button, input, optgroup, select, textarea {
 
 .debug-controls {
   padding-left: 15px;
-  margin-top: 10px;
+  margin-top: 18px;
 }
