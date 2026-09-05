@@ -16,7 +16,13 @@ interface Props {
 
 export default function BoxTopBar (props : Props) : JSX.Element {
   const { state, updateBoxState } = props
-  const { isEditing } = state
+  const { isEditing, readOnly } = state
+
+  if (readOnly) {
+    return (
+      <div className='' />
+    )
+  }
 
   return (
     <div className=''>

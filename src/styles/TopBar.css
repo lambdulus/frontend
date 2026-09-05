@@ -82,16 +82,6 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  outline: none;
-  border-bottom: 1px solid transparent;
-}
-
-.top-bar--tab-name:hover {
-  border-bottom-color: var(--border);
-}
-
-.top-bar--tab-name:focus {
-  border-bottom-color: var(--accent);
 }
 
 .top-bar--tab-close {

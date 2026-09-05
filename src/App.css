@@ -74,6 +74,26 @@ body {
   color: var(--accent);
 }
 
+.notebook-title {
+  font-size: 1.35em;
+  font-weight: 600;
+  margin: 0 0 20px;
+}
+
+.notebook-title span {
+  outline: none;
+  border-bottom: 2px solid transparent;
+  padding-bottom: 2px;
+}
+
+.notebook-title span[contenteditable='true']:hover {
+  border-bottom-color: var(--border);
+}
+
+.notebook-title span[contenteditable='true']:focus {
+  border-bottom-color: var(--accent);
+}
+
 .boxList, .UL {
   margin: 0;
 }

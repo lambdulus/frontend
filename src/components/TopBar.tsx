@@ -21,7 +21,6 @@ interface Props {
   settings : GlobalSettings
   onNotebookSelect (index : number) : void
   onNotebookAdd () : void
-  onNotebookRename (index : number, name : string) : void
   onNotebookRemove (index : number) : void
   onImport (notebook : NotebookState) : void
   onClearNotebook () : void
@@ -37,7 +36,6 @@ export default function TopBar (props : Props) : JSX.Element {
     settings,
     onNotebookSelect,
     onNotebookAdd,
-    onNotebookRename,
     onNotebookRemove,
     onImport,
     onClearNotebook,
@@ -74,14 +72,7 @@ export default function TopBar (props : Props) : JSX.Element {
                 className={ i === activeNotebookIndex ? 'top-bar--tab top-bar--tab--active' : 'top-bar--tab' }
                 onClick={ () => onNotebookSelect(i) }
               >
-                <span
-                  className='top-bar--tab-name'
-                  contentEditable={ true }
-                  suppressContentEditableWarning={ true }
-                  spellCheck={ false }
-                  onClick={ (e) => e.stopPropagation() }
-                  onBlur={ (e) => onNotebookRename(i, e.target.textContent || '') }
-                >
+                <span className='top-bar--tab-name'>
                   { tab.name }
                 </span>
                 {

@@ -35,7 +35,6 @@ export default class App extends Component<{}, AppState> {
     this.toggleTheme = this.toggleTheme.bind(this)
     this.selectNotebook = this.selectNotebook.bind(this)
     this.addNotebook = this.addNotebook.bind(this)
-    this.renameNotebook = this.renameNotebook.bind(this)
     this.removeNotebook = this.removeNotebook.bind(this)
 
     this.createNotebookFromURL = this.createNotebookFromURL.bind(this)
@@ -142,7 +141,6 @@ export default class App extends Component<{}, AppState> {
               settings={ settings }
               onNotebookSelect={ this.selectNotebook }
               onNotebookAdd={ this.addNotebook }
-              onNotebookRename={ this.renameNotebook }
               onNotebookRemove={ this.removeNotebook }
               onImport={ this.importNotebook }
               onClearNotebook={ this.clearNotebook }
@@ -255,25 +253,6 @@ export default class App extends Component<{}, AppState> {
       ...this.state,
       notebooks : newNotebooks,
       activeNotebookIndex : newNotebooks.length - 1,
-    })
-  }
-
-  renameNotebook (index : number, name : string) : void {
-    const { notebooks } = this.state
-    const trimmed : string = name.trim()
-
-    if (index < 0 || index >= notebooks.length || trimmed.length === 0) {
-      return
-    }
-
-    const newNotebooks = [ ...notebooks ]
-    newNotebooks[index] = { ...newNotebooks[index], name : trimmed }
-
-    this.setState({ notebooks : newNotebooks })
-
-    updateAppStateToStorage({
-      ...this.state,
-      notebooks : newNotebooks,
     })
   }
 
