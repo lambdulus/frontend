@@ -2,7 +2,6 @@ import React, { MouseEvent } from 'react'
 
 import { NoteState } from './AppTypes'
 
-import 'pretty-checkbox'
 import './styles/EditingSwitch.css'
 import { BoxState } from '../Types'
 

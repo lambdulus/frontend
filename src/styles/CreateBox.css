@@ -1,24 +1,3 @@
-.create-box {
-  width: 60%;
-  margin: auto;
-  text-align: center;
-  border-radius: 8px;
-  background-color: var(--surface);
-  border: 1px solid var(--border);
-  margin-bottom: 10px;
-  padding: 12px;
-}
-
-.create-box--container {
-  display: inline-block;
-}
-
-.plusBtn {
-  display: inline-block;
-  font-weight: 500;
-  border-radius: 8px;
-}
-
 .top-level--create-box {
   margin-top: 16vh;
 }

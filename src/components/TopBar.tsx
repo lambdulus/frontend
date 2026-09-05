@@ -1,4 +1,4 @@
-import React, { ChangeEvent, useEffect, useRef, useState } from 'react'
+import React, { ChangeEvent, useEffect, useMemo, useRef, useState } from 'react'
 import { Bug, Check, Download, Eraser, Lock, Moon, Palette, Plus, Settings as SettingsIcon, Sun, Upload, X } from 'lucide-react'
 
 import { Accent, GlobalSettings, NotebookState } from '../Types'
@@ -75,7 +75,8 @@ export default function TopBar (props : Props) : JSX.Element {
     boxList : notebook.boxList.map((box) => ({ ...box, readOnly : false })),
   }
   const serialized : string = JSON.stringify(exportable)
-  const link : string = createURL(serialized)
+  // Memoized: a fresh blob URL per render would leak the previous one.
+  const link : string = useMemo(() => createURL(serialized), [ serialized ])
   const fileName : string = `${ notebook.name.replace(/[^\w\- ]+/g, '').trim() || 'notebook' }.lus`
 
   const untypedSettings : UntypedLambdaSettings = settings[UNTYPED_CODE_NAME] as UntypedLambdaSettings

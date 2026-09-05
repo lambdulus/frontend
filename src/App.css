@@ -58,20 +58,11 @@ body {
   color: var(--text);
 }
 
-.mainSpace, .helpSpace {
+.mainSpace {
   max-width: 900px;
   margin: auto;
   padding: 76px 20px 40px;
   min-height: 100vh;
-}
-
-.helpSpace {
-  padding-bottom: 5em;
-  line-height: 1.6;
-}
-
-.helpSpace a {
-  color: var(--accent);
 }
 
 .notebook-title {
@@ -109,99 +100,3 @@ body {
   margin-top: 0.5em;
 }
 
-/* Notebook tabs (kept for compatibility) */
-.notebook-tab {
-  padding: 10px;
-  padding-left: 15px;
-  padding-right: 5px;
-  white-space: nowrap;
-  background-color: var(--raised);
-  margin-bottom: 0;
-}
-
-.edit-name {
-  display: none;
-  margin-left: 10px;
-}
-
-.notebook-tab:hover .edit-name {
-  display: inline;
-}
-
-.current {
-  color: var(--accent);
-}
-
-.notebook-tab:first-of-type {
-  padding-top: 15px;
-}
-
-.notebook-tab:last-of-type {
-  padding-bottom: 15px;
-}
-
-.notebook-tab:hover {
-  cursor: pointer;
-}
-
-.removeNtb {
-  position: absolute;
-  top: -1.2em;
-  right: 0.5em;
-  cursor: pointer;
-}
-
-.addNtb {
-  position: absolute;
-  top: -1em;
-  right: 0.5em;
-  cursor: pointer;
-}
-
-.notebook-tab:hover .addNtb {
-  color: var(--accent);
-}
-
-.notebookIconWrapper:hover .removeNtb {
-  color: var(--danger);
-}
-
-.notebookIcon {
-  padding-top: 0.6em;
-  padding-bottom: 0.6em;
-  background-color: var(--raised);
-  font-size: 1.4em;
-  border-radius: 8px;
-  cursor: pointer;
-  text-align: center;
-}
-
-.notebooks.UL {
-  margin-right: 0;
-}
-
-.notebooks .LI {
-  width: 80%;
-  margin: auto;
-  margin-bottom: 20px;
-}
-
-.addNotebook {
-  width: 80%;
-  font-size: 1.4em;
-  margin: auto;
-  padding-top: 0.6em;
-  padding-bottom: 0.6em;
-  background-color: var(--raised);
-  border-radius: 8px;
-  cursor: pointer;
-  text-align: center;
-}
-
-.separator {
-  width: 85%;
-  margin: auto;
-  border-bottom: 1px solid var(--border);
-  margin-top: 0.5em;
-  margin-bottom: 0.5em;
-}
