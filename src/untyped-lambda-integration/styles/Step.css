@@ -163,7 +163,7 @@
    elsewhere. The latest step (never .inactiveStep) stays expanded. */
 .inactiveStep .inlineblock {
   display: block;
-  max-width: 50%;
+  max-width: 75%;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
