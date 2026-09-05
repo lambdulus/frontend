@@ -1,4 +1,5 @@
 import { BoxType } from '../Types'
+import { uniqueKey } from '../uniqueKey'
 import  { EvaluationStrategy
         , UntypedLambdaState
         , UntypedLambdaSettings
@@ -53,7 +54,7 @@ export const defaultSettings : UntypedLambdaSettings = {
 export function createNewUntypedLambdaExpression (defaultSettings : UntypedLambdaSettings) : UntypedLambdaState {
   return {
     ...defaultSettings,
-    __key : Date.now().toString(),
+    __key : uniqueKey(),
     type : BoxType.UNTYPED_LAMBDA,
     subtype : UntypedLambdaType.EMPTY,
     title : "Untyped λ Expression",
@@ -141,7 +142,7 @@ export function createNewUntypedLambdaBoxFromSource (source : string, defaultSet
   if (subtype === UntypedLambdaType.EMPTY) {
     return {
       ...defaultSettings,
-      __key : Date.now().toString(),
+      __key : uniqueKey(),
       type : BoxType.UNTYPED_LAMBDA,
       subtype,
       title : "Untyped λ Expression",
@@ -213,7 +214,7 @@ function createNewUntypedLambdaBoxFromSource2 (source : string, defaultSettings 
 
     return {
       ...defaultSettings,
-      __key : Date.now().toString(),
+      __key : uniqueKey(),
       type : BoxType.UNTYPED_LAMBDA,
       subtype,
       title : "Untyped λ Expression",

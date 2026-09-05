@@ -1,4 +1,5 @@
 import React, { PureComponent } from 'react'
+import { uniqueKey } from '../uniqueKey'
 
 import {
   AST,
@@ -112,7 +113,7 @@ export default class ExerciseBox extends PureComponent<EvaluationProperties> {
     const content = ast.toString()
 
     return {
-      __key : Date.now().toString(),
+      __key : uniqueKey(),
       type : BoxType.UNTYPED_LAMBDA,
       subtype : UntypedLambdaType.EMPTY,
       title : `Copy of ${state.title}`,

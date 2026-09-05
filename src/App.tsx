@@ -10,6 +10,8 @@ import  { loadAppStateFromStorage
         , createEmptyNotebook
         , createManualNotebook } from './Constants'
 
+import { uniqueKey } from './uniqueKey'
+
 import TopBar from './components/TopBar'
 import Notebook from './screens/Notebook'
 import { AppState, NotebookState, GlobalSettings, BoxType, BoxState } from './Types'
@@ -326,6 +328,6 @@ function createNewNotebookWithBox (name : string, box : BoxState, settings : Glo
 
     menuOpen : false,
 
-    __key : Date.now().toString(),
+    __key : uniqueKey(),
   }
 }
