@@ -1,13 +1,7 @@
-.boxContainer.untypedLambdaBox.active {
-  border-left: 5px solid var(--accent);
-}
-
-.boxContainer.untypedLambdaBox.inactive {
-  border-left: 3px solid var(--border);
-}
-
+.boxContainer.untypedLambdaBox.active,
+.boxContainer.untypedLambdaBox.inactive,
 .boxContainer.untypedLambdaBox.inactive:hover {
-  border-left-color: var(--muted);
+  border-left: none;
 }
 
 .untyped-lambda--debug-ctrl {

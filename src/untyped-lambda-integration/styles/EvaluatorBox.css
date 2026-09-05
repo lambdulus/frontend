@@ -11,6 +11,10 @@
   display: none;
 }
 
+.hiddenIcon > svg {
+  vertical-align: -1px;
+}
+
 li:hover > .step > .inlineblock > .hiddenIcon {
   display: inline;
   color: var(--text);

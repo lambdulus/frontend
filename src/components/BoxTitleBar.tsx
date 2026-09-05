@@ -1,4 +1,5 @@
 import React, { Component, MouseEvent } from 'react'
+import { Link2, Maximize2, Minimize2, Pencil, Settings, Trash2 } from 'lucide-react'
 import { BoxType, BoxState } from '../Types'
 import UntypedLambdaBTB from '../untyped-lambda-integration/BoxTopBar'
 import { UntypedLambdaState } from '../untyped-lambda-integration/Types'
@@ -107,9 +108,7 @@ export default class BoxTitleBar extends Component<Props, State> {
               onClick={ removeBox }
               title='Delete this Box from the Notebook'
             >
-              <i
-                className='mini-icon far fa-trash-alt'
-              />
+              <Trash2 size={ 15 } strokeWidth={ 1.75 } />
             </div>
           
           {
@@ -124,9 +123,9 @@ export default class BoxTitleBar extends Component<Props, State> {
             >
               {
                 minimized ?
-                  <i className="mini-icon fas fa-expand" />
+                  <Maximize2 size={ 15 } strokeWidth={ 1.75 } />
                 :
-                  <i className="mini-icon fas fa-compress" />
+                  <Minimize2 size={ 15 } strokeWidth={ 1.75 } />
               }
             </div>
             :
@@ -143,7 +142,7 @@ export default class BoxTitleBar extends Component<Props, State> {
                   updateBoxState({ ...state, settingsOpen : ! state.settingsOpen })
                 }}
               >
-                <i className="mini-icon fas fa-cogs"/>
+                <Settings size={ 15 } strokeWidth={ 1.75 } />
               </div>
             :
             null
@@ -183,7 +182,7 @@ export default class BoxTitleBar extends Component<Props, State> {
             } }
             title='Copy the link to this Expression.'
           >
-            <i className="mini-icon fas fa-share-alt-square"></i>
+            <Link2 size={ 15 } strokeWidth={ 1.75 } />
           </div>
 
           <div
@@ -225,7 +224,7 @@ export default class BoxTitleBar extends Component<Props, State> {
             } }
             title='Edit this Expression.'
           >
-            <i className="mini-icon far fa-edit"></i>
+            <Pencil size={ 15 } strokeWidth={ 1.75 } />
           </div>
         </div>
 
