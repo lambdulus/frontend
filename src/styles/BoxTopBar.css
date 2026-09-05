@@ -44,6 +44,20 @@
   font-size: 0.85em;
   display: inline-flex;
   align-items: center;
+  opacity: 0;
+  transition: opacity .15s ease-in-out;
+}
+
+.boxContainer:hover .box-top-bar-custom,
+.boxContainer.active .box-top-bar-custom,
+.boxContainer:focus-within .box-top-bar-custom {
+  opacity: 1;
+}
+
+@media (hover: none) {
+  .box-top-bar-custom {
+    opacity: 1;
+  }
 }
 
 .box-top-bar-controls {

@@ -77,22 +77,7 @@ export default class UntypedLambdaBox extends PureComponent<Props> {
     }
 
     return (
-      <div
-        ref={ (elem : any) => {
-          // This is just temporary
-          // should be replaced with much finer logic
-          // like: store ref to the state and then scroll to the part of the Box which should be visible
-          // depending on the action user just did
-          // for now - it will do
-          if (elem !== null && isActive) {
-            const boundingRect = elem.getBoundingClientRect()
-            const viewportHeight : number = window.innerHeight
-            if (boundingRect.bottom > viewportHeight) {
-              elem.scrollIntoView({ block : 'nearest' })
-            }
-          }
-        } }
-      >
+      <div>
         {
           settingsOpen ?
             <div className='box-settings'>

@@ -3,6 +3,7 @@
 
 :root,
 #app.dark {
+  color-scheme: dark;
   --bg: #0e1316;
   --surface: #151c20;
   --raised: #1c242a;
@@ -19,6 +20,7 @@
 }
 
 #app.light {
+  color-scheme: light;
   --bg: #f2f5f4;
   --surface: #ffffff;
   --raised: #eef2f1;
