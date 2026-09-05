@@ -1,20 +1,23 @@
 .add_box_after {
   font-size: 1em;
+  font-weight: 500;
   width: 100%;
   margin: auto;
-  color: var(--muted);
-  opacity: 0.3;
+  color: var(--accent);
   padding-top: 8px;
   padding-bottom: 8px;
   text-align: center;
   cursor: pointer;
+  background-color: var(--surface);
+  border: 1px dashed var(--accent);
   border-radius: 6px;
   margin-top: 4px;
-  transition: opacity .15s ease-in-out, color .15s ease-in-out, background-color .15s ease-in-out;
+  transition: color .15s ease-in-out, border-color .15s ease-in-out, background-color .15s ease-in-out;
 }
 
 .add_box_after:hover {
-  opacity: 1;
   color: var(--accent);
-  background-color: var(--surface);
+  border-style: solid;
+  border-color: var(--accent);
+  background-color: var(--raised);
 }
