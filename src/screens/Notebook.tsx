@@ -32,18 +32,27 @@ export default class Notebook extends PureComponent<Props> {
 
   render () {
     const { state } = this.props
-    const { activeBoxIndex, focusedBoxIndex, boxList, name } = state
+    const { activeBoxIndex, focusedBoxIndex, boxList, name, locked } = state
 
     return (
       <div className="mainSpace">
         <h1 className="notebook-title">
           <span
-            contentEditable={ true }
+            contentEditable={ ! locked }
             suppressContentEditableWarning={ true }
             spellCheck={ false }
-            title='Click to rename this notebook'
+            title={ locked ? name : 'Click to rename this notebook' }
+            onKeyDown={ (e) => {
+              // Enter commits the name instead of inserting a newline.
+              if (e.key === 'Enter') {
+                e.preventDefault()
+                e.currentTarget.blur()
+              }
+            } }
             onBlur={ (e) => {
-              this.props.updateNotebook({ name : e.target.textContent?.trim() || name })
+              if ( ! locked) {
+                this.props.updateNotebook({ name : e.target.textContent?.trim() || name })
+              }
             } }
           >
             { name }

@@ -41,13 +41,22 @@
   font-weight: 700;
 }
 
+.top-bar--brand {
+  flex-shrink: 0;
+}
+
 .top-bar--tabs {
   display: flex;
   align-items: center;
   gap: 4px;
+  flex: 1 1 auto;
   min-width: 0;
   overflow-x: auto;
   scrollbar-width: none;
+}
+
+.top-bar--actions {
+  flex-shrink: 0;
 }
 
 .top-bar--tabs::-webkit-scrollbar {
