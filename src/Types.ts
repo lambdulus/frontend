@@ -54,8 +54,11 @@ export interface NotebookState {
   __key : string
 }
 
+export type Accent = 'emerald' | 'blue' | 'amber'
+
 export interface AppState {
   notebooks : Array<NotebookState>,
   activeNotebookIndex : number,
-  theme : Theme
+  theme : Theme,
+  accent : Accent
 }

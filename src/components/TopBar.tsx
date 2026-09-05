@@ -1,7 +1,7 @@
 import React, { ChangeEvent, useEffect, useRef, useState } from 'react'
-import { Bug, Download, Eraser, Lock, Moon, Plus, Settings as SettingsIcon, Sun, Upload, X } from 'lucide-react'
+import { Bug, Check, Download, Eraser, Lock, Moon, Palette, Plus, Settings as SettingsIcon, Sun, Upload, X } from 'lucide-react'
 
-import { GlobalSettings, NotebookState } from '../Types'
+import { Accent, GlobalSettings, NotebookState } from '../Types'
 
 import '../styles/TopBar.css'
 import { decodeNotebook } from '../Constants'
@@ -18,7 +18,9 @@ interface Props {
   notebooks : Array<NotebookState>
   activeNotebookIndex : number
   theme : Theme
+  accent : Accent
   settings : GlobalSettings
+  onAccentChange (accent : Accent) : void
   onNotebookSelect (index : number) : void
   onNotebookAdd () : void
   onNotebookRemove (index : number) : void
@@ -34,7 +36,9 @@ export default function TopBar (props : Props) : JSX.Element {
     notebooks,
     activeNotebookIndex,
     theme,
+    accent,
     settings,
+    onAccentChange,
     onNotebookSelect,
     onNotebookAdd,
     onNotebookRemove,
@@ -47,6 +51,7 @@ export default function TopBar (props : Props) : JSX.Element {
 
   const [ settingsOpen, setSettingsOpen ] = useState(false)
   const [ clearOpen, setClearOpen ] = useState(false)
+  const [ themesOpen, setThemesOpen ] = useState(false)
   const tabsRef = useRef<HTMLElement>(null)
 
   // Keep the active tab visible when switching or adding notebooks.
@@ -164,6 +169,14 @@ export default function TopBar (props : Props) : JSX.Element {
             <SettingsIcon size={ 17 } strokeWidth={ 1.75 } />
           </button>
 
+          <button
+            className={ themesOpen ? 'top-bar--action top-bar--action--active' : 'top-bar--action' }
+            title='Accent theme'
+            onClick={ () => setThemesOpen(! themesOpen) }
+          >
+            <Palette size={ 17 } strokeWidth={ 1.75 } />
+          </button>
+
           <a
             className='top-bar--action'
             title='Submit a bug or a feature request'
@@ -190,6 +203,38 @@ export default function TopBar (props : Props) : JSX.Element {
                     }
                   }
                 />
+              </div>
+            </React.Fragment>
+          :
+            null
+        }
+
+        {
+          themesOpen ?
+            <React.Fragment>
+              <div className='top-bar--backdrop' onClick={ () => setThemesOpen(false) } />
+              <div className='top-bar--settings-panel'>
+                <p className='top-bar--settings-title'>Accent theme</p>
+                {
+                  ([
+                    { value : 'emerald' as Accent, label : 'Beta emerald' },
+                    { value : 'blue' as Accent, label : 'Lambda blue' },
+                    { value : 'amber' as Accent, label : 'Gamma amber' },
+                  ]).map((option) =>
+                    <button
+                      key={ option.value }
+                      className={ `btn top-bar--theme-btn top-bar--theme-btn--${option.value}${accent === option.value ? ' top-bar--theme-btn--active' : ''}` }
+                      onClick={ () => {
+                        onAccentChange(option.value)
+                        setThemesOpen(false)
+                      } }
+                    >
+                      <span className={ `top-bar--theme-swatch top-bar--theme-swatch--${option.value}` } />
+                      { option.label }
+                      { accent === option.value ? <Check size={ 14 } strokeWidth={ 2 } /> : null }
+                    </button>
+                  )
+                }
               </div>
             </React.Fragment>
           :
