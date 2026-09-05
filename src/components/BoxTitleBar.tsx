@@ -201,47 +201,47 @@ export default class BoxTitleBar extends Component<Props, State> {
             state.readOnly ?
               null
             :
-          <div
-            className='box-top-bar--controls-item'
-            onMouseDownCapture={ e => {
-              e.preventDefault()
-              e.stopPropagation()
-            } }
-            // ^^^ this function is just a dirty quick bug fix
-            // when you are editing and click on the edit button again
-            // on the mouse down - the box loses focus and then on mouse up
-            // the onClick is finished and it is then again focused
-            // so the result looks awkward
-            // the previous line is a black hole for the mousedown event
-            // that way it can't cause losing focus for the box, because it is stoped
-            onClick={ (e) => {
-              e.stopPropagation()
+              <div
+                className='box-top-bar--controls-item'
+                onMouseDownCapture={ e => {
+                  e.preventDefault()
+                  e.stopPropagation()
+                } }
+                // ^^^ this function is just a dirty quick bug fix
+                // when you are editing and click on the edit button again
+                // on the mouse down - the box loses focus and then on mouse up
+                // the onClick is finished and it is then again focused
+                // so the result looks awkward
+                // the previous line is a black hole for the mousedown event
+                // that way it can't cause losing focus for the box, because it is stoped
+                onClick={ (e) => {
+                  e.stopPropagation()
 
-              switch (type) {
-                case BoxType.UNTYPED_LAMBDA: {
-                  const resetState : UntypedLambdaState = resetUntypedLambdaBox(state as UntypedLambdaState)
-                  const content : string = (state as UntypedLambdaState).expression || (state as UntypedLambdaState).editor.content
+                  switch (type) {
+                    case BoxType.UNTYPED_LAMBDA: {
+                      const resetState : UntypedLambdaState = resetUntypedLambdaBox(state as UntypedLambdaState)
+                      const content : string = (state as UntypedLambdaState).expression || (state as UntypedLambdaState).editor.content
 
-                  updateBoxState({
-                    ...resetState,
-                    editor : {
-                      ...resetState.editor,
-                      content, 
+                      updateBoxState({
+                        ...resetState,
+                        editor : {
+                          ...resetState.editor,
+                          content,
+                        }
+                      })
+                      break
                     }
-                  })
-                  break
-                }
-                case BoxType.MARKDOWN: {
-                  updateBoxState({ ...state, isEditing : true })
-                  break
-                }
-              }
-              this.setState({ menuOpen : false })
-            } }
-            title='Edit this Expression.'
-          >
-            <Pencil size={ 15 } strokeWidth={ 1.75 } />
-          </div>
+                    case BoxType.MARKDOWN: {
+                      updateBoxState({ ...state, isEditing : true })
+                      break
+                    }
+                  }
+                  this.setState({ menuOpen : false })
+                } }
+                title='Edit this Expression.'
+              >
+                <Pencil size={ 15 } strokeWidth={ 1.75 } />
+              </div>
           }
         </div>
 

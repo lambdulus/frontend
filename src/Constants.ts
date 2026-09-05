@@ -35,6 +35,12 @@ export function mapBoxTypeToStr (type : BoxType) : string {
 export const DefaultSettings : GlobalSettings
   = { [UNTYPED_CODE_NAME] : UntypedLambdaDefaultSettings }
 
+// Fresh settings per notebook: sharing one object would let an in-place
+// edit leak across notebooks.
+export function createDefaultSettings () : GlobalSettings {
+  return { [UNTYPED_CODE_NAME] : { ...UntypedLambdaDefaultSettings } }
+}
+
 
 export function createEmptyNotebook (name : string) : NotebookState {
   return {
@@ -42,7 +48,7 @@ export function createEmptyNotebook (name : string) : NotebookState {
     boxList : [],
     activeBoxIndex : NaN,
     focusedBoxIndex : undefined,
-    settings : DefaultSettings,
+    settings : createDefaultSettings(),
 
     menuOpen : false,
 
@@ -71,7 +77,7 @@ export function createManualNotebook () : NotebookState {
     boxList : [ manualBox ],
     activeBoxIndex : 0,
     focusedBoxIndex : undefined,
-    settings : DefaultSettings,
+    settings : createDefaultSettings(),
 
     menuOpen : false,
 
@@ -79,11 +85,15 @@ export function createManualNotebook () : NotebookState {
   }
 }
 
-export const EmptyAppState : AppState = {
-  notebooks : [ createManualNotebook(), createEmptyNotebook('Notebook') ],
-  activeNotebookIndex : 1,
-  theme : Theme.Dark,
-  accent : 'emerald',
+// Fresh default workspace per call: handing out one shared const would
+// alias every fresh state to the same notebooks.
+export function createDefaultAppState () : AppState {
+  return {
+    notebooks : [ createManualNotebook(), createEmptyNotebook('Notebook') ],
+    activeNotebookIndex : 1,
+    theme : Theme.Dark,
+    accent : 'emerald',
+  }
 }
 
 
@@ -91,8 +101,9 @@ export function loadAppStateFromStorage () : AppState {
   const maybeState : string | null = localStorage.getItem('AppState')
 
   if (maybeState === null) {
-    localStorage.setItem('AppState', JSON.stringify(EmptyAppState))
-    return EmptyAppState
+    const fresh : AppState = createDefaultAppState()
+    localStorage.setItem('AppState', JSON.stringify(fresh))
+    return fresh
   }
   else {
     try {
@@ -101,7 +112,7 @@ export function loadAppStateFromStorage () : AppState {
     catch (e) {
       console.error(`Error while loading app state from the storage.\n\n${e}`)
 
-      return EmptyAppState
+      return createDefaultAppState()
     }
   }
 }
@@ -138,7 +149,7 @@ export function decode (state : AppState) : AppState | never {
   }
 
   if ( ! Array.isArray(legacy.notebooks) || legacy.notebooks.length === 0) {
-    return EmptyAppState
+    return createDefaultAppState()
   }
 
   const notebooks : Array<NotebookState> = legacy.notebooks.map(decodeNotebook)
@@ -177,9 +188,18 @@ export function decodeNotebook (notebook : NotebookState) : NotebookState | neve
     }
   })
 
+  // Booleans are strict-compared so a corrupt value can neither lock
+  // a notebook/box permanently nor silently unlock the Manual.
+  const locked : boolean = notebook.locked === true
+  const normalizedBoxes : Array<BoxState> = boxList.map((box : BoxState) => ({
+    ...box,
+    readOnly : box.readOnly === true,
+  }))
+
   return {
     ...notebook,
     name : typeof notebook.name === 'string' && notebook.name.length > 0 ? notebook.name : 'Notebook',
-    boxList,
+    locked,
+    boxList : normalizedBoxes,
   }
 }

@@ -44,24 +44,6 @@ export default function PickBoxTypeModal (props : Props) : JSX.Element {
     </SettingsContext.Consumer>
   )
 
-  // const addLispBox = (
-  //   <div className='add-box--group'
-  //     onClick={ (e) => {
-  //       e.stopPropagation()
-  //       // this.setState({ opened : false })
-  //       addNew({__key : Date.now().toString()} as BoxState) } // NOTE: just for now
-  //     }
-  //   >
-  //     <div
-  //       className='plusBtn'
-  //       title='Create new Lisp box'
-  //     >
-  //       <p className='create-box--big'>()</p>
-  //       <p className='creat-box--label'>+ Lisp</p>
-  //     </div>
-  //   </div>
-  // )
-
   const addMDBox = (
     <div className='add-box--group'
       onClick={ (e) => {
