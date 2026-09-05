@@ -183,6 +183,21 @@
   overflow: visible;
 }
 
+/* Pretty steps: every applied argument drops onto its own line, one
+   indent deeper per nesting level, so a step takes as many lines as
+   it needs. Highlights, borders and clicks are untouched - only flow.
+   Collapsed older steps stay single-line until clicked open; the
+   restore rule below has the higher specificity. */
+.pretty-steps .application > .right {
+  display: block;
+  margin-left: 1.5em;
+}
+
+.collapse-history.pretty-steps li.inactiveStep:not(:focus):not(:focus-within) .application > .right {
+  display: inline;
+  margin-left: 0;
+}
+
 .boxExercise .activeStep .substitutedArg,
 .boxExercise .activeStep .redex,
 .boxExercise .churchnumeral.redex.argument.abstraction,

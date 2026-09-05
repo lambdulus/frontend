@@ -68,6 +68,7 @@ export interface UntypedLambdaState extends AbstractBoxState {
   SLI : boolean
   expandStandalones : boolean
   collapseOldSteps : boolean
+  prettySteps : boolean
 
   macrolistOpen : boolean
   macrotable : MacroMap
@@ -85,6 +86,7 @@ export interface UntypedLambdaSettings extends AbstractSettings {
   strategy : EvaluationStrategy
   SDE : boolean
   collapseOldSteps : boolean
+  prettySteps : boolean
 }
 
 export type SettingsEnabled = {

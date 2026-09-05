@@ -23,7 +23,7 @@ interface Props {
 export default class UntypedLambdaBox extends PureComponent<Props> {
   render () {
     const { state, isActive, isFocused, setBoxState, addBox } : Props = this.props
-    const { settingsOpen, subtype, macrolistOpen, SLI, expandStandalones, strategy, SDE, collapseOldSteps, editor, minimized } : UntypedLambdaState = state
+    const { settingsOpen, subtype, macrolistOpen, SLI, expandStandalones, strategy, SDE, collapseOldSteps, prettySteps, editor, minimized } : UntypedLambdaState = state
 
 
     const renderBoxContent = () => {
@@ -83,7 +83,7 @@ export default class UntypedLambdaBox extends PureComponent<Props> {
             <div className='box-settings'>
               Settings:
               <Settings
-                settings={ { type : BoxType.UNTYPED_LAMBDA, SLI, expandStandalones, strategy, SDE, collapseOldSteps : collapseOldSteps ?? true } }
+                settings={ { type : BoxType.UNTYPED_LAMBDA, SLI, expandStandalones, strategy, SDE, collapseOldSteps : collapseOldSteps ?? true, prettySteps : prettySteps ?? false } }
                 settingsEnabled={ GLOBAL_SETTINGS_ENABLER }
 
                 change={ (settings : UntypedLambdaSettings) => {
