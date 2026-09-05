@@ -63,7 +63,7 @@ export default class BoxTitleBar extends Component<Props, State> {
         >
           <span
                 className='box-top-bar--title-text'
-                contentEditable={ true }
+                contentEditable={ ! state.readOnly }
                 suppressContentEditableWarning={true}
                 onClick={ (e) => {
                   // NOTE: this is really ugly and dangerous quick fix
@@ -107,13 +107,18 @@ export default class BoxTitleBar extends Component<Props, State> {
 
         </div>
         <div className='box-top-bar-controls'>
-          <div
-              className='box-top-bar--controls-item'
-              onClick={ removeBox }
-              title='Delete this Box from the Notebook'
-            >
-              <Trash2 size={ 15 } strokeWidth={ 1.75 } />
-            </div>
+          {
+            state.readOnly ?
+              null
+            :
+              <div
+                className='box-top-bar--controls-item'
+                onClick={ removeBox }
+                title='Delete this Box from the Notebook'
+              >
+                <Trash2 size={ 15 } strokeWidth={ 1.75 } />
+              </div>
+          }
           
           {
             type !== BoxType.MARKDOWN ?
@@ -192,6 +197,10 @@ export default class BoxTitleBar extends Component<Props, State> {
             <Link2 size={ 15 } strokeWidth={ 1.75 } />
           </div>
 
+          {
+            state.readOnly ?
+              null
+            :
           <div
             className='box-top-bar--controls-item'
             onMouseDownCapture={ e => {
@@ -233,6 +242,7 @@ export default class BoxTitleBar extends Component<Props, State> {
           >
             <Pencil size={ 15 } strokeWidth={ 1.75 } />
           </div>
+          }
         </div>
 
         {

@@ -1,7 +1,7 @@
 import React, { ChangeEvent, useState } from 'react'
-import { Bug, Download, Eraser, Moon, Settings as SettingsIcon, Sun, Upload } from 'lucide-react'
+import { Bug, Download, Eraser, Lock, Moon, Plus, Settings as SettingsIcon, Sun, Upload, X } from 'lucide-react'
 
-import { AppState, GlobalSettings, Screen, NotebookState } from '../Types'
+import { GlobalSettings, NotebookState } from '../Types'
 
 import '../styles/TopBar.css'
 import { decodeNotebook } from '../Constants'
@@ -15,25 +15,44 @@ import { UntypedLambdaSettings } from '../untyped-lambda-integration/Types'
 
 
 interface Props {
-  state : AppState
+  notebooks : Array<NotebookState>
+  activeNotebookIndex : number
+  theme : Theme
+  settings : GlobalSettings
+  onNotebookSelect (index : number) : void
+  onNotebookAdd () : void
+  onNotebookRename (index : number, name : string) : void
+  onNotebookRemove (index : number) : void
   onImport (notebook : NotebookState) : void
-  onClearWorkspace () : void
-  onScreenChange (screen : Screen) : void
+  onClearNotebook () : void
   onDarkModeChange () : void
   onSettingsChange (settings : GlobalSettings) : void
 }
 
 export default function TopBar (props : Props) : JSX.Element {
-  const { state, onImport, onClearWorkspace, onScreenChange, onDarkModeChange, onSettingsChange } : Props = props
-  const { notebook : ntbk, currentScreen, theme } : AppState = state
-  const { settings } = ntbk
+  const {
+    notebooks,
+    activeNotebookIndex,
+    theme,
+    settings,
+    onNotebookSelect,
+    onNotebookAdd,
+    onNotebookRename,
+    onNotebookRemove,
+    onImport,
+    onClearNotebook,
+    onDarkModeChange,
+    onSettingsChange,
+  } : Props = props
 
   const [ settingsOpen, setSettingsOpen ] = useState(false)
 
   const darkmode : boolean = theme === Theme.Dark
+  const notebook : NotebookState = notebooks[activeNotebookIndex]
 
-  const serialized : string = JSON.stringify(ntbk)
+  const serialized : string = JSON.stringify(notebook)
   const link : string = createURL(serialized)
+  const fileName : string = `${ notebook.name.replace(/[^\w\- ]+/g, '').trim() || 'notebook' }.lus`
 
   const untypedSettings : UntypedLambdaSettings = settings[UNTYPED_CODE_NAME] as UntypedLambdaSettings
 
@@ -42,25 +61,53 @@ export default function TopBar (props : Props) : JSX.Element {
       <div className='top-bar--inner'>
         <div
           className='top-bar--brand'
-          title='Back to the Notebook'
-          onClick={ () => onScreenChange(Screen.MAIN) }
+          title='Lambdulus'
         >
           <span className='top-bar--logo'>λ</span>
-          <span className='top-bar--name'>Lambdulus</span>
         </div>
 
         <nav className='top-bar--tabs'>
+          {
+            notebooks.map((tab : NotebookState, i : number) =>
+              <span
+                key={ tab.__key }
+                className={ i === activeNotebookIndex ? 'top-bar--tab top-bar--tab--active' : 'top-bar--tab' }
+                onClick={ () => onNotebookSelect(i) }
+              >
+                <span
+                  className='top-bar--tab-name'
+                  contentEditable={ true }
+                  suppressContentEditableWarning={ true }
+                  spellCheck={ false }
+                  onClick={ (e) => e.stopPropagation() }
+                  onBlur={ (e) => onNotebookRename(i, e.target.textContent || '') }
+                >
+                  { tab.name }
+                </span>
+                {
+                  tab.locked ?
+                    <Lock size={ 12 } strokeWidth={ 1.75 } />
+                  :
+                    <span
+                      className='top-bar--tab-close'
+                      title='Close this notebook'
+                      onClick={ (e) => {
+                        e.stopPropagation()
+                        onNotebookRemove(i)
+                      } }
+                    >
+                      <X size={ 13 } strokeWidth={ 1.75 } />
+                    </span>
+                }
+              </span>
+            )
+          }
           <button
-            className={ currentScreen === Screen.MAIN ? 'top-bar--tab top-bar--tab--active' : 'top-bar--tab' }
-            onClick={ () => onScreenChange(Screen.MAIN) }
+            className='top-bar--action'
+            title='New notebook'
+            onClick={ onNotebookAdd }
           >
-            Notebook
-          </button>
-          <button
-            className={ currentScreen === Screen.HELP ? 'top-bar--tab top-bar--tab--active' : 'top-bar--tab' }
-            onClick={ () => onScreenChange(Screen.HELP) }
-          >
-            Manual
+            <Plus size={ 17 } strokeWidth={ 1.75 } />
           </button>
         </nav>
 
@@ -68,7 +115,7 @@ export default function TopBar (props : Props) : JSX.Element {
           <a
             className='top-bar--action'
             href={ link }
-            download="notebook_lambdulus.lus"
+            download={ fileName }
             title='Download this Notebook'
           >
             <Download size={ 17 } strokeWidth={ 1.75 } />
@@ -83,8 +130,9 @@ export default function TopBar (props : Props) : JSX.Element {
 
           <button
             className='top-bar--action'
-            title='Clear the whole workspace'
-            onClick={ onClearWorkspace }
+            title={ notebook.locked ? 'The Manual notebook cannot be cleared' : 'Clear this notebook' }
+            disabled={ notebook.locked }
+            onClick={ onClearNotebook }
           >
             <Eraser size={ 17 } strokeWidth={ 1.75 } />
           </button>

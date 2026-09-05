@@ -8,17 +8,13 @@ export enum BoxType {
   MARKDOWN = 'MARKDOWN',
 }
 
-export enum Screen {
-  MAIN,
-  HELP,
-}
-
 export interface AbstractBoxState {
   type : BoxType,
-  __key : string, 
+  __key : string,
   title : String,
   minimized : boolean,
   settingsOpen : boolean,
+  readOnly ?: boolean
 }
 
 export interface AbstractSettings {
@@ -44,6 +40,9 @@ export interface GlobalSettings {
 }
 
 export interface NotebookState {
+  name : string
+  locked ?: boolean
+
   boxList : Array<BoxState>
   activeBoxIndex : number
   focusedBoxIndex : number | undefined
@@ -56,7 +55,7 @@ export interface NotebookState {
 }
 
 export interface AppState {
-  notebook : NotebookState,
-  currentScreen : Screen,
+  notebooks : Array<NotebookState>,
+  activeNotebookIndex : number,
   theme : Theme
 }
