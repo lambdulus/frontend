@@ -58,7 +58,7 @@ body {
   color: var(--text);
 }
 
-.mainSpace, .helpSpace, .settingsSpace {
+.mainSpace, .helpSpace {
   max-width: 900px;
   margin: auto;
   padding: 76px 20px 40px;

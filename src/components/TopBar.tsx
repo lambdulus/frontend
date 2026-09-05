@@ -1,11 +1,17 @@
-import React, { ChangeEvent } from 'react'
-import { Bug, Download, Eraser, Moon, Sun, Upload } from 'lucide-react'
+import React, { ChangeEvent, useState } from 'react'
+import { Bug, Download, Eraser, Moon, Settings as SettingsIcon, Sun, Upload } from 'lucide-react'
 
-import { AppState, Screen, NotebookState } from '../Types'
+import { AppState, GlobalSettings, Screen, NotebookState } from '../Types'
 
 import '../styles/TopBar.css'
 import { decodeNotebook } from '../Constants'
 import { Theme } from '../contexts/Theme'
+import UntypedLambdaCalculusSet from '../untyped-lambda-integration/Settings'
+import {
+  CODE_NAME as UNTYPED_CODE_NAME,
+  GLOBAL_SETTINGS_ENABLER as UNTYPED_GLOBAL_SETTINGS_ENABLER,
+} from '../untyped-lambda-integration/Constants'
+import { UntypedLambdaSettings } from '../untyped-lambda-integration/Types'
 
 
 interface Props {
@@ -14,16 +20,22 @@ interface Props {
   onClearWorkspace () : void
   onScreenChange (screen : Screen) : void
   onDarkModeChange () : void
+  onSettingsChange (settings : GlobalSettings) : void
 }
 
 export default function TopBar (props : Props) : JSX.Element {
-  const { state, onImport, onClearWorkspace, onScreenChange, onDarkModeChange } : Props = props
+  const { state, onImport, onClearWorkspace, onScreenChange, onDarkModeChange, onSettingsChange } : Props = props
   const { notebook : ntbk, currentScreen, theme } : AppState = state
+  const { settings } = ntbk
+
+  const [ settingsOpen, setSettingsOpen ] = useState(false)
 
   const darkmode : boolean = theme === Theme.Dark
 
   const serialized : string = JSON.stringify(ntbk)
   const link : string = createURL(serialized)
+
+  const untypedSettings : UntypedLambdaSettings = settings[UNTYPED_CODE_NAME] as UntypedLambdaSettings
 
   return (
     <div className='top-bar'>
@@ -49,12 +61,6 @@ export default function TopBar (props : Props) : JSX.Element {
             onClick={ () => onScreenChange(Screen.HELP) }
           >
             Manual
-          </button>
-          <button
-            className={ currentScreen === Screen.SETTINGS ? 'top-bar--tab top-bar--tab--active' : 'top-bar--tab' }
-            onClick={ () => onScreenChange(Screen.SETTINGS) }
-          >
-            Settings
           </button>
         </nav>
 
@@ -91,6 +97,14 @@ export default function TopBar (props : Props) : JSX.Element {
             { darkmode ? <Sun size={ 17 } strokeWidth={ 1.75 } /> : <Moon size={ 17 } strokeWidth={ 1.75 } /> }
           </button>
 
+          <button
+            className={ settingsOpen ? 'top-bar--action top-bar--action--active' : 'top-bar--action' }
+            title='Notebook settings'
+            onClick={ () => setSettingsOpen(! settingsOpen) }
+          >
+            <SettingsIcon size={ 17 } strokeWidth={ 1.75 } />
+          </button>
+
           <a
             className='top-bar--action'
             title='Submit a bug or a feature request'
@@ -101,6 +115,27 @@ export default function TopBar (props : Props) : JSX.Element {
             <Bug size={ 17 } strokeWidth={ 1.75 } />
           </a>
         </div>
+
+        {
+          settingsOpen ?
+            <React.Fragment>
+              <div className='top-bar--backdrop' onClick={ () => setSettingsOpen(false) } />
+              <div className='top-bar--settings-panel'>
+                <p className='top-bar--settings-title'>Notebook settings</p>
+                <UntypedLambdaCalculusSet
+                  settings={ untypedSettings }
+                  settingsEnabled={ UNTYPED_GLOBAL_SETTINGS_ENABLER }
+                  change={
+                    (unTypLSet : UntypedLambdaSettings) => {
+                      onSettingsChange({ ...settings, [UNTYPED_CODE_NAME] : unTypLSet })
+                    }
+                  }
+                />
+              </div>
+            </React.Fragment>
+          :
+            null
+        }
       </div>
     </div>
   )
