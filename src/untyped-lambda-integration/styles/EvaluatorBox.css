@@ -28,7 +28,7 @@
 .box-history-scroll {
   max-height: 65vh;
   overflow-y: auto;
-  padding-right: 10px;
+  padding: 6px 10px 6px 0;
   scrollbar-width: thin;
   scrollbar-color: var(--border) transparent;
 }

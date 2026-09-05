@@ -19,7 +19,6 @@
 
 .stratsLabel {
   margin: 0;
-  margin-top: 10px;
   font-size: 0.9em;
   color: var(--muted);
 }
@@ -75,14 +74,23 @@
   cursor: default;
 }
 
-/* Segmented control instead of native radios */
+/* One joined switch instead of two native radios */
 .untyped-lambda-settings-strategies {
   margin-top: 12px;
   margin-right: 0;
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
   flex-wrap: wrap;
+}
+
+.untyped-lambda-settings--strategy-seg {
+  display: inline-flex;
+  gap: 2px;
+  padding: 3px;
+  border-radius: 999px;
+  background-color: var(--raised);
+  border: 1px solid var(--border);
 }
 
 .untyped-lambda-settings--strategy-radio-wrapper {
@@ -105,18 +113,16 @@
 
 .untyped-lambda-settings--strategy-radio-wrapper .untyped-lambda-settings-label {
   display: inline-block;
-  padding: 4px 14px;
+  padding: 4px 16px;
   border-radius: 999px;
-  border: 1px solid var(--border);
   cursor: pointer;
   font-size: 0.85em;
   color: var(--muted);
-  transition: color .15s ease-in-out, background-color .15s ease-in-out, border-color .15s ease-in-out;
+  transition: color .15s ease-in-out, background-color .15s ease-in-out;
 }
 
 .untyped-lambda-settings--strategy-radio-wrapper input[type='radio']:checked + .untyped-lambda-settings-label {
   background-color: var(--accent);
-  border-color: var(--accent);
   color: var(--accent-ink);
   font-weight: 600;
 }

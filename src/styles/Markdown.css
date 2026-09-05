@@ -1,0 +1,57 @@
+/* Dark theme for rendered markdown (notes preview + manual).
+   Light mode keeps github-markdown-light.css untouched. */
+
+.dark .markdown-body {
+  background-color: transparent;
+  color: var(--text);
+}
+
+.dark .markdown-body h1,
+.dark .markdown-body h2 {
+  border-bottom-color: var(--border);
+}
+
+.dark .markdown-body hr {
+  background-color: var(--border);
+}
+
+.dark .markdown-body blockquote {
+  color: var(--muted);
+  border-left-color: var(--border);
+}
+
+.dark .markdown-body a {
+  color: var(--accent);
+}
+
+.dark .markdown-body code,
+.dark .markdown-body tt {
+  background-color: var(--raised);
+}
+
+.dark .markdown-body pre {
+  background-color: var(--raised);
+}
+
+.dark .markdown-body table tr {
+  background-color: transparent;
+  border-top-color: var(--border);
+}
+
+.dark .markdown-body table tr:nth-child(2n) {
+  background-color: var(--surface);
+}
+
+.dark .markdown-body table th,
+.dark .markdown-body table td {
+  border-color: var(--border);
+}
+
+.dark .markdown-body img {
+  background-color: transparent;
+}
+
+.dark .markdown-body .highlight pre,
+.dark .markdown-body pre {
+  background-color: var(--raised);
+}

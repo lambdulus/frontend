@@ -102,6 +102,7 @@ export default function Settings (props : Props) : JSX.Element {
           <div className='untyped-lambda-settings-strategies inlineblock'>
             <p className='stratsLabel inlineblock'>Evaluation Strategies:</p>
 
+            <span className='untyped-lambda-settings--strategy-seg'>
             <span className='untyped-lambda-settings--strategy-radio-wrapper'>
               <input
                 id={ `untyped-lambda-settings--normal-strategy-${uniq}` }
@@ -136,6 +137,7 @@ export default function Settings (props : Props) : JSX.Element {
               <label className='untyped-lambda-settings-label' htmlFor={ `untyped-lambda-settings--applicative-strategy-${uniq}` }>
                 Applicative
               </label>
+            </span>
             </span>
           </div>
         :
