@@ -3,13 +3,13 @@
   font-weight: 500;
   width: 100%;
   margin: auto;
-  color: var(--accent);
+  color: var(--muted);
   padding-top: 8px;
   padding-bottom: 8px;
   text-align: center;
   cursor: pointer;
   background-color: var(--surface);
-  border: 1px dashed var(--accent);
+  border: 1px dashed var(--muted);
   border-radius: 6px;
   margin-top: 4px;
   transition: color .15s ease-in-out, border-color .15s ease-in-out, background-color .15s ease-in-out;
