@@ -20,7 +20,7 @@
   font-weight: 500;
   color: var(--accent);
   background-color: var(--surface);
-  border: 1px dashed var(--accent);
+  border: 1px dashed var(--accent-strong);
   border-radius: 8px;
   cursor: pointer;
   transition: color .15s ease-in-out, border-color .15s ease-in-out, background-color .15s ease-in-out;
@@ -29,16 +29,6 @@
 .create-box-plus:hover {
   color: var(--accent);
   border-style: solid;
-  border-color: var(--accent);
+  border-color: var(--accent-strong);
   background-color: var(--raised);
-}
-
-/* In light mode the default accent outline pops too much against the
-   pale background; the deeper per-theme strong accent calms it down. */
-#app.light .create-box-plus {
-  border-color: var(--accent-strong);
-}
-
-#app.light .create-box-plus:hover {
-  border-color: var(--accent-strong);
 }
