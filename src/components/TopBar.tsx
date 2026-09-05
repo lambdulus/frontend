@@ -49,9 +49,12 @@ export default function TopBar (props : Props) : JSX.Element {
     onSettingsChange,
   } : Props = props
 
-  const [ settingsOpen, setSettingsOpen ] = useState(false)
-  const [ clearOpen, setClearOpen ] = useState(false)
-  const [ themesOpen, setThemesOpen ] = useState(false)
+  // A single open panel: switching icons swaps popovers in one click
+  // instead of closing first and forgetting the click.
+  const [ openPanel, setOpenPanel ] = useState<'settings' | 'clear' | 'themes' | null>(null)
+  const togglePanel = (panel : 'settings' | 'clear' | 'themes') => {
+    setOpenPanel(openPanel === panel ? null : panel)
+  }
   const tabsRef = useRef<HTMLElement>(null)
 
   // Keep the active tab visible when switching or adding notebooks.
@@ -146,9 +149,9 @@ export default function TopBar (props : Props) : JSX.Element {
           </label>
 
           <button
-            className={ clearOpen ? 'top-bar--action top-bar--action--active' : 'top-bar--action' }
+            className={ openPanel === 'clear' ? 'top-bar--action top-bar--action--active' : 'top-bar--action' }
             title='Clearing options'
-            onClick={ () => setClearOpen(! clearOpen) }
+            onClick={ () => togglePanel('clear') }
           >
             <Eraser size={ 17 } strokeWidth={ 1.75 } />
           </button>
@@ -162,17 +165,17 @@ export default function TopBar (props : Props) : JSX.Element {
           </button>
 
           <button
-            className={ settingsOpen ? 'top-bar--action top-bar--action--active' : 'top-bar--action' }
+            className={ openPanel === 'settings' ? 'top-bar--action top-bar--action--active' : 'top-bar--action' }
             title='Notebook settings'
-            onClick={ () => setSettingsOpen(! settingsOpen) }
+            onClick={ () => togglePanel('settings') }
           >
             <SettingsIcon size={ 17 } strokeWidth={ 1.75 } />
           </button>
 
           <button
-            className={ themesOpen ? 'top-bar--action top-bar--action--active' : 'top-bar--action' }
+            className={ openPanel === 'themes' ? 'top-bar--action top-bar--action--active' : 'top-bar--action' }
             title='Accent theme'
-            onClick={ () => setThemesOpen(! themesOpen) }
+            onClick={ () => togglePanel('themes') }
           >
             <Palette size={ 17 } strokeWidth={ 1.75 } />
           </button>
@@ -189,9 +192,9 @@ export default function TopBar (props : Props) : JSX.Element {
         </div>
 
         {
-          settingsOpen ?
+          openPanel === 'settings' ?
             <React.Fragment>
-              <div className='top-bar--backdrop' onClick={ () => setSettingsOpen(false) } />
+              <div className='top-bar--backdrop' onClick={ () => setOpenPanel(null) } />
               <div className='top-bar--settings-panel'>
                 <p className='top-bar--settings-title'>Notebook settings</p>
                 <UntypedLambdaCalculusSet
@@ -210,9 +213,9 @@ export default function TopBar (props : Props) : JSX.Element {
         }
 
         {
-          themesOpen ?
+          openPanel === 'themes' ?
             <React.Fragment>
-              <div className='top-bar--backdrop' onClick={ () => setThemesOpen(false) } />
+              <div className='top-bar--backdrop' onClick={ () => setOpenPanel(null) } />
               <div className='top-bar--settings-panel'>
                 <p className='top-bar--settings-title'>Accent theme</p>
                 {
@@ -226,7 +229,7 @@ export default function TopBar (props : Props) : JSX.Element {
                       className={ `btn top-bar--theme-btn top-bar--theme-btn--${option.value}${accent === option.value ? ' top-bar--theme-btn--active' : ''}` }
                       onClick={ () => {
                         onAccentChange(option.value)
-                        setThemesOpen(false)
+                        setOpenPanel(null)
                       } }
                     >
                       <span className={ `top-bar--theme-swatch top-bar--theme-swatch--${option.value}` } />
@@ -242,9 +245,9 @@ export default function TopBar (props : Props) : JSX.Element {
         }
 
         {
-          clearOpen ?
+          openPanel === 'clear' ?
             <React.Fragment>
-              <div className='top-bar--backdrop' onClick={ () => setClearOpen(false) } />
+              <div className='top-bar--backdrop' onClick={ () => setOpenPanel(null) } />
               <div className='top-bar--settings-panel'>
                 <p className='top-bar--settings-title'>Clearing options</p>
                 <button
@@ -252,7 +255,7 @@ export default function TopBar (props : Props) : JSX.Element {
                   title={ notebook.locked ? 'The Manual notebook cannot be cleared' : `Erase all boxes in ${notebook.name}` }
                   disabled={ notebook.locked }
                   onClick={ () => {
-                    setClearOpen(false)
+                    setOpenPanel(null)
                     onClearNotebook()
                   } }
                 >
@@ -263,7 +266,7 @@ export default function TopBar (props : Props) : JSX.Element {
                   className='btn btn-danger top-bar--clear-btn'
                   title='Erase all notebooks and start over with the defaults'
                   onClick={ () => {
-                    setClearOpen(false)
+                    setOpenPanel(null)
                     onResetWorkspace()
                   } }
                 >

@@ -155,10 +155,20 @@
   background-color: var(--raised);
 }
 
+/* The bar chrome always sits above an open popover's backdrop, so
+   switching icons swaps panels in one click instead of being swallowed. */
+.top-bar--brand,
+.top-bar--tabs,
+.top-bar--actions,
+.top-bar--inner > .top-bar--action {
+  position: relative;
+  z-index: 2;
+}
+
 .top-bar--backdrop {
   position: fixed;
   inset: 0;
-  z-index: 887;
+  z-index: 1;
   cursor: default;
 }
 
@@ -167,7 +177,7 @@
   top: calc(100% + 8px);
   right: 20px;
   width: 320px;
-  z-index: 888;
+  z-index: 3;
   background-color: var(--surface);
   border: 1px solid var(--border);
   border-radius: 8px;
