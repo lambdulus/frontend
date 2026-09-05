@@ -49,5 +49,5 @@
 .create-box-plus:hover {
   color: var(--accent);
   border-color: var(--accent);
-  background-color: var(--surface);
+  background-color: var(--raised);
 }
