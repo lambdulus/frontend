@@ -101,7 +101,7 @@ export default class Expression extends PureComponent<EvaluatorProps> {
         <ul className='UL'>
           {
             mapLeftFromTo(0, this.props.history.length - 2, this.props.history, (stepRecord : StepRecord, i : Number) =>
-              <li key={ i.toString() } className='inactiveStep LI' >
+              <li key={ i.toString() } className='inactiveStep LI' tabIndex={ 0 } title='Click to expand this step' >
                 <Step
                   breakpoints={ this.props.breakpoints }
                   strategy={ this.props.state.strategy }
