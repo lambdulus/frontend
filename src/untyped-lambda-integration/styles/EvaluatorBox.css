@@ -50,8 +50,10 @@
   color: var(--muted);
 }
 
+/* Past steps stay fully readable; the active step is distinguished by its
+   highlight colors, not by dimming everything else. */
 .inactiveStep {
-  color: var(--muted);
+  color: var(--text);
 }
 
 .hiddenIcon, .hiddenMacroIcon {
