@@ -4,14 +4,13 @@
 }
 
 .left.redex {
-  border-bottom: 2px solid #81c784;
+  border-bottom: 1px solid #81c784;
 }
 
 .substitutedArg {
   background-color: #81c784;
-  padding-left: 1px;
-  padding-right: 1px;
-  border-radius: 2px;
+  padding: 1px 4px;
+  border-radius: 4px;
 }
 
 .variable.alpha.substitutedArg {
@@ -24,10 +23,10 @@
 
 .right.redex {
 /*  background-color: #ffa4a2; /* #ec407a */
-  border: 2px solid #81c784;
-  border-radius: 5px;
+  border: 1px solid #81c784;
+  border-radius: 4px;
+  padding: 1px 4px;
   /* color: white; */
-  /* padding: 1px; */
 }
 
 .argument.substitutedArg {
@@ -35,7 +34,7 @@
 }
 
 .argument.substitutedArg.breakpoint {
-  border: 2px solid #ff6090;
+  border: 1px solid #ff6090;
 }
 
 .activeStep .macro, .activeStep .argument, .activeStep .churchnumeral {
@@ -44,51 +43,52 @@
 
 .macro.redex {
   background-color: #80d8ff;
-  border-radius: 5px;
+  border-radius: 4px;
+  padding: 1px 4px;
 }
 
 .macro.redex.abstraction {
   background-color: #1decff;
-  border-radius: 5px;
+  border-radius: 4px;
+  padding: 1px 4px;
 }
 
 .churchnumeral.redex {
   background-color: #82b1ff;
-  border-radius: 5px;
-  /* padding: 1px; */
+  border-radius: 4px;
+  padding: 1px 4px;
 }
 
 .application.redex.abstraction.argument,
 .churchnumeral.redex.abstraction.argument,
 .macro.redex.abstraction.argument {
   background-color: #97fff1;
-  border-radius: 5px;
-  /* padding: 1px; */
+  border-radius: 4px;
+  padding: 1px 4px;
 }
 
 .left.extended-redex {
-  padding: 1px;
-  padding-left: 4px;
-  padding-right: 4px;
+  padding: 1px 4px;
 
   background-color: #64ecf8;
-  border-radius: 5px;
+  border-radius: 4px;
 }
 
 .right.extended-redex {
-  padding: 1px;
-  border: 2px solid #64ecf8;
-  border-radius: 5px;
+  padding: 1px 4px;
+  border: 1px solid #64ecf8;
+  border-radius: 4px;
 }
 
 .breakpoint {
   /* border-bottom: 3px solid black; */
   background-color: #ff6090;
-  border-radius: 5px;
+  border-radius: 4px;
+  padding: 1px 4px;
 }
 
 .breakpoint.churchnumeral.redex, .breakpoint.macro.redex {
-  border: 2px solid #ff6090;
+  border: 1px solid #ff6090;
 }
 
 /* .breakpoint::after {
@@ -163,7 +163,7 @@
 
 /* Dark mode: the pastel fills above were mixed for dark text on light
    backgrounds. These deep tints of the same hues keep every category
-   distinct while carrying light text. Vivid borders are left untouched. */
+   distinct while carrying light text. Border colors are left untouched. */
 
 .dark .substitutedArg {
   background-color: #1e4d2b;
