@@ -32,20 +32,18 @@ export default class Notebook extends PureComponent<Props> {
 
   render () {
     const { state } = this.props
-    const { activeBoxIndex, focusedBoxIndex, boxList, name, locked } = state
+    const { activeBoxIndex, focusedBoxIndex, boxList, name } = state
 
     return (
       <div className="mainSpace">
         <h1 className="notebook-title">
           <span
-            contentEditable={ ! locked }
+            contentEditable={ true }
             suppressContentEditableWarning={ true }
             spellCheck={ false }
-            title={ locked ? name : 'Click to rename this notebook' }
+            title='Click to rename this notebook'
             onBlur={ (e) => {
-              if ( ! locked) {
-                this.props.updateNotebook({ name : e.target.textContent?.trim() || name })
-              }
+              this.props.updateNotebook({ name : e.target.textContent?.trim() || name })
             } }
           >
             { name }
