@@ -191,7 +191,7 @@
    open; the restore rule below has the higher specificity. */
 .pretty-steps .function > span:last-child {
   display: block;
-  margin-left: 1.5em;
+  margin-left: 2.5em;
 }
 
 .collapse-history.pretty-steps li.inactiveStep:not(:focus):not(:focus-within) .function > span:last-child {
