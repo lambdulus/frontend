@@ -272,8 +272,8 @@ export default class Expression extends PureComponent<EvaluatorProps, Expression
           }
         } }
       >
-        <svg className='gap-wave' width='12' height='20' viewBox='0 0 12 20' fill='none' stroke='currentColor' strokeWidth='1.5' strokeLinecap='round'>
-          <path d='M6 1 Q10 5 6 9 Q2 13 6 17' />
+        <svg className='gap-saw' width='52' height='12' viewBox='0 0 52 12' fill='none' stroke='currentColor' strokeWidth='1.5' strokeLinecap='round' strokeLinejoin='round'>
+          <path d='M2 10 L8 2 L14 10 L20 2 L26 10 L32 2 L38 10 L44 2 L50 10' />
         </svg>
         <svg className='gap-arrows' width='12' height='20' viewBox='0 0 12 20' fill='none' stroke='currentColor' strokeWidth='1.5' strokeLinecap='round' strokeLinejoin='round' aria-hidden='true'>
           { up ?

@@ -105,6 +105,9 @@ test('gap marks mount at both ends, hidden while history shows everything', () =
   expect(marks[0].classList.contains('history-gap-indicator--top')).toBe(true);
   expect(marks[1].classList.contains('history-gap-indicator--bottom')).toBe(true);
   marks.forEach((mark) => {
+    expect(mark.querySelector('.gap-saw')).not.toBeNull();
+  });
+  marks.forEach((mark) => {
     expect(mark.classList.contains('visible')).toBe(false);
     expect((mark as HTMLElement).tabIndex).toBe(-1);
   });
