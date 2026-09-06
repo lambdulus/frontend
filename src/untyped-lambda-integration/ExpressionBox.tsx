@@ -31,6 +31,7 @@ export interface EvaluationProperties {
   state : UntypedLambdaState
   isActive : boolean
   isFocused : boolean
+  isAnchorBox : boolean
 
   setBoxState (state : UntypedLambdaState) : void
   addBox (box : UntypedLambdaState) : void
@@ -117,11 +118,12 @@ export default class ExpressionBox extends PureComponent<EvaluationProperties> {
   // Run/Step live in the box title bar now, portaled into its slot so
   // this component keeps owning the evaluation callbacks. Same mount
   // conditions as the old controls row below the editor. The slot
-  // stays mounted while inactive, merely unseeing: popping the buttons
-  // in on activation would grow the title bar and shove the box
-  // content down a few pixels after every first click.
+  // stays mounted off-anchor, merely unseeing: popping the buttons in
+  // on arrival would grow the title bar and shove the box content down
+  // a few pixels after every first click. Visibility follows the map
+  // anchor, not the click, so a top-bar focus shows the buttons too.
   renderTitleActions (isNormalForm : boolean) : JSX.Element | null {
-    const { state, isActive, titleActionsHost } = this.props
+    const { state, isAnchorBox, titleActionsHost } = this.props
     const host : HTMLSpanElement | null = titleActionsHost?.current ?? null
 
     if (host === null || isNormalForm) {
@@ -129,7 +131,7 @@ export default class ExpressionBox extends PureComponent<EvaluationProperties> {
     }
 
     return createPortal(
-      <span className={ isActive ? undefined : 'box-top-bar-actions--standby' } aria-hidden={ isActive ? undefined : true }>
+      <span className={ isAnchorBox ? undefined : 'box-top-bar-actions--standby' } aria-hidden={ isAnchorBox ? undefined : true }>
         <DebugControls
           isRunning={ state.isRunning }
           onStep={ this.onStep }

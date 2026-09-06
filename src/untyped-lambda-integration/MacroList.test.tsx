@@ -32,6 +32,7 @@ function renderDock (macrolistOpen : boolean, setBoxState : (state : UntypedLamb
       state={ lambdaState(macrolistOpen) }
       isActive={ true }
       isFocused={ true }
+      isAnchorBox={ true }
       setBoxState={ setBoxState }
       addBox={ () => void 0 }
     />
@@ -57,6 +58,7 @@ test('macro dock pill toggles the panel both ways', () => {
       state={ lambdaState(true) }
       isActive={ true }
       isFocused={ true }
+      isAnchorBox={ true }
       setBoxState={ setBoxState }
       addBox={ () => void 0 }
     />

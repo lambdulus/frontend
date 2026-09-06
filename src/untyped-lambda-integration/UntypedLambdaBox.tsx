@@ -16,6 +16,7 @@ interface Props {
   state : UntypedLambdaState
   isActive : boolean
   isFocused : boolean
+  isAnchorBox : boolean
 
   setBoxState (state : UntypedLambdaState) : void
   addBox (box : UntypedLambdaState) : void
@@ -24,7 +25,7 @@ interface Props {
 
 export default class UntypedLambdaBox extends PureComponent<Props> {
   render () {
-    const { state, isActive, isFocused, setBoxState, addBox, titleActionsHost } : Props = this.props
+    const { state, isActive, isFocused, isAnchorBox, setBoxState, addBox, titleActionsHost } : Props = this.props
     const { settingsOpen, subtype, macrolistOpen, SLI, expandStandalones, strategy, SDE, collapseOldSteps, editor, minimized } : UntypedLambdaState = state
 
 
@@ -60,6 +61,7 @@ export default class UntypedLambdaBox extends PureComponent<Props> {
               state={ state }
               isActive={ isActive }
               isFocused={ isFocused }
+              isAnchorBox={ isAnchorBox }
               setBoxState={ setBoxState }
               addBox={ addBox }
               titleActionsHost={ titleActionsHost }
