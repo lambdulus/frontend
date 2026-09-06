@@ -225,8 +225,9 @@ body {
   overflow-y: auto;
 }
 
+/* No side arrows in zen: the map and the arrow keys own navigation. */
 .mainSpace.zen .box-nav {
-  display: flex;
+  display: none;
 }
 
 /* Zen map: one line per box, pinned left of the arrows and centered
