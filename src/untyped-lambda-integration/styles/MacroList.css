@@ -1,29 +1,105 @@
-/* Macro popup: floats left of the box instead of pushing its content
-   down. Positioned from the box container (the nearest positioned
-   ancestor) but docked to the viewport's left margin, not to the box:
-   the offset reaches past the 940px column, the 14px rail and the 20px
-   page padding, stopping 12px short of the viewport edge (floored at
-   the 22px of a full-width column). Out of flow, so toggling never
-   reflows the box; on a wide screen it hugs the left edge with room
-   to spare, on narrower screens it slides over the box as far as it
-   must. (Below the slim-column breakpoint the offset follows the
-   850px column from the narrow-screen block in App.css.) Full box
-   height, flush top and bottom; longer macro lists scroll inside. */
-.macro-popup {
+/* Macro dock: a persistent pill in the empty space left of the box
+   that unfolds into a three-part panel - header, scrolling middle,
+   footer collapse. Positioned from the box container (the nearest
+   positioned ancestor) but docked to the viewport's left margin, not
+   to the box: the offset reaches past the 940px column, the 14px rail
+   and the 20px page padding, stopping 12px short of the viewport edge
+   (floored at the 22px of a full-width column). Out of flow, so it
+   never reflows the box; on a wide screen it hugs the left edge with
+   room to spare, on narrower screens it slides over the box as far as
+   it must. (Below the slim-column breakpoint the offset follows the
+   850px column from the narrow-screen block in App.css.) */
+.macro-dock {
   position: absolute;
   top: 0;
-  bottom: 0;
   left: calc(-1 * max(22px, (100vw - 940px) / 2 + 22px));
+  z-index: 50;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
   width: 420px;
   max-width: calc(100vw - 24px);
-  overflow-y: auto;
-  scrollbar-width: thin;
+}
+
+/* Open, the dock is a full-height card flush with the box, top and
+   bottom; closed, only the pill shows. */
+.macro-dock--open {
+  bottom: 0;
+  align-items: stretch;
   background-color: var(--surface);
   border: 1px solid var(--border);
   border-radius: 8px;
   box-shadow: var(--shadow);
-  padding: 12px 14px;
-  z-index: 50;
+}
+
+/* Squared pill echoing the popup card, with room to breathe. */
+.macro-dock--head {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background-color: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  box-shadow: var(--shadow);
+  padding: 6px 12px;
+  color: var(--muted);
+  font-size: 0.85em;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+}
+
+.macro-dock--head:hover {
+  color: var(--accent);
+  border-color: var(--accent);
+}
+
+/* Open, the head is the panel title row, chromeless. */
+.macro-dock--open .macro-dock--head {
+  width: 100%;
+  background: none;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+  padding: 10px 14px 8px;
+  color: var(--text);
+  cursor: pointer;
+}
+
+.macro-dock--open .macro-dock--head:hover {
+  color: var(--accent);
+}
+
+.macro-dock--title {
+  flex: 1 1 auto;
+  text-align: left;
+}
+
+/* The scrolling middle: only this part moves. */
+.macro-dock--body {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
+  padding: 0 14px;
+}
+
+/* Footer collapse, pinned below the list - always in reach, never
+   scrolled away with long definitions. */
+.macro-dock--foot {
+  display: flex;
+  justify-content: center;
+  background: none;
+  border: none;
+  border-top: 1px solid var(--border);
+  padding: 6px 0;
+  color: var(--muted);
+  cursor: pointer;
+}
+
+.macro-dock--foot:hover {
+  color: var(--accent);
 }
 
 /* Macro table: a clean definition list. One row per macro, with the

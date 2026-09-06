@@ -1,9 +1,73 @@
 import { readFileSync } from 'fs';
-import { test, expect, afterEach } from 'vitest';
-import { render, cleanup } from '@testing-library/react';
+import { test, expect, vi, afterEach } from 'vitest';
+import { render, fireEvent, cleanup } from '@testing-library/react';
 import MacroList from './MacroList';
+import UntypedLambdaBox from './UntypedLambdaBox';
+import { EvaluationStrategy, UntypedLambdaState, UntypedLambdaType } from './Types';
+import { BoxType } from '../Types';
 
 afterEach(() => cleanup());
+
+function lambdaState (macrolistOpen : boolean) : UntypedLambdaState {
+  return {
+    type : BoxType.UNTYPED_LAMBDA,
+    subtype : UntypedLambdaType.EMPTY,
+    title : '',
+    minimized : false,
+    settingsOpen : false,
+    macrolistOpen,
+    macrotable : {},
+    SLI : false,
+    expandStandalones : false,
+    strategy : EvaluationStrategy.NORMAL,
+    SDE : true,
+    collapseOldSteps : true,
+    editor : { placeholder : '', content : '', syntaxError : null },
+  } as unknown as UntypedLambdaState;
+}
+
+function renderDock (macrolistOpen : boolean, setBoxState : (state : UntypedLambdaState) => void) {
+  return render(
+    <UntypedLambdaBox
+      state={ lambdaState(macrolistOpen) }
+      isActive={ true }
+      isFocused={ true }
+      setBoxState={ setBoxState }
+      addBox={ () => void 0 }
+    />
+  );
+}
+
+test('macro dock pill toggles the three-part panel', () => {
+  const setBoxState = vi.fn();
+  const { container, rerender } = renderDock(false, setBoxState);
+
+  // Closed: the pill floats alone.
+  const head = container.querySelector('.macro-dock--head') as HTMLElement;
+  expect(head.textContent).toMatch(/Macros/);
+  expect(container.querySelector('.macro-dock--open')).toBeNull();
+  expect(container.querySelector('.macro-dock--body')).toBeNull();
+  expect(container.querySelector('.macro-dock--foot')).toBeNull();
+
+  fireEvent.click(head);
+  expect(setBoxState).toHaveBeenCalledWith(expect.objectContaining({ macrolistOpen : true }));
+
+  // Open: header, scrolling middle, pinned footer collapse.
+  rerender(
+    <UntypedLambdaBox
+      state={ lambdaState(true) }
+      isActive={ true }
+      isFocused={ true }
+      setBoxState={ setBoxState }
+      addBox={ () => void 0 }
+    />
+  );
+  expect(container.querySelector('.macro-dock--open')).not.toBeNull();
+  expect(container.querySelector('.macro-dock--body .macro-list')).not.toBeNull();
+  const foot = container.querySelector('.macro-dock--foot') as HTMLElement;
+  fireEvent.click(foot);
+  expect(setBoxState).toHaveBeenCalledWith(expect.objectContaining({ macrolistOpen : false }));
+});
 
 test('macro table renders one clean row per macro', () => {
   const { container } = render(<MacroList macroTable={ { LONGNAME : 'λf.(λx.f (x x)) (λx.f (x x)) λf.(λx.f (x x)) (λx.f (x x))' } } />);
