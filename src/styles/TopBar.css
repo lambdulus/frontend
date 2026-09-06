@@ -155,6 +155,12 @@
   background-color: var(--raised);
 }
 
+/* The toggle shows the sun in dark mode: hovering it warms the icon
+   to sun-yellow instead of the plain text hover. */
+#app.dark .top-bar--theme-toggle:hover {
+  color: var(--warning);
+}
+
 /* Zen mode is a real switch: the Focus knob slides across the track
    and the track itself takes the accent when on. The side swap is
    instant (flex position does not transition); the state color fades. */

@@ -160,7 +160,7 @@ export default function TopBar (props : Props) : JSX.Element {
           </button>
 
           <button
-            className='top-bar--action'
+            className='top-bar--action top-bar--theme-toggle'
             title='Toggle the theme'
             onClick={ onDarkModeChange }
           >

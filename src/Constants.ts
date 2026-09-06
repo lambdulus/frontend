@@ -85,13 +85,25 @@ export function createManualNotebook () : NotebookState {
   }
 }
 
+// First-run theme follows the operating system when the API exists,
+// dark otherwise. Stored state always wins after that; this only
+// shapes fresh defaults.
+export function preferredTheme () : Theme {
+  if (typeof window !== 'undefined' && typeof window.matchMedia === 'function') {
+    if (window.matchMedia('(prefers-color-scheme: light)').matches) {
+      return Theme.Light
+    }
+  }
+  return Theme.Dark
+}
+
 // Fresh default workspace per call: handing out one shared const would
 // alias every fresh state to the same notebooks.
 export function createDefaultAppState () : AppState {
   return {
     notebooks : [ createManualNotebook(), createEmptyNotebook('Notebook') ],
     activeNotebookIndex : 1,
-    theme : Theme.Dark,
+    theme : preferredTheme(),
     accent : 'emerald',
   }
 }
