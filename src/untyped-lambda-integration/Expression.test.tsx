@@ -160,14 +160,52 @@ test('clicking the top mark jumps the history to its start', () => {
   }
 });
 
-test('history scroll traps input instead of chaining to the notebook', () => {
-  // jsdom never performs real scroll chaining, so guard the CSS
-  // contract directly: without overscroll-behavior the browser hands
-  // the wheel to the notebook at either end of the history and the
-  // pane strands itself mid-gesture with no way back in.
+test('history scroll is allowed to chain out to the notebook', () => {
+  // The sticky ends are enforced in JS (see below); the CSS must not
+  // trap the scroll or pushing past an end could never reach the page.
   const css = readFileSync('src/untyped-lambda-integration/styles/EvaluatorBox.css', 'utf8');
   const block = css.match(/\.box-history-scroll\s*\{[^}]*\}/)?.[0] ?? '';
-  expect(block).toMatch(/overscroll-behavior\s*:\s*contain/);
+  expect(block).not.toMatch(/overscroll-behavior\s*:\s*contain/);
+});
+
+test('hitting either end of the history sticks before chaining through', () => {
+  const { container } = renderExpression();
+  const scroller = scrollerWithGeometry(container);
+
+  // Pinned at the top end: the first pushes are swallowed...
+  scroller.scrollTop = 0;
+  expect(fireEvent.wheel(scroller, { deltaY : -100 })).toBe(false);
+  expect(fireEvent.wheel(scroller, { deltaY : -100 })).toBe(false);
+  // ...then the scroll lets go and chains out to the notebook.
+  expect(fireEvent.wheel(scroller, { deltaY : -100 })).toBe(true);
+
+  // Same at the bottom end.
+  scroller.scrollTop = 800;
+  expect(fireEvent.wheel(scroller, { deltaY : 100 })).toBe(false);
+  expect(fireEvent.wheel(scroller, { deltaY : 100 })).toBe(false);
+  expect(fireEvent.wheel(scroller, { deltaY : 100 })).toBe(true);
+});
+
+test('scrolling back inward re-arms the sticky end', () => {
+  const { container } = renderExpression();
+  const scroller = scrollerWithGeometry(container);
+
+  scroller.scrollTop = 0;
+  expect(fireEvent.wheel(scroller, { deltaY : -100 })).toBe(false);
+  fireEvent.wheel(scroller, { deltaY : 50 });
+  expect(fireEvent.wheel(scroller, { deltaY : -100 })).toBe(false);
+  expect(fireEvent.wheel(scroller, { deltaY : -100 })).toBe(false);
+  expect(fireEvent.wheel(scroller, { deltaY : -100 })).toBe(true);
+});
+
+test('history without overflow chains immediately', () => {
+  const { container } = renderExpression();
+  const scroller = container.querySelector('.box-history-scroll') as HTMLElement;
+  Object.defineProperty(scroller, 'scrollHeight', { configurable : true, value : 200 });
+  Object.defineProperty(scroller, 'clientHeight', { configurable : true, value : 200 });
+
+  scroller.scrollTop = 0;
+  expect(fireEvent.wheel(scroller, { deltaY : -100 })).toBe(true);
 });
 
 test('no indicator mounts when there is no history yet', () => {
