@@ -402,9 +402,10 @@ test('zen offers a floating add-box after the anchor', () => {
     const groups = container.querySelectorAll('.zen-add .add-box--group');
     expect(groups.length).toBe(2);
 
-    // ...appending after the anchor and focusing the new box at once.
+    // ...appending after the anchor and focusing the new box at once
+    // (the notebook holds two boxes, so the insert makes three).
     fireEvent.click(groups[0]);
-    expect(patches.some((patch) => patch.boxList?.length === 2 && patch.activeBoxIndex === 1 && patch.focusedBoxIndex === 1)).toBe(true);
+    expect(patches.some((patch) => patch.boxList?.length === 3 && patch.activeBoxIndex === 1 && patch.focusedBoxIndex === 1)).toBe(true);
   }
   finally {
     unmount();
