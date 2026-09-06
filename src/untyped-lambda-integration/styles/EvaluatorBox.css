@@ -90,7 +90,7 @@ li.activeStep,
   left: 50%;
   transform: translateX(-50%);
   display: flex;
-  padding: 3px 10px;
+  padding: 4px 12px;
   border-radius: 999px;
   background-color: var(--surface);
   border: 1px solid var(--border);
@@ -147,12 +147,12 @@ li.activeStep,
   opacity: 1;
 }
 
-.history-gap-indicator:hover .gap-wave,
-.history-gap-indicator:focus-visible .gap-wave {
+.history-gap-indicator:hover .gap-saw,
+.history-gap-indicator:focus-visible .gap-saw {
   opacity: 0;
 }
 
-.history-gap-indicator .gap-wave {
+.history-gap-indicator .gap-saw {
   transition: opacity .15s ease-in-out;
 }
 
