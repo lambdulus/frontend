@@ -555,15 +555,23 @@ test('leaving zen restores the pre-zen scroll position', () => {
   const onPatch = (patch : Partial<NotebookState>) : void => { patches.push(patch); };
   const originalScrollTo = window.scrollTo;
   const scrollYDescriptor = Object.getOwnPropertyDescriptor(window, 'scrollY');
-  const spy = vi.fn();
+  const lockAtJump : Array<boolean> = [];
+  const spy = vi.fn(() => {
+    lockAtJump.push(document.body.classList.contains('zen'));
+  });
   window.scrollTo = spy;
   Object.defineProperty(window, 'scrollY', { value : 200, configurable : true });
   const { rerender, unmount } = render(<Notebook state={ base } updateNotebook={ onPatch } />);
   try {
     rerender(<Notebook state={ { ...base, zenMode : true } } updateNotebook={ onPatch } />);
     spy.mockClear();
+    lockAtJump.length = 0;
     rerender(<Notebook state={ { ...base, zenMode : false } } updateNotebook={ onPatch } />);
     expect(spy).toHaveBeenCalledWith({ top : 200, behavior : 'auto' });
+    // The lock is already gone when the restore jump runs: under the
+    // zen lock the deep jump would clamp back to the top, stranding
+    // the view (and the re-primed focus) on the first box.
+    expect(lockAtJump).toEqual([ false ]);
     // And nothing re-derives the focus: the anchor keeps it.
     expect(patches.some((patch) => patch.focusedBoxIndex !== undefined)).toBe(false);
   }
