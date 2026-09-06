@@ -5,10 +5,9 @@
 .box-history-scroll {
   max-height: calc(40vh + 4lh);
   overflow-y: auto;
-  /* Trap wheel, touch and keyboard scroll inside the history forever:
-     at either end nothing chains out to the notebook, so the pane can
-     never hand its scrollbar away mid-gesture and strand itself. */
-  overscroll-behavior: contain;
+  /* Chaining stays on: pushing past either end scrolls the notebook.
+     The sticky ends are enforced in Expression.tsx, which swallows
+     the first bit of outward wheel travel before letting go. */
   padding: 6px 10px 6px 0;
   scrollbar-width: thin;
   scrollbar-color: var(--border) transparent;

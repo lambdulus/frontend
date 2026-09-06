@@ -8,6 +8,15 @@ import { mapLeftFromTo } from '../misc'
 
 import './styles/Expression.css'
 
+// Outward wheel travel swallowed at either end of the history before
+// the scroll chains out to the notebook: crossing an end takes one
+// deliberate extra push instead of slipping through mid-gesture.
+const HISTORY_EDGE_BUMP_PX : number = 160
+
+// A paused push is a new push: the bump re-arms after this long with
+// no wheel input, so an old half-push never chains unexpectedly.
+const EDGE_BUMP_RESET_MS : number = 300
+
 interface EvaluatorProps {
   className : string
   state : UntypedLambdaState
@@ -38,18 +47,77 @@ interface ExpressionState {
 export default class Expression extends PureComponent<EvaluatorProps, ExpressionState> {
   private historyRef : React.RefObject<HTMLDivElement>
   private followTail : boolean
+  private edgeBump : number
+  private edgeBumpTimer : number | undefined
 
   constructor (props : EvaluatorProps) {
     super(props)
 
     this.historyRef = React.createRef<HTMLDivElement>()
     this.followTail = true
+    this.edgeBump = 0
+    this.edgeBumpTimer = undefined
     this.state = { historyAtBottom : true, historyAtTop : true }
     this.addBreakpoint = this.addBreakpoint.bind(this)
+    this.onHistoryWheel = this.onHistoryWheel.bind(this)
   }
 
   componentDidMount () : void {
     this.syncHistoryEdges()
+    // React's delegated wheel listener is passive, but the bump needs
+    // preventDefault, so listen natively and non-passively instead.
+    const el : HTMLDivElement | null = this.historyRef.current
+    if (el !== null) {
+      el.addEventListener('wheel', this.onHistoryWheel, { passive : false })
+    }
+  }
+
+  componentWillUnmount () : void {
+    const el : HTMLDivElement | null = this.historyRef.current
+    if (el !== null) {
+      el.removeEventListener('wheel', this.onHistoryWheel)
+    }
+    if (this.edgeBumpTimer !== undefined) {
+      window.clearTimeout(this.edgeBumpTimer)
+    }
+  }
+
+  // Swallows the first bit of outward scrolling at either end of the
+  // history, making the ends feel sticky before the scroll chains out
+  // to the notebook. preventDefault does the work: it stops both the
+  // pane and the chain.
+  onHistoryWheel (e : WheelEvent) : void {
+    const el : HTMLDivElement | null = this.historyRef.current
+    if (el === null) {
+      return
+    }
+
+    const unit : number = e.deltaMode === 1 ? 16 : e.deltaMode === 2 ? el.clientHeight : 1
+    const deltaY : number = e.deltaY * unit
+    if (Math.abs(deltaY) < Math.abs(e.deltaX) || el.scrollHeight <= el.clientHeight + 1) {
+      this.edgeBump = 0
+      return
+    }
+
+    const atTop : boolean = el.scrollTop <= 1
+    const atBottom : boolean = el.scrollHeight - el.scrollTop - el.clientHeight <= 1
+    if (! ((deltaY < 0 && atTop) || (deltaY > 0 && atBottom))) {
+      this.edgeBump = 0
+      return
+    }
+
+    if (this.edgeBumpTimer !== undefined) {
+      window.clearTimeout(this.edgeBumpTimer)
+    }
+    this.edgeBumpTimer = window.setTimeout(() => {
+      this.edgeBump = 0
+      this.edgeBumpTimer = undefined
+    }, EDGE_BUMP_RESET_MS)
+
+    if (this.edgeBump < HISTORY_EDGE_BUMP_PX) {
+      e.preventDefault()
+      this.edgeBump += Math.abs(deltaY)
+    }
   }
 
   componentDidUpdate (prevProps : EvaluatorProps) : void {
@@ -60,6 +128,7 @@ export default class Expression extends PureComponent<EvaluatorProps, Expression
       if (el !== null && this.followTail) {
         el.scrollTop = el.scrollHeight
       }
+      this.edgeBump = 0
     }
 
     this.syncHistoryEdges()
