@@ -53,10 +53,7 @@ export default class BoxTitleBar extends Component<Props, State> {
 
     return (
       <div className='boxTopBar'
-        onClick={ (e) => {
-          e.stopPropagation()
-          seatBox()
-        } }
+        onClick={ () => seatBox() }
       >
         <div
           className='topBarTitle'
