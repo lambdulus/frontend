@@ -11,6 +11,7 @@ import PickBoxTypeModal from './PickBoxTypeModal'
 interface Props {
   isActiveBox : boolean
   isFocusedBox : boolean
+  isAnchorBox : boolean
   zen : boolean
   box : BoxState
 
@@ -87,6 +88,7 @@ export class BoxContainer extends Component<Props, State> {
     const {
       isActiveBox,
       isFocusedBox,
+      isAnchorBox,
       box,
       seatBox,
       makeActive,
@@ -103,7 +105,7 @@ export class BoxContainer extends Component<Props, State> {
   
     return (
       <div ref={ this.rootRef }>
-        <div className={ `box-frame${ isFocusedBox ? ' box-frame--focused' : '' }` }>
+        <div className={ `box-frame${ isFocusedBox ? ' box-frame--focused' : '' }${ isAnchorBox ? ' box-frame--anchor' : '' }` }>
           <div
             className="box-rail"
             title="Focus this box"

@@ -23,6 +23,7 @@ function props (zen : boolean) {
   return {
     isActiveBox : true,
     isFocusedBox : true,
+    isAnchorBox : true,
     zen,
     box : box(),
     seatBox : () => void 0,

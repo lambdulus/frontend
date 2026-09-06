@@ -32,6 +32,9 @@ export interface BoxTop {
 // long enough for any smooth glide to arrive, short enough that plain
 // scrolling never feels frozen.
 const SEAT_SETTLE_MS : number = 600
+// Scroll-end backstop: re-prime once motion stops so the focus always
+// ends on the landed layout.
+const SCROLL_END_MS : number = 150
 export function selectPrimeBox (boxes : Array<BoxTop>, line : number) : number {
   let prime : number = 0
   boxes.forEach((box : BoxTop, i : number) => {
@@ -80,6 +83,7 @@ export default class Notebook extends PureComponent<Props, State> {
   private seatRequested : number | null
   private lastSeatAt : number
   private primeRaf : number | null
+  private primeTrail : number | null
 
   constructor (props : Props) {
     super(props)
@@ -89,6 +93,7 @@ export default class Notebook extends PureComponent<Props, State> {
     this.seatRequested = null
     this.lastSeatAt = 0
     this.primeRaf = null
+    this.primeTrail = null
     this.state = { mapAtTop : true, mapAtBottom : true }
 
     this.insertBefore = this.insertBefore.bind(this)
@@ -127,6 +132,9 @@ export default class Notebook extends PureComponent<Props, State> {
     window.removeEventListener('scroll', this.onPageScroll)
     if (this.primeRaf !== null) {
       window.cancelAnimationFrame(this.primeRaf)
+    }
+    if (this.primeTrail !== null) {
+      window.clearTimeout(this.primeTrail)
     }
     document.body.classList.remove('zen')
   }
@@ -179,8 +187,20 @@ export default class Notebook extends PureComponent<Props, State> {
   // Plain scrolling moves the prime view, so the side arrows follow
   // it: whichever box straddles the prime line becomes their anchor.
   // Throttled to one measure per frame, and only ever re-renders on
-  // an actual anchor change.
+  // an actual anchor change. A trailing sync fires once motion stops:
+  // a long seat-glide can outlast the settle guard, letting a tail
+  // scroll event re-prime from mid-flight geometry with nothing
+  // correcting it after landing; measuring the landed layout fixes
+  // the anchor on the seated box. Plain user scrolls just get the
+  // same prime the frame syncs would have given them.
   onPageScroll () : void {
+    if (this.primeTrail !== null) {
+      window.clearTimeout(this.primeTrail)
+    }
+    this.primeTrail = window.setTimeout(() => {
+      this.primeTrail = null
+      this.syncAnchorToPrime()
+    }, SCROLL_END_MS)
     if (this.primeRaf !== null) {
       return
     }
@@ -280,6 +300,7 @@ export default class Notebook extends PureComponent<Props, State> {
                 box={ box}
                 isActiveBox={ activeBoxIndex === i}
                 isFocusedBox={ focusedBoxIndex === i }
+                isAnchorBox={ anchor === i }
                 zen={ zen }
                 seatBox={ () => this.ensureFocusRoom(i) }
                 addBoxBefore={ (box : BoxState) => this.insertBefore(i, box) }
