@@ -229,6 +229,79 @@ body {
   display: flex;
 }
 
+/* Zen map: one line per box, pinned left of the arrows and centered
+   on the view. Grows with the notebook up to 70% of the viewport,
+   then scrolls under top/bottom fades. The anchor carries the accent
+   bar; the rest sit muted until hovered. */
+.mainSpace.zen .zen-map {
+  position: fixed;
+  right: 76px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 190px;
+  z-index: 55;
+  background-color: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  box-shadow: var(--shadow);
+}
+
+.zen-map-list {
+  max-height: 70vh;
+  overflow-y: auto;
+  overflow-x: hidden;
+  width: 100%;
+  padding: 6px;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
+}
+
+.zen-map-list.mask-top {
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 24px);
+  mask-image: linear-gradient(to bottom, transparent 0, #000 24px);
+}
+
+.zen-map-list.mask-bottom {
+  -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - 24px), transparent 100%);
+  mask-image: linear-gradient(to bottom, #000 calc(100% - 24px), transparent 100%);
+}
+
+.zen-map-list.mask-top.mask-bottom {
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 24px, #000 calc(100% - 24px), transparent 100%);
+  mask-image: linear-gradient(to bottom, transparent 0, #000 24px, #000 calc(100% - 24px), transparent 100%);
+}
+
+.zen-map-item {
+  display: block;
+  width: 100%;
+  text-align: left;
+  font: inherit;
+  background: none;
+  border: none;
+  border-left: 2px solid transparent;
+  border-radius: 0 4px 4px 0;
+  padding: 5px 8px 5px 10px;
+  color: var(--muted);
+  cursor: pointer;
+}
+
+.zen-map-item:hover {
+  color: var(--text);
+}
+
+.zen-map-item--current {
+  border-left-color: var(--accent);
+  color: var(--text);
+}
+
+.zen-map-label {
+  display: block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: 0.85em;
+}
+
 /* The page itself never moves in zen: with the box hard-clamped this
    only bars the last stray pixel (and the rubber-band), leaving the
    history pane as the single thing that scrolls. */
