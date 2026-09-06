@@ -172,13 +172,14 @@ test('box settings panel floats above the box', () => {
 });
 
 test('box top bar reads as a distinct header strip', () => {
-  // A new box must announce itself in both scroll directions: the bar
-  // carries its own surface, hairline and radius.
+  // A new box must announce itself in both scroll directions: solid
+  // theme accent, no border, everything on it in accent ink.
   const css = readFileSync('src/styles/BoxTopBar.css', 'utf8');
   const bar = css.match(/\.boxTopBar\s*\{[^}]*\}/)?.[0] ?? '';
-  expect(bar).toMatch(/background-color\s*:\s*var\(--surface\)/);
-  expect(bar).toMatch(/border\s*:\s*1px solid var\(--border\)/);
+  expect(bar).toMatch(/background-color\s*:\s*var\(--accent\)/);
+  expect(bar).toMatch(/border\s*:\s*none/);
   expect(bar).toMatch(/border-radius\s*:\s*8px/);
+  expect(css).toMatch(/\.boxTopBar \.debug-controls--run,\s*\.boxTopBar \.debug-controls--step\s*\{[^}]*color\s*:\s*var\(--accent-ink\)/);
 });
 
 test('zen locks the page scroll on the body while mounted', () => {
