@@ -26,7 +26,7 @@
 }
 
 .box-history-scroll {
-  max-height: 50vh;
+  max-height: 40vh;
   overflow-y: auto;
   padding: 6px 10px 6px 0;
   scrollbar-width: thin;
@@ -56,14 +56,20 @@
   color: var(--text);
 }
 
-/* The latest step gets air above it plus an accent bar, so "history"
+/* The endpoint steps get air plus an accent bar, so "start", history
    and "now" read apart without shifting text size while stepping.
-   The pinned current form below the scroll shares the treatment. */
+   The pinned initial expression above the scroll and the pinned
+   current form below it share the treatment. */
 li.activeStep,
-.box-current-step {
+.box-current-step,
+.box-initial-step {
   margin-top: 12px;
   padding: 2px 0 2px 16px;
   border-left: 2px solid var(--accent);
+}
+
+.box-initial-step {
+  margin-bottom: 12px;
 }
 
 /* Omission marker between scrolled history and the pinned current

@@ -102,12 +102,29 @@ export default class Expression extends PureComponent<EvaluatorProps, Expression
     }
   }
 
+  // Clone-this-step affordance shared by the initial, middle and
+  // current renderings.
+  renderCloneIcon (stepRecord : StepRecord) : JSX.Element {
+    return (
+      <span
+        className="hiddenIcon"
+        title='Clone this expression to the new box'
+        onClick={ (e : any) => {
+          e.stopPropagation()
+          this.props.addBox(this.props.createBoxFrom(stepRecord))
+        } }
+      >
+        <Copy size={ 13 } strokeWidth={ 1.75 } />
+      </span>
+    )
+  }
+
   // Omission mark for one end of the history: a wave that swaps to a
   // column of chevrons on hover, jumping to that end on click. Mounted
-  // whenever there is history; each end shows only while scrolled away
-  // from it.
+  // only while middle steps exist to get disconnected; each end shows
+  // only while scrolled away from it.
   renderGapMark (kind : 'top' | 'bottom') : JSX.Element | null {
-    if (this.props.history.length <= 1) {
+    if (this.props.history.length <= 2) {
       return null
     }
 
@@ -184,6 +201,27 @@ export default class Expression extends PureComponent<EvaluatorProps, Expression
               null
           }
         </div>
+        {
+          // The initial expression is pinned above the history like the
+          // current form is pinned below it: endpoints always visible,
+          // middle steps scroll between them.
+          this.props.history.length >= 2 ?
+            <div className='box-initial-step'>
+              <Step
+                breakpoints={ this.props.breakpoints }
+                strategy={ this.props.state.strategy }
+                addBreakpoint={ () => {} }
+                stepRecord={ this.props.history[0] }
+                lastStep={ false }
+                SDE={ SDE }
+                macrotable={ macrotable }
+              >
+                { this.renderCloneIcon(this.props.history[0]) }
+              </Step>
+            </div>
+          :
+            null
+        }
         { this.renderGapMark('top') }
         <div
           className='box-history-scroll'
@@ -192,29 +230,23 @@ export default class Expression extends PureComponent<EvaluatorProps, Expression
         >
         <ul className={ `UL${ collapseOldSteps ? ' collapse-history' : '' }` }>
           {
-            mapLeftFromTo(0, this.props.history.length - 2, this.props.history, (stepRecord : StepRecord, i : Number) =>
-              <li key={ i.toString() } className='inactiveStep LI' tabIndex={ collapseOldSteps ? 0 : undefined } title={ collapseOldSteps ? 'Click to expand this step' : undefined } >
-                <Step
-                  breakpoints={ this.props.breakpoints }
-                  strategy={ this.props.state.strategy }
-                  addBreakpoint={ () => {} }
-                  stepRecord={ stepRecord }
-                  lastStep={ false }
-                  SDE={ SDE }
-                  macrotable={ macrotable }
-                >
-                  <span
-                    className="hiddenIcon"
-                    title='Clone this expression to the new box'
-                    onClick={ (e : any) => {
-                      e.stopPropagation()
-                      this.props.addBox(this.props.createBoxFrom(stepRecord))
-                    } }
+            this.props.history.length > 1 ?
+              mapLeftFromTo(1, this.props.history.length - 2, this.props.history, (stepRecord : StepRecord, i : Number) =>
+                <li key={ i.toString() } className='inactiveStep LI' tabIndex={ collapseOldSteps ? 0 : undefined } title={ collapseOldSteps ? 'Click to expand this step' : undefined } >
+                  <Step
+                    breakpoints={ this.props.breakpoints }
+                    strategy={ this.props.state.strategy }
+                    addBreakpoint={ () => {} }
+                    stepRecord={ stepRecord }
+                    lastStep={ false }
+                    SDE={ SDE }
+                    macrotable={ macrotable }
                   >
-                    <Copy size={ 13 } strokeWidth={ 1.75 } />
-                  </span>
-                </Step>
-              </li>)
+                    { this.renderCloneIcon(stepRecord) }
+                  </Step>
+                </li>)
+            :
+              null
           }
         </ul>
         </div>
@@ -229,19 +261,7 @@ export default class Expression extends PureComponent<EvaluatorProps, Expression
             SDE={ SDE }
             macrotable={ macrotable }
           >
-              <span
-                className="hiddenIcon"
-                title='Clone this expression to the new box'
-                onClick={ (e : any) => {
-                  e.stopPropagation() // TODO: maybe I shouldn't do this
-                  // maybe instead I should drop the `focusedBoxIndex` and stop caring if Box has been clicked
-                  // instead I could always render whole and complete Box if user does not collapsed it
-                  // I need to think this through
-                  this.props.addBox(this.props.createBoxFrom(this.props.history[this.props.history.length - 1]))
-                 } }
-                >
-                  <Copy size={ 13 } strokeWidth={ 1.75 } />
-                </span>
+            { this.renderCloneIcon(this.props.history[this.props.history.length - 1]) }
           </Step>
         </div>
         {

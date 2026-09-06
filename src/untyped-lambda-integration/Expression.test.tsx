@@ -14,6 +14,7 @@ function buildHistory () {
   return [
     { ast, lastReduction : new None(), step : 0, message, isNormalForm : false, exerciseStep : false },
     { ast : ast.clone(), lastReduction : new None(), step : 1, message, isNormalForm : false, exerciseStep : false },
+    { ast : ast.clone(), lastReduction : new None(), step : 2, message, isNormalForm : false, exerciseStep : false },
   ];
 }
 
@@ -47,17 +48,48 @@ function renderExpression () {
   );
 }
 
-test('past steps scroll while the latest step is pinned outside', () => {
+test('initial and latest steps pin outside while middle steps scroll', () => {
   const { container } = renderExpression();
+
+  const initial = container.querySelector('.box-initial-step');
+  expect(initial).not.toBeNull();
+  expect(container.querySelector('.box-history-scroll .box-initial-step')).toBeNull();
+  expect(initial?.querySelector('.stepNumber')?.textContent).toMatch(/0 :/);
 
   const scrolled = container.querySelectorAll('.box-history-scroll li.inactiveStep');
   expect(scrolled.length).toBe(1);
-  expect(scrolled[0].textContent).toMatch(/0 :/);
+  expect(scrolled[0].textContent).toMatch(/1 :/);
 
   const current = container.querySelector('.box-current-step');
   expect(current).not.toBeNull();
   expect(container.querySelector('.box-history-scroll .box-current-step')).toBeNull();
-  expect(current?.querySelector('.stepNumber')?.textContent).toMatch(/1 :/);
+  expect(current?.querySelector('.stepNumber')?.textContent).toMatch(/2 :/);
+});
+
+test('two steps pin both endpoints with no marks and no middle', () => {
+  const { container } = render(
+    <Expression
+      className='box boxEval'
+      state={ { strategy : EvaluationStrategy.NORMAL, SDE : true, macrotable : {}, collapseOldSteps : true, isRunning : false } as unknown as UntypedLambdaState }
+      breakpoints={ [] }
+      history={ buildHistory().slice(0, 2) }
+      editor={ { placeholder : '', content : '', syntaxError : null } }
+      isNormalForm={ false }
+      isExercise={ false }
+      createBoxFrom={ () => { throw new Error('unused') } }
+      setBoxState={ () => void 0 }
+      onContent={ () => void 0 }
+      onEnter={ () => void 0 }
+      onExecute={ () => void 0 }
+      addBox={ () => void 0 }
+      shouldShowDebugControls={ false }
+    />
+  );
+
+  expect(container.querySelector('.box-initial-step .stepNumber')?.textContent).toMatch(/0 :/);
+  expect(container.querySelectorAll('.box-history-scroll li').length).toBe(0);
+  expect(container.querySelectorAll('.history-gap-indicator').length).toBe(0);
+  expect(container.querySelector('.box-current-step .stepNumber')?.textContent).toMatch(/1 :/);
 });
 
 test('gap marks mount at both ends, hidden while history shows everything', () => {
