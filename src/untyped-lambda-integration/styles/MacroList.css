@@ -21,15 +21,11 @@
   max-width: calc(100vw - 24px);
 }
 
-/* Open, the dock is a full-height card flush with the box, top and
-   bottom; closed, only the pill shows. */
+/* Open, the dock reaches the full box height flush top and bottom;
+   closed, only the pill shows. */
 .macro-dock--open {
   bottom: 0;
   align-items: stretch;
-  background-color: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  box-shadow: var(--shadow);
 }
 
 /* Squared pill echoing the popup card, with room to breathe. */
@@ -75,31 +71,49 @@
   text-align: left;
 }
 
-/* The scrolling middle: only this part moves. */
+/* The unfolding panel: always mounted, collapsing to nothing through
+   grid rows plus a quick fade, so opening and closing animate. The
+   card chrome lives here permanently (invisible while collapsed), so
+   it never pops. The list scrolls in its own inner box; the panel
+   itself only ever grows and shrinks. */
+.macro-dock--panel {
+  display: grid;
+  grid-template-rows: 0fr;
+  width: 100%;
+  opacity: 0;
+  visibility: hidden;
+  transition: grid-template-rows .18s ease-out, opacity .15s ease-out, visibility 0s linear .18s;
+  background-color: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  box-shadow: var(--shadow);
+  overflow: hidden;
+}
+
+.macro-dock--open .macro-dock--panel {
+  grid-template-rows: 1fr;
+  opacity: 1;
+  visibility: visible;
+  transition: grid-template-rows .18s ease-out, opacity .15s ease-out, visibility 0s;
+}
+
 .macro-dock--body {
-  flex: 1 1 auto;
   min-height: 0;
+  overflow: hidden;
+}
+
+.macro-dock--scroll {
+  height: 100%;
   overflow-y: auto;
   scrollbar-width: thin;
   scrollbar-color: var(--border) transparent;
-  padding: 0 14px;
+  padding: 0 14px 12px;
 }
 
-/* Footer collapse, pinned below the list - always in reach, never
-   scrolled away with long definitions. */
-.macro-dock--foot {
-  display: flex;
-  justify-content: center;
-  background: none;
-  border: none;
-  border-top: 1px solid var(--border);
-  padding: 6px 0;
-  color: var(--muted);
-  cursor: pointer;
-}
-
-.macro-dock--foot:hover {
-  color: var(--accent);
+@media (prefers-reduced-motion: reduce) {
+  .macro-dock--panel {
+    transition: none;
+  }
 }
 
 /* Macro table: a clean definition list. One row per macro, with the

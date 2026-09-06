@@ -38,21 +38,20 @@ function renderDock (macrolistOpen : boolean, setBoxState : (state : UntypedLamb
   );
 }
 
-test('macro dock pill toggles the three-part panel', () => {
+test('macro dock pill toggles the panel both ways', () => {
   const setBoxState = vi.fn();
   const { container, rerender } = renderDock(false, setBoxState);
 
-  // Closed: the pill floats alone.
+  // Closed: the pill floats alone over a collapsed panel.
   const head = container.querySelector('.macro-dock--head') as HTMLElement;
   expect(head.textContent).toMatch(/Macros/);
   expect(container.querySelector('.macro-dock--open')).toBeNull();
-  expect(container.querySelector('.macro-dock--body')).toBeNull();
-  expect(container.querySelector('.macro-dock--foot')).toBeNull();
+  expect(container.querySelector('.macro-dock--panel')).not.toBeNull();
 
   fireEvent.click(head);
   expect(setBoxState).toHaveBeenCalledWith(expect.objectContaining({ macrolistOpen : true }));
 
-  // Open: header, scrolling middle, pinned footer collapse.
+  // Open: the same head collapses back (chevron swapped).
   rerender(
     <UntypedLambdaBox
       state={ lambdaState(true) }
@@ -63,9 +62,9 @@ test('macro dock pill toggles the three-part panel', () => {
     />
   );
   expect(container.querySelector('.macro-dock--open')).not.toBeNull();
-  expect(container.querySelector('.macro-dock--body .macro-list')).not.toBeNull();
-  const foot = container.querySelector('.macro-dock--foot') as HTMLElement;
-  fireEvent.click(foot);
+  expect(container.querySelector('.macro-dock--scroll .macro-list')).not.toBeNull();
+  const openHead = container.querySelector('.macro-dock--head') as HTMLElement;
+  fireEvent.click(openHead);
   expect(setBoxState).toHaveBeenCalledWith(expect.objectContaining({ macrolistOpen : false }));
 });
 
