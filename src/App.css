@@ -45,13 +45,16 @@ body {
 
 .boxContainer {
   position: relative;
-  background: transparent;
-  border: none;
-  border-bottom: 1px solid var(--border);
-  border-radius: 0;
-  box-shadow: none;
-  padding: 20px 4px 24px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  box-shadow: var(--shadow);
+  padding: 20px 20px 24px;
   font-size: 1.1em;
+}
+
+.boxContainer.active {
+  box-shadow: var(--shadow-lift);
 }
 
 .boxContainer.active .box-top-bar--title-text {
@@ -168,10 +171,6 @@ body {
   display: none;
 }
 
-.mainSpace.zen .box-frame::after {
-  display: none;
-}
-
 /* Collapsing the single zen box would only strand an empty clamped
    frame, so the toggle steps out with the other box furniture. */
 .mainSpace.zen .box-top-bar--collapse-toggle {
@@ -193,7 +192,6 @@ body {
   height: calc(100vh - 160px);
   display: flex;
   flex-direction: column;
-  border-bottom: none;
 }
 
 .mainSpace.zen .untypedLambdaBox {
