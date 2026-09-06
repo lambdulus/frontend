@@ -220,14 +220,19 @@ body {
   overflow-y: auto;
 }
 
+/* The settings panel floats above the box (anchored to the
+   container, which is positioned) instead of squeezing the history:
+   right-docked under the title bar, with its own capped scroll. */
 .mainSpace.zen .box-settings {
+  position: absolute;
+  top: 60px;
+  right: 8px;
+  z-index: 20;
+  width: min(340px, calc(100% - 16px));
+  margin: 0;
   max-height: 40vh;
   overflow-y: auto;
-  /* A flex item with margin:auto centers itself: dock the panel
-     right instead. */
-  margin-left: auto;
-  margin-right: 0;
-  max-width: 100%;
+  box-shadow: var(--shadow);
 }
 
 .mainSpace.zen .untyped-lambda-box--macrolist {
