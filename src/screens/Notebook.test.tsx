@@ -4,6 +4,8 @@ import { render, fireEvent, cleanup } from '@testing-library/react';
 import Notebook, { selectPrimeBox, zenStep } from './Notebook';
 import { BoxType, NotebookState } from '../Types';
 import { NoteState } from '../markdown-integration/AppTypes';
+import { tokenize, parse, None } from '@lambdulus/core';
+import { EvaluationStrategy, StepValidity, UntypedLambdaState, UntypedLambdaType } from '../untyped-lambda-integration/Types';
 
 afterEach(() => cleanup());
 
@@ -124,14 +126,70 @@ test('zen arrow keys never nudge the page, even past the last box', () => {
 test('zen single box fits the viewport with no page scroll', () => {
   // Every vertical contributor outside the fitted box must be zeroed:
   // the list margins, the row margin, and the box padding folded into
-  // the min-height, or the page drifts a little under a zen box.
+  // the fixed height, or the page drifts a little under a zen box.
   const css = readFileSync('src/App.css', 'utf8');
   const list = css.match(/\.mainSpace\.zen \.boxList\s*\{[^}]*\}/)?.[0] ?? '';
   expect(list).toMatch(/margin-top\s*:\s*0/);
   expect(list).toMatch(/margin-bottom\s*:\s*0/);
   const row = css.match(/\.mainSpace\.zen \.boxList > \.LI\s*\{[^}]*\}/)?.[0] ?? '';
   expect(row).toMatch(/margin-bottom\s*:\s*0/);
-  expect(css).toMatch(/\.mainSpace\.zen \.boxContainer\s*\{[^}]*min-height\s*:\s*calc\(100vh - 160px\)/);
+  expect(css).toMatch(/\.mainSpace\.zen \.boxContainer\s*\{[^}]*height\s*:\s*calc\(100vh - 160px\)/);
+});
+
+test('zen box clamps to the viewport with history as the shrinker', () => {
+  // Fixed-height flex column down to the scroller; the bare wrappers
+  // go display:contents so the chain is unbroken, and every level
+  // carries min-height:0 so content cannot pry the box open.
+  const css = readFileSync('src/App.css', 'utf8');
+  const container = css.match(/\.mainSpace\.zen \.boxContainer\s*\{[^}]*\}/)?.[0] ?? '';
+  expect(container).toMatch(/display\s*:\s*flex/);
+  expect(container).toMatch(/flex-direction\s*:\s*column/);
+  expect(css).toMatch(/\.mainSpace\.zen \.untypedLambdaBoxContent\s*\{[^}]*display\s*:\s*contents/);
+  const scroller = css.match(/\.mainSpace\.zen \.box-history-scroll\s*\{[^}]*\}/)?.[0] ?? '';
+  expect(scroller).toMatch(/flex\s*:\s*1 1 auto/);
+  expect(scroller).toMatch(/min-height\s*:\s*0/);
+  expect(scroller).toMatch(/max-height\s*:\s*none/);
+});
+
+test('zen lambda box exposes the flex clamp hooks', () => {
+  const macrotable = {};
+  const ast = parse(tokenize('(λx.x) y', { lambdaLetters : ['λ'], singleLetterVars : true, macromap : macrotable }), macrotable);
+  const message = { validity : StepValidity.CORRECT, userInput : '', message : '' };
+  const lambda = {
+    __key : 'lambda',
+    type : BoxType.UNTYPED_LAMBDA,
+    subtype : UntypedLambdaType.ORDINARY,
+    title : 'Lambda',
+    minimized : false,
+    settingsOpen : false,
+    macrolistOpen : false,
+    history : [{ ast, lastReduction : new None(), step : 0, message, isNormalForm : false, exerciseStep : false }],
+    breakpoints : [],
+    editor : { placeholder : '', content : '', syntaxError : null },
+    strategy : EvaluationStrategy.NORMAL,
+    SDE : true,
+    macrotable : {},
+    collapseOldSteps : true,
+    isRunning : false,
+  } as unknown as UntypedLambdaState;
+
+  const state : NotebookState = {
+    name : 'Test',
+    zenMode : true,
+    boxList : [ lambda ],
+    activeBoxIndex : 0,
+    focusedBoxIndex : 0,
+    menuOpen : false,
+    settings : {},
+    __key : 'nb',
+  };
+  const { container, unmount } = render(<Notebook state={ state } updateNotebook={ () => void 0 } />);
+  try {
+    expect(container.querySelector('.untypedLambdaBox .untypedLambdaBoxContent .box-history-scroll')).not.toBeNull();
+  }
+  finally {
+    unmount();
+  }
 });
 
 test('zen box switches animate in', () => {

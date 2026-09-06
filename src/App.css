@@ -161,17 +161,61 @@ body {
   display: none;
 }
 
-/* Floor the box at exactly the viewport: mainSpace padding (116) plus
-   the box's own content-box padding (44). With the list margins above
-   zeroed, a short box sums to precisely 100vh and the page cannot
-   scroll out from under it; a taller box still grows and scrolls. */
+/* Hard-clamp the zen box to exactly the viewport: a fixed height (page
+   padding 116 plus the box's own content-box padding 44) over a flex
+   column whose only shrinker is the history pane. The bare wrappers go
+   display:contents so the flex layout sees through to the real
+   anatomy; every level carries min-height:0, or content would pry the
+   box open again. No clipping backstop: title-bar popups are absolute
+   and must stay paintable, and the settings panels below keep their
+   own capped scroll instead. */
 .mainSpace.zen .boxContainer {
-  min-height: calc(100vh - 160px);
+  height: calc(100vh - 160px);
+  display: flex;
+  flex-direction: column;
   border-bottom: none;
 }
 
+.mainSpace.zen .untypedLambdaBox,
+.mainSpace.zen .untypedLambdaBoxContent {
+  display: contents;
+}
+
+.mainSpace.zen .box.boxEval {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.mainSpace.zen .box-history-wrap {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
 .mainSpace.zen .box-history-scroll {
-  max-height: max(240px, calc(100vh - 420px));
+  flex: 1 1 auto;
+  min-height: 0;
+  max-height: none;
+}
+
+.mainSpace.zen .box.boxNote,
+.mainSpace.zen .box.boxNoteEditor {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+.mainSpace.zen .box-settings {
+  max-height: 40vh;
+  overflow-y: auto;
+}
+
+.mainSpace.zen .untyped-lambda-box--macrolist {
+  max-height: 30vh;
+  overflow-y: auto;
 }
 
 .mainSpace.zen .box-nav {

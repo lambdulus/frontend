@@ -79,7 +79,7 @@ export default class UntypedLambdaBox extends PureComponent<Props> {
     }
 
     return (
-      <div>
+      <div className='untypedLambdaBox'>
         {
           settingsOpen ?
             <div className='box-settings'>
@@ -108,7 +108,7 @@ export default class UntypedLambdaBox extends PureComponent<Props> {
             null
         }
 
-        <div>
+        <div className='untypedLambdaBoxContent'>
           { renderBoxContent() }
         </div>
 
