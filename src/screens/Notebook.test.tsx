@@ -10,7 +10,7 @@ import { EvaluationStrategy, StepValidity, UntypedLambdaState, UntypedLambdaType
 
 afterEach(() => cleanup());
 
-test('prime box is the last one reaching past the prime line', () => {
+test('prime box owns the most of the upper view', () => {
   expect(selectPrimeBox([
     { top : -400, height : 300 },
     { top : -50, height : 300 },
@@ -74,12 +74,31 @@ test('zen hides the collapse toggle', () => {
   expect(css).toMatch(/\.mainSpace\.zen \.box-top-bar--collapse-toggle\s*\{[^}]*display\s*:\s*none/);
 });
 
-test('prime leads slightly below the center', () => {
-  // The handover anticipates: at 65% of an 800px view the next box
-  // takes focus while its top is still below the true center.
+test('prime hands over once the next box owns the upper view', () => {
+  // Scrolled further down, the next box fills most of the upper view
+  // and takes the focus it was denied while it only owned the bottom.
   expect(selectPrimeBox([
     { top : -100, height : 400 },
-    { top : 450, height : 900 },
+    { top : 100, height : 900 },
+  ], 520)).toBe(1);
+});
+
+test('a seated short box keeps focus over the next one', () => {
+  // Clicking the second-to-last box seats it at the top; the last box
+  // sits above the line too, but the seated box owns as much of the
+  // upper view, so the tie stays above instead of stealing down.
+  expect(selectPrimeBox([
+    { top : 60, height : 200 },
+    { top : 280, height : 200 },
+  ], 520)).toBe(0);
+});
+
+test('prime stays on the last box past the end', () => {
+  // Scrolled past everything, nothing owns the upper view: the focus
+  // rests on the last box rather than jumping back to the first.
+  expect(selectPrimeBox([
+    { top : -900, height : 200 },
+    { top : -650, height : 200 },
   ], 520)).toBe(1);
 });
 
