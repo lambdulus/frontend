@@ -259,6 +259,57 @@
   color: var(--muted);
 }
 
+/* Every section past the first stands off from the one above, so a
+   label always reads with its own controls. */
+.top-bar--settings-panel > .top-bar--settings-title ~ .top-bar--settings-title {
+  margin-top: 16px;
+}
+
+/* Box style segmented radio, mirroring the evaluation strategy
+   control: native radios with the labels as the pills. */
+.top-bar--boxstyle-seg {
+  display: inline-flex;
+  gap: 2px;
+  padding: 3px;
+  border-radius: 999px;
+  background-color: var(--raised);
+  border: 1px solid var(--border);
+}
+
+.top-bar--boxstyle-radio-wrapper {
+  margin: 0;
+  padding: 0;
+  border: none;
+}
+
+.top-bar--boxstyle-radio-wrapper input[type='radio'] {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  margin: 0;
+}
+
+.top-bar--boxstyle-label {
+  display: inline-block;
+  padding: 4px 16px;
+  border-radius: 999px;
+  cursor: pointer;
+  font-size: 0.85em;
+  color: var(--muted);
+  transition: color .15s ease-in-out, background-color .15s ease-in-out;
+}
+
+.top-bar--boxstyle-radio-wrapper input[type='radio']:checked + .top-bar--boxstyle-label {
+  background-color: var(--accent);
+  color: var(--accent-ink);
+  font-weight: 600;
+}
+
+.top-bar--boxstyle-radio-wrapper input[type='radio']:focus-visible + .top-bar--boxstyle-label {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
 .top-bar--clear-btn {
   width: 100%;
   margin-top: 8px;

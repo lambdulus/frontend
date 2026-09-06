@@ -79,21 +79,34 @@ test('zen control is a real switch reflecting the mode', () => {
   expect(onZenModeChange).toHaveBeenCalledWith(false);
 });
 
-test('box style is a Cards/Classic radio in the theme popup', () => {
+test('box style is a Cards/Classic segmented radio in the theme popup', () => {
+  // Native radios like the evaluation strategy control, labels wired
+  // by id; the panel stays open so the two looks compare in place.
   const onBoxStyleChange = vi.fn();
   const { container } = render(
     <TopBar { ...baseProps(() => void 0) } boxStyle='cards' onBoxStyleChange={ onBoxStyleChange } />
   );
 
   fireEvent.click(container.querySelector('[title="Accent theme"]') as HTMLElement);
-  const group = container.querySelector('[role="radiogroup"]');
-  expect(group?.getAttribute('aria-label')).toBe('Box style');
+  const seg = container.querySelector('.top-bar--boxstyle-seg');
+  expect(seg).not.toBeNull();
 
-  const radios = container.querySelectorAll('[role="radio"]');
+  const radios = seg?.querySelectorAll("input[type='radio']") ?? [];
   expect(radios.length).toBe(2);
-  expect(radios[0].getAttribute('aria-checked')).toBe('true');
-  expect(radios[1].getAttribute('aria-checked')).toBe('false');
+  expect((radios[0] as HTMLInputElement).checked).toBe(true);
+  expect((radios[1] as HTMLInputElement).checked).toBe(false);
+  expect(container.querySelector('label[for="top-bar--boxstyle-classic"]')?.textContent).toBe('Classic');
 
   fireEvent.click(radios[1]);
   expect(onBoxStyleChange).toHaveBeenCalledWith('classic');
+  // Still open for the comparison: the panel did not close itself.
+  expect(container.querySelector('.top-bar--boxstyle-seg')).not.toBeNull();
+});
+
+test('box style section stands off from the accent section', () => {
+  const css = readFileSync('src/styles/TopBar.css', 'utf8');
+  const gap = css.match(/\.top-bar--settings-panel > \.top-bar--settings-title ~ \.top-bar--settings-title\s*\{[^}]*\}/)?.[0] ?? '';
+  expect(gap).toMatch(/margin-top\s*:\s*16px/);
+  const seg = css.match(/\.top-bar--boxstyle-radio-wrapper input\[type='radio'\]:checked \+ \.top-bar--boxstyle-label\s*\{[^}]*\}/)?.[0] ?? '';
+  expect(seg).toMatch(/background-color\s*:\s*var\(--accent\)/);
 });
