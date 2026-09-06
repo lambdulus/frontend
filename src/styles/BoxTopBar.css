@@ -18,6 +18,13 @@
   display: contents;
 }
 
+/* Standby title actions: fully laid out but unseeing, so activating
+   the box never grows the title bar and shoves content. Unlike
+   opacity:0 the hidden buttons catch neither clicks nor keyboards. */
+.box-top-bar-actions--standby {
+  visibility: hidden;
+}
+
 .boxTopBar-spacer {
   flex: 1 1 auto;
 }
