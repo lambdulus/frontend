@@ -5,7 +5,6 @@ import Step from './Step'
 import { UntypedLambdaState, Breakpoint, StepRecord } from './Types'
 import Editor from '../components/Editor'
 import { mapLeftFromTo } from '../misc'
-import DebugControls from '../components/DebugControls'
 
 import './styles/Expression.css'
 
@@ -167,9 +166,9 @@ export default class Expression extends PureComponent<EvaluatorProps, Expression
   }
 
   render () : JSX.Element {
-    const { className, state, editor, shouldShowDebugControls, isExercise } = this.props
+    const { className, state, editor, isExercise } = this.props
 
-    const { isRunning, SDE, macrotable } : UntypedLambdaState = state
+    const { SDE, macrotable } : UntypedLambdaState = state
     const collapseOldSteps : boolean = state.collapseOldSteps ?? true
 
     const {
@@ -187,18 +186,6 @@ export default class Expression extends PureComponent<EvaluatorProps, Expression
 
     return (
       <div className={ className }>
-        <div className='box-eval-controls'>
-          {
-            ( ! isExercise && ! this.props.isNormalForm && shouldShowDebugControls) ?
-              <DebugControls
-                isRunning={ isRunning }
-                onStep={ this.props.onEnter }
-                onRun={ this.props.onExecute }
-              />
-            :
-              null
-          }
-        </div>
         {
           // The initial expression is pinned above the history like the
           // current form is pinned below it: endpoints always visible,

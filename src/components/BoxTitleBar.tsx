@@ -24,6 +24,8 @@ interface Props {
   updateBoxState : (box : BoxState) => void
   addBoxBefore : (box : BoxState) => void
   addBoxAfter : (box : BoxState) => void
+  hideTitle? : boolean
+  titleActionsHost? : React.RefObject<HTMLSpanElement>
 }
 
 interface State {
@@ -46,7 +48,7 @@ export default class BoxTitleBar extends Component<Props, State> {
   }
 
   render () : JSX.Element {
-    const { state, isActive, updateBoxState, removeBox, seatBox } : Props = this.props
+    const { state, isActive, updateBoxState, removeBox, seatBox, hideTitle, titleActionsHost } : Props = this.props
     const { type, title, minimized } = state
 
     const { shareLinkOpen } : State = this.state
@@ -58,25 +60,38 @@ export default class BoxTitleBar extends Component<Props, State> {
           seatBox()
         } }
       >
-        <div
-          className='topBarTitle'
-        >
-          <span
-                className='box-top-bar--title-text'
-                contentEditable={ ! state.readOnly }
-                suppressContentEditableWarning={true}
-                onClick={ (e) => {
-                  // NOTE: this is really ugly and dangerous quick fix
-                  // I am trying to fix a bug where for some reason markdown boxes, when clicked into title
-                  // it causes focus, then immidiately it loses focus
-                  // so now, when I click in the title, I won't make it active at all
-                  e.stopPropagation()
-                } }
-                onBlur={ (e) => updateBoxState({ ...state, title : e.target.textContent || "" })  }
-              >
-              { title }
-          </span>
-        </div>
+        {
+          hideTitle ?
+            null
+          :
+            <div
+              className='topBarTitle'
+            >
+              <span
+                    className='box-top-bar--title-text'
+                    contentEditable={ ! state.readOnly }
+                    suppressContentEditableWarning={true}
+                    onClick={ (e) => {
+                      // NOTE: this is really ugly and dangerous quick fix
+                      // I am trying to fix a bug where for some reason markdown boxes, when clicked into title
+                      // it causes focus, then immidiately it loses focus
+                      // so now, when I click in the title, I won't make it active at all
+                      e.stopPropagation()
+                    } }
+                    onBlur={ (e) => updateBoxState({ ...state, title : e.target.textContent || "" })  }
+                  >
+                  { title }
+              </span>
+            </div>
+        }
+        {
+          // Slot for box-type controls (Run/Step) portaled from below;
+          // display:contents keeps it footprint-free while empty.
+          titleActionsHost ?
+            <span className='boxTopBar-actions' ref={ titleActionsHost } />
+          :
+            null
+        }
 
         <div className='box-top-bar-custom'>
           {

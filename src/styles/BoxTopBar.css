@@ -12,6 +12,20 @@
   min-width: 0;
 }
 
+/* Slot for box-type controls portaled from below (Run/Step). Contents
+   layout keeps the slot itself footprint-free, even while empty. */
+.boxTopBar-actions {
+  display: contents;
+}
+
+.boxTopBar-actions .debug-controls {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0;
+  margin: 0;
+}
+
 .box-top-bar--title-text {
   max-width: 100%;
   display: inline-block;

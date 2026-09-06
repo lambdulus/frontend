@@ -1,32 +1,9 @@
-.box-eval-controls {
-  display: flex;
-  align-items: center;
-  min-height: 2.2em;
-  padding: 2px 0 10px;
-}
-
-.box-eval-controls:empty {
-  display: none;
-}
-
 .box-exercise-input {
   margin-top: 12px;
 }
 
-.box-eval-controls .debug-controls {
-  padding-left: 0;
-  margin-top: 0;
-}
-
-/* The exercise editor must fill the row; as a bare flex item monaco
-   collapses to zero width and the box looks empty. */
-.box-eval-controls .editorContainer {
-  flex: 1 1 auto;
-  min-width: 0;
-}
-
 .box-history-scroll {
-  max-height: 40vh;
+  max-height: calc(40vh + 4lh);
   overflow-y: auto;
   padding: 6px 10px 6px 0;
   scrollbar-width: thin;

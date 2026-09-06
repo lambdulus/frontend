@@ -2,7 +2,7 @@ import React, { MouseEvent, Component } from 'react'
 import { mapBoxTypeToStr } from '../Constants'
 import Box from './Box'
 import BoxTitleBar from './BoxTitleBar'
-import { BoxState } from '../Types'
+import { BoxState, BoxType } from '../Types'
 
 import "../styles/BoxContainer.css"
 import PickBoxTypeModal from './PickBoxTypeModal'
@@ -29,12 +29,14 @@ interface State {
 export class BoxContainer extends Component<Props, State> {
   private modalRef : React.RefObject<HTMLDivElement>
   private rootRef : React.RefObject<HTMLDivElement>
+  private titleActionsRef : React.RefObject<HTMLSpanElement>
 
   constructor (props: Props) {
     super(props)
 
     this.modalRef = React.createRef<HTMLDivElement>()
     this.rootRef = React.createRef<HTMLDivElement>()
+    this.titleActionsRef = React.createRef<HTMLSpanElement>()
     this.state = {
       modalOpen : false
     }
@@ -101,6 +103,8 @@ export class BoxContainer extends Component<Props, State> {
             state={ box }
             isActive={ isActiveBox }
             isFocused={ isFocusedBox }
+            hideTitle={ box.type === BoxType.UNTYPED_LAMBDA }
+            titleActionsHost={ box.type === BoxType.UNTYPED_LAMBDA ? this.titleActionsRef : undefined }
             seatBox={ seatBox }
             removeBox={ (e : MouseEvent) => {
               e.stopPropagation()
@@ -117,6 +121,7 @@ export class BoxContainer extends Component<Props, State> {
             isFocused={ isFocusedBox }
             updateBoxState={ updateBoxState }
             addBoxAfter={ addBoxAfter }
+            titleActionsHost={ box.type === BoxType.UNTYPED_LAMBDA ? this.titleActionsRef : undefined }
           />
         </div>
 

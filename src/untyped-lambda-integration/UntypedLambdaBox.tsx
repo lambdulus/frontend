@@ -18,11 +18,12 @@ interface Props {
 
   setBoxState (state : UntypedLambdaState) : void
   addBox (box : UntypedLambdaState) : void
+  titleActionsHost? : React.RefObject<HTMLSpanElement>
 }
 
 export default class UntypedLambdaBox extends PureComponent<Props> {
   render () {
-    const { state, isActive, isFocused, setBoxState, addBox } : Props = this.props
+    const { state, isActive, isFocused, setBoxState, addBox, titleActionsHost } : Props = this.props
     const { settingsOpen, subtype, macrolistOpen, SLI, expandStandalones, strategy, SDE, collapseOldSteps, editor, minimized } : UntypedLambdaState = state
 
 
@@ -60,6 +61,7 @@ export default class UntypedLambdaBox extends PureComponent<Props> {
               isFocused={ isFocused }
               setBoxState={ setBoxState }
               addBox={ addBox }
+              titleActionsHost={ titleActionsHost }
             />
           )
         
