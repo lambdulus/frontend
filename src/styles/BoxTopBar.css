@@ -1,6 +1,5 @@
-/* The bar is a distinct header strip, so a new box announces itself
-   in both scroll directions: surface fill, hairline border, and room
-   to breathe before the body starts. */
+/* The bar is distinct by color alone: solid theme accent, no border.
+   Everything riding on it drops to the accent ink. */
 .boxTopBar {
   width: 100%;
   min-height: 1em;
@@ -9,9 +8,48 @@
   gap: 12px;
   margin-bottom: 12px;
   padding: 6px 10px;
-  background-color: var(--surface);
-  border: 1px solid var(--border);
+  background-color: var(--accent);
+  border: none;
   border-radius: 8px;
+}
+
+.boxTopBar .box-top-bar--title-text,
+.boxTopBar .box-top-bar-custom,
+.boxTopBar .box-top-bar--controls-item {
+  color: var(--accent-ink);
+}
+
+.boxTopBar .box-top-bar-custom {
+  border-right-color: var(--accent-ink);
+}
+
+.boxTopBar .box-top-bar--title-text:hover,
+.boxTopBar .box-top-bar--title-text:focus {
+  border-bottom-color: var(--accent-ink);
+}
+
+.boxTopBar .box-top-bar--controls-item:hover {
+  background-color: rgba(0, 0, 0, .14);
+  color: var(--accent-ink);
+}
+
+.boxTopBar .debug-controls--run,
+.boxTopBar .debug-controls--step {
+  color: var(--accent-ink);
+  border-color: var(--accent-ink);
+}
+
+.boxTopBar .debug-controls--run:hover,
+.boxTopBar .debug-controls--step:hover {
+  background-color: var(--accent-ink);
+  color: var(--accent);
+  border-color: var(--accent-ink);
+}
+
+.boxTopBar .debug-controls--step:disabled {
+  color: var(--accent-ink);
+  background-color: transparent;
+  border-color: var(--accent-ink);
 }
 
 .topBarTitle {
