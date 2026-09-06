@@ -1,23 +1,10 @@
-/* The bar is a 2px accent outline - a touch thicker than the 1px
-   redex border - over the original transparent background; contents
-   keep their own colors. */
 .boxTopBar {
   width: 100%;
   min-height: 1em;
   display: flex;
   align-items: center;
   gap: 12px;
-  margin-bottom: 12px;
-  padding: 2px 10px;
-  background-color: transparent;
-  border: 2px solid var(--accent);
-  border-radius: 8px;
-}
-
-/* The portaled Run/Step pills slim to bar height. */
-.boxTopBar .debug-controls .btn {
-  padding: 2px 10px;
-  font-size: .8rem;
+  margin-bottom: 4px;
 }
 
 .topBarTitle {
