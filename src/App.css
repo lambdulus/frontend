@@ -310,13 +310,15 @@ body {
 }
 
 /* Paging arrows flanking the anchor line: the same move as the arrow
-   keys, sitting between the anchor and its neighbors with their left
-   edge on the anchor's accent bar. */
+   keys, sitting between the anchor and its neighbors, centered on
+   the map lines. */
 .box-map-arrow {
   display: block;
+  width: 100%;
   background: none;
   border: none;
   padding: 3px 0;
+  text-align: center;
   color: var(--muted);
   cursor: pointer;
   pointer-events: auto;
@@ -324,6 +326,26 @@ body {
 
 .box-map-arrow:hover {
   color: var(--accent);
+}
+
+/* Narrower screens leave the side-riding map no room: below the
+   width where the full 940px column and the 370px map still clear
+   each other (1832px), the column slims by 10% and the map halves,
+   so the two never overlap. (The half map at right:76 clears the
+   850px column exactly at 1372px, comfortably above.) The macro
+   popup's dock offset follows the slimmer column in the same block. */
+@media (max-width: 1831px) {
+  .mainSpace {
+    max-width: 810px;
+  }
+
+  .box-map {
+    width: 185px;
+  }
+
+  .macro-popup {
+    left: calc(-1 * max(22px, (100vw - 850px) / 2 + 22px));
+  }
 }
 
 /* The page itself never moves in zen: with the box hard-clamped this

@@ -1,17 +1,18 @@
 /* Macro popup: floats left of the box instead of pushing its content
-   down. Anchored to the box container's left edge (it is the nearest
-   positioned ancestor) and out of flow, so toggling never reflows the
-   box. The left offset keeps the card fully in view: a 300px card
-   with a 12px gap while the side room allows, sliding over the box
-   only as much as narrower screens require. (Side room left of the
-   box is half the viewport past the 940px column, plus the 14px rail
-   and 20px page padding, minus the 12px gap: (100vw - 940px)/2 +
-   22px, floored at the 22px of a full-width column.) */
+   down. Positioned from the box container (the nearest positioned
+   ancestor) but docked to the viewport's left margin, not to the box:
+   the offset reaches past the 940px column, the 14px rail and the 20px
+   page padding, stopping 12px short of the viewport edge (floored at
+   the 22px of a full-width column). Out of flow, so toggling never
+   reflows the box; on a wide screen it hugs the left edge with room
+   to spare, on narrower screens it slides over the box as far as it
+   must. (Below the slim-column breakpoint the offset follows the
+   850px column from the narrow-screen block in App.css.) */
 .macro-popup {
   position: absolute;
   top: 0;
-  left: calc(-1 * min(312px, max(22px, (100vw - 940px) / 2 + 22px)));
-  width: 300px;
+  left: calc(-1 * max(22px, (100vw - 940px) / 2 + 22px));
+  width: 420px;
   max-width: calc(100vw - 24px);
   max-height: 70vh;
   overflow-y: auto;

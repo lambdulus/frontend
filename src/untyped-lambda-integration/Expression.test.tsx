@@ -292,7 +292,8 @@ test('macros open in a left-docked popup', () => {
   expect(popup).toMatch(/box-shadow\s*:/);
   expect(popup).toMatch(/max-height\s*:\s*70vh/);
   expect(popup).toMatch(/overflow-y\s*:\s*auto/);
-  // ...docked fully left with room, sliding over the box only as
-  // much as narrower screens require.
-  expect(popup).toMatch(/left\s*:\s*calc\(-1 \* min\(312px/);
+  expect(popup).toMatch(/width\s*:\s*420px/);
+  // ...docked to the viewport's left margin (past the 940px column),
+  // sliding over the box only as much as narrower screens require.
+  expect(popup).toMatch(/left\s*:\s*calc\(-1 \* max\(22px, \(100vw - 940px\)/);
 });
