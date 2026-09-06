@@ -65,6 +65,51 @@ body {
   min-height: 100vh;
 }
 
+/* Fixed box-to-box navigator: a pair of large arrows riding the right
+   viewport edge, jumping to the previous/next box with full focus and
+   seating. Only shown where the 900px column leaves real side room. */
+.box-nav {
+  position: fixed;
+  right: 20px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: none;
+  flex-direction: column;
+  gap: 10px;
+  z-index: 60;
+}
+
+@media (min-width: 1150px) {
+  .box-nav {
+    display: flex;
+  }
+}
+
+.box-nav--btn {
+  width: 44px;
+  height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background-color: var(--surface);
+  color: var(--muted);
+  cursor: pointer;
+  box-shadow: var(--shadow);
+  transition: color .15s ease-in-out, border-color .15s ease-in-out, opacity .15s ease-in-out;
+}
+
+.box-nav--btn:hover:not(:disabled) {
+  color: var(--accent);
+  border-color: var(--accent);
+}
+
+.box-nav--btn:disabled {
+  opacity: 0.3;
+  cursor: default;
+}
+
 .notebook-title {
   font-size: 1.35em;
   font-weight: 600;
