@@ -91,6 +91,7 @@ export class BoxContainer extends Component<Props, State> {
             isFocused={ isFocusedBox }
             updateBoxState={ updateBoxState }
             addBoxAfter={ addBoxAfter }
+            seatBox={ seatBox }
           />
         </div>
 

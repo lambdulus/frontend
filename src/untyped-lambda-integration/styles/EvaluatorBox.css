@@ -86,9 +86,8 @@ li.activeStep,
   opacity: 1;
 }
 
-.history-gap-indicator > span {
-  font-size: 1.2em;
-  line-height: 1.2;
+.history-gap-indicator > svg {
+  display: block;
 }
 
 .hiddenIcon, .hiddenMacroIcon {
