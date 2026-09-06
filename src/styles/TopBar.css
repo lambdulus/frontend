@@ -162,9 +162,16 @@
 }
 
 /* Mirrored in light mode: the moon drops to the dark text ink on
-   hover, deliberately rather than via the generic action hover. */
+   hover, deliberately rather than via the generic action hover... */
 #app.light .top-bar--theme-toggle:hover {
   color: var(--text);
+}
+
+/* ...and fills solid, turning the outline crescent into a dark disc.
+   (The svg's fill="none" is a presentation attribute, so this rule
+   wins and the path inherits it.) */
+#app.light .top-bar--theme-toggle:hover svg {
+  fill: currentColor;
 }
 
 /* Zen mode is a real switch: the Focus knob slides across the track
