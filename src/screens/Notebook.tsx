@@ -225,9 +225,11 @@ export default class Notebook extends PureComponent<Props> {
 
     // Focusing a box seats its top just below the top bar, so the
     // expression occupies the view instead of lingering mid-page.
+    // 60 hugs the 52px bar with a breath to spare, leaving maximal
+    // room below for the pinned current step.
     const viewportHeight : number = window.innerHeight
     const top : number = el.getBoundingClientRect().top
-    const targetTop : number = 72
+    const targetTop : number = 60
 
     const targetScrollY : number = window.scrollY + top - targetTop
     if (Math.abs(targetScrollY - window.scrollY) < 2) {
