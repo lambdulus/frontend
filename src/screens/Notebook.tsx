@@ -280,6 +280,7 @@ export default class Notebook extends PureComponent<Props, State> {
                 box={ box}
                 isActiveBox={ activeBoxIndex === i}
                 isFocusedBox={ focusedBoxIndex === i }
+                zen={ zen }
                 seatBox={ () => this.ensureFocusRoom(i) }
                 addBoxBefore={ (box : BoxState) => this.insertBefore(i, box) }
                 addBoxAfter={ (box : BoxState) => this.insertAfter(i, box) }
@@ -530,10 +531,13 @@ export default class Notebook extends PureComponent<Props, State> {
       this.seatRequested = null
       this.ensureFocusRoom(index)
     }
-    // Entering zen collapses every other box out of the layout, so
-    // the anchor can land a few pixels off its seat: plant it exactly
-    // on entry, before any click has a reason to nudge it.
-    if (this.props.state.zenMode === true && prevProps.state.zenMode !== true) {
+    // A zen flip reflows the whole layout (entering collapses every
+    // other box out, leaving brings the title and siblings back), so
+    // the anchor can land a few pixels off its seat either way: plant
+    // it exactly on the flip, before any click has a reason to nudge
+    // it. This seat is the only scroll on the flip; the box pinning
+    // steps aside across it.
+    if (this.props.state.zenMode !== prevProps.state.zenMode) {
       const { focusedBoxIndex, activeBoxIndex } = this.props.state
       this.ensureFocusRoom(focusedBoxIndex ?? activeBoxIndex)
     }

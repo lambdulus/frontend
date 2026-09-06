@@ -11,6 +11,7 @@ import PickBoxTypeModal from './PickBoxTypeModal'
 interface Props {
   isActiveBox : boolean
   isFocusedBox : boolean
+  zen : boolean
   box : BoxState
 
   seatBox : () => void
@@ -46,6 +47,14 @@ export class BoxContainer extends Component<Props, State> {
     // Focus transitions own the page scroll (Notebook seats the newly
     // focused box), so only glue the viewport across plain resizes.
     if (prevProps.isFocusedBox !== this.props.isFocusedBox) {
+      return null
+    }
+    // A zen flip intentionally reflows the whole page (the title and
+    // the siblings step in or out): pinning across it would scroll
+    // the page, and the scroll-prime sync would re-derive focus from
+    // the mid-flip geometry, usually onto the last box. Notebook
+    // seats the anchor explicitly on the flip instead.
+    if (prevProps.zen !== this.props.zen) {
       return null
     }
 
