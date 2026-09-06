@@ -281,3 +281,18 @@ test('no indicator mounts when there is no history yet', () => {
   expect(container.querySelectorAll('.history-gap-indicator').length).toBe(0);
   expect(container.querySelector('.box-current-step .stepNumber')?.textContent).toMatch(/0 :/);
 });
+
+test('macros open in a left-docked popup', () => {
+  // Out of flow against the box's left edge (never reflows the box),
+  // a floating card with its own capped scroll...
+  const css = readFileSync('src/untyped-lambda-integration/styles/MacroList.css', 'utf8');
+  const popup = css.match(/\.macro-popup\s*\{[^}]*\}/)?.[0] ?? '';
+  expect(popup).toMatch(/position\s*:\s*absolute/);
+  expect(popup).toMatch(/background-color\s*:\s*var\(--surface\)/);
+  expect(popup).toMatch(/box-shadow\s*:/);
+  expect(popup).toMatch(/max-height\s*:\s*70vh/);
+  expect(popup).toMatch(/overflow-y\s*:\s*auto/);
+  // ...docked fully left with room, sliding over the box only as
+  // much as narrower screens require.
+  expect(popup).toMatch(/left\s*:\s*calc\(-1 \* min\(312px/);
+});
