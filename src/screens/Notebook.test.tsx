@@ -59,6 +59,13 @@ test('a box below the center does not steal focus', () => {
   ], 400)).toBe(0);
 });
 
+test('zen hides the grab rail', () => {
+  // One box, always focused: nothing to separate or grab, and the
+  // stretched rail would overshoot short histories into the clamp.
+  const css = readFileSync('src/App.css', 'utf8');
+  expect(css).toMatch(/\.mainSpace\.zen \.box-rail\s*\{[^}]*display\s*:\s*none/);
+});
+
 test('prime leads slightly below the center', () => {
   // The handover anticipates: at 65% of an 800px view the next box
   // takes focus while its top is still below the true center.

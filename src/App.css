@@ -157,6 +157,15 @@ body {
   display: none;
 }
 
+/* The grab rail separates and focuses boxes; zen shows a single box
+   that always owns the focus, so there is nothing to grab onto.
+   (It also cannot size to content here: the zen box is clamped to
+   the viewport, and the stretched rail would overshoot short
+   histories into the leftover space.) */
+.mainSpace.zen .box-rail {
+  display: none;
+}
+
 .mainSpace.zen .notebook-bottom-spacer {
   display: none;
 }
