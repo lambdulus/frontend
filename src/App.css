@@ -332,10 +332,13 @@ body.zen {
   margin: 0;
 }
 
-/* Invisible scroll potential, grown on demand so a focused box near the
-   end of the notebook can still be seated with room below it. */
+/* Permanent invisible scroll potential below the last box: a full
+   view minus the 60px seating offset, so every box (however small
+   the trailing ones are) can be seated at the top from first paint,
+   with no on-focus growing. Hidden in zen, where the single box
+   already owns the viewport. */
 .notebook-bottom-spacer {
-  height: 0;
+  height: calc(100vh - 60px);
 }
 
 .box {

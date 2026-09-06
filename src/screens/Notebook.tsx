@@ -71,7 +71,6 @@ interface State {
 
 export default class Notebook extends PureComponent<Props, State> {
   private boxRefs : Array<HTMLLIElement | null>
-  private spacerRef : React.RefObject<HTMLDivElement>
   private mapListRef : React.RefObject<HTMLDivElement>
   private seatRequested : number | null
   private primeRaf : number | null
@@ -80,7 +79,6 @@ export default class Notebook extends PureComponent<Props, State> {
     super(props)
 
     this.boxRefs = []
-    this.spacerRef = React.createRef<HTMLDivElement>()
     this.mapListRef = React.createRef<HTMLDivElement>()
     this.seatRequested = null
     this.primeRaf = null
@@ -292,7 +290,17 @@ export default class Notebook extends PureComponent<Props, State> {
             null
           }
         </ul>
-        <div className='notebook-bottom-spacer' ref={ this.spacerRef } />
+        {
+          // Permanent scroll potential below the last box: sized so any
+          // box can be seated at the top with room to spare, present
+          // from first paint so small trailing boxes seat the same on
+          // a fresh load as after a focus. Hidden in zen and omitted
+          // for an empty notebook, where it would only be dead scroll.
+          boxList.length === 0 ?
+            null
+          :
+            <div className='notebook-bottom-spacer' />
+        }
         {
           // Zen map: one line per box (initial terms, titles gone),
           // vertically centered, capped at 70% of the view, scrolling
@@ -459,8 +467,8 @@ export default class Notebook extends PureComponent<Props, State> {
   }
 
   // Seat the focused box just under the fixed bar so it occupies the
-  // view. When the document is too short for that, grow an invisible
-  // spacer at the bottom to create the missing scroll potential.
+  // view. The permanent bottom spacer holds enough scroll potential
+  // for any box to reach the seating position, so this only scrolls.
   ensureFocusRoom (index : number) : void {
     const el : HTMLLIElement | null | undefined = this.boxRefs[index]
     if (el === null || el === undefined) {
@@ -473,21 +481,12 @@ export default class Notebook extends PureComponent<Props, State> {
     // room below for the pinned current step. In zen the shown box
     // already starts at the page padding (76), so seating anywhere
     // else would only open the drift the clamp just closed.
-    const viewportHeight : number = window.innerHeight
     const top : number = el.getBoundingClientRect().top
     const targetTop : number = this.props.state.zenMode === true ? 76 : 60
 
     const targetScrollY : number = window.scrollY + top - targetTop
     if (Math.abs(targetScrollY - window.scrollY) < 2) {
       return
-    }
-
-    const maxScrollY : number = document.documentElement.scrollHeight - viewportHeight
-    if (targetScrollY > maxScrollY) {
-      const spacer : HTMLDivElement | null = this.spacerRef.current
-      if (spacer !== null) {
-        spacer.style.height = `${ Math.ceil(targetScrollY - maxScrollY) + 20 }px`
-      }
     }
 
     window.scrollTo({ top : targetScrollY, behavior : 'smooth' })

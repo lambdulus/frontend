@@ -32,6 +32,15 @@ test('prime box defaults to the first and ignores hidden boxes', () => {
   ], 100)).toBe(1);
 });
 
+test('bottom spacer permanently holds seating room', () => {
+  // Small trailing boxes must seat at the top from first paint, not
+  // only after a focus grows the spacer: a full view minus the 60px
+  // seating offset always leaves enough scroll potential.
+  const css = readFileSync('src/App.css', 'utf8');
+  const spacer = css.match(/^\.notebook-bottom-spacer\s*\{[^}]*\}/m)?.[0] ?? '';
+  expect(spacer).toMatch(/height\s*:\s*calc\(100vh - 60px\)/);
+});
+
 test('prime follows the box owning the view center', () => {
   // Barely scrolled up: the lower box still fills most of the view,
   // so it keeps the focus even though its top left the top bar area.
