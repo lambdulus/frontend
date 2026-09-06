@@ -121,6 +121,19 @@ test('zen arrow keys never nudge the page, even past the last box', () => {
   last.unmount();
 });
 
+test('zen single box fits the viewport with no page scroll', () => {
+  // Every vertical contributor outside the fitted box must be zeroed:
+  // the list margins, the row margin, and the box padding folded into
+  // the min-height, or the page drifts a little under a zen box.
+  const css = readFileSync('src/App.css', 'utf8');
+  const list = css.match(/\.mainSpace\.zen \.boxList\s*\{[^}]*\}/)?.[0] ?? '';
+  expect(list).toMatch(/margin-top\s*:\s*0/);
+  expect(list).toMatch(/margin-bottom\s*:\s*0/);
+  const row = css.match(/\.mainSpace\.zen \.boxList > \.LI\s*\{[^}]*\}/)?.[0] ?? '';
+  expect(row).toMatch(/margin-bottom\s*:\s*0/);
+  expect(css).toMatch(/\.mainSpace\.zen \.boxContainer\s*\{[^}]*min-height\s*:\s*calc\(100vh - 160px\)/);
+});
+
 test('zen box switches animate in', () => {
   const css = readFileSync('src/App.css', 'utf8');
   expect(css).toMatch(/\.LI\.zen-current\s*\{[^}]*animation\s*:/);

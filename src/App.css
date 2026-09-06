@@ -119,8 +119,16 @@ body {
   display: none;
 }
 
+/* The list's own margins would add page scroll on top of the fitted
+   box, so they go to zero: in zen the page must not move at all. */
+.mainSpace.zen .boxList {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
 .mainSpace.zen .boxList > .LI {
   display: none;
+  margin-bottom: 0;
 }
 
 .mainSpace.zen .boxList > .LI.zen-current {
@@ -153,8 +161,12 @@ body {
   display: none;
 }
 
+/* Floor the box at exactly the viewport: mainSpace padding (116) plus
+   the box's own content-box padding (44). With the list margins above
+   zeroed, a short box sums to precisely 100vh and the page cannot
+   scroll out from under it; a taller box still grows and scrolls. */
 .mainSpace.zen .boxContainer {
-  min-height: calc(100vh - 116px);
+  min-height: calc(100vh - 160px);
   border-bottom: none;
 }
 
