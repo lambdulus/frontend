@@ -316,6 +316,20 @@ body {
   font-size: 0.9em;
 }
 
+/* Zen add-box: the per-box + rows step out with the other box
+   furniture and the page never scrolls to them, so a floating New-box
+   button rides the bottom-right corner under the map. Bottom-anchored,
+   the type picker opens upward in place; inserting after the anchor
+   focuses the new box at once. */
+.zen-add {
+  position: fixed;
+  right: 76px;
+  bottom: 24px;
+  width: 320px;
+  max-width: calc(100vw - 48px);
+  z-index: 60;
+}
+
 /* Paging arrows flanking the anchor line: the same move as the arrow
    keys, sitting between the anchor and its neighbors, centered on
    the map lines. */
