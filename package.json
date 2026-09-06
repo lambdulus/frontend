@@ -45,5 +45,14 @@
   },
   "overrides": {
     "dompurify": "^3.4.14"
-  }
+  },
+  "description": "[![Staging deploy](https://github.com/lambdulus/frontend/actions/workflows/deploy-staging.yml/badge.svg?branch=develop)](https://github.com/lambdulus/frontend/actions/workflows/deploy-staging.yml) [![Production deploy](https://github.com/lambdulus/frontend/actions/workflows/deploy.yml/badge.svg?branch=master)](https://github.com/lambdulus/frontend/actions/workflows/deploy.yml) [![Staging site](https://github.com/lambdulus/staging/actions/workflows/deploy.yml/badge.svg)](https://github.com/lambdulus/staging/actions/workflows/deploy.yml) [![Production site](https://github.com/lambdulus/lambdulus.github.io/actions/workflows/handle-deploy.yml/badge.svg)](https://github.com/lambdulus/lambdulus.github.io/actions/workflows/handle-deploy.yml)",
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "git@github-legacy.com:lambdulus/frontend.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
 }

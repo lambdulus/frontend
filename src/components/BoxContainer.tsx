@@ -78,6 +78,8 @@ export class BoxContainer extends Component<Props, State> {
       if (el !== null) {
         const drift : number = el.getBoundingClientRect().top - snapshot
         if (Math.abs(drift) > 0.5) {
+          // TEMP-DEBUG: revert before merging.
+          console.log('[zen-debug] pin', { drift, from : window.scrollY })
           window.scrollBy({ top : drift, behavior : 'auto' })
         }
       }
