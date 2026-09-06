@@ -354,6 +354,19 @@ test('box map is a capped, fading, scrollable rail', () => {
   expect(list).toMatch(/pointer-events\s*:\s*none/);
   const arrow = css.match(/\.box-map-arrow\s*\{[^}]*\}/)?.[0] ?? '';
   expect(arrow).toMatch(/pointer-events\s*:\s*auto/);
+  // The paging arrows center on the map lines.
+  expect(arrow).toMatch(/text-align\s*:\s*center/);
+});
+
+test('narrow screens slim the column and halve the map', () => {
+  // Below the width where the full column and map still clear each
+  // other, both shrink so the map never overlaps the box; the macro
+  // popup's dock offset follows the slimmer column.
+  const css = readFileSync('src/App.css', 'utf8');
+  const media = css.match(/@media[^{]*max-width\s*:\s*1831px[\s\S]*$/)?.[0] ?? '';
+  expect(media).toMatch(/\.mainSpace\s*\{[^}]*max-width\s*:\s*810px/);
+  expect(media).toMatch(/\.box-map\s*\{[^}]*width\s*:\s*185px/);
+  expect(media).toMatch(/\.macro-popup\s*\{[^}]*\(100vw - 850px\)/);
 });
 
 test('box map shows in normal mode too', () => {
