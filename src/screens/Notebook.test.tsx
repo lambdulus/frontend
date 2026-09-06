@@ -296,6 +296,32 @@ test('zen arrow keys stay put outside zen mode', () => {
   expect(updateNotebook).not.toHaveBeenCalled();
 });
 
+test('every box has a grab rail; clicking it focuses the box', () => {
+  const state : NotebookState = {
+    name : 'Test',
+    boxList : [ noteBox('first', 'a'), noteBox('second', 'b') ],
+    activeBoxIndex : 0,
+    focusedBoxIndex : 0,
+    menuOpen : false,
+    settings : {},
+    __key : 'nb',
+  };
+  const updateNotebook = vi.fn();
+  const { container, unmount } = render(<Notebook state={ state } updateNotebook={ updateNotebook } />);
+  try {
+    const rails = container.querySelectorAll('.box-rail');
+    expect(rails.length).toBe(2);
+    expect(rails[0].classList.contains('box-rail--focused')).toBe(true);
+    expect(rails[1].classList.contains('box-rail--focused')).toBe(false);
+
+    fireEvent.click(rails[1]);
+    expect(updateNotebook).toHaveBeenCalledWith(expect.objectContaining({ activeBoxIndex : 1, focusedBoxIndex : 1 }));
+  }
+  finally {
+    unmount();
+  }
+});
+
 test('scrollable history sits back slightly, focused step comes forward', () => {
   const css = readFileSync('src/untyped-lambda-integration/styles/EvaluatorBox.css', 'utf8');
   const block = css.match(/\.box-history-scroll \.inactiveStep\s*\{[^}]*\}/)?.[0] ?? '';

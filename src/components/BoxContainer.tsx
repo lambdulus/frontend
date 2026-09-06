@@ -94,35 +94,47 @@ export class BoxContainer extends Component<Props, State> {
   
     return (
       <div ref={ this.rootRef }>
-        <div
-          className={ `boxContainer ${ isActiveBox ? 'active' : 'inactive' } ${boxTypeClassName}` }
-          onClick={ makeActive }
-          onBlur={ onBlur }
-        >
-          <BoxTitleBar
-            state={ box }
-            isActive={ isActiveBox }
-            isFocused={ isFocusedBox }
-            hideTitle={ box.type === BoxType.UNTYPED_LAMBDA }
-            titleActionsHost={ box.type === BoxType.UNTYPED_LAMBDA ? this.titleActionsRef : undefined }
-            seatBox={ seatBox }
-            removeBox={ (e : MouseEvent) => {
+        <div className="box-frame">
+          <div
+            className={ `box-rail ${ isFocusedBox ? 'box-rail--focused' : '' }` }
+            title="Focus this box"
+            onClick={ (e : MouseEvent) => {
+              // Same as clicking the box itself, but the rail holds no
+              // controls, so the click can never misfire into one.
               e.stopPropagation()
-              removeBox()
+              makeActive()
             } }
-            updateBoxState={ updateBoxState }
-            addBoxBefore={ addBoxBefore }
-            addBoxAfter={ addBoxAfter }
           />
-          
-          <Box
-            state={ box }
-            isActive={ isActiveBox }
-            isFocused={ isFocusedBox }
-            updateBoxState={ updateBoxState }
-            addBoxAfter={ addBoxAfter }
-            titleActionsHost={ box.type === BoxType.UNTYPED_LAMBDA ? this.titleActionsRef : undefined }
-          />
+          <div
+            className={ `boxContainer ${ isActiveBox ? 'active' : 'inactive' } ${boxTypeClassName}` }
+            onClick={ makeActive }
+            onBlur={ onBlur }
+          >
+            <BoxTitleBar
+              state={ box }
+              isActive={ isActiveBox }
+              isFocused={ isFocusedBox }
+              hideTitle={ box.type === BoxType.UNTYPED_LAMBDA }
+              titleActionsHost={ box.type === BoxType.UNTYPED_LAMBDA ? this.titleActionsRef : undefined }
+              seatBox={ seatBox }
+              removeBox={ (e : MouseEvent) => {
+                e.stopPropagation()
+                removeBox()
+              } }
+              updateBoxState={ updateBoxState }
+              addBoxBefore={ addBoxBefore }
+              addBoxAfter={ addBoxAfter }
+            />
+
+            <Box
+              state={ box }
+              isActive={ isActiveBox }
+              isFocused={ isFocusedBox }
+              updateBoxState={ updateBoxState }
+              addBoxAfter={ addBoxAfter }
+              titleActionsHost={ box.type === BoxType.UNTYPED_LAMBDA ? this.titleActionsRef : undefined }
+            />
+          </div>
         </div>
 
         {
