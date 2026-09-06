@@ -116,21 +116,26 @@ export default class ExpressionBox extends PureComponent<EvaluationProperties> {
 
   // Run/Step live in the box title bar now, portaled into its slot so
   // this component keeps owning the evaluation callbacks. Same mount
-  // conditions as the old controls row below the editor.
+  // conditions as the old controls row below the editor. The slot
+  // stays mounted while inactive, merely unseeing: popping the buttons
+  // in on activation would grow the title bar and shove the box
+  // content down a few pixels after every first click.
   renderTitleActions (isNormalForm : boolean) : JSX.Element | null {
     const { state, isActive, titleActionsHost } = this.props
     const host : HTMLSpanElement | null = titleActionsHost?.current ?? null
 
-    if (host === null || isNormalForm || ! isActive) {
+    if (host === null || isNormalForm) {
       return null
     }
 
     return createPortal(
-      <DebugControls
-        isRunning={ state.isRunning }
-        onStep={ this.onStep }
-        onRun={ this.onExecute }
-      />,
+      <span className={ isActive ? undefined : 'box-top-bar-actions--standby' } aria-hidden={ isActive ? undefined : true }>
+        <DebugControls
+          isRunning={ state.isRunning }
+          onStep={ this.onStep }
+          onRun={ this.onExecute }
+        />
+      </span>,
       host
     )
   }
