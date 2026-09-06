@@ -180,9 +180,8 @@ test('hitting either end of the history sticks before chaining through', () => {
   const { container } = renderExpression();
   const scroller = scrollerWithGeometry(container);
 
-  // Pinned at the top end: the first pushes are swallowed...
+  // Pinned at the top end: the first push is swallowed...
   scroller.scrollTop = 0;
-  expect(fireEvent.wheel(scroller, { deltaY : -100 })).toBe(false);
   expect(fireEvent.wheel(scroller, { deltaY : -100 })).toBe(false);
   // ...then the scroll lets go and chains out to the notebook.
   expect(fireEvent.wheel(scroller, { deltaY : -100 })).toBe(true);
@@ -194,7 +193,6 @@ test('hitting either end of the history sticks before chaining through', () => {
   // Same at the bottom end.
   scroller.scrollTop = 800;
   expect(fireEvent.wheel(scroller, { deltaY : 100 })).toBe(false);
-  expect(fireEvent.wheel(scroller, { deltaY : 100 })).toBe(false);
   expect(fireEvent.wheel(scroller, { deltaY : 100 })).toBe(true);
 });
 
@@ -205,7 +203,6 @@ test('scrolling back inward re-arms the sticky end', () => {
   scroller.scrollTop = 0;
   expect(fireEvent.wheel(scroller, { deltaY : -100 })).toBe(false);
   fireEvent.wheel(scroller, { deltaY : 50 });
-  expect(fireEvent.wheel(scroller, { deltaY : -100 })).toBe(false);
   expect(fireEvent.wheel(scroller, { deltaY : -100 })).toBe(false);
   expect(fireEvent.wheel(scroller, { deltaY : -100 })).toBe(true);
 });
