@@ -26,65 +26,64 @@
   z-index: 50;
 }
 
-/* Popup density: tighter headers and list indent than the page flow,
-   and long definitions wrap instead of blowing out the card. */
-.macro-popup p {
-  margin: 0 0 8px;
+/* Macro table: a clean definition list. One row per macro, with the
+   name and := pinned in place and the body wrapping beside them at
+   roomy leading, so long definitions never touch. No row rules at
+   all; spacing and a hover wash separate the lines. */
+.macro-group-title {
+  margin: 0 0 6px;
+  font-size: 0.78em;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--muted);
 }
 
-.macro-popup .UL {
-  padding-left: 20px;
+.macroSpace .macro-list {
+  list-style: none;
+  margin: 0 0 14px;
+  padding: 0;
 }
 
-.macro-popup .dense-LI {
-  margin: 6px;
+.macroSpace .macro-list:last-child {
+  margin-bottom: 0;
 }
 
-.macro-popup .macro-definition {
-  overflow-wrap: break-word;
+.macro-row {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  padding: 5px 8px;
+  border-radius: 6px;
+  line-height: 1.5;
 }
 
-.builtinMacros, .userMacros {
-  /* flex: 50%; */
-}
-
-.macroSpace {
-  /* display: inline-flex; */
-}
-
-.macro-definition {
-  padding: 10px;
-  border-bottom: 1px solid var(--border);
+.macro-row:hover {
+  background-color: var(--raised);
 }
 
 .macro-name {
-  color: var(--accent);
-  padding-right: 5px;
+  flex: 0 0 auto;
+  min-width: 72px;
+  text-align: right;
   font-weight: 700;
+  color: var(--accent);
+  overflow-wrap: anywhere;
 }
 
-
-.dense-LI {
-  /* margin-bottom: 2px; */
-  margin: 10px;
-  display: inline-block;
-  margin-bottom: 15px;
-
+.macro-assign {
+  flex: 0 0 auto;
+  color: var(--muted);
 }
 
-
-.boxMacro {
-  /* border-left: 5px solid rgb(11, 92, 184); */
+.macro-body {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow-wrap: break-word;
 }
 
-.builtinMacros .boxMacro {
-  /* border-left: 5px solid darkgoldenrod; */
-  /* padding-top: 3px; */
-  /* padding-bottom: 3px; */
-}
-
-.userMacros .boxMacro {
-  /* border-left: 5px solid rgb(11, 92, 184);
-  padding-top: 3px;
-  padding-bottom: 3px; */
+.macro-empty {
+  margin: 0 0 14px;
+  color: var(--muted);
+  font-size: 0.9em;
 }
