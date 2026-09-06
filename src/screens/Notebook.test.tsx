@@ -366,7 +366,7 @@ test('narrow screens slim the column and halve the map', () => {
   const media = css.match(/@media[^{]*max-width\s*:\s*1831px[\s\S]*$/)?.[0] ?? '';
   expect(media).toMatch(/\.mainSpace\s*\{[^}]*max-width\s*:\s*810px/);
   expect(media).toMatch(/\.box-map\s*\{[^}]*width\s*:\s*185px/);
-  expect(media).toMatch(/\.macro-popup\s*\{[^}]*\(100vw - 850px\)/);
+  expect(media).toMatch(/\.macro-dock\s*\{[^}]*\(100vw - 850px\)/);
 });
 
 test('box map shows in normal mode too', () => {

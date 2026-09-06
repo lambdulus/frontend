@@ -1,7 +1,6 @@
 import React, { Component, MouseEvent } from 'react'
 import { Check, Link2, Maximize2, Minimize2, Pencil, Settings, Trash2 } from 'lucide-react'
 import { BoxType, BoxState } from '../Types'
-import UntypedLambdaBTB from '../untyped-lambda-integration/BoxTopBar'
 import { UntypedLambdaState } from '../untyped-lambda-integration/Types'
 
 import MarkdownBTB from '../markdown-integration/BoxTopBar'
@@ -85,24 +84,9 @@ export default class BoxTitleBar extends Component<Props, State> {
             </div>
         }
         {
-          // The macro popup docks to the box's left, so its toggle
-          // lives on the left with the other box-type controls, not
-          // with the right-side box furniture.
-          type === BoxType.UNTYPED_LAMBDA ?
-            <div className='box-top-bar-custom box-top-bar-custom--left'>
-              <UntypedLambdaBTB
-                state={ state as UntypedLambdaState }
-                isActive={ isActive }
-                removeBox={ removeBox }
-                updateBoxState={ updateBoxState }
-              />
-            </div>
-          :
-            null
-        }
-        {
-          // Slot for box-type controls (Run/Step) portaled from below;
-          // display:contents keeps it footprint-free while empty.
+          // The macro dock owns its toggle now; the title bar keeps
+          // only the portaled Run/Step slot and the right-side box
+          // furniture.
           titleActionsHost ?
             <span className='boxTopBar-actions' ref={ titleActionsHost } />
           :

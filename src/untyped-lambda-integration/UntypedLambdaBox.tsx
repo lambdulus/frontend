@@ -1,4 +1,5 @@
 import React, { PureComponent } from 'react'
+import { ChevronDown, ChevronUp } from 'lucide-react'
 
 import { BoxType } from '../Types'
 import { UntypedLambdaState, UntypedLambdaType, UntypedLambdaSettings, PromptPlaceholder, StepMessage, StepValidity } from './Types'
@@ -100,12 +101,39 @@ export default class UntypedLambdaBox extends PureComponent<Props> {
             null
         }
         {
-          macrolistOpen ?
-            <div className='macro-popup'>
-              <MacroList macroTable={ state.macrotable }  />
-            </div>
-          :
-            null
+          // Macro dock: a persistent pill in the empty space left of the
+          // box that unfolds into a three-part panel - header, scrolling
+          // middle, and a footer collapse arrow pinned below the list.
+          <div className={ `macro-dock${ macrolistOpen ? ' macro-dock--open' : '' }` }>
+            <button
+              className='macro-dock--head'
+              onClick={ () => setBoxState({ ...state, macrolistOpen : ! macrolistOpen }) }
+              title={ macrolistOpen ? 'Hide macros for this box' : 'Show macros for this box' }
+              aria-expanded={ macrolistOpen }
+            >
+              <span className='macro-dock--title'>Macros</span>
+              { macrolistOpen ? <ChevronUp size={ 14 } strokeWidth={ 2 } /> : <ChevronDown size={ 14 } strokeWidth={ 2 } /> }
+            </button>
+            { macrolistOpen ?
+              <div className='macro-dock--body'>
+                <MacroList macroTable={ state.macrotable }  />
+              </div>
+            :
+              null
+            }
+            { macrolistOpen ?
+              <button
+                className='macro-dock--foot'
+                onClick={ () => setBoxState({ ...state, macrolistOpen : false }) }
+                title='Hide macros for this box'
+                aria-label='Hide macros for this box'
+              >
+                <ChevronUp size={ 14 } strokeWidth={ 2 } />
+              </button>
+            :
+              null
+            }
+          </div>
         }
 
         <div className='untypedLambdaBoxContent'>

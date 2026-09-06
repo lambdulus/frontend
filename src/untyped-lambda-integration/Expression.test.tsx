@@ -282,20 +282,21 @@ test('no indicator mounts when there is no history yet', () => {
   expect(container.querySelector('.box-current-step .stepNumber')?.textContent).toMatch(/0 :/);
 });
 
-test('macros open in a left-docked popup', () => {
-  // Out of flow against the box's left edge (never reflows the box),
-  // a floating card spanning the full box height, flush top and
-  // bottom, with longer macro lists scrolling inside...
+test('macros dock as a pill unfolding into a three-part panel', () => {
   const css = readFileSync('src/untyped-lambda-integration/styles/MacroList.css', 'utf8');
-  const popup = css.match(/\.macro-popup\s*\{[^}]*\}/)?.[0] ?? '';
-  expect(popup).toMatch(/position\s*:\s*absolute/);
-  expect(popup).toMatch(/background-color\s*:\s*var\(--surface\)/);
-  expect(popup).toMatch(/box-shadow\s*:/);
-  expect(popup).toMatch(/top\s*:\s*0/);
-  expect(popup).toMatch(/bottom\s*:\s*0/);
-  expect(popup).toMatch(/overflow-y\s*:\s*auto/);
-  expect(popup).toMatch(/width\s*:\s*420px/);
-  // ...docked to the viewport's left margin (past the 940px column),
-  // sliding over the box only as much as narrower screens require.
-  expect(popup).toMatch(/left\s*:\s*calc\(-1 \* max\(22px, \(100vw - 940px\)/);
+  // The dock rides the viewport's left margin (past the 940px
+  // column), out of flow so it never reflows the box...
+  const dock = css.match(/\.macro-dock\s*\{[^}]*\}/)?.[0] ?? '';
+  expect(dock).toMatch(/position\s*:\s*absolute/);
+  expect(dock).toMatch(/left\s*:\s*calc\(-1 \* max\(22px, \(100vw - 940px\)/);
+  expect(dock).toMatch(/width\s*:\s*420px/);
+  // ...opens into a full-height card...
+  const open = css.match(/\.macro-dock--open\s*\{[^}]*\}/)?.[0] ?? '';
+  expect(open).toMatch(/bottom\s*:\s*0/);
+  expect(open).toMatch(/background-color\s*:\s*var\(--surface\)/);
+  expect(open).toMatch(/box-shadow\s*:/);
+  // ...whose middle scrolls while the footer collapse stays put.
+  const body = css.match(/\.macro-dock--body\s*\{[^}]*\}/)?.[0] ?? '';
+  expect(body).toMatch(/overflow-y\s*:\s*auto/);
+  expect(css).toMatch(/\.macro-dock--foot\s*\{[^}]*border-top/);
 });

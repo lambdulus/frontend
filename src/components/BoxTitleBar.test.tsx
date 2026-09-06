@@ -19,17 +19,14 @@ function props (state : BoxState) {
   };
 }
 
-test('macro toggle lives on the left for lambda boxes', () => {
-  // The popup docks to the box's left, so the toggle sits with the
-  // left-side controls, ahead of the right-side box furniture.
+test('lambda title bar carries no macro toggle', () => {
+  // The macro dock owns its pill now; nothing toggle-like remains in
+  // the bar, left or right.
   const state = { type : BoxType.UNTYPED_LAMBDA, title : '', minimized : false } as unknown as BoxState;
   const { container } = render(<BoxTitleBar { ...props(state) } />);
 
-  const left = container.querySelector('.box-top-bar-custom--left') as HTMLElement;
-  const toggle = container.querySelector('[title="Show All Macros for This Box"]') as HTMLElement;
-  const controls = container.querySelector('.box-top-bar-controls') as HTMLElement;
-  expect(left.contains(toggle)).toBe(true);
-  expect(left.compareDocumentPosition(controls) & Node.DOCUMENT_POSITION_FOLLOWING).not.toBe(0);
+  expect(container.querySelector('.box-top-bar-custom--left')).toBeNull();
+  expect(container.querySelector('[title*="acro"]')).toBeNull();
 });
 
 test('markdown keeps its right-side custom group', () => {
