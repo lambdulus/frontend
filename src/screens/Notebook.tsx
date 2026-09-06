@@ -27,6 +27,11 @@ export interface BoxTop {
 // The last box (in order) reaching down past the line; hidden boxes
 // report no height and never win; with nothing past the line the
 // first box stays prime.
+
+// Scroll-prime stays quiet this long after a programmatic seat lands:
+// long enough for any smooth glide to arrive, short enough that plain
+// scrolling never feels frozen.
+const SEAT_SETTLE_MS : number = 600
 export function selectPrimeBox (boxes : Array<BoxTop>, line : number) : number {
   let prime : number = 0
   boxes.forEach((box : BoxTop, i : number) => {
@@ -73,6 +78,7 @@ export default class Notebook extends PureComponent<Props, State> {
   private boxRefs : Array<HTMLLIElement | null>
   private mapListRef : React.RefObject<HTMLDivElement>
   private seatRequested : number | null
+  private lastSeatAt : number
   private primeRaf : number | null
 
   constructor (props : Props) {
@@ -81,6 +87,7 @@ export default class Notebook extends PureComponent<Props, State> {
     this.boxRefs = []
     this.mapListRef = React.createRef<HTMLDivElement>()
     this.seatRequested = null
+    this.lastSeatAt = 0
     this.primeRaf = null
     this.state = { mapAtTop : true, mapAtBottom : true }
 
@@ -186,6 +193,12 @@ export default class Notebook extends PureComponent<Props, State> {
   syncAnchorToPrime () : void {
     const { boxList, focusedBoxIndex, activeBoxIndex, zenMode } = this.props.state
     if (zenMode === true || boxList.length === 0) {
+      return
+    }
+    // A programmatic seat glides past intermediate boxes on its way:
+    // letting scroll-prime read mid-flight would yank the focus back
+    // and forth, flickering the map. It resumes once the seat lands.
+    if (Date.now() - this.lastSeatAt < SEAT_SETTLE_MS) {
       return
     }
     const tops : Array<BoxTop> = boxList.map((_, i : number) => {
@@ -423,6 +436,7 @@ export default class Notebook extends PureComponent<Props, State> {
     boxListCopy.splice(index, 0, box)
 
     this.props.updateNotebook({ boxList : boxListCopy, activeBoxIndex : index, focusedBoxIndex : index })
+    this.seatRequested = index
   }
 
   insertAfter (index : number, box : BoxState) : void {
@@ -431,6 +445,7 @@ export default class Notebook extends PureComponent<Props, State> {
 
     boxList.splice(index + 1, 0, box)
     this.props.updateNotebook({ boxList : boxList, activeBoxIndex : index + 1, focusedBoxIndex : index + 1})
+    this.seatRequested = index + 1
   }
 
   removeBox (index : number) : void {
@@ -548,6 +563,7 @@ export default class Notebook extends PureComponent<Props, State> {
       return
     }
 
+    this.lastSeatAt = Date.now()
     window.scrollTo({ top : targetScrollY, behavior : 'smooth' })
   }
 

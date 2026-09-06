@@ -168,6 +168,10 @@ body {
   display: none;
 }
 
+.mainSpace.zen .box-frame::after {
+  display: none;
+}
+
 /* Collapsing the single zen box would only strand an empty clamped
    frame, so the toggle steps out with the other box furniture. */
 .mainSpace.zen .box-top-bar--collapse-toggle {

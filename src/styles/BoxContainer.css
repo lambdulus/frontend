@@ -1,12 +1,33 @@
-/* Grab rail: a full-height line down the left of every box, in the
-   same 2px language as the endpoint accent bars. A wide transparent
-   hit area around a thin visual, so it is easy to click without
-   thinking; the box content simply flows beside it. Idle it sits
-   back in the border tone; hover and the focused box light it in
+/* Box frame: an L of thin lines down the left and across the top of
+   every box, in the same 2px language as the endpoint accent bars,
+   joined by a rounded corner. One pseudo-element draws the whole L
+   so the joint is seamless; the rail beside it is a transparent hit
+   area, easy to click without thinking. Idle the L sits back in the
+   border tone; hovering the box and the focused box light it in
    accent. */
 .box-frame {
   display: flex;
   align-items: stretch;
+  position: relative;
+}
+
+.box-frame::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 6px;
+  right: 0;
+  border-top: 2px solid var(--border);
+  border-left: 2px solid var(--border);
+  border-top-left-radius: 8px;
+  pointer-events: none;
+  transition: border-color .15s ease-in-out;
+}
+
+.box-frame:hover::after,
+.box-frame--focused::after {
+  border-color: var(--accent);
 }
 
 .box-frame .boxContainer {
@@ -19,23 +40,6 @@
   width: 14px;
   position: relative;
   cursor: pointer;
-}
-
-.box-rail::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 6px;
-  width: 2px;
-  border-radius: 1px;
-  background-color: var(--border);
-  transition: background-color .15s ease-in-out;
-}
-
-.box-rail:hover::before,
-.box-rail--focused::before {
-  background-color: var(--accent);
 }
 
 .add_box_after {

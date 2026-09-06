@@ -1,4 +1,5 @@
 import { readFileSync } from 'fs';
+import { useState } from 'react';
 import { test, expect, vi, afterEach } from 'vitest';
 import { render, fireEvent, cleanup } from '@testing-library/react';
 import Notebook, { selectPrimeBox, zenStep, mapBoxLabel } from './Notebook';
@@ -64,6 +65,7 @@ test('zen hides the grab rail', () => {
   // stretched rail would overshoot short histories into the clamp.
   const css = readFileSync('src/App.css', 'utf8');
   expect(css).toMatch(/\.mainSpace\.zen \.box-rail\s*\{[^}]*display\s*:\s*none/);
+  expect(css).toMatch(/\.mainSpace\.zen \.box-frame::after\s*\{[^}]*display\s*:\s*none/);
 });
 
 test('zen hides the collapse toggle', () => {
@@ -513,14 +515,103 @@ test('every box has a grab rail; clicking it focuses the box', () => {
   try {
     const rails = container.querySelectorAll('.box-rail');
     expect(rails.length).toBe(2);
-    expect(rails[0].classList.contains('box-rail--focused')).toBe(true);
-    expect(rails[1].classList.contains('box-rail--focused')).toBe(false);
+    const frames = container.querySelectorAll('.box-frame');
+    expect(frames.length).toBe(2);
+    expect(frames[0].classList.contains('box-frame--focused')).toBe(true);
+    expect(frames[1].classList.contains('box-frame--focused')).toBe(false);
 
     fireEvent.click(rails[1]);
     expect(updateNotebook).toHaveBeenCalledWith(expect.objectContaining({ activeBoxIndex : 1, focusedBoxIndex : 1 }));
   }
   finally {
     unmount();
+  }
+});
+
+test('boxes wear a joined top-and-left frame', () => {
+  // One pseudo-element draws the whole L so the rounded joint is
+  // seamless; the rail beside it is only a click target.
+  const css = readFileSync('src/styles/BoxContainer.css', 'utf8');
+  const frame = css.match(/\.box-frame::after\s*\{[^}]*\}/)?.[0] ?? '';
+  expect(frame).toMatch(/border-top\s*:\s*2px solid/);
+  expect(frame).toMatch(/border-left\s*:\s*2px solid/);
+  expect(frame).toMatch(/border-top-left-radius/);
+  expect(frame).toMatch(/pointer-events\s*:\s*none/);
+  expect(css).toMatch(/\.box-frame--focused::after\s*\{[^}]*border-color\s*:\s*var\(--accent\)/);
+});
+
+// A live store for flows that span several updates (focus moves,
+// then scrolls): the mock-update tests above cannot see those.
+function NotebookHarness ({ initial } : { initial : NotebookState }) {
+  const [state, setState] = useState(initial);
+  return <Notebook state={ state } updateNotebook={ (patch) => setState((s) => ({ ...s, ...patch })) } />;
+}
+
+function threeNotes () : NotebookState {
+  return {
+    name : 'Test',
+    boxList : [ noteBox('first', 'a'), noteBox('second', 'b'), noteBox('third', 'c') ],
+    activeBoxIndex : 0,
+    focusedBoxIndex : 0,
+    menuOpen : false,
+    settings : {},
+    __key : 'nb',
+  };
+}
+
+test('scroll-prime holds still while a keyed seat is landing', async () => {
+  // Without the guard the accent would jump to the new box, fall
+  // back mid-glide as prime reads the old scroll position, then jump
+  // again on arrival. (jsdom measures every box top at 0, so an
+  // unguarded prime would always point at the last box.)
+  const originalScrollTo = window.scrollTo;
+  window.scrollTo = vi.fn();
+  const { container, unmount } = render(<NotebookHarness initial={ threeNotes() } />);
+  try {
+    fireEvent.click(container.querySelectorAll('.box-rail')[1]);
+    expect(container.querySelectorAll('.box-map-item--current').length).toBe(1);
+
+    fireEvent.scroll(window);
+    await new Promise((resolve) => setTimeout(resolve, 80));
+
+    const items = container.querySelectorAll('.box-map-item');
+    expect(items[1].classList.contains('box-map-item--current')).toBe(true);
+  }
+  finally {
+    unmount();
+    window.scrollTo = originalScrollTo;
+  }
+});
+
+test('adding a box seats it into view', () => {
+  const originalScrollTo = window.scrollTo;
+  const spy = vi.fn();
+  window.scrollTo = spy;
+  const { container, unmount } = render(<NotebookHarness initial={ {
+    name : 'Test',
+    boxList : [ noteBox('first', 'a') ],
+    activeBoxIndex : 0,
+    focusedBoxIndex : 0,
+    menuOpen : false,
+    settings : {},
+    __key : 'nb',
+  } } />);
+  try {
+    fireEvent.mouseDown(container.querySelector('.add_box_after') as HTMLElement);
+    const groups = container.querySelectorAll('.add-box--group');
+    expect(groups.length).toBe(2);
+
+    fireEvent.click(groups[0]);
+    const items = container.querySelectorAll('.box-map-item');
+    expect(items.length).toBe(2);
+    expect(items[1].classList.contains('box-map-item--current')).toBe(true);
+    // jsdom measures every box top at 0, so the 60px normal seat
+    // reads as a -60 scroll: what matters is that adding seats at all.
+    expect(spy).toHaveBeenCalledWith({ top : -60, behavior : 'smooth' });
+  }
+  finally {
+    unmount();
+    window.scrollTo = originalScrollTo;
   }
 });
 
