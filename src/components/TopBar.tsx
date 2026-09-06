@@ -168,11 +168,15 @@ export default function TopBar (props : Props) : JSX.Element {
           </button>
 
           <button
-            className={ notebook.zenMode === true ? 'top-bar--action top-bar--action--active' : 'top-bar--action' }
+            role='switch'
+            aria-checked={ notebook.zenMode === true }
+            className={ notebook.zenMode === true ? 'top-bar--zen top-bar--zen--on' : 'top-bar--zen' }
             title={ notebook.zenMode === true ? 'Exit zen mode: show all boxes' : 'Zen mode: one box at a time' }
             onClick={ () => onZenModeChange(notebook.zenMode !== true) }
           >
-            <Focus size={ 17 } strokeWidth={ 1.75 } />
+            <span className='top-bar--zen-knob'>
+              <Focus size={ 13 } strokeWidth={ 2 } />
+            </span>
           </button>
 
           <button
