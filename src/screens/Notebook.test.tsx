@@ -137,14 +137,17 @@ test('zen single box fits the viewport with no page scroll', () => {
 });
 
 test('zen box clamps to the viewport with history as the shrinker', () => {
-  // Fixed-height flex column down to the scroller; the bare wrappers
-  // go display:contents so the chain is unbroken, and every level
-  // carries min-height:0 so content cannot pry the box open.
+  // Fixed-height flex column down to the scroller, plain nested flex
+  // on the real wrappers; every level carries min-height:0 so content
+  // cannot pry the box open.
   const css = readFileSync('src/App.css', 'utf8');
   const container = css.match(/\.mainSpace\.zen \.boxContainer\s*\{[^}]*\}/)?.[0] ?? '';
   expect(container).toMatch(/display\s*:\s*flex/);
   expect(container).toMatch(/flex-direction\s*:\s*column/);
-  expect(css).toMatch(/\.mainSpace\.zen \.untypedLambdaBoxContent\s*\{[^}]*display\s*:\s*contents/);
+  const content = css.match(/\.mainSpace\.zen \.untypedLambdaBoxContent\s*\{[^}]*\}/)?.[0] ?? '';
+  expect(content).toMatch(/display\s*:\s*flex/);
+  expect(content).toMatch(/flex-direction\s*:\s*column/);
+  expect(content).toMatch(/min-height\s*:\s*0/);
   const scroller = css.match(/\.mainSpace\.zen \.box-history-scroll\s*\{[^}]*\}/)?.[0] ?? '';
   expect(scroller).toMatch(/flex\s*:\s*1 1 auto/);
   expect(scroller).toMatch(/min-height\s*:\s*0/);
