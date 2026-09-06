@@ -36,6 +36,7 @@ test('Run/Step portal into the title-bar slot when hosted', () => {
         state={ buildState() }
         isActive={ true }
         isFocused={ true }
+        isAnchorBox={ true }
         setBoxState={ () => void 0 }
         addBox={ () => void 0 }
         titleActionsHost={ hostRef }
@@ -61,6 +62,7 @@ test('inactive boxes keep the title actions mounted but unseeing', () => {
         state={ buildState() }
         isActive={ false }
         isFocused={ false }
+        isAnchorBox={ false }
         setBoxState={ () => void 0 }
         addBox={ () => void 0 }
         titleActionsHost={ hostRef }
@@ -78,12 +80,39 @@ test('inactive boxes keep the title actions mounted but unseeing', () => {
   expect(rule).toMatch(/visibility\s*:\s*hidden/);
 });
 
+test('title actions follow the anchor, not the click', () => {
+  // A top-bar focus primes the box without clicking it into active:
+  // the Run/Step buttons show anyway, on the same anchor the map and
+  // the card lift follow.
+  const hostRef = createRef<HTMLSpanElement>();
+  const { container } = render(
+    <div>
+      <span ref={ hostRef } />
+      <ExpressionBox
+        state={ buildState() }
+        isActive={ false }
+        isFocused={ true }
+        isAnchorBox={ true }
+        setBoxState={ () => void 0 }
+        addBox={ () => void 0 }
+        titleActionsHost={ hostRef }
+      />
+    </div>
+  );
+
+  const host = container.querySelector('span');
+  expect(host?.querySelector('.box-top-bar-actions--standby')).toBeNull();
+  expect(host?.querySelector('.debug-controls--run')).not.toBeNull();
+  expect(host?.querySelector('.debug-controls--step')).not.toBeNull();
+});
+
 test('no controls render without a host slot', () => {
   const { container } = render(
     <ExpressionBox
       state={ buildState() }
       isActive={ true }
       isFocused={ true }
+      isAnchorBox={ true }
       setBoxState={ () => void 0 }
       addBox={ () => void 0 }
     />
