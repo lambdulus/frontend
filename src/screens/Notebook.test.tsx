@@ -421,6 +421,36 @@ test('arrow keys page between boxes in normal mode too', () => {
   expect(updateNotebook).toHaveBeenCalledWith(expect.objectContaining({ activeBoxIndex : 1, focusedBoxIndex : 1 }));
 });
 
+test('entering zen seats the anchor on entry', () => {
+  // Entering zen collapses the other boxes out of the layout, which
+  // can land the anchor a few pixels off its seat: plant it exactly
+  // on entry so later clicks have nothing to nudge.
+  const base : NotebookState = {
+    name : 'Test',
+    boxList : [ noteBox('first', 'a'), noteBox('second', 'b') ],
+    activeBoxIndex : 0,
+    focusedBoxIndex : 0,
+    menuOpen : false,
+    settings : {},
+    __key : 'nb',
+  };
+  const originalScrollTo = window.scrollTo;
+  const spy = vi.fn();
+  window.scrollTo = spy;
+  const { rerender, unmount } = render(<Notebook state={ base } updateNotebook={ () => void 0 } />);
+  try {
+    spy.mockClear();
+    rerender(<Notebook state={ { ...base, zenMode : true } } updateNotebook={ () => void 0 } />);
+    // jsdom measures every box top at 0, so the 76px zen seat reads
+    // as a -76 scroll: what matters is that entry seats at all.
+    expect(spy).toHaveBeenCalledWith({ top : -76, behavior : 'smooth' });
+  }
+  finally {
+    unmount();
+    window.scrollTo = originalScrollTo;
+  }
+});
+
 test('every box has a grab rail; clicking it focuses the box', () => {
   const state : NotebookState = {
     name : 'Test',
