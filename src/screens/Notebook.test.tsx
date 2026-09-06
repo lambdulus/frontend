@@ -32,6 +32,24 @@ test('prime box defaults to the first and ignores hidden boxes', () => {
   ], 100)).toBe(1);
 });
 
+test('prime follows the box owning the view center', () => {
+  // Barely scrolled up: the lower box still fills most of the view,
+  // so it keeps the focus even though its top left the top bar area.
+  expect(selectPrimeBox([
+    { top : -600, height : 500 },
+    { top : 150, height : 900 },
+  ], 400)).toBe(1);
+});
+
+test('a box below the center does not steal focus', () => {
+  // Scrolling down: the next box owns only the bottom of the view
+  // until its top bar crosses the center, so focus stays above.
+  expect(selectPrimeBox([
+    { top : -100, height : 400 },
+    { top : 450, height : 900 },
+  ], 400)).toBe(0);
+});
+
 test('zen paging steps within range and stops at the ends', () => {
   expect(zenStep(0, 3, 1)).toBe(1);
   expect(zenStep(1, 3, -1)).toBe(0);
