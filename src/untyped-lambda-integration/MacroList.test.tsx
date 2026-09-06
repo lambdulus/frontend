@@ -13,7 +13,8 @@ test('macro table renders one clean row per macro', () => {
   expect(rows.length).toBeGreaterThan(1);
   const names = Array.from(container.querySelectorAll('.macro-name')).map((el) => el.textContent);
   expect(names).toContain('LONGNAME');
-  expect(container.querySelector('.macro-row .macro-body')?.textContent).toContain('λf.');
+  const lastBody = rows[rows.length - 1].querySelector('.macro-body')?.textContent ?? '';
+  expect(lastBody).toContain('(λx.f (x x))');
 
   // ...and none of the underline-era markup remains.
   expect(container.querySelectorAll('.macro-definition').length).toBe(0);
