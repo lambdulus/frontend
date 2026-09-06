@@ -5,8 +5,8 @@
   overflow-wrap: break-word;
   /* Room for the inline highlight boxes: with the default tight leading
      their padding and borders paint into the neighboring wrapped lines.
-     1.5 clears the tallest of them (3px below) with air to spare. */
-  line-height: 1.5;
+     1.75 clears the tallest of them on any system font, with air. */
+  line-height: 1.75;
 }
 
 .left.redex {
