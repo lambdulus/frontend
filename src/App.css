@@ -128,6 +128,13 @@ body {
 
 .mainSpace.zen .boxList > .LI.zen-current {
   display: block;
+}
+
+/* The arrival slides the box frame, never the row: the row top is
+   what seating measures, so animating it would plant every zen
+   switch a few pixels off and the next click would visibly correct
+   the leftover. */
+.mainSpace.zen .boxList > .LI.zen-current .box-frame {
   animation: zen-arrive .18s ease-out;
 }
 
@@ -143,7 +150,7 @@ body {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .mainSpace.zen .boxList > .LI.zen-current {
+  .mainSpace.zen .boxList > .LI.zen-current .box-frame {
     animation: none;
   }
 }

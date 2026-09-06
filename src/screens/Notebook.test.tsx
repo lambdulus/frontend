@@ -399,8 +399,13 @@ test('floating box arrows stay hidden', () => {
 });
 
 test('zen box switches animate in', () => {
+  // The arrival slides the inner frame, never the row: the row top
+  // is what seating measures, and animating it would plant every
+  // switch a few pixels off its seat.
   const css = readFileSync('src/App.css', 'utf8');
-  expect(css).toMatch(/\.LI\.zen-current\s*\{[^}]*animation\s*:/);
+  const row = css.match(/\.LI\.zen-current\s*\{[^}]*\}/)?.[0] ?? '';
+  expect(row).not.toMatch(/animation/);
+  expect(css).toMatch(/\.LI\.zen-current \.box-frame\s*\{[^}]*animation\s*:/);
   expect(css).toMatch(/@keyframes\s+zen-arrive/);
 });
 
