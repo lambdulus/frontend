@@ -14,19 +14,17 @@ interface Props {
 }
 
 // The prime line sits a little below the vertical center of the view
-// (65% down): the last box (in order) whose top bar sits above it
-// owns the side arrows, whether it got there by click or by plain
-// scrolling. The lead below center anticipates the handover: scrolling
-// down switches while the next box is still closing in, and scrolling
-// up holds the lower box until the one above truly takes over.
+// (65% down): the box owning the most of the view above it owns the
+// side arrows, whether it got there by click or by plain scrolling.
+// Measuring shares instead of tops keeps the handover honest: a short
+// next box no longer steals focus while the current one still fills
+// the upper view; it takes over only once it actually displaces it.
+// Ties stay with the upper box. Hidden boxes report no height and
+// never win; with nothing in the upper view the last box stays prime
+// past the end and the first before the start.
 export interface BoxTop {
   top : number
-  height : number
-}
-
-// The last box (in order) reaching down past the line; hidden boxes
-// report no height and never win; with nothing past the line the
-// first box stays prime.
+  height : number }
 
 // Scroll-prime stays quiet this long after a programmatic seat lands:
 // long enough for any smooth glide to arrive, short enough that plain
@@ -37,11 +35,18 @@ const SEAT_SETTLE_MS : number = 600
 const SCROLL_END_MS : number = 150
 export function selectPrimeBox (boxes : Array<BoxTop>, line : number) : number {
   let prime : number = 0
+  let best : number = 0
   boxes.forEach((box : BoxTop, i : number) => {
-    if (box.height > 0 && box.top <= line) {
+    const share : number = Math.max(0, Math.min(box.top + box.height, line) - Math.max(box.top, 0))
+    if (share > best) {
+      best = share
       prime = i
     }
   })
+  if (best === 0 && boxes.length > 0) {
+    const last : BoxTop = boxes[boxes.length - 1]
+    prime = last.top + last.height <= 0 ? boxes.length - 1 : 0
+  }
   return prime
 }
 
@@ -185,7 +190,8 @@ export default class Notebook extends PureComponent<Props, State> {
   }
 
   // Plain scrolling moves the prime view, so the side arrows follow
-  // it: whichever box straddles the prime line becomes their anchor.
+  // it: whichever box owns the most of the upper view becomes their
+  // anchor.
   // Throttled to one measure per frame, and only ever re-renders on
   // an actual anchor change. A trailing sync fires once motion stops:
   // a long seat-glide can outlast the settle guard, letting a tail
