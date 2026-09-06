@@ -125,6 +125,24 @@ body {
 
 .mainSpace.zen .boxList > .LI.zen-current {
   display: block;
+  animation: zen-arrive .18s ease-out;
+}
+
+@keyframes zen-arrive {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mainSpace.zen .boxList > .LI.zen-current {
+    animation: none;
+  }
 }
 
 .mainSpace.zen .add_box_after {

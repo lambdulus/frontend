@@ -105,11 +105,13 @@ export default class Notebook extends PureComponent<Props> {
     }
 
     const next : number | null = zenStep(focusedBoxIndex ?? activeBoxIndex, boxList.length, e.key === 'ArrowDown' ? 1 : -1)
-    if (next === null) {
-      return
-    }
+    // In zen the arrows belong to paging (and to the history pane and
+    // the editors, handled above): never let them nudge the page
+    // itself, not even past the first or last box.
     e.preventDefault()
-    this.makeActive(next)
+    if (next !== null) {
+      this.makeActive(next)
+    }
   }
 
   // Plain scrolling moves the prime view, so the side arrows follow

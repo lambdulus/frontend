@@ -108,6 +108,25 @@ test('zen arrow keys stay put while typing in an editor', () => {
   }
 });
 
+test('zen arrow keys never nudge the page, even past the last box', () => {
+  const patches : Array<Partial<NotebookState>> = [];
+  const first = renderZenNotebook((patch) => { patches.push(patch); }, 0);
+  expect(fireEvent.keyDown(document, { key : 'ArrowUp' })).toBe(false);
+  expect(patches.length).toBe(0);
+  first.unmount();
+
+  const last = renderZenNotebook((patch) => { patches.push(patch); }, 1);
+  expect(fireEvent.keyDown(document, { key : 'ArrowDown' })).toBe(false);
+  expect(patches.length).toBe(0);
+  last.unmount();
+});
+
+test('zen box switches animate in', () => {
+  const css = readFileSync('src/App.css', 'utf8');
+  expect(css).toMatch(/\.LI\.zen-current\s*\{[^}]*animation\s*:/);
+  expect(css).toMatch(/@keyframes\s+zen-arrive/);
+});
+
 test('zen arrow keys stay put outside zen mode', () => {
   const state : NotebookState = {
     name : 'Test',
