@@ -1,7 +1,7 @@
 import { readFileSync } from 'fs';
 import { test, expect, vi, afterEach } from 'vitest';
 import { render, fireEvent, cleanup } from '@testing-library/react';
-import Notebook, { selectPrimeBox, zenStep } from './Notebook';
+import Notebook, { selectPrimeBox, zenStep, zenBoxLabel } from './Notebook';
 import { BoxType, NotebookState } from '../Types';
 import { NoteState } from '../markdown-integration/AppTypes';
 import { tokenize, parse, None } from '@lambdulus/core';
@@ -226,6 +226,51 @@ test('zen lambda box exposes the flex clamp hooks', () => {
   finally {
     unmount();
   }
+});
+
+test('zen map labels boxes by their initial term', () => {
+  const lambda = {
+    type : BoxType.UNTYPED_LAMBDA,
+    title : '',
+    history : [{ ast : { toString : () => '(λx.x) y' } }],
+  } as unknown as UntypedLambdaState;
+  expect(zenBoxLabel(lambda)).toBe('(λx.x) y');
+
+  const fresh = {
+    type : BoxType.UNTYPED_LAMBDA,
+    title : 'Fresh',
+    history : [],
+  } as unknown as UntypedLambdaState;
+  expect(zenBoxLabel(fresh)).toBe('Fresh');
+
+  expect(zenBoxLabel(noteBox('hello', 'x'))).toBe('Note');
+});
+
+test('zen map lists every box, marks the anchor, jumps on click', () => {
+  const patches : Array<Partial<NotebookState>> = [];
+  const { container, unmount } = renderZenNotebook((patch) => { patches.push(patch); });
+  try {
+    const items = container.querySelectorAll('.zen-map-item');
+    expect(items.length).toBe(2);
+    expect(container.querySelectorAll('.zen-map-item--current').length).toBe(1);
+    expect(items[0].classList.contains('zen-map-item--current')).toBe(true);
+
+    fireEvent.click(items[1]);
+    expect(patches.some((patch) => patch.activeBoxIndex === 1 && patch.focusedBoxIndex === 1)).toBe(true);
+  }
+  finally {
+    unmount();
+  }
+});
+
+test('zen map is a capped, fading, scrollable rail', () => {
+  const css = readFileSync('src/App.css', 'utf8');
+  const list = css.match(/\.zen-map-list\s*\{[^}]*\}/)?.[0] ?? '';
+  expect(list).toMatch(/max-height\s*:\s*70vh/);
+  expect(list).toMatch(/overflow-y\s*:\s*auto/);
+  expect(css).toMatch(/\.zen-map-list\.mask-top\.mask-bottom\s*\{[^}]*mask-image/);
+  const current = css.match(/\.zen-map-item--current\s*\{[^}]*\}/)?.[0] ?? '';
+  expect(current).toMatch(/border-left-color\s*:\s*var\(--accent\)/);
 });
 
 test('zen box switches animate in', () => {

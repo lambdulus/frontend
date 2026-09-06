@@ -2,6 +2,7 @@ import React, { PureComponent } from 'react'
 import { ChevronUp, ChevronDown } from 'lucide-react'
 import CreateBox from '../components/CreateBox'
 import { BoxType, NotebookState, BoxState } from '../Types'
+import { UntypedLambdaState } from '../untyped-lambda-integration/Types'
 
 import { onMarkDownBlur, NoteState, onMarkDownActive } from '../markdown-integration/AppTypes'
 import { BoxContainer } from '../components/BoxContainer'
@@ -44,9 +45,32 @@ export function zenStep (anchor : number, length : number, direction : 1 | -1) :
   return next
 }
 
-export default class Notebook extends PureComponent<Props> {
+// One line on the zen map: box titles are gone, so a lambda box shows
+// its initial term and a note shows its title, each with a fallback.
+export function zenBoxLabel (box : BoxState) : string {
+  if (box.type === BoxType.UNTYPED_LAMBDA) {
+    const history = (box as UntypedLambdaState).history
+    if (history.length > 0) {
+      return history[0].ast.toString()
+    }
+  }
+  if (box.type === BoxType.MARKDOWN) {
+    const title : string = String((box as NoteState).title ?? '')
+    return title.trim() !== '' ? title : 'Note'
+  }
+  const title : string = String(box.title ?? '')
+  return title.trim() !== '' ? title : 'Empty expression'
+}
+
+interface State {
+  mapAtTop : boolean
+  mapAtBottom : boolean
+}
+
+export default class Notebook extends PureComponent<Props, State> {
   private boxRefs : Array<HTMLLIElement | null>
   private spacerRef : React.RefObject<HTMLDivElement>
+  private mapListRef : React.RefObject<HTMLDivElement>
   private seatRequested : number | null
   private primeRaf : number | null
 
@@ -55,8 +79,10 @@ export default class Notebook extends PureComponent<Props> {
 
     this.boxRefs = []
     this.spacerRef = React.createRef<HTMLDivElement>()
+    this.mapListRef = React.createRef<HTMLDivElement>()
     this.seatRequested = null
     this.primeRaf = null
+    this.state = { mapAtTop : true, mapAtBottom : true }
 
     this.insertBefore = this.insertBefore.bind(this)
     this.insertAfter = this.insertAfter.bind(this)
@@ -72,6 +98,21 @@ export default class Notebook extends PureComponent<Props> {
     window.addEventListener('keydown', this.onPageKeyDown)
     window.addEventListener('scroll', this.onPageScroll, { passive : true })
     this.syncBodyZen()
+    this.syncMapEdges()
+  }
+
+  // The map fades only at the ends scrolled away from, mirroring the
+  // history gap marks. Guarded so it only re-renders on flips.
+  syncMapEdges (el : HTMLDivElement | null = null) : void {
+    const target : HTMLDivElement | null = el ?? this.mapListRef.current
+    if (target === null) {
+      return
+    }
+    const atBottom : boolean = target.scrollHeight - target.scrollTop - target.clientHeight < 24
+    const atTop : boolean = target.scrollTop <= 4
+    if (atBottom !== this.state.mapAtBottom || atTop !== this.state.mapAtTop) {
+      this.setState({ mapAtBottom : atBottom, mapAtTop : atTop })
+    }
   }
 
   componentWillUnmount () : void {
@@ -251,6 +292,35 @@ export default class Notebook extends PureComponent<Props> {
         </ul>
         <div className='notebook-bottom-spacer' ref={ this.spacerRef } />
         {
+          // Zen map: one line per box (initial terms, titles gone),
+          // vertically centered, capped at 70% of the view, scrolling
+          // under fades past that. Clicking a line jumps straight to
+          // its box; the anchor carries the accent bar.
+          zen && boxList.length > 0 ?
+            <nav className='zen-map' aria-label='Boxes in this notebook'>
+              <div
+                className={ `zen-map-list${ this.state.mapAtTop ? '' : ' mask-top' }${ this.state.mapAtBottom ? '' : ' mask-bottom' }` }
+                ref={ this.mapListRef }
+                onScroll={ (e) => this.syncMapEdges(e.currentTarget) }
+              >
+                {
+                  boxList.map((box : BoxState, i : number) => (
+                    <button
+                      key={ box.__key }
+                      className={ `zen-map-item${ i === anchor ? ' zen-map-item--current' : '' }` }
+                      title={ zenBoxLabel(box) }
+                      onClick={ () => this.makeActive(i) }
+                    >
+                      <span className='zen-map-label'>{ zenBoxLabel(box) }</span>
+                    </button>
+                  ))
+                }
+              </div>
+            </nav>
+          :
+            null
+        }
+        {
           // Fixed box-to-box navigator: jumps to the previous/next box
           // and focuses it (seating included). Hidden for an empty
           // notebook; each arrow enables only while a box exists
@@ -398,10 +468,12 @@ export default class Notebook extends PureComponent<Props> {
     // Focusing a box seats its top just below the top bar, so the
     // expression occupies the view instead of lingering mid-page.
     // 60 hugs the 52px bar with a breath to spare, leaving maximal
-    // room below for the pinned current step.
+    // room below for the pinned current step. In zen the shown box
+    // already starts at the page padding (76), so seating anywhere
+    // else would only open the drift the clamp just closed.
     const viewportHeight : number = window.innerHeight
     const top : number = el.getBoundingClientRect().top
-    const targetTop : number = 60
+    const targetTop : number = this.props.state.zenMode === true ? 76 : 60
 
     const targetScrollY : number = window.scrollY + top - targetTop
     if (Math.abs(targetScrollY - window.scrollY) < 2) {
