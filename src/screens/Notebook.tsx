@@ -1,4 +1,5 @@
 import React, { PureComponent } from 'react'
+import { ChevronUp, ChevronDown } from 'lucide-react'
 import CreateBox from '../components/CreateBox'
 import { BoxType, NotebookState, BoxState } from '../Types'
 
@@ -35,6 +36,12 @@ export default class Notebook extends PureComponent<Props> {
   render () {
     const { state } = this.props
     const { activeBoxIndex, focusedBoxIndex, boxList, name, locked } = state
+
+    // Box-to-box navigator anchor: the focused box when there is one,
+    // otherwise the active one.
+    const anchor : number = focusedBoxIndex ?? activeBoxIndex
+    const hasPrev : boolean = anchor > 0
+    const hasNext : boolean = anchor < boxList.length - 1
 
     return (
       <div className="mainSpace">
@@ -108,6 +115,35 @@ export default class Notebook extends PureComponent<Props> {
           }
         </ul>
         <div className='notebook-bottom-spacer' ref={ this.spacerRef } />
+        {
+          // Fixed box-to-box navigator: jumps to the previous/next box
+          // and focuses it (seating included). Hidden for an empty
+          // notebook; each arrow enables only while a box exists
+          // in its direction.
+          boxList.length === 0 ?
+            null
+          :
+            <div className='box-nav' aria-label='Box navigation'>
+              <button
+                className='box-nav--btn'
+                title='Previous box'
+                aria-label='Previous box'
+                disabled={ ! hasPrev }
+                onClick={ () => this.makeActive(anchor - 1) }
+              >
+                <ChevronUp size={ 22 } strokeWidth={ 2 } />
+              </button>
+              <button
+                className='box-nav--btn'
+                title='Next box'
+                aria-label='Next box'
+                disabled={ ! hasNext }
+                onClick={ () => this.makeActive(anchor + 1) }
+              >
+                <ChevronDown size={ 22 } strokeWidth={ 2 } />
+              </button>
+            </div>
+        }
       </div>
     )
   }
