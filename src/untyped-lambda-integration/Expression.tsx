@@ -223,7 +223,7 @@ export default class Expression extends PureComponent<EvaluatorProps, Expression
         <div className='box-history-wrap'>
         { this.renderGapMark('top') }
         <div
-          className='box-history-scroll'
+          className={ `box-history-scroll${ this.state.historyAtTop ? '' : ' mask-top' }${ this.state.historyAtBottom ? '' : ' mask-bottom' }` }
           ref={ this.historyRef }
           onScroll={ () => this.syncHistoryEdges() }
         >

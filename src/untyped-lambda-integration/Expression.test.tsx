@@ -127,12 +127,16 @@ test('scrolling away from either end reveals that end’s mark', () => {
   expect(marks[0].classList.contains('visible')).toBe(true);
   expect(marks[1].classList.contains('visible')).toBe(true);
   marks.forEach((mark) => expect((mark as HTMLElement).tabIndex).toBe(0));
+  expect(scroller.classList.contains('mask-top')).toBe(true);
+  expect(scroller.classList.contains('mask-bottom')).toBe(true);
 
   scroller.scrollTop = 0;
   fireEvent.scroll(scroller);
 
   expect(marks[0].classList.contains('visible')).toBe(false);
   expect(marks[1].classList.contains('visible')).toBe(true);
+  expect(scroller.classList.contains('mask-top')).toBe(false);
+  expect(scroller.classList.contains('mask-bottom')).toBe(true);
 });
 
 test('clicking the top mark jumps the history to its start', () => {
