@@ -45,6 +45,15 @@ test('emerald stays the default accent', () => {
   expect(createDefaultAppState().accent).toBe('emerald');
 });
 
+test('cards stay the default box style', () => {
+  expect(createDefaultAppState().boxStyle).toBe('cards');
+});
+
+test('app shell carries the box style hook', () => {
+  const { container } = render(<App />);
+  expect(container.querySelector('#app')?.getAttribute('data-box-style')).toBe('cards');
+});
+
 test('new boxes start with settings closed', () => {
   expect(createNewUntypedLambdaExpression(defaultSettings).settingsOpen).toBe(false);
 });

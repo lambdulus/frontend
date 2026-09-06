@@ -60,6 +60,22 @@ body {
   box-shadow: var(--shadow-lift);
 }
 
+/* Classic boxes: flat and divided by a hairline, with the full-height
+   grab rail lighting the anchor in accent (see BoxContainer.css).
+   Cards stay the default; everything below only runs opted in. */
+#app[data-box-style='classic'] .boxContainer {
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid var(--border);
+  border-radius: 0;
+  box-shadow: none;
+  padding: 20px 4px 24px;
+}
+
+#app[data-box-style='classic'] .box-frame--anchor .boxContainer {
+  box-shadow: none;
+}
+
 .boxContainer.active .box-top-bar--title-text {
   color: var(--text);
 }

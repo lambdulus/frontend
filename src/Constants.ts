@@ -1,7 +1,7 @@
 import { CODE_NAME as UNTYPED_CODE_NAME, decodeUntypedLambdaState } from './untyped-lambda-integration/Constants'
 import { defaultSettings as UntypedLambdaDefaultSettings } from './untyped-lambda-integration/Constants'
 
-import { Accent, BoxType, AppState, GlobalSettings, NotebookState, BoxState } from "./Types"
+import { Accent, BoxStyle, BoxType, AppState, GlobalSettings, NotebookState, BoxState } from "./Types"
 import { uniqueKey } from "./uniqueKey"
 import { UntypedLambdaState } from './untyped-lambda-integration/Types'
 import { createNewMarkdown, NoteState } from './markdown-integration/AppTypes'
@@ -105,6 +105,7 @@ export function createDefaultAppState () : AppState {
     activeNotebookIndex : 1,
     theme : preferredTheme(),
     accent : 'emerald',
+    boxStyle : 'cards',
   }
 }
 
@@ -157,6 +158,7 @@ export function decode (state : AppState) : AppState | never {
       activeNotebookIndex : 1,
       theme : state.theme ?? Theme.Dark,
       accent : 'emerald',
+      boxStyle : 'cards',
     }
   }
 
@@ -170,6 +172,11 @@ export function decode (state : AppState) : AppState | never {
       legacy.accent
     :
       'emerald'
+  const boxStyle : BoxStyle =
+    legacy.boxStyle === 'classic' ?
+      'classic'
+    :
+      'cards'
   const activeNotebookIndex : number =
     typeof legacy.activeNotebookIndex === 'number'
     && legacy.activeNotebookIndex >= 0
@@ -183,6 +190,7 @@ export function decode (state : AppState) : AppState | never {
     notebooks,
     activeNotebookIndex,
     accent,
+    boxStyle,
   }
 }
 

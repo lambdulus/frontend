@@ -659,6 +659,23 @@ test('boxes show up as cards', () => {
   expect(frame).not.toMatch(/::after/);
 });
 
+test('classic boxes wear the rail, not the card', () => {
+  // Opt-in variant: flat boxes divided by a hairline, no lift, and a
+  // thin full-height rail line lighting the anchor in accent.
+  const app = readFileSync('src/App.css', 'utf8');
+  const flat = app.match(/#app\[data-box-style='classic'\] \.boxContainer\s*\{[^}]*\}/)?.[0] ?? '';
+  expect(flat).toMatch(/background\s*:\s*transparent/);
+  expect(flat).toMatch(/border-bottom\s*:\s*1px solid var\(--border\)/);
+  expect(flat).toMatch(/border-radius\s*:\s*0/);
+  expect(flat).toMatch(/box-shadow\s*:\s*none/);
+  expect(app).toMatch(/#app\[data-box-style='classic'\] \.box-frame--anchor \.boxContainer\s*\{[^}]*box-shadow\s*:\s*none/);
+  const frame = readFileSync('src/styles/BoxContainer.css', 'utf8');
+  const rail = frame.match(/#app\[data-box-style='classic'\] \.box-rail::before\s*\{[^}]*\}/)?.[0] ?? '';
+  expect(rail).toMatch(/width\s*:\s*2px/);
+  expect(rail).toMatch(/background-color\s*:\s*var\(--border\)/);
+  expect(frame).toMatch(/#app\[data-box-style='classic'\] \.box-frame--anchor \.box-rail::before\s*\{[^}]*background-color\s*:\s*var\(--accent\)/);
+});
+
 test('map highlight and card lift share one anchor', () => {
   // Clicks (active) and scroll-prime (focused) diverge by design; the
   // visible focus must not. With active on the first box and focused
