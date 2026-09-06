@@ -202,6 +202,28 @@ test('scrolling back inward re-arms the sticky end', () => {
   expect(fireEvent.wheel(scroller, { deltaY : -100 })).toBe(true);
 });
 
+test('wheel over the pinned endpoints drives the history', () => {
+  const { container } = renderExpression();
+  const scroller = scrollerWithGeometry(container);
+  const initial = container.querySelector('.box-initial-step') as HTMLElement;
+  const current = container.querySelector('.box-current-step') as HTMLElement;
+
+  // Mid-history: the endpoints feed the pane instead of the page.
+  scroller.scrollTop = 300;
+  expect(fireEvent.wheel(current, { deltaY : -100 })).toBe(false);
+  expect(scroller.scrollTop).toBe(200);
+  expect(fireEvent.wheel(initial, { deltaY : 100 })).toBe(false);
+  expect(scroller.scrollTop).toBe(300);
+
+  // At a true end the events flow through to the notebook untouched.
+  scroller.scrollTop = 0;
+  expect(fireEvent.wheel(current, { deltaY : -100 })).toBe(true);
+  expect(scroller.scrollTop).toBe(0);
+  scroller.scrollTop = 800;
+  expect(fireEvent.wheel(initial, { deltaY : 100 })).toBe(true);
+  expect(scroller.scrollTop).toBe(800);
+});
+
 test('history without overflow chains immediately', () => {
   const { container } = renderExpression();
   const scroller = container.querySelector('.box-history-scroll') as HTMLElement;

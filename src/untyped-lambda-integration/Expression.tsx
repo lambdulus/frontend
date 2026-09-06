@@ -46,6 +46,8 @@ interface ExpressionState {
 
 export default class Expression extends PureComponent<EvaluatorProps, ExpressionState> {
   private historyRef : React.RefObject<HTMLDivElement>
+  private initialRef : React.RefObject<HTMLDivElement>
+  private currentRef : React.RefObject<HTMLDivElement>
   private followTail : boolean
   private edgeBump : number
   private edgeBumpTimer : number | undefined
@@ -54,32 +56,102 @@ export default class Expression extends PureComponent<EvaluatorProps, Expression
     super(props)
 
     this.historyRef = React.createRef<HTMLDivElement>()
+    this.initialRef = React.createRef<HTMLDivElement>()
+    this.currentRef = React.createRef<HTMLDivElement>()
     this.followTail = true
     this.edgeBump = 0
     this.edgeBumpTimer = undefined
     this.state = { historyAtBottom : true, historyAtTop : true }
     this.addBreakpoint = this.addBreakpoint.bind(this)
     this.onHistoryWheel = this.onHistoryWheel.bind(this)
+    this.onEndpointWheel = this.onEndpointWheel.bind(this)
+  }
+
+  // Native listeners dedupe identical registrations, so attaching on
+  // every update is safe; the endpoint pins mount conditionally.
+  attachWheelListeners () : void {
+    const history : HTMLDivElement | null = this.historyRef.current
+    if (history !== null) {
+      // React's delegated wheel listener is passive, but the bump
+      // needs preventDefault, so listen natively and non-passively.
+      history.addEventListener('wheel', this.onHistoryWheel, { passive : false })
+    }
+    // The pinned endpoint steps sit outside the scroll container, so
+    // without forwarding the wheel over them chains straight past
+    // the box to the notebook.
+    const initial : HTMLDivElement | null = this.initialRef.current
+    if (initial !== null) {
+      initial.addEventListener('wheel', this.onEndpointWheel, { passive : false })
+    }
+    const current : HTMLDivElement | null = this.currentRef.current
+    if (current !== null) {
+      current.addEventListener('wheel', this.onEndpointWheel, { passive : false })
+    }
   }
 
   componentDidMount () : void {
     this.syncHistoryEdges()
-    // React's delegated wheel listener is passive, but the bump needs
-    // preventDefault, so listen natively and non-passively instead.
-    const el : HTMLDivElement | null = this.historyRef.current
-    if (el !== null) {
-      el.addEventListener('wheel', this.onHistoryWheel, { passive : false })
-    }
+    this.attachWheelListeners()
   }
 
   componentWillUnmount () : void {
-    const el : HTMLDivElement | null = this.historyRef.current
-    if (el !== null) {
-      el.removeEventListener('wheel', this.onHistoryWheel)
+    const history : HTMLDivElement | null = this.historyRef.current
+    if (history !== null) {
+      history.removeEventListener('wheel', this.onHistoryWheel)
+    }
+    const initial : HTMLDivElement | null = this.initialRef.current
+    if (initial !== null) {
+      initial.removeEventListener('wheel', this.onEndpointWheel)
+    }
+    const current : HTMLDivElement | null = this.currentRef.current
+    if (current !== null) {
+      current.removeEventListener('wheel', this.onEndpointWheel)
     }
     if (this.edgeBumpTimer !== undefined) {
       window.clearTimeout(this.edgeBumpTimer)
     }
+  }
+
+  componentDidUpdate (prevProps : EvaluatorProps) : void {
+    this.attachWheelListeners()
+
+    // Follow the evaluation while the user is watching the tail;
+    // stop following once they scroll up, resume at the bottom.
+    if (prevProps.history.length !== this.props.history.length) {
+      const el : HTMLDivElement | null = this.historyRef.current
+      if (el !== null && this.followTail) {
+        el.scrollTop = el.scrollHeight
+      }
+      this.edgeBump = 0
+    }
+
+    this.syncHistoryEdges()
+  }
+
+  // Forwards the wheel over the pinned endpoint steps into the
+  // history: they read as history but sit outside its scroll
+  // container, so without this the page moves instead. At either
+  // true end the events flow through to the notebook untouched.
+  onEndpointWheel (e : WheelEvent) : void {
+    const el : HTMLDivElement | null = this.historyRef.current
+    if (el === null || el.scrollHeight <= el.clientHeight + 1) {
+      return
+    }
+
+    const unit : number = e.deltaMode === 1 ? 16 : e.deltaMode === 2 ? el.clientHeight : 1
+    const deltaY : number = e.deltaY * unit
+    if (Math.abs(deltaY) < Math.abs(e.deltaX)) {
+      return
+    }
+
+    const atTop : boolean = el.scrollTop <= 1
+    const atBottom : boolean = el.scrollHeight - el.scrollTop - el.clientHeight <= 1
+    if ((deltaY < 0 && atTop) || (deltaY > 0 && atBottom)) {
+      return
+    }
+
+    e.preventDefault()
+    el.scrollTop += deltaY
   }
 
   // Swallows the first bit of outward scrolling at either end of the
@@ -118,20 +190,6 @@ export default class Expression extends PureComponent<EvaluatorProps, Expression
       e.preventDefault()
       this.edgeBump += Math.abs(deltaY)
     }
-  }
-
-  componentDidUpdate (prevProps : EvaluatorProps) : void {
-    // Follow the evaluation while the user is watching the tail;
-    // stop following once they scroll up, resume at the bottom.
-    if (prevProps.history.length !== this.props.history.length) {
-      const el : HTMLDivElement | null = this.historyRef.current
-      if (el !== null && this.followTail) {
-        el.scrollTop = el.scrollHeight
-      }
-      this.edgeBump = 0
-    }
-
-    this.syncHistoryEdges()
   }
 
   // Tracks which end of the history is in view; drives the two gap
@@ -260,7 +318,7 @@ export default class Expression extends PureComponent<EvaluatorProps, Expression
           // current form is pinned below it: endpoints always visible,
           // middle steps scroll between them.
           this.props.history.length >= 2 ?
-            <div className='box-initial-step'>
+            <div className='box-initial-step' ref={ this.initialRef }>
               <Step
                 breakpoints={ this.props.breakpoints }
                 strategy={ this.props.state.strategy }
@@ -307,7 +365,7 @@ export default class Expression extends PureComponent<EvaluatorProps, Expression
         </div>
         { this.renderGapMark('bottom') }
         </div>
-        <div className='box-current-step activeStep'>
+        <div className='box-current-step activeStep' ref={ this.currentRef }>
           <Step
             breakpoints={ this.props.breakpoints }
             strategy={ this.props.state.strategy }
