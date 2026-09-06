@@ -7,10 +7,16 @@
   align-items: center;
   gap: 12px;
   margin-bottom: 12px;
-  padding: 6px 10px;
+  padding: 2px 10px;
   background-color: var(--accent);
   border: none;
   border-radius: 8px;
+}
+
+/* The portaled Run/Step pills slim to bar height. */
+.boxTopBar .debug-controls .btn {
+  padding: 2px 10px;
+  font-size: .8rem;
 }
 
 .boxTopBar .box-top-bar--title-text,
