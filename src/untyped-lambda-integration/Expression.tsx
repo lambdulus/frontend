@@ -137,7 +137,7 @@ export default class Expression extends PureComponent<EvaluatorProps, Expression
         className={ `history-gap-indicator history-gap-indicator--${kind}${ visible ? ' visible' : '' }` }
         title={ up ? 'First steps are hidden - click to jump to the first step' : 'History is scrolled up - click to jump to the current form' }
         role='button'
-        tabIndex={ 0 }
+        tabIndex={ visible ? 0 : -1 }
         onClick={ jump }
         onKeyDown={ (e : React.KeyboardEvent<HTMLDivElement>) => {
           if (e.key === 'Enter' || e.key === ' ') {
@@ -146,21 +146,19 @@ export default class Expression extends PureComponent<EvaluatorProps, Expression
           }
         } }
       >
-        <svg className='gap-wave' width='12' height='30' viewBox='0 0 12 30' fill='none' stroke='currentColor' strokeWidth='1.5' strokeLinecap='round'>
-          <path d='M6 1 Q10 5 6 9 Q2 13 6 17 Q10 21 6 25 Q4 27.5 6 29' />
+        <svg className='gap-wave' width='12' height='20' viewBox='0 0 12 20' fill='none' stroke='currentColor' strokeWidth='1.5' strokeLinecap='round'>
+          <path d='M6 1 Q10 5 6 9 Q2 13 6 17' />
         </svg>
-        <svg className='gap-arrows' width='12' height='30' viewBox='0 0 12 30' fill='none' stroke='currentColor' strokeWidth='1.5' strokeLinecap='round' strokeLinejoin='round' aria-hidden='true'>
+        <svg className='gap-arrows' width='12' height='20' viewBox='0 0 12 20' fill='none' stroke='currentColor' strokeWidth='1.5' strokeLinecap='round' strokeLinejoin='round' aria-hidden='true'>
           { up ?
             <>
               <path d='M1 8 L6 3 L11 8' />
               <path d='M1 16 L6 11 L11 16' />
-              <path d='M1 24 L6 19 L11 24' />
             </>
           :
             <>
-              <path d='M1 3 L6 8 L11 3' />
-              <path d='M1 11 L6 16 L11 11' />
-              <path d='M1 19 L6 24 L11 19' />
+              <path d='M1 4 L6 9 L11 4' />
+              <path d='M1 12 L6 17 L11 12' />
             </>
           }
         </svg>
@@ -222,6 +220,7 @@ export default class Expression extends PureComponent<EvaluatorProps, Expression
           :
             null
         }
+        <div className='box-history-wrap'>
         { this.renderGapMark('top') }
         <div
           className='box-history-scroll'
@@ -251,6 +250,7 @@ export default class Expression extends PureComponent<EvaluatorProps, Expression
         </ul>
         </div>
         { this.renderGapMark('bottom') }
+        </div>
         <div className='box-current-step activeStep'>
           <Step
             breakpoints={ this.props.breakpoints }

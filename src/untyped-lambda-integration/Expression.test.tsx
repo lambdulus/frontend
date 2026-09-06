@@ -95,11 +95,18 @@ test('two steps pin both endpoints with no marks and no middle', () => {
 test('gap marks mount at both ends, hidden while history shows everything', () => {
   const { container } = renderExpression();
 
+  // Marks float inside a positioning wrap over the scroll, so showing
+  // them never reflows the box.
+  expect(container.querySelector('.box-history-wrap .box-history-scroll')).not.toBeNull();
+
   const marks = container.querySelectorAll('.history-gap-indicator');
   expect(marks.length).toBe(2);
   expect(marks[0].classList.contains('history-gap-indicator--top')).toBe(true);
   expect(marks[1].classList.contains('history-gap-indicator--bottom')).toBe(true);
-  marks.forEach((mark) => expect(mark.classList.contains('visible')).toBe(false));
+  marks.forEach((mark) => {
+    expect(mark.classList.contains('visible')).toBe(false);
+    expect((mark as HTMLElement).tabIndex).toBe(-1);
+  });
 });
 
 function scrollerWithGeometry (container : HTMLElement) : HTMLElement {
@@ -119,6 +126,7 @@ test('scrolling away from either end reveals that end’s mark', () => {
   const marks = container.querySelectorAll('.history-gap-indicator');
   expect(marks[0].classList.contains('visible')).toBe(true);
   expect(marks[1].classList.contains('visible')).toBe(true);
+  marks.forEach((mark) => expect((mark as HTMLElement).tabIndex).toBe(0));
 
   scroller.scrollTop = 0;
   fireEvent.scroll(scroller);
