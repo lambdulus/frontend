@@ -1,0 +1,132 @@
+import { readFileSync } from 'fs';
+import { test, expect, vi, afterEach } from 'vitest';
+import { render, fireEvent, cleanup } from '@testing-library/react';
+import Notebook, { selectPrimeBox, zenStep } from './Notebook';
+import { BoxType, NotebookState } from '../Types';
+import { NoteState } from '../markdown-integration/AppTypes';
+
+afterEach(() => cleanup());
+
+test('prime box is the last one reaching past the prime line', () => {
+  expect(selectPrimeBox([
+    { top : -400, height : 300 },
+    { top : -50, height : 300 },
+    { top : 500, height : 300 },
+  ], 100)).toBe(1);
+});
+
+test('prime box defaults to the first and ignores hidden boxes', () => {
+  expect(selectPrimeBox([
+    { top : 500, height : 300 },
+    { top : 900, height : 300 },
+  ], 100)).toBe(0);
+
+  // A hidden box past the line never wins: without the height guard
+  // this would prime box 2 instead of box 1.
+  expect(selectPrimeBox([
+    { top : -400, height : 300 },
+    { top : -50, height : 300 },
+    { top : -10, height : 0 },
+  ], 100)).toBe(1);
+});
+
+test('zen paging steps within range and stops at the ends', () => {
+  expect(zenStep(0, 3, 1)).toBe(1);
+  expect(zenStep(1, 3, -1)).toBe(0);
+  expect(zenStep(2, 3, 1)).toBeNull();
+  expect(zenStep(0, 3, -1)).toBeNull();
+  expect(zenStep(0, 1, 1)).toBeNull();
+});
+
+test('zen mode shows only the current box and no add buttons', () => {
+  const css = readFileSync('src/App.css', 'utf8');
+  expect(css).toMatch(/\.mainSpace\.zen \.boxList > \.LI\s*\{[^}]*display\s*:\s*none/);
+  expect(css).toMatch(/\.mainSpace\.zen \.boxList > \.LI\.zen-current\s*\{[^}]*display\s*:\s*block/);
+  expect(css).toMatch(/\.mainSpace\.zen \.add_box_after\s*\{[^}]*display\s*:\s*none/);
+  expect(css).toMatch(/\.mainSpace\.zen \.notebook-title\s*\{[^}]*display\s*:\s*none/);
+});
+
+function noteBox (note : string, key : string) : NoteState {
+  return {
+    __key : key,
+    type : BoxType.MARKDOWN,
+    title : 'Note',
+    minimized : false,
+    settingsOpen : false,
+    note,
+    isEditing : false,
+    editor : { placeholder : '', content : '', caretPosition : 0, syntaxError : null },
+  };
+}
+
+function renderZenNotebook (onPatch : (patch : Partial<NotebookState>) => void, anchor : number = 0) {
+  const state : NotebookState = {
+    name : 'Test',
+    zenMode : true,
+    boxList : [ noteBox('first', 'a'), noteBox('second', 'b') ],
+    activeBoxIndex : anchor,
+    focusedBoxIndex : anchor,
+    menuOpen : false,
+    settings : {},
+    __key : 'nb',
+  };
+
+  return render(<Notebook state={ state } updateNotebook={ onPatch } />);
+}
+
+test('zen shows only the anchor box and arrows page between boxes', () => {
+  const downPatches : Array<Partial<NotebookState>> = [];
+  const { container, unmount } = renderZenNotebook((patch) => { downPatches.push(patch); });
+
+  expect(container.querySelectorAll('.boxList > .LI').length).toBe(2);
+  expect(container.querySelectorAll('.boxList > .LI.zen-current').length).toBe(1);
+
+  fireEvent.keyDown(document, { key : 'ArrowDown' });
+  expect(downPatches.some((patch) => patch.activeBoxIndex === 1 && patch.focusedBoxIndex === 1)).toBe(true);
+  unmount();
+
+  const upPatches : Array<Partial<NotebookState>> = [];
+  const second = renderZenNotebook((patch) => { upPatches.push(patch); }, 1);
+  fireEvent.keyDown(document, { key : 'ArrowUp' });
+  expect(upPatches.some((patch) => patch.activeBoxIndex === 0 && patch.focusedBoxIndex === 0)).toBe(true);
+  second.unmount();
+});
+
+test('zen arrow keys stay put while typing in an editor', () => {
+  const patches : Array<Partial<NotebookState>> = [];
+  renderZenNotebook((patch) => { patches.push(patch); });
+
+  const input : HTMLInputElement = document.createElement('input');
+  document.body.appendChild(input);
+  input.focus();
+  try {
+    fireEvent.keyDown(document, { key : 'ArrowDown' });
+    expect(patches.length).toBe(0);
+  }
+  finally {
+    input.remove();
+  }
+});
+
+test('zen arrow keys stay put outside zen mode', () => {
+  const state : NotebookState = {
+    name : 'Test',
+    boxList : [ noteBox('first', 'a'), noteBox('second', 'b') ],
+    activeBoxIndex : 0,
+    focusedBoxIndex : 0,
+    menuOpen : false,
+    settings : {},
+    __key : 'nb',
+  };
+  const updateNotebook = vi.fn();
+  render(<Notebook state={ state } updateNotebook={ updateNotebook } />);
+
+  fireEvent.keyDown(document, { key : 'ArrowDown' });
+  expect(updateNotebook).not.toHaveBeenCalled();
+});
+
+test('scrollable history sits back slightly, focused step comes forward', () => {
+  const css = readFileSync('src/untyped-lambda-integration/styles/EvaluatorBox.css', 'utf8');
+  const block = css.match(/\.box-history-scroll \.inactiveStep\s*\{[^}]*\}/)?.[0] ?? '';
+  expect(block).toMatch(/opacity\s*:\s*0\.8/);
+});
