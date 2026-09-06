@@ -21,12 +21,13 @@
   max-width: calc(100vw - 24px);
 }
 
-/* Open, the dock is a full-height card flush with the box, top and
-   bottom, holding the header and the unfolding panel; closed, only
-   the pill shows. */
+/* Open, the dock is a card flush with the box top and reaching at
+   least 320px down (past the bottom of small boxes), holding the
+   header and the unfolding panel; closed, only the pill shows. */
 .macro-dock--open {
   bottom: 0;
   align-items: stretch;
+  min-height: 320px;
   background-color: var(--surface);
   border: 1px solid var(--border);
   border-radius: 8px;
@@ -92,6 +93,8 @@
 }
 
 .macro-dock--open .macro-dock--panel {
+  flex: 1 1 auto;
+  min-height: 0;
   grid-template-rows: 1fr;
   opacity: 1;
   visibility: visible;
