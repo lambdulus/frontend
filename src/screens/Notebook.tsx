@@ -389,6 +389,28 @@ export default class Notebook extends PureComponent<Props, State> {
               </button>
             </div>
         }
+        {
+          // Zen add-box: the per-box + rows step out with the other box
+          // furniture and the page never scrolls to them, so a floating
+          // New-box button rides the bottom-right corner instead. The
+          // type picker opens in place above it; inserting after the
+          // anchor focuses the new box at once.
+          zen ?
+            <div className='zen-add'>
+              <CreateBox
+                addNew={ (box : BoxState) => {
+                  if (boxList.length === 0) {
+                    this.insertBefore(0, box)
+                  }
+                  else {
+                    this.insertAfter(anchor, box)
+                  }
+                } }
+              />
+            </div>
+          :
+            null
+        }
       </div>
     )
   }

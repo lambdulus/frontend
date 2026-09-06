@@ -389,6 +389,47 @@ test('box map shows in normal mode too', () => {
   }
 });
 
+test('zen offers a floating add-box after the anchor', () => {
+  const patches : Array<Partial<NotebookState>> = [];
+  const { container, unmount } = renderZenNotebook((patch) => { patches.push(patch); });
+  try {
+    // Floating New-box button...
+    const plus = container.querySelector('.zen-add .create-box-plus') as HTMLElement;
+    expect(plus.textContent).toMatch(/New box/);
+
+    // ...opening the type picker in place...
+    fireEvent.click(plus);
+    const groups = container.querySelectorAll('.zen-add .add-box--group');
+    expect(groups.length).toBe(2);
+
+    // ...appending after the anchor and focusing the new box at once.
+    fireEvent.click(groups[0]);
+    expect(patches.some((patch) => patch.boxList?.length === 2 && patch.activeBoxIndex === 1 && patch.focusedBoxIndex === 1)).toBe(true);
+  }
+  finally {
+    unmount();
+  }
+});
+
+test('no floating add-box outside zen mode', () => {
+  const state : NotebookState = {
+    name : 'Test',
+    boxList : [ noteBox('first', 'a'), noteBox('second', 'b') ],
+    activeBoxIndex : 0,
+    focusedBoxIndex : 0,
+    menuOpen : false,
+    settings : {},
+    __key : 'nb',
+  };
+  const { container, unmount } = render(<Notebook state={ state } updateNotebook={ () => void 0 } />);
+  try {
+    expect(container.querySelector('.zen-add')).toBeNull();
+  }
+  finally {
+    unmount();
+  }
+});
+
 test('floating box arrows stay hidden', () => {
   // Retired in favor of the map paging arrows; the markup stays for
   // an easy revert.
