@@ -1,33 +1,11 @@
-/* Box frame: an L of thin lines down the left and across the top of
-   every box, in the same 2px language as the endpoint accent bars,
-   joined by a rounded corner. One pseudo-element draws the whole L
-   so the joint is seamless; the rail beside it is a transparent hit
-   area, easy to click without thinking. Idle the L sits back in the
-   border tone; hovering the box and the focused box light it in
-   accent. */
+/* Box frame: the box itself is the card (surface, border and radius
+   live on .boxContainer in App.css); this row only lays the card
+   beside its grab rail, a transparent hit area, easy to click
+   without thinking. */
 .box-frame {
   display: flex;
   align-items: stretch;
   position: relative;
-}
-
-.box-frame::after {
-  content: "";
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 6px;
-  right: 0;
-  border-top: 2px solid var(--border);
-  border-left: 2px solid var(--border);
-  border-top-left-radius: 8px;
-  pointer-events: none;
-  transition: border-color .15s ease-in-out;
-}
-
-.box-frame:hover::after,
-.box-frame--focused::after {
-  border-color: var(--accent);
 }
 
 .box-frame .boxContainer {

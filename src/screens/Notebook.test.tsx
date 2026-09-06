@@ -65,7 +65,6 @@ test('zen hides the grab rail', () => {
   // stretched rail would overshoot short histories into the clamp.
   const css = readFileSync('src/App.css', 'utf8');
   expect(css).toMatch(/\.mainSpace\.zen \.box-rail\s*\{[^}]*display\s*:\s*none/);
-  expect(css).toMatch(/\.mainSpace\.zen \.box-frame::after\s*\{[^}]*display\s*:\s*none/);
 });
 
 test('zen hides the collapse toggle', () => {
@@ -528,16 +527,19 @@ test('every box has a grab rail; clicking it focuses the box', () => {
   }
 });
 
-test('boxes wear a joined top-and-left frame', () => {
-  // One pseudo-element draws the whole L so the rounded joint is
-  // seamless; the rail beside it is only a click target.
-  const css = readFileSync('src/styles/BoxContainer.css', 'utf8');
-  const frame = css.match(/\.box-frame::after\s*\{[^}]*\}/)?.[0] ?? '';
-  expect(frame).toMatch(/border-top\s*:\s*2px solid/);
-  expect(frame).toMatch(/border-left\s*:\s*2px solid/);
-  expect(frame).toMatch(/border-top-left-radius/);
-  expect(frame).toMatch(/pointer-events\s*:\s*none/);
-  expect(css).toMatch(/\.box-frame--focused::after\s*\{[^}]*border-color\s*:\s*var\(--accent\)/);
+test('boxes show up as cards', () => {
+  // The box itself is the card: theme surface, a full border, a
+  // radius, a quiet shadow; the active box lifts with a deeper one.
+  // No frame pseudo-element draws anything anymore.
+  const app = readFileSync('src/App.css', 'utf8');
+  const card = app.match(/\.boxContainer\s*\{[^}]*\}/)?.[0] ?? '';
+  expect(card).toMatch(/background\s*:\s*var\(--surface\)/);
+  expect(card).toMatch(/border\s*:\s*1px solid var\(--border\)/);
+  expect(card).toMatch(/border-radius\s*:\s*12px/);
+  expect(card).toMatch(/box-shadow\s*:\s*var\(--shadow\)/);
+  expect(app).toMatch(/\.boxContainer\.active\s*\{[^}]*box-shadow\s*:\s*var\(--shadow-lift\)/);
+  const frame = readFileSync('src/styles/BoxContainer.css', 'utf8');
+  expect(frame).not.toMatch(/::after/);
 });
 
 // A live store for flows that span several updates (focus moves,
