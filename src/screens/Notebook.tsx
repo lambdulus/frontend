@@ -487,11 +487,18 @@ export default class Notebook extends PureComponent<Props, State> {
     this.seatRequested = index
   }
 
-  componentDidUpdate (_prevProps : Props) : void {
+  componentDidUpdate (prevProps : Props) : void {
     if (this.seatRequested !== null) {
       const index : number = this.seatRequested
       this.seatRequested = null
       this.ensureFocusRoom(index)
+    }
+    // Entering zen collapses every other box out of the layout, so
+    // the anchor can land a few pixels off its seat: plant it exactly
+    // on entry, before any click has a reason to nudge it.
+    if (this.props.state.zenMode === true && prevProps.state.zenMode !== true) {
+      const { focusedBoxIndex, activeBoxIndex } = this.props.state
+      this.ensureFocusRoom(focusedBoxIndex ?? activeBoxIndex)
     }
     this.syncBodyZen()
   }

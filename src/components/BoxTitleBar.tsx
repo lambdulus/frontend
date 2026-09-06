@@ -85,6 +85,22 @@ export default class BoxTitleBar extends Component<Props, State> {
             </div>
         }
         {
+          // The macro popup docks to the box's left, so its toggle
+          // lives on the left with the other box-type controls, not
+          // with the right-side box furniture.
+          type === BoxType.UNTYPED_LAMBDA ?
+            <div className='box-top-bar-custom box-top-bar-custom--left'>
+              <UntypedLambdaBTB
+                state={ state as UntypedLambdaState }
+                isActive={ isActive }
+                removeBox={ removeBox }
+                updateBoxState={ updateBoxState }
+              />
+            </div>
+          :
+            null
+        }
+        {
           // Slot for box-type controls (Run/Step) portaled from below;
           // display:contents keeps it footprint-free while empty.
           titleActionsHost ?
@@ -101,34 +117,32 @@ export default class BoxTitleBar extends Component<Props, State> {
             null
         }
 
-        <div className='box-top-bar-custom'>
-          {
-            (type === BoxType.UNTYPED_LAMBDA) ? 
-              (
-                <UntypedLambdaBTB
-                  state={ state as UntypedLambdaState }
-                  isActive={ isActive }
-                  removeBox={ removeBox }
-                  updateBoxState={ updateBoxState }
-                />
-              )
-            :
-            (type === BoxType.MARKDOWN) ?
-              (
-                <MarkdownBTB
-                  state={ state as NoteState }
-                  isActive={ isActive }
-                  removeBox={ removeBox }
-                  updateBoxState={ updateBoxState }
-                />
-              )
-            :
-              (
-                <EmptyBTB />
-              )
-          }
+        {
+          // The lambda toggle moved left; only the remaining types
+          // keep a right-side custom group (and never an empty one,
+          // whose padding and border would leave a footprint).
+          type === BoxType.UNTYPED_LAMBDA ?
+            null
+          :
+            <div className='box-top-bar-custom'>
+              {
+                (type === BoxType.MARKDOWN) ?
+                  (
+                    <MarkdownBTB
+                      state={ state as NoteState }
+                      isActive={ isActive }
+                      removeBox={ removeBox }
+                      updateBoxState={ updateBoxState }
+                    />
+                  )
+                :
+                  (
+                    <EmptyBTB />
+                  )
+              }
 
-        </div>
+            </div>
+        }
         <div className='box-top-bar-controls'>
           {
             state.readOnly ?
