@@ -150,7 +150,7 @@ export default class BoxTitleBar extends Component<Props, State> {
                 e.stopPropagation()
                 updateBoxState({ ...state, minimized : ! minimized })
               } }
-              className='box-top-bar--controls-item'
+              className='box-top-bar--controls-item box-top-bar--collapse-toggle'
               title={ minimized ? 'Expand this Box' : 'Collapse this Box' }
             >
               {

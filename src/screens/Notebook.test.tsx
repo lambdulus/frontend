@@ -66,6 +66,13 @@ test('zen hides the grab rail', () => {
   expect(css).toMatch(/\.mainSpace\.zen \.box-rail\s*\{[^}]*display\s*:\s*none/);
 });
 
+test('zen hides the collapse toggle', () => {
+  // Collapsing the single zen box serves nothing, so the toggle
+  // steps out with the other box furniture.
+  const css = readFileSync('src/App.css', 'utf8');
+  expect(css).toMatch(/\.mainSpace\.zen \.box-top-bar--collapse-toggle\s*\{[^}]*display\s*:\s*none/);
+});
+
 test('prime leads slightly below the center', () => {
   // The handover anticipates: at 65% of an 800px view the next box
   // takes focus while its top is still below the true center.
