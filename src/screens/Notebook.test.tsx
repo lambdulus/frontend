@@ -499,6 +499,43 @@ test('entering zen seats the anchor on entry', () => {
   }
 });
 
+test('leaving zen seats the anchor and keeps its focus', () => {
+  // Leaving brings the title and siblings back, which can land the
+  // anchor a few pixels off its seat: plant it exactly on exit. The
+  // box pinning steps aside across the flip, so no pin scroll fires
+  // the prime sync mid-flip (jsdom measures every top at 0, which
+  // would otherwise re-prime onto the last box).
+  const base : NotebookState = {
+    name : 'Test',
+    zenMode : true,
+    boxList : [ noteBox('first', 'a'), noteBox('second', 'b') ],
+    activeBoxIndex : 0,
+    focusedBoxIndex : 0,
+    menuOpen : false,
+    settings : {},
+    __key : 'nb',
+  };
+  const patches : Array<Partial<NotebookState>> = [];
+  const onPatch = (patch : Partial<NotebookState>) : void => { patches.push(patch); };
+  const originalScrollTo = window.scrollTo;
+  const spy = vi.fn();
+  window.scrollTo = spy;
+  const { rerender, unmount } = render(<Notebook state={ base } updateNotebook={ onPatch } />);
+  try {
+    spy.mockClear();
+    rerender(<Notebook state={ { ...base, zenMode : false } } updateNotebook={ onPatch } />);
+    // jsdom measures every box top at 0, so the 60px seat reads as
+    // a -60 scroll: what matters is that exit seats at all.
+    expect(spy).toHaveBeenCalledWith({ top : -60, behavior : 'smooth' });
+    // And nothing re-derives the focus: the anchor keeps it.
+    expect(patches.some((patch) => patch.focusedBoxIndex !== undefined)).toBe(false);
+  }
+  finally {
+    unmount();
+    window.scrollTo = originalScrollTo;
+  }
+});
+
 test('every box has a grab rail; clicking it focuses the box', () => {
   const state : NotebookState = {
     name : 'Test',
