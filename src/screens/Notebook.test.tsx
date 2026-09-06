@@ -171,16 +171,13 @@ test('box settings panel floats above the box', () => {
   expect(panel).toMatch(/z-index\s*:/);
 });
 
-test('box top bar reads as a distinct header strip', () => {
-  // A new box must announce itself in both scroll directions: a 2px
-  // accent outline (a touch thicker than the 1px redex border) over
-  // the original transparent background, contents in their own colors.
+test('box top bar stays plain chrome', () => {
+  // Reverted accent experiments: the bar is transparent layout only,
+  // boxes announce themselves through content, not header dressing.
   const css = readFileSync('src/styles/BoxTopBar.css', 'utf8');
   const bar = css.match(/\.boxTopBar\s*\{[^}]*\}/)?.[0] ?? '';
-  expect(bar).toMatch(/background-color\s*:\s*transparent/);
-  expect(bar).toMatch(/border\s*:\s*2px solid var\(--accent\)/);
-  expect(bar).toMatch(/border-radius\s*:\s*8px/);
-  expect(bar).toMatch(/padding\s*:\s*2px 10px/);
+  expect(bar).not.toMatch(/background-color/);
+  expect(bar).not.toMatch(/border/);
 });
 
 test('zen locks the page scroll on the body while mounted', () => {
