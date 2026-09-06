@@ -3,6 +3,10 @@
   /* break-word (not anywhere): prefer wrapping between tokens, and only
      snap a token itself when it alone overflows the line. */
   overflow-wrap: break-word;
+  /* Room for the inline highlight boxes: with the default tight leading
+     their padding and borders paint into the neighboring wrapped lines.
+     1.5 clears the tallest of them (3px below) with air to spare. */
+  line-height: 1.5;
 }
 
 .left.redex {
