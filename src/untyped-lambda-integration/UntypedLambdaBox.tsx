@@ -102,8 +102,9 @@ export default class UntypedLambdaBox extends PureComponent<Props> {
         }
         {
           // Macro dock: a persistent pill in the empty space left of the
-          // box that unfolds into a three-part panel - header, scrolling
-          // middle, and a footer collapse arrow pinned below the list.
+          // box that unfolds into header plus scrolling middle. The
+          // panel stays mounted and collapses through CSS, so opening
+          // and closing animate instead of popping.
           <div className={ `macro-dock${ macrolistOpen ? ' macro-dock--open' : '' }` }>
             <button
               className='macro-dock--head'
@@ -114,25 +115,13 @@ export default class UntypedLambdaBox extends PureComponent<Props> {
               <span className='macro-dock--title'>Macros</span>
               { macrolistOpen ? <ChevronUp size={ 14 } strokeWidth={ 2 } /> : <ChevronDown size={ 14 } strokeWidth={ 2 } /> }
             </button>
-            { macrolistOpen ?
+            <div className='macro-dock--panel'>
               <div className='macro-dock--body'>
-                <MacroList macroTable={ state.macrotable }  />
+                <div className='macro-dock--scroll'>
+                  <MacroList macroTable={ state.macrotable }  />
+                </div>
               </div>
-            :
-              null
-            }
-            { macrolistOpen ?
-              <button
-                className='macro-dock--foot'
-                onClick={ () => setBoxState({ ...state, macrolistOpen : false }) }
-                title='Hide macros for this box'
-                aria-label='Hide macros for this box'
-              >
-                <ChevronUp size={ 14 } strokeWidth={ 2 } />
-              </button>
-            :
-              null
-            }
+            </div>
           </div>
         }
 

@@ -282,7 +282,7 @@ test('no indicator mounts when there is no history yet', () => {
   expect(container.querySelector('.box-current-step .stepNumber')?.textContent).toMatch(/0 :/);
 });
 
-test('macros dock as a pill unfolding into a three-part panel', () => {
+test('macros dock as a pill unfolding into an animated panel', () => {
   const css = readFileSync('src/untyped-lambda-integration/styles/MacroList.css', 'utf8');
   // The dock rides the viewport's left margin (past the 940px
   // column), out of flow so it never reflows the box...
@@ -293,10 +293,13 @@ test('macros dock as a pill unfolding into a three-part panel', () => {
   // ...opens into a full-height card...
   const open = css.match(/\.macro-dock--open\s*\{[^}]*\}/)?.[0] ?? '';
   expect(open).toMatch(/bottom\s*:\s*0/);
-  expect(open).toMatch(/background-color\s*:\s*var\(--surface\)/);
-  expect(open).toMatch(/box-shadow\s*:/);
-  // ...whose middle scrolls while the footer collapse stays put.
-  const body = css.match(/\.macro-dock--body\s*\{[^}]*\}/)?.[0] ?? '';
-  expect(body).toMatch(/overflow-y\s*:\s*auto/);
-  expect(css).toMatch(/\.macro-dock--foot\s*\{[^}]*border-top/);
+  // ...whose panel stays mounted and collapses through grid rows
+  // plus a quick fade, with the list scrolling in its own box.
+  const panel = css.match(/\.macro-dock--panel\s*\{[^}]*\}/)?.[0] ?? '';
+  expect(panel).toMatch(/grid-template-rows\s*:\s*0fr/);
+  expect(panel).toMatch(/transition\s*:[^;]*grid-template-rows/);
+  expect(panel).toMatch(/visibility\s*:\s*hidden/);
+  expect(css).toMatch(/\.macro-dock--open \.macro-dock--panel\s*\{[^}]*grid-template-rows\s*:\s*1fr/);
+  const scroll = css.match(/\.macro-dock--scroll\s*\{[^}]*\}/)?.[0] ?? '';
+  expect(scroll).toMatch(/overflow-y\s*:\s*auto/);
 });
