@@ -52,11 +52,20 @@ test('prime follows the box owning the view center', () => {
 
 test('a box below the center does not steal focus', () => {
   // Scrolling down: the next box owns only the bottom of the view
-  // until its top bar crosses the center, so focus stays above.
+  // until its top bar closes in on the center, so focus stays above.
   expect(selectPrimeBox([
     { top : -100, height : 400 },
     { top : 450, height : 900 },
   ], 400)).toBe(0);
+});
+
+test('prime leads slightly below the center', () => {
+  // The handover anticipates: at 65% of an 800px view the next box
+  // takes focus while its top is still below the true center.
+  expect(selectPrimeBox([
+    { top : -100, height : 400 },
+    { top : 450, height : 900 },
+  ], 520)).toBe(1);
 });
 
 test('zen paging steps within range and stops at the ends', () => {
