@@ -233,6 +233,8 @@ body {
    on the view. Grows with the notebook up to 70% of the viewport,
    then scrolls under top/bottom fades. The anchor carries the accent
    bar; the rest sit muted until hovered. */
+/* No panel: bare lines over the notebook background, no fill and no
+   border. */
 .mainSpace.zen .zen-map {
   position: fixed;
   right: 76px;
@@ -240,10 +242,6 @@ body {
   transform: translateY(-50%);
   width: 190px;
   z-index: 55;
-  background-color: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  box-shadow: var(--shadow);
 }
 
 .zen-map-list {
