@@ -179,6 +179,7 @@ test('box top bar reads as a distinct header strip', () => {
   expect(bar).toMatch(/background-color\s*:\s*var\(--accent\)/);
   expect(bar).toMatch(/border\s*:\s*none/);
   expect(bar).toMatch(/border-radius\s*:\s*8px/);
+  expect(bar).toMatch(/padding\s*:\s*2px 10px/);
   expect(css).toMatch(/\.boxTopBar \.debug-controls--run,\s*\.boxTopBar \.debug-controls--step\s*\{[^}]*color\s*:\s*var\(--accent-ink\)/);
 });
 
