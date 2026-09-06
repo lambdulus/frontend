@@ -284,13 +284,15 @@ test('no indicator mounts when there is no history yet', () => {
 
 test('macros open in a left-docked popup', () => {
   // Out of flow against the box's left edge (never reflows the box),
-  // a floating card with its own capped scroll...
+  // a floating card spanning the full box height, flush top and
+  // bottom, with longer macro lists scrolling inside...
   const css = readFileSync('src/untyped-lambda-integration/styles/MacroList.css', 'utf8');
   const popup = css.match(/\.macro-popup\s*\{[^}]*\}/)?.[0] ?? '';
   expect(popup).toMatch(/position\s*:\s*absolute/);
   expect(popup).toMatch(/background-color\s*:\s*var\(--surface\)/);
   expect(popup).toMatch(/box-shadow\s*:/);
-  expect(popup).toMatch(/max-height\s*:\s*70vh/);
+  expect(popup).toMatch(/top\s*:\s*0/);
+  expect(popup).toMatch(/bottom\s*:\s*0/);
   expect(popup).toMatch(/overflow-y\s*:\s*auto/);
   expect(popup).toMatch(/width\s*:\s*420px/);
   // ...docked to the viewport's left margin (past the 940px column),

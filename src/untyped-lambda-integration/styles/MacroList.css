@@ -7,14 +7,15 @@
    reflows the box; on a wide screen it hugs the left edge with room
    to spare, on narrower screens it slides over the box as far as it
    must. (Below the slim-column breakpoint the offset follows the
-   850px column from the narrow-screen block in App.css.) */
+   850px column from the narrow-screen block in App.css.) Full box
+   height, flush top and bottom; longer macro lists scroll inside. */
 .macro-popup {
   position: absolute;
   top: 0;
+  bottom: 0;
   left: calc(-1 * max(22px, (100vw - 940px) / 2 + 22px));
   width: 420px;
   max-width: calc(100vw - 24px);
-  max-height: 70vh;
   overflow-y: auto;
   scrollbar-width: thin;
   background-color: var(--surface);
