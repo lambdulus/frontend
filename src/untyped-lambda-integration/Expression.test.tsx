@@ -1,6 +1,6 @@
 import React from 'react';
 import { test, expect, vi, afterEach } from 'vitest';
-import { render, cleanup } from '@testing-library/react';
+import { render, fireEvent, cleanup } from '@testing-library/react';
 import Expression from './Expression';
 import { EvaluationStrategy, StepValidity, UntypedLambdaState } from './Types';
 import { tokenize, parse, None } from '@lambdulus/core';
@@ -60,12 +60,59 @@ test('past steps scroll while the latest step is pinned outside', () => {
   expect(current?.querySelector('.stepNumber')?.textContent).toMatch(/1 :/);
 });
 
-test('gap indicator mounts hidden while history reaches the current form', () => {
+test('gap marks mount at both ends, hidden while history shows everything', () => {
   const { container } = renderExpression();
 
-  const indicator = container.querySelector('.history-gap-indicator');
-  expect(indicator).not.toBeNull();
-  expect(indicator?.classList.contains('visible')).toBe(false);
+  const marks = container.querySelectorAll('.history-gap-indicator');
+  expect(marks.length).toBe(2);
+  expect(marks[0].classList.contains('history-gap-indicator--top')).toBe(true);
+  expect(marks[1].classList.contains('history-gap-indicator--bottom')).toBe(true);
+  marks.forEach((mark) => expect(mark.classList.contains('visible')).toBe(false));
+});
+
+function scrollerWithGeometry (container : HTMLElement) : HTMLElement {
+  const scroller = container.querySelector('.box-history-scroll') as HTMLElement;
+  Object.defineProperty(scroller, 'scrollHeight', { configurable : true, value : 1000 });
+  Object.defineProperty(scroller, 'clientHeight', { configurable : true, value : 200 });
+  return scroller;
+}
+
+test('scrolling away from either end reveals that end’s mark', () => {
+  const { container } = renderExpression();
+  const scroller = scrollerWithGeometry(container);
+
+  scroller.scrollTop = 300;
+  fireEvent.scroll(scroller);
+
+  const marks = container.querySelectorAll('.history-gap-indicator');
+  expect(marks[0].classList.contains('visible')).toBe(true);
+  expect(marks[1].classList.contains('visible')).toBe(true);
+
+  scroller.scrollTop = 0;
+  fireEvent.scroll(scroller);
+
+  expect(marks[0].classList.contains('visible')).toBe(false);
+  expect(marks[1].classList.contains('visible')).toBe(true);
+});
+
+test('clicking the top mark jumps the history to its start', () => {
+  const { container } = renderExpression();
+  const scroller = scrollerWithGeometry(container);
+  scroller.scrollTop = 300;
+  fireEvent.scroll(scroller);
+
+  const proto = window.HTMLElement.prototype as any;
+  const originalScrollTo = proto.scrollTo;
+  const spy = vi.fn();
+  proto.scrollTo = spy;
+  try {
+    const topMark = container.querySelector('.history-gap-indicator--top') as HTMLElement;
+    fireEvent.click(topMark);
+    expect(spy).toHaveBeenCalledWith({ top : 0, behavior : 'smooth' });
+  }
+  finally {
+    proto.scrollTo = originalScrollTo;
+  }
 });
 
 test('no indicator mounts when there is no history yet', () => {
@@ -89,6 +136,6 @@ test('no indicator mounts when there is no history yet', () => {
   );
 
   expect(container.querySelectorAll('.box-history-scroll li').length).toBe(0);
-  expect(container.querySelector('.history-gap-indicator')).toBeNull();
+  expect(container.querySelectorAll('.history-gap-indicator').length).toBe(0);
   expect(container.querySelector('.box-current-step .stepNumber')?.textContent).toMatch(/0 :/);
 });
