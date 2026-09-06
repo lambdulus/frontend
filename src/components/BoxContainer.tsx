@@ -14,7 +14,6 @@ interface Props {
   box : BoxState
 
   seatBox : () => void
-  makeActive : () => void
   onBlur : () => void
   updateBoxState : (state : BoxState) => void
   removeBox : () => void
@@ -78,7 +77,6 @@ export class BoxContainer extends Component<Props, State> {
       isFocusedBox,
       box,
       seatBox,
-      makeActive,
       onBlur,
       updateBoxState,
       addBoxBefore,
@@ -94,7 +92,6 @@ export class BoxContainer extends Component<Props, State> {
       <div ref={ this.rootRef }>
         <div
           className={ `boxContainer ${ isActiveBox ? 'active' : 'inactive' } ${boxTypeClassName}` }
-          onClick={ makeActive }
           onBlur={ onBlur }
         >
           <BoxTitleBar
