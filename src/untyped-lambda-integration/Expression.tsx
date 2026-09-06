@@ -10,8 +10,8 @@ import './styles/Expression.css'
 
 // Outward wheel travel swallowed at either end of the history before
 // the scroll chains out to the notebook: crossing an end takes one
-// deliberate extra push instead of slipping through mid-gesture.
-const HISTORY_EDGE_BUMP_PX : number = 160
+// light extra push instead of slipping through mid-gesture.
+const HISTORY_EDGE_BUMP_PX : number = 80
 
 // A paused push is a new push: the bump re-arms after this long with
 // no wheel input, so an old half-push never chains unexpectedly.
