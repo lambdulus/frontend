@@ -172,8 +172,6 @@ export default class Notebook extends PureComponent<Props> {
         break
     }
 
-    this.ensureFocusRoom(index)
-
     if (index !== activeBoxIndex || index !== focusedBoxIndex || boxList[index].minimized === true) {
       const futureType : BoxType = boxList[index].type
 
@@ -199,12 +197,16 @@ export default class Notebook extends PureComponent<Props> {
 
       this.props.updateNotebook({ activeBoxIndex : index, focusedBoxIndex : index, boxList })
     }
+
+    // Seat after React commits the focus swap: measuring earlier reads
+    // pre-swap heights, and anything collapsing above (blurred editors,
+    // focus UI) then shifts the box out from under the scroll target.
+    requestAnimationFrame(() => this.ensureFocusRoom(index))
   }
 
-  // Seat the focused box so stepping never moves the page: its top goes
-  // just under the fixed bar with room for a full history below it. When
-  // the document is too short for that, grow an invisible spacer at the
-  // bottom to create the missing scroll potential.
+  // Seat the focused box just under the fixed bar so it occupies the
+  // view. When the document is too short for that, grow an invisible
+  // spacer at the bottom to create the missing scroll potential.
   ensureFocusRoom (index : number) : void {
     const el : HTMLLIElement | null | undefined = this.boxRefs[index]
     if (el === null || el === undefined) {
