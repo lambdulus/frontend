@@ -232,6 +232,14 @@ test('wheel over the pinned endpoints drives the history', () => {
   expect(scroller.scrollTop).toBe(800);
 });
 
+test('wrapped steps clear their highlight boxes', () => {
+  // The inline redex/breakpoint boxes extend past the glyph box; the
+  // step needs leading to match or wrapped lines collide with them.
+  const css = readFileSync('src/untyped-lambda-integration/styles/Step.css', 'utf8');
+  const step = css.match(/\.step\s*\{[^}]*\}/)?.[0] ?? '';
+  expect(step).toMatch(/line-height\s*:\s*1\.5/);
+});
+
 test('collapsed steps leave room for redex borders', () => {
   // The collapsed line clips horizontally for the ellipsis, but the
   // 1px redex borders must still paint above and below the line:
