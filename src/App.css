@@ -110,6 +110,44 @@ body {
   cursor: default;
 }
 
+/* Zen mode: a single box owns the viewport. Only the anchor box
+   renders; the title, the add-box affordances and the seating spacer
+   step out, and the box stretches to at least the full view height so
+   nothing else can peek in below it. The arrows stay on (they are the
+   way around) and the history grows into the freed real estate. */
+.mainSpace.zen .notebook-title {
+  display: none;
+}
+
+.mainSpace.zen .boxList > .LI {
+  display: none;
+}
+
+.mainSpace.zen .boxList > .LI.zen-current {
+  display: block;
+}
+
+.mainSpace.zen .add_box_after {
+  display: none;
+}
+
+.mainSpace.zen .notebook-bottom-spacer {
+  display: none;
+}
+
+.mainSpace.zen .boxContainer {
+  min-height: calc(100vh - 116px);
+  border-bottom: none;
+}
+
+.mainSpace.zen .box-history-scroll {
+  max-height: max(240px, calc(100vh - 420px));
+}
+
+.mainSpace.zen .box-nav {
+  display: flex;
+}
+
 .notebook-title {
   font-size: 1.35em;
   font-weight: 600;

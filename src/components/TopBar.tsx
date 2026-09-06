@@ -1,5 +1,5 @@
 import React, { ChangeEvent, useEffect, useMemo, useRef, useState } from 'react'
-import { Bug, Check, Download, Eraser, Lock, Moon, Palette, Plus, Settings as SettingsIcon, Sun, Upload, X } from 'lucide-react'
+import { Bug, Check, Download, Eraser, Focus, Lock, Moon, Palette, Plus, Settings as SettingsIcon, Sun, Upload, X } from 'lucide-react'
 
 import { Accent, GlobalSettings, NotebookState } from '../Types'
 
@@ -29,6 +29,7 @@ interface Props {
   onResetWorkspace () : void
   onDarkModeChange () : void
   onSettingsChange (settings : GlobalSettings) : void
+  onZenModeChange (zenMode : boolean) : void
 }
 
 export default function TopBar (props : Props) : JSX.Element {
@@ -47,6 +48,7 @@ export default function TopBar (props : Props) : JSX.Element {
     onResetWorkspace,
     onDarkModeChange,
     onSettingsChange,
+    onZenModeChange,
   } : Props = props
 
   // A single open panel: switching icons swaps popovers in one click
@@ -163,6 +165,14 @@ export default function TopBar (props : Props) : JSX.Element {
             onClick={ onDarkModeChange }
           >
             { darkmode ? <Sun size={ 17 } strokeWidth={ 1.75 } /> : <Moon size={ 17 } strokeWidth={ 1.75 } /> }
+          </button>
+
+          <button
+            className={ notebook.zenMode === true ? 'top-bar--action top-bar--action--active' : 'top-bar--action' }
+            title={ notebook.zenMode === true ? 'Exit zen mode: show all boxes' : 'Zen mode: one box at a time' }
+            onClick={ () => onZenModeChange(notebook.zenMode !== true) }
+          >
+            <Focus size={ 17 } strokeWidth={ 1.75 } />
           </button>
 
           <button
