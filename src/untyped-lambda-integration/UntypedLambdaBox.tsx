@@ -18,12 +18,11 @@ interface Props {
 
   setBoxState (state : UntypedLambdaState) : void
   addBox (box : UntypedLambdaState) : void
-  seatBox () : void
 }
 
 export default class UntypedLambdaBox extends PureComponent<Props> {
   render () {
-    const { state, isActive, isFocused, setBoxState, addBox, seatBox } : Props = this.props
+    const { state, isActive, isFocused, setBoxState, addBox } : Props = this.props
     const { settingsOpen, subtype, macrolistOpen, SLI, expandStandalones, strategy, SDE, collapseOldSteps, editor, minimized } : UntypedLambdaState = state
 
 
@@ -92,10 +91,6 @@ export default class UntypedLambdaBox extends PureComponent<Props> {
                     ...state,
                     ...settings
                   })
-                  // A toggle can resize the box (collapsing!); re-seat
-                  // once rendered so the box keeps its place in view
-                  // instead of jumping with the page.
-                  requestAnimationFrame(() => seatBox())
                 } }
               />
             </div>
