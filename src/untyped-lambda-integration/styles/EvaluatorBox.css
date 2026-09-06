@@ -98,9 +98,9 @@ li.activeStep,
   display: block;
 }
 
-/* Hovering (or keyboard-focusing) turns the wave's tail into a
-   down chevron, inviting the jump to the current form. */
-.history-gap-indicator .gap-chevron {
+/* Hovering (or keyboard-focusing) swaps the wave for a column of
+   down chevrons, inviting the jump to the current form. */
+.history-gap-indicator .gap-arrows {
   position: absolute;
   left: 50%;
   bottom: 0;
@@ -109,14 +109,14 @@ li.activeStep,
   transition: opacity .15s ease-in-out;
 }
 
-.history-gap-indicator:hover .gap-chevron,
-.history-gap-indicator:focus-visible .gap-chevron {
+.history-gap-indicator:hover .gap-arrows,
+.history-gap-indicator:focus-visible .gap-arrows {
   opacity: 1;
 }
 
 .history-gap-indicator:hover .gap-wave,
 .history-gap-indicator:focus-visible .gap-wave {
-  opacity: 0.35;
+  opacity: 0;
 }
 
 .history-gap-indicator .gap-wave {
