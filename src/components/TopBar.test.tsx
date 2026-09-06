@@ -1,3 +1,4 @@
+import { readFileSync } from 'fs';
 import { test, expect, vi, afterEach } from 'vitest';
 import { render, fireEvent, cleanup } from '@testing-library/react';
 import TopBar from './TopBar';
@@ -39,6 +40,17 @@ function baseProps (onZenModeChange : (zenMode : boolean) => void) {
     onZenModeChange,
   };
 }
+
+test('theme toggle carries its styling hook and warms in the dark', () => {
+  const { container } = render(<TopBar { ...baseProps(() => void 0) } />);
+
+  const toggle = container.querySelector('[title="Toggle the theme"]') as HTMLElement;
+  expect(toggle.classList.contains('top-bar--theme-toggle')).toBe(true);
+
+  const css = readFileSync('src/styles/TopBar.css', 'utf8');
+  const warm = css.match(/#app\.dark \.top-bar--theme-toggle:hover\s*\{[^}]*\}/)?.[0] ?? '';
+  expect(warm).toMatch(/color\s*:\s*var\(--warning\)/);
+});
 
 test('zen control is a real switch reflecting the mode', () => {
   const onZenModeChange = vi.fn();
