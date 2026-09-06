@@ -166,6 +166,12 @@ body {
   display: none;
 }
 
+/* Collapsing the single zen box would only strand an empty clamped
+   frame, so the toggle steps out with the other box furniture. */
+.mainSpace.zen .box-top-bar--collapse-toggle {
+  display: none;
+}
+
 .mainSpace.zen .notebook-bottom-spacer {
   display: none;
 }
