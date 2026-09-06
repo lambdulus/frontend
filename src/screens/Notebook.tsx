@@ -16,14 +16,6 @@ interface Props {
 // side arrows, whether it got there by click or by plain scrolling.
 const PRIME_LINE_PX : number = 100
 
-// Outward page travel swallowed in zen mode before paging to the next
-// box: leaving a zen box takes one deliberate extra push.
-const ZEN_BUMP_PX : number = 120
-
-// A paused push is a new push: the bump re-arms after this long with
-// no wheel input.
-const ZEN_BUMP_RESET_MS : number = 300
-
 export interface BoxTop {
   top : number
   height : number
@@ -42,7 +34,7 @@ export function selectPrimeBox (boxes : Array<BoxTop>, line : number) : number {
   return prime
 }
 
-// One zen page in the push direction, or null past either end: zen
+// One zen page in the given direction, or null past either end: zen
 // never wraps around.
 export function zenStep (anchor : number, length : number, direction : 1 | -1) : number | null {
   const next : number = anchor + direction
@@ -56,8 +48,6 @@ export default class Notebook extends PureComponent<Props> {
   private boxRefs : Array<HTMLLIElement | null>
   private spacerRef : React.RefObject<HTMLDivElement>
   private seatRequested : number | null
-  private zenBump : number
-  private zenBumpTimer : number | undefined
   private primeRaf : number | null
 
   constructor (props : Props) {
@@ -66,8 +56,6 @@ export default class Notebook extends PureComponent<Props> {
     this.boxRefs = []
     this.spacerRef = React.createRef<HTMLDivElement>()
     this.seatRequested = null
-    this.zenBump = 0
-    this.zenBumpTimer = undefined
     this.primeRaf = null
 
     this.insertBefore = this.insertBefore.bind(this)
@@ -76,26 +64,52 @@ export default class Notebook extends PureComponent<Props> {
     this.updateBoxState = this.updateBoxState.bind(this)
     this.makeActive = this.makeActive.bind(this)
     this.onBlur = this.onBlur.bind(this)
-    this.onPageWheel = this.onPageWheel.bind(this)
+    this.onPageKeyDown = this.onPageKeyDown.bind(this)
     this.onPageScroll = this.onPageScroll.bind(this)
   }
 
   componentDidMount () : void {
-    // Page-level wheel stays non-passive for the zen bump; the scroll
-    // listener only observes, so it stays passive.
-    window.addEventListener('wheel', this.onPageWheel, { passive : false })
+    window.addEventListener('keydown', this.onPageKeyDown)
     window.addEventListener('scroll', this.onPageScroll, { passive : true })
   }
 
   componentWillUnmount () : void {
-    window.removeEventListener('wheel', this.onPageWheel)
+    window.removeEventListener('keydown', this.onPageKeyDown)
     window.removeEventListener('scroll', this.onPageScroll)
-    if (this.zenBumpTimer !== undefined) {
-      window.clearTimeout(this.zenBumpTimer)
-    }
     if (this.primeRaf !== null) {
       window.cancelAnimationFrame(this.primeRaf)
     }
+  }
+
+  // Zen paging by key: ArrowUp/ArrowDown turn the page, unless the
+  // keystroke belongs to someone else - an editor, or the history
+  // pane, which scrolls itself with the arrows while a step inside
+  // it holds focus.
+  onPageKeyDown (e : KeyboardEvent) : void {
+    const { boxList, activeBoxIndex, focusedBoxIndex, zenMode } = this.props.state
+    if (zenMode !== true || (e.key !== 'ArrowDown' && e.key !== 'ArrowUp')) {
+      return
+    }
+
+    const focused : Element | null = document.activeElement
+    if (focused !== null) {
+      if (focused instanceof HTMLInputElement || focused instanceof HTMLTextAreaElement || focused instanceof HTMLSelectElement) {
+        return
+      }
+      if (focused instanceof HTMLElement && focused.isContentEditable) {
+        return
+      }
+      if (focused.closest('.box-history-scroll') !== null) {
+        return
+      }
+    }
+
+    const next : number | null = zenStep(focusedBoxIndex ?? activeBoxIndex, boxList.length, e.key === 'ArrowDown' ? 1 : -1)
+    if (next === null) {
+      return
+    }
+    e.preventDefault()
+    this.makeActive(next)
   }
 
   // Plain scrolling moves the prime view, so the side arrows follow
@@ -130,56 +144,6 @@ export default class Notebook extends PureComponent<Props> {
       this.props.updateNotebook({ focusedBoxIndex : prime })
     }
   }
-
-  // Zen paging: with a single box owning the viewport the page rarely
-  // scrolls, so an outward push past the page end turns it after the
-  // bump. Events the history pane consumes never reach here (it
-  // shields them), so internal history scrolling can never hijack
-  // into a page turn.
-  onPageWheel (e : WheelEvent) : void {
-    const { boxList, activeBoxIndex, focusedBoxIndex, zenMode } = this.props.state
-    if (zenMode !== true || boxList.length < 2) {
-      return
-    }
-    const target : EventTarget | null = e.target
-    if (target instanceof Element && target.closest('.box-nav, .top-bar') !== null) {
-      return
-    }
-
-    const unit : number = e.deltaMode === 1 ? 16 : e.deltaMode === 2 ? window.innerHeight : 1
-    const deltaY : number = e.deltaY * unit
-    if (Math.abs(deltaY) < Math.abs(e.deltaX)) {
-      this.zenBump = 0
-      return
-    }
-
-    const maxY : number = document.documentElement.scrollHeight - window.innerHeight
-    if (! ((deltaY < 0 && window.scrollY <= 1) || (deltaY > 0 && window.scrollY >= maxY - 1))) {
-      this.zenBump = 0
-      return
-    }
-
-    if (this.zenBumpTimer !== undefined) {
-      window.clearTimeout(this.zenBumpTimer)
-    }
-    this.zenBumpTimer = window.setTimeout(() => {
-      this.zenBump = 0
-      this.zenBumpTimer = undefined
-    }, ZEN_BUMP_RESET_MS)
-
-    if (this.zenBump < ZEN_BUMP_PX) {
-      e.preventDefault()
-      this.zenBump += Math.abs(deltaY)
-      return
-    }
-
-    this.zenBump = 0
-    const next : number | null = zenStep(focusedBoxIndex ?? activeBoxIndex, boxList.length, deltaY < 0 ? -1 : 1)
-    if (next !== null) {
-      this.makeActive(next)
-    }
-  }
-
 
   render () {
     const { state } = this.props
