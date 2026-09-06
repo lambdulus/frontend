@@ -14,12 +14,14 @@ interface Props {
 export default class Notebook extends PureComponent<Props> {
   private boxRefs : Array<HTMLLIElement | null>
   private spacerRef : React.RefObject<HTMLDivElement>
+  private seatRequested : number | null
 
   constructor (props : Props) {
     super(props)
 
     this.boxRefs = []
     this.spacerRef = React.createRef<HTMLDivElement>()
+    this.seatRequested = null
 
     this.insertBefore = this.insertBefore.bind(this)
     this.insertAfter = this.insertAfter.bind(this)
@@ -197,16 +199,18 @@ export default class Notebook extends PureComponent<Props> {
 
       this.props.updateNotebook({ activeBoxIndex : index, focusedBoxIndex : index, boxList })
     }
+
+    // Consumed post-commit below: measures final heights, so collapsing
+    // editors or focus UI above cannot shift the box out from under
+    // the scroll target. Covers re-clicks on the focused box too.
+    this.seatRequested = index
   }
 
-  componentDidUpdate (prevProps : Props) : void {
-    // Seat only once React has committed: the newly focused box is
-    // measured at its final height, so collapsing editors or focus UI
-    // above it cannot shift it out from under the scroll target.
-    // (Plain clicks on an already-focused title seat directly instead.)
-    const focused : number | undefined = this.props.state.focusedBoxIndex
-    if (typeof focused === 'number' && focused !== prevProps.state.focusedBoxIndex) {
-      this.ensureFocusRoom(focused)
+  componentDidUpdate (_prevProps : Props) : void {
+    if (this.seatRequested !== null) {
+      const index : number = this.seatRequested
+      this.seatRequested = null
+      this.ensureFocusRoom(index)
     }
   }
 
