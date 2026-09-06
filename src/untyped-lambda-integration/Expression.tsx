@@ -81,6 +81,15 @@ export default class Expression extends PureComponent<EvaluatorProps, Expression
     }
   }
 
+  // Jump the history scroll down to the current form; the scroll
+  // handler notices the bottom and fades the indicator away.
+  scrollHistoryToBottom () : void {
+    const el : HTMLDivElement | null = this.historyRef.current
+    if (el !== null) {
+      el.scrollTo({ top : el.scrollHeight, behavior : 'smooth' })
+    }
+  }
+
   render () : JSX.Element {
     const { className, state, editor, shouldShowDebugControls, isExercise } = this.props
 
@@ -154,11 +163,22 @@ export default class Expression extends PureComponent<EvaluatorProps, Expression
           this.props.history.length > 1 ?
             <div
               className={ `history-gap-indicator${ this.state.historyAtBottom ? '' : ' visible' }` }
-              title='History is scrolled up - the steps right before the current form are hidden'
-              aria-hidden='true'
+              title='History is scrolled up - click to jump to the current form'
+              role='button'
+              tabIndex={ 0 }
+              onClick={ () => this.scrollHistoryToBottom() }
+              onKeyDown={ (e : React.KeyboardEvent<HTMLDivElement>) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault()
+                  this.scrollHistoryToBottom()
+                }
+              } }
             >
-              <svg width='12' height='30' viewBox='0 0 12 30' fill='none' stroke='currentColor' strokeWidth='1.5' strokeLinecap='round'>
+              <svg className='gap-wave' width='12' height='30' viewBox='0 0 12 30' fill='none' stroke='currentColor' strokeWidth='1.5' strokeLinecap='round'>
                 <path d='M6 1 Q10 5 6 9 Q2 13 6 17 Q10 21 6 25 Q4 27.5 6 29' />
+              </svg>
+              <svg className='gap-chevron' width='12' height='10' viewBox='0 0 12 10' fill='none' stroke='currentColor' strokeWidth='1.5' strokeLinecap='round' strokeLinejoin='round' aria-hidden='true'>
+                <path d='M1 2 L6 8 L11 2' />
               </svg>
             </div>
           :
