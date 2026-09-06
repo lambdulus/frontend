@@ -31,7 +31,11 @@ interface EvaluatorProps {
   shouldShowDebugControls : boolean
 }
 
-export default class Expression extends PureComponent<EvaluatorProps> {
+interface ExpressionState {
+  historyAtBottom : boolean
+}
+
+export default class Expression extends PureComponent<EvaluatorProps, ExpressionState> {
   private historyRef : React.RefObject<HTMLDivElement>
   private followTail : boolean
 
@@ -40,22 +44,41 @@ export default class Expression extends PureComponent<EvaluatorProps> {
 
     this.historyRef = React.createRef<HTMLDivElement>()
     this.followTail = true
+    this.state = { historyAtBottom : true }
     this.addBreakpoint = this.addBreakpoint.bind(this)
+  }
+
+  componentDidMount () : void {
+    this.syncHistoryBottom()
   }
 
   componentDidUpdate (prevProps : EvaluatorProps) : void {
     // Follow the evaluation while the user is watching the tail;
     // stop following once they scroll up, resume at the bottom.
-    if (prevProps.history.length === this.props.history.length) {
-      return
+    if (prevProps.history.length !== this.props.history.length) {
+      const el : HTMLDivElement | null = this.historyRef.current
+      if (el !== null && this.followTail) {
+        el.scrollTop = el.scrollHeight
+      }
     }
 
+    this.syncHistoryBottom()
+  }
+
+  // Tracks whether the history scroll shows the steps right before the
+  // current form; drives the gap indicator. Guarded so it only
+  // re-renders on flips.
+  syncHistoryBottom () : void {
     const el : HTMLDivElement | null = this.historyRef.current
-    if (el === null || ! this.followTail) {
+    if (el === null) {
       return
     }
 
-    el.scrollTop = el.scrollHeight
+    const atBottom : boolean = el.scrollHeight - el.scrollTop - el.clientHeight < 40
+    this.followTail = atBottom
+    if (atBottom !== this.state.historyAtBottom) {
+      this.setState({ historyAtBottom : atBottom })
+    }
   }
 
   render () : JSX.Element {
@@ -94,10 +117,7 @@ export default class Expression extends PureComponent<EvaluatorProps> {
         <div
           className='box-history-scroll'
           ref={ this.historyRef }
-          onScroll={ (e) => {
-            const el : HTMLDivElement = e.currentTarget
-            this.followTail = el.scrollHeight - el.scrollTop - el.clientHeight < 40
-          } }
+          onScroll={ () => this.syncHistoryBottom() }
         >
         <ul className={ `UL${ collapseOldSteps ? ' collapse-history' : '' }` }>
           {
@@ -125,32 +145,47 @@ export default class Expression extends PureComponent<EvaluatorProps> {
                 </Step>
               </li>)
           }
-          <li key={this.props.history.length - 1} className='activeStep LI'>
-            <Step
-              breakpoints={ this.props.breakpoints }
-              strategy={ this.props.state.strategy }
-              addBreakpoint={ this.addBreakpoint }
-              stepRecord={ this.props.history[this.props.history.length - 1] }
-              lastStep={ true }
-              SDE={ SDE }
-              macrotable={ macrotable }
-            >
-                <span
-                  className="hiddenIcon"
-                  title='Clone this expression to the new box'
-                  onClick={ (e : any) => {
-                    e.stopPropagation() // TODO: maybe I shouldn't do this
-                    // maybe instead I should drop the `focusedBoxIndex` and stop caring if Box has been clicked
-                    // instead I could always render whole and complete Box if user does not collapsed it
-                    // I need to think this through
-                    this.props.addBox(this.props.createBoxFrom(this.props.history[this.props.history.length - 1]))
-                   } }
-                  >
-                    <Copy size={ 13 } strokeWidth={ 1.75 } />
-                  </span>
-            </Step>
-          </li>
         </ul>
+        </div>
+        {
+          // Omission marker between the scrolled history and the pinned
+          // current form; only visible while the history does not reach
+          // the steps right before it.
+          this.props.history.length > 1 ?
+            <div
+              className={ `history-gap-indicator${ this.state.historyAtBottom ? '' : ' visible' }` }
+              title='History is scrolled up - the steps right before the current form are hidden'
+              aria-hidden='true'
+            >
+              <span>⋮</span>
+            </div>
+          :
+            null
+        }
+        <div className='box-current-step activeStep'>
+          <Step
+            breakpoints={ this.props.breakpoints }
+            strategy={ this.props.state.strategy }
+            addBreakpoint={ this.addBreakpoint }
+            stepRecord={ this.props.history[this.props.history.length - 1] }
+            lastStep={ true }
+            SDE={ SDE }
+            macrotable={ macrotable }
+          >
+              <span
+                className="hiddenIcon"
+                title='Clone this expression to the new box'
+                onClick={ (e : any) => {
+                  e.stopPropagation() // TODO: maybe I shouldn't do this
+                  // maybe instead I should drop the `focusedBoxIndex` and stop caring if Box has been clicked
+                  // instead I could always render whole and complete Box if user does not collapsed it
+                  // I need to think this through
+                  this.props.addBox(this.props.createBoxFrom(this.props.history[this.props.history.length - 1]))
+                 } }
+                >
+                  <Copy size={ 13 } strokeWidth={ 1.75 } />
+                </span>
+          </Step>
         </div>
         {
           (isExercise && ! this.props.isNormalForm) ?

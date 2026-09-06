@@ -57,11 +57,38 @@
 }
 
 /* The latest step gets air above it plus an accent bar, so "history"
-   and "now" read apart without shifting text size while stepping. */
-li.activeStep {
+   and "now" read apart without shifting text size while stepping.
+   The pinned current form below the scroll shares the treatment. */
+li.activeStep,
+.box-current-step {
   margin-top: 12px;
   padding: 2px 0 2px 16px;
   border-left: 2px solid var(--accent);
+}
+
+/* Omission marker between scrolled history and the pinned current
+   form. Mounted whenever there is history; fades and unfolds only
+   while the history does not reach the steps right before now. */
+.history-gap-indicator {
+  display: flex;
+  justify-content: center;
+  max-height: 0;
+  margin: 0;
+  opacity: 0;
+  overflow: hidden;
+  color: var(--muted);
+  transition: max-height .2s ease-in-out, margin .2s ease-in-out, opacity .2s ease-in-out;
+}
+
+.history-gap-indicator.visible {
+  max-height: 30px;
+  margin: 4px 0;
+  opacity: 1;
+}
+
+.history-gap-indicator > span {
+  font-size: 1.2em;
+  line-height: 1.2;
 }
 
 .hiddenIcon, .hiddenMacroIcon {
