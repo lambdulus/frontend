@@ -179,6 +179,10 @@ test('hitting either end of the history sticks before chaining through', () => {
   // ...then the scroll lets go and chains out to the notebook.
   expect(fireEvent.wheel(scroller, { deltaY : -100 })).toBe(true);
 
+  // Scrolling down through the middle re-arms the other end.
+  scroller.scrollTop = 300;
+  fireEvent.wheel(scroller, { deltaY : 100 });
+
   // Same at the bottom end.
   scroller.scrollTop = 800;
   expect(fireEvent.wheel(scroller, { deltaY : 100 })).toBe(false);
