@@ -258,22 +258,24 @@ export default function TopBar (props : Props) : JSX.Element {
                   )
                 }
                 <p className='top-bar--settings-title'>Box style</p>
-                <div role='radiogroup' aria-label='Box style'>
+                <div className='top-bar--boxstyle-seg'>
                   {
                     ([
                       { value : 'cards' as BoxStyle, label : 'Cards' },
                       { value : 'classic' as BoxStyle, label : 'Classic' },
                     ]).map((option) =>
-                      <button
-                        key={ option.value }
-                        role='radio'
-                        aria-checked={ boxStyle === option.value }
-                        className={ `btn top-bar--theme-btn${boxStyle === option.value ? ' top-bar--theme-btn--active' : ''}` }
-                        onClick={ () => onBoxStyleChange(option.value) }
-                      >
-                        { option.label }
-                        { boxStyle === option.value ? <Check size={ 14 } strokeWidth={ 2 } /> : null }
-                      </button>
+                      <span className='top-bar--boxstyle-radio-wrapper' key={ option.value }>
+                        <input
+                          id={ `top-bar--boxstyle-${option.value}` }
+                          type='radio'
+                          name='top-bar--boxstyle'
+                          checked={ boxStyle === option.value }
+                          onChange={ () => onBoxStyleChange(option.value) }
+                        />
+                        <label className='top-bar--boxstyle-label' htmlFor={ `top-bar--boxstyle-${option.value}` }>
+                          { option.label }
+                        </label>
+                      </span>
                     )
                   }
                 </div>
