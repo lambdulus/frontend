@@ -118,7 +118,7 @@ li.activeStep,
 }
 
 .history-gap-indicator--bottom {
-  bottom: -8px;
+  bottom: -12px;
 }
 
 .history-gap-indicator.visible {
