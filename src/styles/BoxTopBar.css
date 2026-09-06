@@ -18,6 +18,10 @@
   display: contents;
 }
 
+.boxTopBar-spacer {
+  flex: 1 1 auto;
+}
+
 .boxTopBar-actions .debug-controls {
   display: inline-flex;
   align-items: center;

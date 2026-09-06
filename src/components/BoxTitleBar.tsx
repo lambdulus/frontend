@@ -92,6 +92,14 @@ export default class BoxTitleBar extends Component<Props, State> {
           :
             null
         }
+        {
+          // With the title gone something else must push the icons
+          // right; the portaled actions stay left where the title was.
+          hideTitle ?
+            <div className='boxTopBar-spacer' />
+          :
+            null
+        }
 
         <div className='box-top-bar-custom'>
           {
