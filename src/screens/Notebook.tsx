@@ -47,9 +47,9 @@ export function zenStep (anchor : number, length : number, direction : 1 | -1) :
   return next
 }
 
-// One line on the zen map: box titles are gone, so a lambda box shows
+// One line on the box map: box titles are gone, so a lambda box shows
 // its initial term and a note shows its title, each with a fallback.
-export function zenBoxLabel (box : BoxState) : string {
+export function mapBoxLabel (box : BoxState) : string {
   if (box.type === BoxType.UNTYPED_LAMBDA) {
     const history = (box as UntypedLambdaState).history
     if (history.length > 0) {
@@ -136,13 +136,13 @@ export default class Notebook extends PureComponent<Props, State> {
     }
   }
 
-  // Zen paging by key: ArrowUp/ArrowDown turn the page, unless the
-  // keystroke belongs to someone else - an editor, or the history
-  // pane, which scrolls itself with the arrows while a step inside
-  // it holds focus.
+  // Box-to-box paging by key: ArrowUp/ArrowDown move the anchor in
+  // both modes, unless the keystroke belongs to someone else - an
+  // editor, or the history pane, which scrolls itself with the arrows
+  // while a step inside it holds focus.
   onPageKeyDown (e : KeyboardEvent) : void {
-    const { boxList, activeBoxIndex, focusedBoxIndex, zenMode } = this.props.state
-    if (zenMode !== true || (e.key !== 'ArrowDown' && e.key !== 'ArrowUp')) {
+    const { boxList, activeBoxIndex, focusedBoxIndex } = this.props.state
+    if (e.key !== 'ArrowDown' && e.key !== 'ArrowUp') {
       return
     }
 
@@ -160,9 +160,9 @@ export default class Notebook extends PureComponent<Props, State> {
     }
 
     const next : number | null = zenStep(focusedBoxIndex ?? activeBoxIndex, boxList.length, e.key === 'ArrowDown' ? 1 : -1)
-    // In zen the arrows belong to paging (and to the history pane and
-    // the editors, handled above): never let them nudge the page
-    // itself, not even past the first or last box.
+    // The arrows belong to paging (and to the history pane and the
+    // editors, handled above): never let them nudge the page itself,
+    // not even past the first or last box.
     e.preventDefault()
     if (next !== null) {
       this.makeActive(next)
@@ -302,27 +302,56 @@ export default class Notebook extends PureComponent<Props, State> {
             <div className='notebook-bottom-spacer' />
         }
         {
-          // Zen map: one line per box (initial terms, titles gone),
-          // vertically centered, capped at 70% of the view, scrolling
-          // under fades past that. Clicking a line jumps straight to
-          // its box; the anchor carries the accent bar.
-          zen && boxList.length > 0 ?
-            <nav className='zen-map' aria-label='Boxes in this notebook'>
+          // Box map: one line per box (initial terms, titles gone),
+          // riding the right viewport edge in both modes, capped at
+          // 70% of the view and scrolling under fades past that.
+          // Clicking a line jumps straight to its box; the anchor
+          // carries the accent bar, flanked by the paging arrows that
+          // echo the arrow keys (the floating box arrows are retired).
+          boxList.length > 0 ?
+            <nav className='box-map' aria-label='Boxes in this notebook'>
               <div
-                className={ `zen-map-list${ this.state.mapAtTop ? '' : ' mask-top' }${ this.state.mapAtBottom ? '' : ' mask-bottom' }` }
+                className={ `box-map-list${ this.state.mapAtTop ? '' : ' mask-top' }${ this.state.mapAtBottom ? '' : ' mask-bottom' }` }
                 ref={ this.mapListRef }
                 onScroll={ (e) => this.syncMapEdges(e.currentTarget) }
               >
                 {
                   boxList.map((box : BoxState, i : number) => (
-                    <button
-                      key={ box.__key }
-                      className={ `zen-map-item${ i === anchor ? ' zen-map-item--current' : '' }` }
-                      title={ zenBoxLabel(box) }
-                      onClick={ () => this.makeActive(i) }
-                    >
-                      <span className='zen-map-label'>{ zenBoxLabel(box) }</span>
-                    </button>
+                    <React.Fragment key={ box.__key }>
+                      {
+                        i === anchor && hasPrev ?
+                          <button
+                            className='box-map-arrow'
+                            title='Previous box (ArrowUp)'
+                            aria-label='Previous box'
+                            onClick={ () => this.makeActive(anchor - 1) }
+                          >
+                            <ChevronUp size={ 14 } strokeWidth={ 2 } />
+                          </button>
+                        :
+                          null
+                      }
+                      <button
+                        className={ `box-map-item${ i === anchor ? ' box-map-item--current' : '' }` }
+                        title={ mapBoxLabel(box) }
+                        onClick={ () => this.makeActive(i) }
+                      >
+                        <span className='box-map-label'>{ mapBoxLabel(box) }</span>
+                      </button>
+                      {
+                        i === anchor && hasNext ?
+                          <button
+                            className='box-map-arrow'
+                            title='Next box (ArrowDown)'
+                            aria-label='Next box'
+                            onClick={ () => this.makeActive(anchor + 1) }
+                          >
+                            <ChevronDown size={ 14 } strokeWidth={ 2 } />
+                          </button>
+                        :
+                          null
+                      }
+                    </React.Fragment>
                   ))
                 }
               </div>
@@ -332,9 +361,10 @@ export default class Notebook extends PureComponent<Props, State> {
         }
         {
           // Fixed box-to-box navigator: jumps to the previous/next box
-          // and focuses it (seating included). Hidden for an empty
-          // notebook; each arrow enables only while a box exists
-          // in its direction.
+          // and focuses it (seating included). Retired from view in
+          // favor of the map arrows (CSS hides it); the markup stays
+          // for an easy revert. Hidden for an empty notebook; each
+          // arrow enables only while a box exists in its direction.
           boxList.length === 0 ?
             null
           :

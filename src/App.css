@@ -67,7 +67,8 @@ body {
 
 /* Fixed box-to-box navigator: a pair of large arrows riding the right
    viewport edge, jumping to the previous/next box with full focus and
-   seating. Only shown where the 900px column leaves real side room. */
+   seating. Retired from view in favor of the map paging arrows; the
+   markup stays for an easy revert. */
 .box-nav {
   position: fixed;
   right: 20px;
@@ -77,12 +78,6 @@ body {
   flex-direction: column;
   gap: 10px;
   z-index: 60;
-}
-
-@media (min-width: 1150px) {
-  .box-nav {
-    display: flex;
-  }
 }
 
 .box-nav--btn {
@@ -240,13 +235,14 @@ body {
   display: none;
 }
 
-/* Zen map: one line per box, pinned left of the arrows and centered
-   on the view. Grows with the notebook up to 70% of the viewport,
-   then scrolls under top/bottom fades. The anchor carries the accent
-   bar; the rest sit muted until hovered. */
+/* Box map: one line per box, riding the right viewport edge in both
+   modes and centered on the view. Grows with the notebook up to 70%
+   of the viewport, then scrolls under top/bottom fades. The anchor
+   carries the accent bar; the rest sit muted until hovered. */
 /* No panel: bare lines over the notebook background, no fill and no
-   border. */
-.mainSpace.zen .zen-map {
+   border. The list itself lets clicks fall through to the box below;
+   only the lines and arrows catch them. */
+.box-map {
   position: fixed;
   right: 76px;
   top: 50%;
@@ -255,7 +251,7 @@ body {
   z-index: 55;
 }
 
-.zen-map-list {
+.box-map-list {
   max-height: 70vh;
   overflow-y: auto;
   overflow-x: hidden;
@@ -263,24 +259,25 @@ body {
   padding: 6px;
   scrollbar-width: thin;
   scrollbar-color: var(--border) transparent;
+  pointer-events: none;
 }
 
-.zen-map-list.mask-top {
+.box-map-list.mask-top {
   -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 24px);
   mask-image: linear-gradient(to bottom, transparent 0, #000 24px);
 }
 
-.zen-map-list.mask-bottom {
+.box-map-list.mask-bottom {
   -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - 24px), transparent 100%);
   mask-image: linear-gradient(to bottom, #000 calc(100% - 24px), transparent 100%);
 }
 
-.zen-map-list.mask-top.mask-bottom {
+.box-map-list.mask-top.mask-bottom {
   -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 24px, #000 calc(100% - 24px), transparent 100%);
   mask-image: linear-gradient(to bottom, transparent 0, #000 24px, #000 calc(100% - 24px), transparent 100%);
 }
 
-.zen-map-item {
+.box-map-item {
   display: block;
   width: 100%;
   text-align: left;
@@ -292,23 +289,41 @@ body {
   padding: 5px 8px 5px 10px;
   color: var(--muted);
   cursor: pointer;
+  pointer-events: auto;
 }
 
-.zen-map-item:hover {
+.box-map-item:hover {
   color: var(--text);
 }
 
-.zen-map-item--current {
+.box-map-item--current {
   border-left-color: var(--accent);
   color: var(--text);
 }
 
-.zen-map-label {
+.box-map-label {
   display: block;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
   font-size: 0.9em;
+}
+
+/* Paging arrows flanking the anchor line: the same move as the arrow
+   keys, sitting between the anchor and its neighbors with their left
+   edge on the anchor's accent bar. */
+.box-map-arrow {
+  display: block;
+  background: none;
+  border: none;
+  padding: 3px 0;
+  color: var(--muted);
+  cursor: pointer;
+  pointer-events: auto;
+}
+
+.box-map-arrow:hover {
+  color: var(--accent);
 }
 
 /* The page itself never moves in zen: with the box hard-clamped this

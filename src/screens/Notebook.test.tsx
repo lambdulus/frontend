@@ -1,7 +1,7 @@
 import { readFileSync } from 'fs';
 import { test, expect, vi, afterEach } from 'vitest';
 import { render, fireEvent, cleanup } from '@testing-library/react';
-import Notebook, { selectPrimeBox, zenStep, zenBoxLabel } from './Notebook';
+import Notebook, { selectPrimeBox, zenStep, mapBoxLabel } from './Notebook';
 import { BoxType, NotebookState } from '../Types';
 import { NoteState } from '../markdown-integration/AppTypes';
 import { tokenize, parse, None } from '@lambdulus/core';
@@ -278,32 +278,32 @@ test('zen lambda box exposes the flex clamp hooks', () => {
   }
 });
 
-test('zen map labels boxes by their initial term', () => {
+test('box map labels boxes by their initial term', () => {
   const lambda = {
     type : BoxType.UNTYPED_LAMBDA,
     title : '',
     history : [{ ast : { toString : () => '(λx.x) y' } }],
   } as unknown as UntypedLambdaState;
-  expect(zenBoxLabel(lambda)).toBe('(λx.x) y');
+  expect(mapBoxLabel(lambda)).toBe('(λx.x) y');
 
   const fresh = {
     type : BoxType.UNTYPED_LAMBDA,
     title : 'Fresh',
     history : [],
   } as unknown as UntypedLambdaState;
-  expect(zenBoxLabel(fresh)).toBe('Fresh');
+  expect(mapBoxLabel(fresh)).toBe('Fresh');
 
-  expect(zenBoxLabel(noteBox('hello', 'x'))).toBe('Note');
+  expect(mapBoxLabel(noteBox('hello', 'x'))).toBe('Note');
 });
 
-test('zen map lists every box, marks the anchor, jumps on click', () => {
+test('box map lists every box, marks the anchor, jumps on click', () => {
   const patches : Array<Partial<NotebookState>> = [];
   const { container, unmount } = renderZenNotebook((patch) => { patches.push(patch); });
   try {
-    const items = container.querySelectorAll('.zen-map-item');
+    const items = container.querySelectorAll('.box-map-item');
     expect(items.length).toBe(2);
-    expect(container.querySelectorAll('.zen-map-item--current').length).toBe(1);
-    expect(items[0].classList.contains('zen-map-item--current')).toBe(true);
+    expect(container.querySelectorAll('.box-map-item--current').length).toBe(1);
+    expect(items[0].classList.contains('box-map-item--current')).toBe(true);
 
     fireEvent.click(items[1]);
     expect(patches.some((patch) => patch.activeBoxIndex === 1 && patch.focusedBoxIndex === 1)).toBe(true);
@@ -313,14 +313,76 @@ test('zen map lists every box, marks the anchor, jumps on click', () => {
   }
 });
 
-test('zen map is a capped, fading, scrollable rail', () => {
+test('box map flanks the anchor with paging arrows', () => {
+  // Anchored first: no way up, one way down; clicking it pages.
+  const patches : Array<Partial<NotebookState>> = [];
+  const { container, unmount } = renderZenNotebook((patch) => { patches.push(patch); });
+  try {
+    const arrows = container.querySelectorAll('.box-map-arrow');
+    expect(arrows.length).toBe(1);
+    expect(arrows[0].getAttribute('aria-label')).toBe('Next box');
+
+    fireEvent.click(arrows[0]);
+    expect(patches.some((patch) => patch.activeBoxIndex === 1 && patch.focusedBoxIndex === 1)).toBe(true);
+  }
+  finally {
+    unmount();
+  }
+
+  // Anchored last: the lone arrow points up.
+  const second = renderZenNotebook(() => void 0, 1);
+  try {
+    const arrows = second.container.querySelectorAll('.box-map-arrow');
+    expect(arrows.length).toBe(1);
+    expect(arrows[0].getAttribute('aria-label')).toBe('Previous box');
+  }
+  finally {
+    second.unmount();
+  }
+});
+
+test('box map is a capped, fading, scrollable rail', () => {
   const css = readFileSync('src/App.css', 'utf8');
-  const list = css.match(/\.zen-map-list\s*\{[^}]*\}/)?.[0] ?? '';
+  const list = css.match(/\.box-map-list\s*\{[^}]*\}/)?.[0] ?? '';
   expect(list).toMatch(/max-height\s*:\s*70vh/);
   expect(list).toMatch(/overflow-y\s*:\s*auto/);
-  expect(css).toMatch(/\.zen-map-list\.mask-top\.mask-bottom\s*\{[^}]*mask-image/);
-  const current = css.match(/\.zen-map-item--current\s*\{[^}]*\}/)?.[0] ?? '';
+  expect(css).toMatch(/\.box-map-list\.mask-top\.mask-bottom\s*\{[^}]*mask-image/);
+  const current = css.match(/\.box-map-item--current\s*\{[^}]*\}/)?.[0] ?? '';
   expect(current).toMatch(/border-left-color\s*:\s*var\(--accent\)/);
+  // The list lets clicks fall through to the box below; only the
+  // lines and arrows catch them.
+  expect(list).toMatch(/pointer-events\s*:\s*none/);
+  const arrow = css.match(/\.box-map-arrow\s*\{[^}]*\}/)?.[0] ?? '';
+  expect(arrow).toMatch(/pointer-events\s*:\s*auto/);
+});
+
+test('box map shows in normal mode too', () => {
+  const state : NotebookState = {
+    name : 'Test',
+    boxList : [ noteBox('first', 'a'), noteBox('second', 'b') ],
+    activeBoxIndex : 0,
+    focusedBoxIndex : 0,
+    menuOpen : false,
+    settings : {},
+    __key : 'nb',
+  };
+  const { container, unmount } = render(<Notebook state={ state } updateNotebook={ () => void 0 } />);
+  try {
+    expect(container.querySelectorAll('.box-map-item').length).toBe(2);
+    expect(container.querySelectorAll('.box-map-item--current').length).toBe(1);
+  }
+  finally {
+    unmount();
+  }
+});
+
+test('floating box arrows stay hidden', () => {
+  // Retired in favor of the map paging arrows; the markup stays for
+  // an easy revert.
+  const css = readFileSync('src/App.css', 'utf8');
+  const nav = css.match(/\.box-nav\s*\{[^}]*\}/)?.[0] ?? '';
+  expect(nav).toMatch(/display\s*:\s*none/);
+  expect(css).not.toMatch(/min-width\s*:\s*1150px/);
 });
 
 test('zen box switches animate in', () => {
@@ -329,7 +391,7 @@ test('zen box switches animate in', () => {
   expect(css).toMatch(/@keyframes\s+zen-arrive/);
 });
 
-test('zen arrow keys stay put outside zen mode', () => {
+test('arrow keys page between boxes in normal mode too', () => {
   const state : NotebookState = {
     name : 'Test',
     boxList : [ noteBox('first', 'a'), noteBox('second', 'b') ],
@@ -343,7 +405,7 @@ test('zen arrow keys stay put outside zen mode', () => {
   render(<Notebook state={ state } updateNotebook={ updateNotebook } />);
 
   fireEvent.keyDown(document, { key : 'ArrowDown' });
-  expect(updateNotebook).not.toHaveBeenCalled();
+  expect(updateNotebook).toHaveBeenCalledWith(expect.objectContaining({ activeBoxIndex : 1, focusedBoxIndex : 1 }));
 });
 
 test('every box has a grab rail; clicking it focuses the box', () => {
