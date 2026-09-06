@@ -235,11 +235,6 @@ body {
   overflow-y: auto;
 }
 
-.mainSpace.zen .untyped-lambda-box--macrolist {
-  max-height: 30vh;
-  overflow-y: auto;
-}
-
 /* No side arrows in zen: the map and the arrow keys own navigation. */
 .mainSpace.zen .box-nav {
   display: none;

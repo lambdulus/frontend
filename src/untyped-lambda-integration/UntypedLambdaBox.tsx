@@ -101,7 +101,7 @@ export default class UntypedLambdaBox extends PureComponent<Props> {
         }
         {
           macrolistOpen ?
-            <div className='untyped-lambda-box--macrolist'>
+            <div className='macro-popup'>
               <MacroList macroTable={ state.macrotable }  />
             </div>
           :

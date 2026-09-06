@@ -1,7 +1,45 @@
-.untyped-lambda-box--macrolist {
-  padding: 5px;
+/* Macro popup: floats left of the box instead of pushing its content
+   down. Anchored to the box container's left edge (it is the nearest
+   positioned ancestor) and out of flow, so toggling never reflows the
+   box. The left offset keeps the card fully in view: a 300px card
+   with a 12px gap while the side room allows, sliding over the box
+   only as much as narrower screens require. (Side room left of the
+   box is half the viewport past the 940px column, plus the 14px rail
+   and 20px page padding, minus the 12px gap: (100vw - 940px)/2 +
+   22px, floored at the 22px of a full-width column.) */
+.macro-popup {
+  position: absolute;
+  top: 0;
+  left: calc(-1 * min(312px, max(22px, (100vw - 940px) / 2 + 22px)));
+  width: 300px;
+  max-width: calc(100vw - 24px);
+  max-height: 70vh;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  background-color: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  box-shadow: var(--shadow);
+  padding: 12px 14px;
+  z-index: 50;
+}
 
-  border-bottom: 1px solid var(--border);
+/* Popup density: tighter headers and list indent than the page flow,
+   and long definitions wrap instead of blowing out the card. */
+.macro-popup p {
+  margin: 0 0 8px;
+}
+
+.macro-popup .UL {
+  padding-left: 20px;
+}
+
+.macro-popup .dense-LI {
+  margin: 6px;
+}
+
+.macro-popup .macro-definition {
+  overflow-wrap: break-word;
 }
 
 .builtinMacros, .userMacros {
