@@ -238,6 +238,8 @@ export default class Notebook extends PureComponent<Props, State> {
       return { top : rect.top, height : rect.height }
     })
     const prime : number = selectPrimeBox(tops, window.innerHeight * 0.65)
+    // TEMP-DEBUG: revert before merging.
+    console.log('[zen-debug] prime', { y : window.scrollY, tops, prime, focused : focusedBoxIndex, active : activeBoxIndex })
     if (prime !== (focusedBoxIndex ?? activeBoxIndex)) {
       this.props.updateNotebook({ focusedBoxIndex : prime })
     }
@@ -579,8 +581,14 @@ export default class Notebook extends PureComponent<Props, State> {
     if (zenFlipped && this.props.state.zenMode === true) {
       this.preZenScrollY = window.scrollY
     }
+    // TEMP-DEBUG: revert before merging.
+    if (zenFlipped) {
+      console.log('[zen-debug] flip', { to : this.props.state.zenMode, scrollY : window.scrollY, preZen : this.preZenScrollY, lockBefore : document.body.classList.contains('zen') })
+    }
     this.syncBodyZen()
     if (zenFlipped) {
+      // TEMP-DEBUG: revert before merging.
+      console.log('[zen-debug] jump', { to : this.props.state.zenMode, target : this.props.state.zenMode === true ? 0 : this.preZenScrollY, lockAfter : document.body.classList.contains('zen') })
       if (this.props.state.zenMode === true) {
         window.scrollTo({ top : 0, behavior : 'auto' })
       }
@@ -613,6 +621,8 @@ export default class Notebook extends PureComponent<Props, State> {
     const targetTop : number = this.props.state.zenMode === true ? 76 : 60
 
     const targetScrollY : number = window.scrollY + top - targetTop
+    // TEMP-DEBUG: revert before merging.
+    console.log('[zen-debug] seat', { index, from : window.scrollY, top, target : targetScrollY })
     if (Math.abs(targetScrollY - window.scrollY) < 2) {
       return
     }
