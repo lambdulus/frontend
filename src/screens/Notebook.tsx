@@ -71,6 +71,7 @@ export default class Notebook extends PureComponent<Props> {
   componentDidMount () : void {
     window.addEventListener('keydown', this.onPageKeyDown)
     window.addEventListener('scroll', this.onPageScroll, { passive : true })
+    this.syncBodyZen()
   }
 
   componentWillUnmount () : void {
@@ -78,6 +79,19 @@ export default class Notebook extends PureComponent<Props> {
     window.removeEventListener('scroll', this.onPageScroll)
     if (this.primeRaf !== null) {
       window.cancelAnimationFrame(this.primeRaf)
+    }
+    document.body.classList.remove('zen')
+  }
+
+  // In zen the page itself must never move: only the history pane
+  // scrolls. The page scroller lives outside the notebook tree, so
+  // the lock goes on the body and follows the mode on every update.
+  syncBodyZen () : void {
+    if (this.props.state.zenMode === true) {
+      document.body.classList.add('zen')
+    }
+    else {
+      document.body.classList.remove('zen')
     }
   }
 
@@ -369,6 +383,7 @@ export default class Notebook extends PureComponent<Props> {
       this.seatRequested = null
       this.ensureFocusRoom(index)
     }
+    this.syncBodyZen()
   }
 
   // Seat the focused box just under the fixed bar so it occupies the

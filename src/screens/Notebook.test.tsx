@@ -152,6 +152,20 @@ test('zen box clamps to the viewport with history as the shrinker', () => {
   expect(scroller).toMatch(/flex\s*:\s*1 1 auto/);
   expect(scroller).toMatch(/min-height\s*:\s*0/);
   expect(scroller).toMatch(/max-height\s*:\s*none/);
+  // The wrap hugs short content (no dead gap above the current step)
+  // and only yields when squeezed.
+  const wrap = css.match(/\.mainSpace\.zen \.box-history-wrap\s*\{[^}]*\}/)?.[0] ?? '';
+  expect(wrap).toMatch(/flex\s*:\s*0 1 auto/);
+  expect(wrap).toMatch(/min-height\s*:\s*0/);
+  // The page itself is locked; only the history pane moves.
+  expect(css).toMatch(/body\.zen\s*\{[^}]*overflow\s*:\s*hidden/);
+});
+
+test('zen locks the page scroll on the body while mounted', () => {
+  const { unmount } = renderZenNotebook(() => void 0);
+  expect(document.body.classList.contains('zen')).toBe(true);
+  unmount();
+  expect(document.body.classList.contains('zen')).toBe(false);
 });
 
 test('zen lambda box exposes the flex clamp hooks', () => {

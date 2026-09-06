@@ -196,8 +196,12 @@ body {
   flex-direction: column;
 }
 
+/* The wrap hugs its content (never stretches): short histories end
+   where they end and the leftover viewport stays below the current
+   step. Only when squeezed does it yield, and then the scroller
+   inside takes over. */
 .mainSpace.zen .box-history-wrap {
-  flex: 1 1 auto;
+  flex: 0 1 auto;
   min-height: 0;
   display: flex;
   flex-direction: column;
@@ -228,6 +232,13 @@ body {
 
 .mainSpace.zen .box-nav {
   display: flex;
+}
+
+/* The page itself never moves in zen: with the box hard-clamped this
+   only bars the last stray pixel (and the rubber-band), leaving the
+   history pane as the single thing that scrolls. */
+body.zen {
+  overflow: hidden;
 }
 
 .notebook-title {
