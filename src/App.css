@@ -223,6 +223,11 @@ body {
 .mainSpace.zen .box-settings {
   max-height: 40vh;
   overflow-y: auto;
+  /* A flex item with margin:auto centers itself: dock the panel
+     right instead. */
+  margin-left: auto;
+  margin-right: 0;
+  max-width: 100%;
 }
 
 .mainSpace.zen .untyped-lambda-box--macrolist {
