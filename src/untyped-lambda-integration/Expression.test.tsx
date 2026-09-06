@@ -311,11 +311,15 @@ test('macros dock as a pill unfolding into an animated panel', () => {
   expect(dock).toMatch(/position\s*:\s*absolute/);
   expect(dock).toMatch(/left\s*:\s*calc\(-1 \* max\(22px, \(100vw - 940px\)/);
   expect(dock).toMatch(/width\s*:\s*420px/);
-  // ...opens into a full-height card holding the header...
+  // ...opens into a card holding the header, at least 320px tall
+  // even for small boxes...
   const open = css.match(/\.macro-dock--open\s*\{[^}]*\}/)?.[0] ?? '';
   expect(open).toMatch(/bottom\s*:\s*0/);
+  expect(open).toMatch(/min-height\s*:\s*320px/);
   expect(open).toMatch(/background-color\s*:\s*var\(--surface\)/);
   expect(open).toMatch(/box-shadow\s*:/);
+  // ...with the panel filling the card so long lists scroll inside.
+  expect(css).toMatch(/\.macro-dock--open \.macro-dock--panel\s*\{[^}]*flex\s*:\s*1 1 auto/);
   // ...whose panel stays mounted and collapses through grid rows
   // plus a quick fade, with the list scrolling in its own box.
   const panel = css.match(/\.macro-dock--panel\s*\{[^}]*\}/)?.[0] ?? '';
