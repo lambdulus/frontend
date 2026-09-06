@@ -171,6 +171,16 @@ test('box settings panel floats above the box', () => {
   expect(panel).toMatch(/z-index\s*:/);
 });
 
+test('box top bar reads as a distinct header strip', () => {
+  // A new box must announce itself in both scroll directions: the bar
+  // carries its own surface, hairline and radius.
+  const css = readFileSync('src/styles/BoxTopBar.css', 'utf8');
+  const bar = css.match(/\.boxTopBar\s*\{[^}]*\}/)?.[0] ?? '';
+  expect(bar).toMatch(/background-color\s*:\s*var\(--surface\)/);
+  expect(bar).toMatch(/border\s*:\s*1px solid var\(--border\)/);
+  expect(bar).toMatch(/border-radius\s*:\s*8px/);
+});
+
 test('zen locks the page scroll on the body while mounted', () => {
   const { unmount } = renderZenNotebook(() => void 0);
   expect(document.body.classList.contains('zen')).toBe(true);

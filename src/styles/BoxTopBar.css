@@ -1,10 +1,17 @@
+/* The bar is a distinct header strip, so a new box announces itself
+   in both scroll directions: surface fill, hairline border, and room
+   to breathe before the body starts. */
 .boxTopBar {
   width: 100%;
   min-height: 1em;
   display: flex;
   align-items: center;
   gap: 12px;
-  margin-bottom: 4px;
+  margin-bottom: 12px;
+  padding: 6px 10px;
+  background-color: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
 }
 
 .topBarTitle {
