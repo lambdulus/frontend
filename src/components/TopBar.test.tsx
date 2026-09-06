@@ -27,8 +27,10 @@ function baseProps (onZenModeChange : (zenMode : boolean) => void) {
     activeNotebookIndex : 0,
     theme : Theme.Dark,
     accent : 'emerald' as const,
+    boxStyle : 'cards' as const,
     settings : {},
     onAccentChange : () => void 0,
+    onBoxStyleChange : () => void 0,
     onNotebookSelect : () => void 0,
     onNotebookAdd : () => void 0,
     onNotebookRemove : () => void 0,
@@ -75,4 +77,23 @@ test('zen control is a real switch reflecting the mode', () => {
 
   fireEvent.click(on);
   expect(onZenModeChange).toHaveBeenCalledWith(false);
+});
+
+test('box style is a Cards/Classic radio in the theme popup', () => {
+  const onBoxStyleChange = vi.fn();
+  const { container } = render(
+    <TopBar { ...baseProps(() => void 0) } boxStyle='cards' onBoxStyleChange={ onBoxStyleChange } />
+  );
+
+  fireEvent.click(container.querySelector('[title="Accent theme"]') as HTMLElement);
+  const group = container.querySelector('[role="radiogroup"]');
+  expect(group?.getAttribute('aria-label')).toBe('Box style');
+
+  const radios = container.querySelectorAll('[role="radio"]');
+  expect(radios.length).toBe(2);
+  expect(radios[0].getAttribute('aria-checked')).toBe('true');
+  expect(radios[1].getAttribute('aria-checked')).toBe('false');
+
+  fireEvent.click(radios[1]);
+  expect(onBoxStyleChange).toHaveBeenCalledWith('classic');
 });

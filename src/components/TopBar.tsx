@@ -1,7 +1,7 @@
 import React, { ChangeEvent, useEffect, useMemo, useRef, useState } from 'react'
 import { Bug, Check, Download, Eraser, Focus, Lock, Moon, Palette, Plus, Settings as SettingsIcon, Sun, Upload, X } from 'lucide-react'
 
-import { Accent, GlobalSettings, NotebookState } from '../Types'
+import { Accent, BoxStyle, GlobalSettings, NotebookState } from '../Types'
 
 import '../styles/TopBar.css'
 import { decodeNotebook } from '../Constants'
@@ -19,8 +19,10 @@ interface Props {
   activeNotebookIndex : number
   theme : Theme
   accent : Accent
+  boxStyle : BoxStyle
   settings : GlobalSettings
   onAccentChange (accent : Accent) : void
+  onBoxStyleChange (boxStyle : BoxStyle) : void
   onNotebookSelect (index : number) : void
   onNotebookAdd () : void
   onNotebookRemove (index : number) : void
@@ -38,8 +40,10 @@ export default function TopBar (props : Props) : JSX.Element {
     activeNotebookIndex,
     theme,
     accent,
+    boxStyle,
     settings,
     onAccentChange,
+    onBoxStyleChange,
     onNotebookSelect,
     onNotebookAdd,
     onNotebookRemove,
@@ -253,6 +257,26 @@ export default function TopBar (props : Props) : JSX.Element {
                     </button>
                   )
                 }
+                <p className='top-bar--settings-title'>Box style</p>
+                <div role='radiogroup' aria-label='Box style'>
+                  {
+                    ([
+                      { value : 'cards' as BoxStyle, label : 'Cards' },
+                      { value : 'classic' as BoxStyle, label : 'Classic' },
+                    ]).map((option) =>
+                      <button
+                        key={ option.value }
+                        role='radio'
+                        aria-checked={ boxStyle === option.value }
+                        className={ `btn top-bar--theme-btn${boxStyle === option.value ? ' top-bar--theme-btn--active' : ''}` }
+                        onClick={ () => onBoxStyleChange(option.value) }
+                      >
+                        { option.label }
+                        { boxStyle === option.value ? <Check size={ 14 } strokeWidth={ 2 } /> : null }
+                      </button>
+                    )
+                  }
+                </div>
               </div>
             </React.Fragment>
           :

@@ -20,6 +20,26 @@
   cursor: pointer;
 }
 
+/* Classic variant only: the rail carries a thin full-height line in
+   the border tone; hovering the rail and the anchored box light it in
+   accent. Cards leave the rail an invisible hit area. */
+#app[data-box-style='classic'] .box-rail::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 6px;
+  width: 2px;
+  border-radius: 1px;
+  background-color: var(--border);
+  transition: background-color .15s ease-in-out;
+}
+
+#app[data-box-style='classic'] .box-rail:hover::before,
+#app[data-box-style='classic'] .box-frame--anchor .box-rail::before {
+  background-color: var(--accent);
+}
+
 .add_box_after {
   font-size: 1em;
   font-weight: 500;

@@ -57,9 +57,12 @@ export interface NotebookState {
 
 export type Accent = 'emerald' | 'blue' | 'amber'
 
+export type BoxStyle = 'cards' | 'classic'
+
 export interface AppState {
   notebooks : Array<NotebookState>,
   activeNotebookIndex : number,
   theme : Theme,
-  accent : Accent
+  accent : Accent,
+  boxStyle : BoxStyle
 }
