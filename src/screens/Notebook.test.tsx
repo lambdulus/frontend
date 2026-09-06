@@ -555,6 +555,8 @@ test('every box has a grab rail; clicking it focuses the box', () => {
     expect(frames.length).toBe(2);
     expect(frames[0].classList.contains('box-frame--focused')).toBe(true);
     expect(frames[1].classList.contains('box-frame--focused')).toBe(false);
+    expect(frames[0].classList.contains('box-frame--anchor')).toBe(true);
+    expect(frames[1].classList.contains('box-frame--anchor')).toBe(false);
 
     fireEvent.click(rails[1]);
     expect(updateNotebook).toHaveBeenCalledWith(expect.objectContaining({ activeBoxIndex : 1, focusedBoxIndex : 1 }));
@@ -566,17 +568,76 @@ test('every box has a grab rail; clicking it focuses the box', () => {
 
 test('boxes show up as cards', () => {
   // The box itself is the card: theme surface, a full border, a
-  // radius, a quiet shadow; the active box lifts with a deeper one.
-  // No frame pseudo-element draws anything anymore.
+  // radius, a quiet shadow; the anchor box (the one the map marks)
+  // lifts with a deeper one. No frame pseudo-element draws anything
+  // anymore.
   const app = readFileSync('src/App.css', 'utf8');
   const card = app.match(/\.boxContainer\s*\{[^}]*\}/)?.[0] ?? '';
   expect(card).toMatch(/background\s*:\s*var\(--surface\)/);
   expect(card).toMatch(/border\s*:\s*1px solid var\(--border\)/);
   expect(card).toMatch(/border-radius\s*:\s*12px/);
   expect(card).toMatch(/box-shadow\s*:\s*var\(--shadow\)/);
-  expect(app).toMatch(/\.boxContainer\.active\s*\{[^}]*box-shadow\s*:\s*var\(--shadow-lift\)/);
+  expect(app).toMatch(/\.box-frame--anchor \.boxContainer\s*\{[^}]*box-shadow\s*:\s*var\(--shadow-lift\)/);
   const frame = readFileSync('src/styles/BoxContainer.css', 'utf8');
   expect(frame).not.toMatch(/::after/);
+});
+
+test('map highlight and card lift share one anchor', () => {
+  // Clicks (active) and scroll-prime (focused) diverge by design; the
+  // visible focus must not. With active on the first box and focused
+  // on the second, both the map accent and the card lift sit on the
+  // second: the anchor both follow.
+  const state : NotebookState = {
+    name : 'Test',
+    boxList : [ noteBox('first', 'a'), noteBox('second', 'b') ],
+    activeBoxIndex : 0,
+    focusedBoxIndex : 1,
+    menuOpen : false,
+    settings : {},
+    __key : 'nb',
+  };
+  const { container, unmount } = render(<Notebook state={ state } updateNotebook={ () => void 0 } />);
+  try {
+    const frames = container.querySelectorAll('.box-frame');
+    expect(frames[0].classList.contains('box-frame--anchor')).toBe(false);
+    expect(frames[1].classList.contains('box-frame--anchor')).toBe(true);
+    const items = container.querySelectorAll('.box-map-item');
+    expect(items[0].classList.contains('box-map-item--current')).toBe(false);
+    expect(items[1].classList.contains('box-map-item--current')).toBe(true);
+  }
+  finally {
+    unmount();
+  }
+});
+
+test('scroll-end sync re-primes from the landed layout', async () => {
+  // A seat-glide that outlasts the settle guard can re-prime from
+  // mid-flight geometry; once motion stops the trailing sync measures
+  // the landed layout and fixes the anchor. (jsdom measures every box
+  // top at 0 with no height, so the landed prime is box 0; the frame
+  // sync is stubbed out to isolate the trailing path.)
+  const originalRaf = window.requestAnimationFrame;
+  window.requestAnimationFrame = () : number => 1;
+  const patches : Array<Partial<NotebookState>> = [];
+  const state : NotebookState = {
+    name : 'Test',
+    boxList : [ noteBox('first', 'a'), noteBox('second', 'b'), noteBox('third', 'c') ],
+    activeBoxIndex : 1,
+    focusedBoxIndex : 2,
+    menuOpen : false,
+    settings : {},
+    __key : 'nb',
+  };
+  const { unmount } = render(<Notebook state={ state } updateNotebook={ (patch) => { patches.push(patch); } } />);
+  try {
+    fireEvent.scroll(window);
+    await new Promise((resolve) => setTimeout(resolve, 250));
+    expect(patches.some((patch) => patch.focusedBoxIndex === 0)).toBe(true);
+  }
+  finally {
+    unmount();
+    window.requestAnimationFrame = originalRaf;
+  }
 });
 
 // A live store for flows that span several updates (focus moves,

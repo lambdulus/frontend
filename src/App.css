@@ -53,7 +53,10 @@ body {
   font-size: 1.1em;
 }
 
-.boxContainer.active {
+/* The lift follows the map anchor, not the click: one source of
+   truth for what is in focus, whether it got there by click, keys
+   or plain scrolling. */
+.box-frame--anchor .boxContainer {
   box-shadow: var(--shadow-lift);
 }
 
