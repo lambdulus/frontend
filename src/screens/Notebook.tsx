@@ -211,19 +211,11 @@ export default class Notebook extends PureComponent<Props> {
       return
     }
 
+    // Focusing a box seats its top just below the top bar, so the
+    // expression occupies the view instead of lingering mid-page.
     const viewportHeight : number = window.innerHeight
     const top : number = el.getBoundingClientRect().top
-    const wantBelow : number = Math.round(viewportHeight * 0.65) + 120
-
-    let targetTop : number = top
-    if (top < 72) {
-      targetTop = 72
-    }
-    else if (top + wantBelow > viewportHeight) {
-      targetTop = viewportHeight - wantBelow
-    }
-
-    targetTop = Math.max(72, targetTop)
+    const targetTop : number = 72
 
     const targetScrollY : number = window.scrollY + top - targetTop
     if (Math.abs(targetScrollY - window.scrollY) < 2) {
