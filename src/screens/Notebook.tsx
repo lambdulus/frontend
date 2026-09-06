@@ -197,11 +197,17 @@ export default class Notebook extends PureComponent<Props> {
 
       this.props.updateNotebook({ activeBoxIndex : index, focusedBoxIndex : index, boxList })
     }
+  }
 
-    // Seat after React commits the focus swap: measuring earlier reads
-    // pre-swap heights, and anything collapsing above (blurred editors,
-    // focus UI) then shifts the box out from under the scroll target.
-    requestAnimationFrame(() => this.ensureFocusRoom(index))
+  componentDidUpdate (prevProps : Props) : void {
+    // Seat only once React has committed: the newly focused box is
+    // measured at its final height, so collapsing editors or focus UI
+    // above it cannot shift it out from under the scroll target.
+    // (Plain clicks on an already-focused title seat directly instead.)
+    const focused : number | undefined = this.props.state.focusedBoxIndex
+    if (typeof focused === 'number' && focused !== prevProps.state.focusedBoxIndex) {
+      this.ensureFocusRoom(focused)
+    }
   }
 
   // Seat the focused box just under the fixed bar so it occupies the

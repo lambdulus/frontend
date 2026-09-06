@@ -35,6 +35,20 @@ test('collapse toggle reflects the setting and reports turning it off', () => {
   expect(change).toHaveBeenCalledWith({ ...baseSettings, collapseOldSteps : false });
 });
 
+test('input ids stay stable across re-renders', () => {
+  const change = vi.fn();
+  const { getByLabelText, rerender } = render(
+    <Settings settings={ baseSettings } settingsEnabled={ enabler } change={ change } />
+  );
+
+  const before = (getByLabelText('Collapse Old Steps') as HTMLInputElement).id;
+  rerender(
+    <Settings settings={ { ...baseSettings, SDE : false } } settingsEnabled={ enabler } change={ change } />
+  );
+
+  expect((getByLabelText('Collapse Old Steps') as HTMLInputElement).id).toBe(before);
+});
+
 test('collapse toggle renders unchecked when the setting is off', () => {
   const change = vi.fn();
   const { getByLabelText } = render(

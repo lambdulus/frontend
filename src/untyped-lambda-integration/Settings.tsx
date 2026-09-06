@@ -1,4 +1,4 @@
-import React, { ChangeEvent } from 'react'
+import React, { ChangeEvent, useRef } from 'react'
 import { UntypedLambdaSettings, EvaluationStrategy, SettingsEnabled } from './Types'
 
 import './styles/Settings.css'
@@ -17,10 +17,16 @@ export default function Settings (props : Props) : JSX.Element {
   const { SLI : SLI_E, expandStandalones : expSt_E, strategy : strat_E } : SettingsEnabled = settingsEnabled
 
 
-  // this is just a dirty-quick implementation to get an unique identifier
-  const array = new Uint32Array(2)
-  window.crypto.getRandomValues(array)
-  const uniq : string = `${Date.now()}-${Math.random()}-${array[0]}-${array[1]}`
+  // Stable per panel instance: regenerating ids every render remounts
+  // the inputs in effect, steals focus, and makes the browser scroll
+  // the toggled control into view on every change.
+  const uniqRef = useRef<string | null>(null)
+  if (uniqRef.current === null) {
+    const array = new Uint32Array(2)
+    window.crypto.getRandomValues(array)
+    uniqRef.current = `${Date.now()}-${Math.random()}-${array[0]}-${array[1]}`
+  }
+  const uniq : string = uniqRef.current
 
   return (
     <div className='untyped-lambda-box--settings'>

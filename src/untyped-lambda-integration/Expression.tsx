@@ -157,7 +157,9 @@ export default class Expression extends PureComponent<EvaluatorProps, Expression
               title='History is scrolled up - the steps right before the current form are hidden'
               aria-hidden='true'
             >
-              <span>⋮</span>
+              <svg width='12' height='30' viewBox='0 0 12 30' fill='none' stroke='currentColor' strokeWidth='1.5' strokeLinecap='round'>
+                <path d='M6 1 Q10 5 6 9 Q2 13 6 17 Q10 21 6 25 Q4 27.5 6 29' />
+              </svg>
             </div>
           :
             null
