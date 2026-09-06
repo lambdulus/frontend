@@ -502,48 +502,51 @@ test('arrow keys page between boxes in normal mode too', () => {
   expect(updateNotebook).toHaveBeenCalledWith(expect.objectContaining({ activeBoxIndex : 1, focusedBoxIndex : 1 }));
 });
 
-test('entering zen seats the anchor on entry', () => {
-  // Entering zen collapses the other boxes out of the layout, which
-  // can land the anchor a few pixels off its seat: plant it exactly
-  // on entry so later clicks have nothing to nudge.
+test('entering zen parks the page at the top', () => {
+  // Entering collapses every other box out of the layout; gliding to
+  // the anchor would travel through space that no longer exists, so
+  // the flip jumps to the top instantly: the anchor owns the viewport
+  // by construction.
   const base : NotebookState = {
     name : 'Test',
     boxList : [ noteBox('first', 'a'), noteBox('second', 'b') ],
-    activeBoxIndex : 0,
-    focusedBoxIndex : 0,
+    activeBoxIndex : 1,
+    focusedBoxIndex : 1,
     menuOpen : false,
     settings : {},
     __key : 'nb',
   };
   const originalScrollTo = window.scrollTo;
+  const scrollYDescriptor = Object.getOwnPropertyDescriptor(window, 'scrollY');
   const spy = vi.fn();
   window.scrollTo = spy;
+  Object.defineProperty(window, 'scrollY', { value : 200, configurable : true });
   const { rerender, unmount } = render(<Notebook state={ base } updateNotebook={ () => void 0 } />);
   try {
     spy.mockClear();
     rerender(<Notebook state={ { ...base, zenMode : true } } updateNotebook={ () => void 0 } />);
-    // jsdom measures every box top at 0, so the 76px zen seat reads
-    // as a -76 scroll: what matters is that entry seats at all.
-    expect(spy).toHaveBeenCalledWith({ top : -76, behavior : 'smooth' });
+    expect(spy).toHaveBeenCalledWith({ top : 0, behavior : 'auto' });
   }
   finally {
     unmount();
     window.scrollTo = originalScrollTo;
+    if (scrollYDescriptor !== undefined) {
+      Object.defineProperty(window, 'scrollY', scrollYDescriptor);
+    }
   }
 });
 
-test('leaving zen seats the anchor and keeps its focus', () => {
-  // Leaving brings the title and siblings back, which can land the
-  // anchor a few pixels off its seat: plant it exactly on exit. The
+test('leaving zen restores the pre-zen scroll position', () => {
+  // Leaving brings the title and siblings back into the exact layout
+  // we left, so the flip jumps back to the recorded scroll position
+  // instantly: the anchor lands on its seat with nothing moving. The
   // box pinning steps aside across the flip, so no pin scroll fires
-  // the prime sync mid-flip (jsdom measures every top at 0, which
-  // would otherwise re-prime onto the last box).
+  // the prime sync mid-flip either.
   const base : NotebookState = {
     name : 'Test',
-    zenMode : true,
     boxList : [ noteBox('first', 'a'), noteBox('second', 'b') ],
-    activeBoxIndex : 0,
-    focusedBoxIndex : 0,
+    activeBoxIndex : 1,
+    focusedBoxIndex : 1,
     menuOpen : false,
     settings : {},
     __key : 'nb',
@@ -551,21 +554,25 @@ test('leaving zen seats the anchor and keeps its focus', () => {
   const patches : Array<Partial<NotebookState>> = [];
   const onPatch = (patch : Partial<NotebookState>) : void => { patches.push(patch); };
   const originalScrollTo = window.scrollTo;
+  const scrollYDescriptor = Object.getOwnPropertyDescriptor(window, 'scrollY');
   const spy = vi.fn();
   window.scrollTo = spy;
+  Object.defineProperty(window, 'scrollY', { value : 200, configurable : true });
   const { rerender, unmount } = render(<Notebook state={ base } updateNotebook={ onPatch } />);
   try {
+    rerender(<Notebook state={ { ...base, zenMode : true } } updateNotebook={ onPatch } />);
     spy.mockClear();
     rerender(<Notebook state={ { ...base, zenMode : false } } updateNotebook={ onPatch } />);
-    // jsdom measures every box top at 0, so the 60px seat reads as
-    // a -60 scroll: what matters is that exit seats at all.
-    expect(spy).toHaveBeenCalledWith({ top : -60, behavior : 'smooth' });
+    expect(spy).toHaveBeenCalledWith({ top : 200, behavior : 'auto' });
     // And nothing re-derives the focus: the anchor keeps it.
     expect(patches.some((patch) => patch.focusedBoxIndex !== undefined)).toBe(false);
   }
   finally {
     unmount();
     window.scrollTo = originalScrollTo;
+    if (scrollYDescriptor !== undefined) {
+      Object.defineProperty(window, 'scrollY', scrollYDescriptor);
+    }
   }
 });
 

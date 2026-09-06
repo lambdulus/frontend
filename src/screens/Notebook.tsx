@@ -89,6 +89,7 @@ export default class Notebook extends PureComponent<Props, State> {
   private lastSeatAt : number
   private primeRaf : number | null
   private primeTrail : number | null
+  private preZenScrollY : number | null
 
   constructor (props : Props) {
     super(props)
@@ -99,6 +100,7 @@ export default class Notebook extends PureComponent<Props, State> {
     this.lastSeatAt = 0
     this.primeRaf = null
     this.primeTrail = null
+    this.preZenScrollY = null
     this.state = { mapAtTop : true, mapAtBottom : true }
 
     this.insertBefore = this.insertBefore.bind(this)
@@ -558,15 +560,27 @@ export default class Notebook extends PureComponent<Props, State> {
       this.seatRequested = null
       this.ensureFocusRoom(index)
     }
-    // A zen flip reflows the whole layout (entering collapses every
-    // other box out, leaving brings the title and siblings back), so
-    // the anchor can land a few pixels off its seat either way: plant
-    // it exactly on the flip, before any click has a reason to nudge
-    // it. This seat is the only scroll on the flip; the box pinning
-    // steps aside across it.
+    // A zen flip reflows the whole page discontinuously (entering
+    // collapses every other box out, leaving brings the title and
+    // siblings back), so gliding anywhere reads as a stuttery travel
+    // through space that no longer exists. Entering parks the page at
+    // the top instantly: the anchor owns the viewport by construction.
+    // Leaving restores the exact pre-zen scroll position the same way:
+    // the layout is the one we left, so the anchor lands back on its
+    // seat with nothing moving. (Box pinning steps aside across the
+    // flip, so these jumps are the only scrolls.)
     if (this.props.state.zenMode !== prevProps.state.zenMode) {
-      const { focusedBoxIndex, activeBoxIndex } = this.props.state
-      this.ensureFocusRoom(focusedBoxIndex ?? activeBoxIndex)
+      if (this.props.state.zenMode === true) {
+        this.preZenScrollY = window.scrollY
+        window.scrollTo({ top : 0, behavior : 'auto' })
+      }
+      else if (this.preZenScrollY !== null) {
+        window.scrollTo({ top : this.preZenScrollY, behavior : 'auto' })
+      }
+      else {
+        const { focusedBoxIndex, activeBoxIndex } = this.props.state
+        this.ensureFocusRoom(focusedBoxIndex ?? activeBoxIndex)
+      }
     }
     this.syncBodyZen()
   }
