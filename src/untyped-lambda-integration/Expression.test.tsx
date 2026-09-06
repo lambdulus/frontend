@@ -282,6 +282,27 @@ test('no indicator mounts when there is no history yet', () => {
   expect(container.querySelector('.box-current-step .stepNumber')?.textContent).toMatch(/0 :/);
 });
 
+test('expand hint stays silent where nothing is hidden', () => {
+  const { container } = renderExpression();
+  const li = container.querySelector('li.inactiveStep') as HTMLElement;
+
+  // jsdom measures no overflow: fully visible, no tooltip.
+  expect(li.title).toBe('');
+  fireEvent.mouseEnter(li);
+  expect(li.title).toBe('');
+});
+
+test('expand hint promises expansion only for truncated steps', () => {
+  const { container } = renderExpression();
+  const li = container.querySelector('li.inactiveStep') as HTMLElement;
+  const line = li.querySelector('.inlineblock') as HTMLElement;
+  Object.defineProperty(line, 'scrollWidth', { value : 500, configurable : true });
+  Object.defineProperty(line, 'clientWidth', { value : 100, configurable : true });
+
+  fireEvent.mouseEnter(li);
+  expect(li.title).toBe('Click to expand this step');
+});
+
 test('macros dock as a pill unfolding into an animated panel', () => {
   const css = readFileSync('src/untyped-lambda-integration/styles/MacroList.css', 'utf8');
   // The dock rides the viewport's left margin (past the 940px

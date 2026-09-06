@@ -66,6 +66,7 @@ export default class Expression extends PureComponent<EvaluatorProps, Expression
     this.addBreakpoint = this.addBreakpoint.bind(this)
     this.onHistoryWheel = this.onHistoryWheel.bind(this)
     this.onEndpointWheel = this.onEndpointWheel.bind(this)
+    this.armExpandHint = this.armExpandHint.bind(this)
   }
 
   // Native listeners dedupe identical registrations, so attaching on
@@ -190,6 +191,23 @@ export default class Expression extends PureComponent<EvaluatorProps, Expression
     if (this.edgeBump < HISTORY_EDGE_BUMP_PX) {
       e.preventDefault()
       this.edgeBump += Math.abs(deltaY)
+    }
+  }
+
+  // Native tooltips can't see the ellipsis: promise expansion only
+  // where the collapsed line actually hides something. Short steps
+  // and already-expanded (focused) ones show everything, so hovering
+  // them offers no tooltip at all. Runs on hover start, well before
+  // the tooltip delay, and React never fights it: there is no title
+  // prop, only this imperative arming.
+  armExpandHint (e : React.MouseEvent<HTMLLIElement>) : void {
+    const li : HTMLLIElement = e.currentTarget
+    const line : Element | null = li.querySelector('.inlineblock')
+    if (line instanceof HTMLElement && line.scrollWidth > line.clientWidth + 1) {
+      li.title = 'Click to expand this step'
+    }
+    else {
+      li.title = ''
     }
   }
 
@@ -346,7 +364,7 @@ export default class Expression extends PureComponent<EvaluatorProps, Expression
           {
             this.props.history.length > 1 ?
               mapLeftFromTo(1, this.props.history.length - 2, this.props.history, (stepRecord : StepRecord, i : Number) =>
-                <li key={ i.toString() } className='inactiveStep LI' tabIndex={ collapseOldSteps ? 0 : undefined } title={ collapseOldSteps ? 'Click to expand this step' : undefined } >
+                <li key={ i.toString() } className='inactiveStep LI' tabIndex={ collapseOldSteps ? 0 : undefined } onMouseEnter={ collapseOldSteps ? this.armExpandHint : undefined } >
                   <Step
                     breakpoints={ this.props.breakpoints }
                     strategy={ this.props.state.strategy }
