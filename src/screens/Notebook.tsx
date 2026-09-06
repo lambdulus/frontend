@@ -78,7 +78,6 @@ export default class Notebook extends PureComponent<Props> {
               className="LI"
               key={ box.__key }
               ref={ (el : HTMLLIElement | null) => { this.boxRefs[i] = el } }
-              onClick={ () => this.makeActive(i) }
             >
 
               <BoxContainer
@@ -88,6 +87,7 @@ export default class Notebook extends PureComponent<Props> {
                 seatBox={ () => this.ensureFocusRoom(i) }
                 addBoxBefore={ (box : BoxState) => this.insertBefore(i, box) }
                 addBoxAfter={ (box : BoxState) => this.insertAfter(i, box) }
+                makeActive={ () => this.makeActive(i) }
                 removeBox={ () => this.removeBox(i) }
                 updateBoxState={ (box : BoxState) => this.updateBoxState(i, box) }
                 onBlur={ () => this.onBlur(i) }
