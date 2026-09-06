@@ -159,7 +159,7 @@ export default class ExpressionBox extends PureComponent<EvaluationProperties> {
       subtype : UntypedLambdaType.EMPTY,
       title : `Copy of ${state.title}`,
       minimized : false,
-      settingsOpen : true,
+      settingsOpen : false,
       expression : "",
       ast : null,
       history : [],

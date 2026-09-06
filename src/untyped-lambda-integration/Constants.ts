@@ -60,7 +60,7 @@ export function createNewUntypedLambdaExpression (defaultSettings : UntypedLambd
     subtype : UntypedLambdaType.EMPTY,
     title : "Untyped λ Expression",
     minimized : false,
-    settingsOpen : true,
+    settingsOpen : false,
     expression : "",
     ast : null,
     history : [],

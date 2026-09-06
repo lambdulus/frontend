@@ -3,6 +3,7 @@ import { test, expect } from 'vitest';
 import { render } from '@testing-library/react';
 import App from './App';
 import { createDefaultAppState, preferredTheme } from './Constants';
+import { defaultSettings, createNewUntypedLambdaExpression } from './untyped-lambda-integration/Constants';
 import { Theme } from './contexts/Theme';
 
 test('renders the app shell (top-level smoke test)', () => {
@@ -42,4 +43,8 @@ test('first-run theme falls back to dark without the API', () => {
 
 test('emerald stays the default accent', () => {
   expect(createDefaultAppState().accent).toBe('emerald');
+});
+
+test('new boxes start with settings closed', () => {
+  expect(createNewUntypedLambdaExpression(defaultSettings).settingsOpen).toBe(false);
 });

@@ -57,7 +57,7 @@ export class BoxContainer extends Component<Props, State> {
     // The add-box dialog opens below the button; nudge the page just
     // enough to bring the whole dialog into view.
     if ( ! prevState.modalOpen && this.state.modalOpen && this.modalRef.current !== null) {
-      this.modalRef.current.scrollIntoView({ block : 'nearest', behavior : 'smooth' })
+      this.modalRef.current.scrollIntoView?.({ block : 'nearest', behavior : 'smooth' })
     }
 
     // Pin the box where it was on screen: when this box resizes itself
@@ -94,9 +94,9 @@ export class BoxContainer extends Component<Props, State> {
   
     return (
       <div ref={ this.rootRef }>
-        <div className="box-frame">
+        <div className={ `box-frame${ isFocusedBox ? ' box-frame--focused' : '' }` }>
           <div
-            className={ `box-rail ${ isFocusedBox ? 'box-rail--focused' : '' }` }
+            className="box-rail"
             title="Focus this box"
             onClick={ (e : MouseEvent) => {
               // Same as clicking the box itself, but the rail holds no
