@@ -155,6 +155,50 @@
   background-color: var(--raised);
 }
 
+/* Zen mode is a real switch: the Focus knob slides across the track
+   and the track itself takes the accent when on. The side swap is
+   instant (flex position does not transition); the state color fades. */
+.top-bar--zen {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-start;
+  width: 46px;
+  height: 26px;
+  align-self: center;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background-color: var(--raised);
+  cursor: pointer;
+  padding: 0 3px;
+  transition: background-color .15s ease-in-out, border-color .15s ease-in-out;
+}
+
+.top-bar--zen--on {
+  justify-content: flex-end;
+  background-color: var(--accent);
+  border-color: var(--accent);
+}
+
+.top-bar--zen-knob {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background-color: var(--surface);
+  color: var(--muted);
+}
+
+.top-bar--zen--on .top-bar--zen-knob {
+  color: var(--accent);
+}
+
+.top-bar--zen:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
 /* The bar chrome always sits above an open popover's backdrop, so
    switching icons swaps panels in one click instead of being swallowed. */
 .top-bar--brand,
