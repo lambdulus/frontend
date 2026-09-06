@@ -33,6 +33,7 @@ interface EvaluatorProps {
 
 interface ExpressionState {
   historyAtBottom : boolean
+  historyAtTop : boolean
 }
 
 export default class Expression extends PureComponent<EvaluatorProps, ExpressionState> {
@@ -44,12 +45,12 @@ export default class Expression extends PureComponent<EvaluatorProps, Expression
 
     this.historyRef = React.createRef<HTMLDivElement>()
     this.followTail = true
-    this.state = { historyAtBottom : true }
+    this.state = { historyAtBottom : true, historyAtTop : true }
     this.addBreakpoint = this.addBreakpoint.bind(this)
   }
 
   componentDidMount () : void {
-    this.syncHistoryBottom()
+    this.syncHistoryEdges()
   }
 
   componentDidUpdate (prevProps : EvaluatorProps) : void {
@@ -62,32 +63,92 @@ export default class Expression extends PureComponent<EvaluatorProps, Expression
       }
     }
 
-    this.syncHistoryBottom()
+    this.syncHistoryEdges()
   }
 
-  // Tracks whether the history scroll shows the steps right before the
-  // current form; drives the gap indicator. Guarded so it only
-  // re-renders on flips.
-  syncHistoryBottom () : void {
+  // Tracks which end of the history is in view; drives the two gap
+  // marks. The top edge is deliberately aggressive: anything more
+  // than a few pixels down hides the very first step. Guarded so it
+  // only re-renders on flips.
+  syncHistoryEdges () : void {
     const el : HTMLDivElement | null = this.historyRef.current
     if (el === null) {
       return
     }
 
     const atBottom : boolean = el.scrollHeight - el.scrollTop - el.clientHeight < 40
+    const atTop : boolean = el.scrollTop <= 4
     this.followTail = atBottom
-    if (atBottom !== this.state.historyAtBottom) {
-      this.setState({ historyAtBottom : atBottom })
+    if (atBottom !== this.state.historyAtBottom || atTop !== this.state.historyAtTop) {
+      this.setState({ historyAtBottom : atBottom, historyAtTop : atTop })
     }
   }
 
   // Jump the history scroll down to the current form; the scroll
-  // handler notices the bottom and fades the indicator away.
+  // handler notices the bottom and fades the mark away.
   scrollHistoryToBottom () : void {
     const el : HTMLDivElement | null = this.historyRef.current
     if (el !== null) {
       el.scrollTo({ top : el.scrollHeight, behavior : 'smooth' })
     }
+  }
+
+  // Jump the history scroll back to the very first step; the scroll
+  // handler notices the top and fades the mark away.
+  scrollHistoryToTop () : void {
+    const el : HTMLDivElement | null = this.historyRef.current
+    if (el !== null) {
+      el.scrollTo({ top : 0, behavior : 'smooth' })
+    }
+  }
+
+  // Omission mark for one end of the history: a wave that swaps to a
+  // column of chevrons on hover, jumping to that end on click. Mounted
+  // whenever there is history; each end shows only while scrolled away
+  // from it.
+  renderGapMark (kind : 'top' | 'bottom') : JSX.Element | null {
+    if (this.props.history.length <= 1) {
+      return null
+    }
+
+    const up : boolean = kind === 'top'
+    const visible : boolean = up ? ! this.state.historyAtTop : ! this.state.historyAtBottom
+    const jump : () => void = up ? () => this.scrollHistoryToTop() : () => this.scrollHistoryToBottom()
+
+    return (
+      <div
+        className={ `history-gap-indicator history-gap-indicator--${kind}${ visible ? ' visible' : '' }` }
+        title={ up ? 'First steps are hidden - click to jump to the first step' : 'History is scrolled up - click to jump to the current form' }
+        role='button'
+        tabIndex={ 0 }
+        onClick={ jump }
+        onKeyDown={ (e : React.KeyboardEvent<HTMLDivElement>) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault()
+            jump()
+          }
+        } }
+      >
+        <svg className='gap-wave' width='12' height='30' viewBox='0 0 12 30' fill='none' stroke='currentColor' strokeWidth='1.5' strokeLinecap='round'>
+          <path d='M6 1 Q10 5 6 9 Q2 13 6 17 Q10 21 6 25 Q4 27.5 6 29' />
+        </svg>
+        <svg className='gap-arrows' width='12' height='30' viewBox='0 0 12 30' fill='none' stroke='currentColor' strokeWidth='1.5' strokeLinecap='round' strokeLinejoin='round' aria-hidden='true'>
+          { up ?
+            <>
+              <path d='M1 8 L6 3 L11 8' />
+              <path d='M1 16 L6 11 L11 16' />
+              <path d='M1 24 L6 19 L11 24' />
+            </>
+          :
+            <>
+              <path d='M1 3 L6 8 L11 3' />
+              <path d='M1 11 L6 16 L11 11' />
+              <path d='M1 19 L6 24 L11 19' />
+            </>
+          }
+        </svg>
+      </div>
+    )
   }
 
   render () : JSX.Element {
@@ -123,10 +184,11 @@ export default class Expression extends PureComponent<EvaluatorProps, Expression
               null
           }
         </div>
+        { this.renderGapMark('top') }
         <div
           className='box-history-scroll'
           ref={ this.historyRef }
-          onScroll={ () => this.syncHistoryBottom() }
+          onScroll={ () => this.syncHistoryEdges() }
         >
         <ul className={ `UL${ collapseOldSteps ? ' collapse-history' : '' }` }>
           {
@@ -156,36 +218,7 @@ export default class Expression extends PureComponent<EvaluatorProps, Expression
           }
         </ul>
         </div>
-        {
-          // Omission marker between the scrolled history and the pinned
-          // current form; only visible while the history does not reach
-          // the steps right before it.
-          this.props.history.length > 1 ?
-            <div
-              className={ `history-gap-indicator${ this.state.historyAtBottom ? '' : ' visible' }` }
-              title='History is scrolled up - click to jump to the current form'
-              role='button'
-              tabIndex={ 0 }
-              onClick={ () => this.scrollHistoryToBottom() }
-              onKeyDown={ (e : React.KeyboardEvent<HTMLDivElement>) => {
-                if (e.key === 'Enter' || e.key === ' ') {
-                  e.preventDefault()
-                  this.scrollHistoryToBottom()
-                }
-              } }
-            >
-              <svg className='gap-wave' width='12' height='30' viewBox='0 0 12 30' fill='none' stroke='currentColor' strokeWidth='1.5' strokeLinecap='round'>
-                <path d='M6 1 Q10 5 6 9 Q2 13 6 17 Q10 21 6 25 Q4 27.5 6 29' />
-              </svg>
-              <svg className='gap-arrows' width='12' height='30' viewBox='0 0 12 30' fill='none' stroke='currentColor' strokeWidth='1.5' strokeLinecap='round' strokeLinejoin='round' aria-hidden='true'>
-                <path d='M1 3 L6 8 L11 3' />
-                <path d='M1 11 L6 16 L11 11' />
-                <path d='M1 19 L6 24 L11 19' />
-              </svg>
-            </div>
-          :
-            null
-        }
+        { this.renderGapMark('bottom') }
         <div className='box-current-step activeStep'>
           <Step
             breakpoints={ this.props.breakpoints }
