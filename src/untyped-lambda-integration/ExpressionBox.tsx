@@ -20,6 +20,8 @@ import './styles/EvaluatorBox.css'
 import { BoxType } from '../Types'
 
 import InactiveEvaluator from './InactiveExpression'
+import DebugControls from '../components/DebugControls'
+import { createPortal } from 'react-dom'
 import Expression from './Expression'
 import { PromptPlaceholder, UntypedLambdaState, Evaluator, StepRecord, Breakpoint, UntypedLambdaType, StepMessage, StepValidity } from './Types'
 import { findSimplifiedReduction, MacroBeta, tryMacroContraction, strategyToEvaluator } from './Constants'
@@ -29,9 +31,11 @@ export interface EvaluationProperties {
   state : UntypedLambdaState
   isActive : boolean
   isFocused : boolean
+  isAnchorBox : boolean
 
   setBoxState (state : UntypedLambdaState) : void
   addBox (box : UntypedLambdaState) : void
+  titleActionsHost? : React.RefObject<HTMLSpanElement>
 }
 
 export default class ExpressionBox extends PureComponent<EvaluationProperties> {
@@ -81,23 +85,60 @@ export default class ExpressionBox extends PureComponent<EvaluationProperties> {
     }
 
     return (
-      <Expression
-        className={ className }
-        isExercise={ false }
-        state={ state }
-        breakpoints={ breakpoints }
-        history={ history }
-        editor={ editor }
-        isNormalForm={ isNormalForm }
-        shouldShowDebugControls={ isActive }
+      <>
+        { this.renderTitleActions(isNormalForm) }
+        <Expression
+          className={ className }
+          isExercise={ false }
+          state={ state }
+          breakpoints={ breakpoints }
+          history={ history }
+          editor={ editor }
+          isNormalForm={ isNormalForm }
+          shouldShowDebugControls={ isActive }
 
-        createBoxFrom={ this.createBoxFrom }
-        setBoxState={ this.props.setBoxState }
-        onContent={ this.onContent }
-        onEnter={ this.onStep }
-        onExecute={ this.onExecute }
-        addBox={ addBox }
-      />
+          createBoxFrom={ this.createBoxFrom }
+          setBoxState={ this.props.setBoxState }
+          onContent={ this.onContent }
+          onEnter={ this.onStep }
+          onExecute={ this.onExecute }
+          addBox={ addBox }
+        />
+      </>
+    )
+  }
+
+  componentDidMount () : void {
+    // The title-bar slot attaches in the same commit, after the first
+    // render read it as empty; one sync re-render lands the portal
+    // before paint, with no visible flash.
+    this.forceUpdate()
+  }
+
+  // Run/Step live in the box title bar now, portaled into its slot so
+  // this component keeps owning the evaluation callbacks. Same mount
+  // conditions as the old controls row below the editor. The slot
+  // stays mounted off-anchor, merely unseeing: popping the buttons in
+  // on arrival would grow the title bar and shove the box content down
+  // a few pixels after every first click. Visibility follows the map
+  // anchor, not the click, so a top-bar focus shows the buttons too.
+  renderTitleActions (isNormalForm : boolean) : JSX.Element | null {
+    const { state, isAnchorBox, titleActionsHost } = this.props
+    const host : HTMLSpanElement | null = titleActionsHost?.current ?? null
+
+    if (host === null || isNormalForm) {
+      return null
+    }
+
+    return createPortal(
+      <span className={ isAnchorBox ? undefined : 'box-top-bar-actions--standby' } aria-hidden={ isAnchorBox ? undefined : true }>
+        <DebugControls
+          isRunning={ state.isRunning }
+          onStep={ this.onStep }
+          onRun={ this.onExecute }
+        />
+      </span>,
+      host
     )
   }
 
@@ -120,7 +161,7 @@ export default class ExpressionBox extends PureComponent<EvaluationProperties> {
       subtype : UntypedLambdaType.EMPTY,
       title : `Copy of ${state.title}`,
       minimized : false,
-      settingsOpen : true,
+      settingsOpen : false,
       expression : "",
       ast : null,
       history : [],

@@ -1,7 +1,7 @@
 import React, { ChangeEvent, useEffect, useMemo, useRef, useState } from 'react'
-import { Bug, Check, Download, Eraser, Lock, Moon, Palette, Plus, Settings as SettingsIcon, Sun, Upload, X } from 'lucide-react'
+import { Bug, Check, Download, Eraser, Focus, Lock, Moon, Palette, Plus, Settings as SettingsIcon, Sun, Upload, X } from 'lucide-react'
 
-import { Accent, GlobalSettings, NotebookState } from '../Types'
+import { Accent, BoxStyle, GlobalSettings, NotebookState } from '../Types'
 
 import '../styles/TopBar.css'
 import { decodeNotebook } from '../Constants'
@@ -19,8 +19,10 @@ interface Props {
   activeNotebookIndex : number
   theme : Theme
   accent : Accent
+  boxStyle : BoxStyle
   settings : GlobalSettings
   onAccentChange (accent : Accent) : void
+  onBoxStyleChange (boxStyle : BoxStyle) : void
   onNotebookSelect (index : number) : void
   onNotebookAdd () : void
   onNotebookRemove (index : number) : void
@@ -29,6 +31,7 @@ interface Props {
   onResetWorkspace () : void
   onDarkModeChange () : void
   onSettingsChange (settings : GlobalSettings) : void
+  onZenModeChange (zenMode : boolean) : void
 }
 
 export default function TopBar (props : Props) : JSX.Element {
@@ -37,8 +40,10 @@ export default function TopBar (props : Props) : JSX.Element {
     activeNotebookIndex,
     theme,
     accent,
+    boxStyle,
     settings,
     onAccentChange,
+    onBoxStyleChange,
     onNotebookSelect,
     onNotebookAdd,
     onNotebookRemove,
@@ -47,6 +52,7 @@ export default function TopBar (props : Props) : JSX.Element {
     onResetWorkspace,
     onDarkModeChange,
     onSettingsChange,
+    onZenModeChange,
   } : Props = props
 
   // A single open panel: switching icons swaps popovers in one click
@@ -158,11 +164,23 @@ export default function TopBar (props : Props) : JSX.Element {
           </button>
 
           <button
-            className='top-bar--action'
+            className='top-bar--action top-bar--theme-toggle'
             title='Toggle the theme'
             onClick={ onDarkModeChange }
           >
             { darkmode ? <Sun size={ 17 } strokeWidth={ 1.75 } /> : <Moon size={ 17 } strokeWidth={ 1.75 } /> }
+          </button>
+
+          <button
+            role='switch'
+            aria-checked={ notebook.zenMode === true }
+            className={ notebook.zenMode === true ? 'top-bar--zen top-bar--zen--on' : 'top-bar--zen' }
+            title={ notebook.zenMode === true ? 'Exit zen mode: show all boxes' : 'Zen mode: one box at a time' }
+            onClick={ () => onZenModeChange(notebook.zenMode !== true) }
+          >
+            <span className='top-bar--zen-knob'>
+              <Focus size={ 13 } strokeWidth={ 2 } />
+            </span>
           </button>
 
           <button
@@ -239,6 +257,28 @@ export default function TopBar (props : Props) : JSX.Element {
                     </button>
                   )
                 }
+                <p className='top-bar--settings-title'>Box style</p>
+                <div className='top-bar--boxstyle-seg'>
+                  {
+                    ([
+                      { value : 'cards' as BoxStyle, label : 'Cards' },
+                      { value : 'classic' as BoxStyle, label : 'Classic' },
+                    ]).map((option) =>
+                      <span className='top-bar--boxstyle-radio-wrapper' key={ option.value }>
+                        <input
+                          id={ `top-bar--boxstyle-${option.value}` }
+                          type='radio'
+                          name='top-bar--boxstyle'
+                          checked={ boxStyle === option.value }
+                          onChange={ () => onBoxStyleChange(option.value) }
+                        />
+                        <label className='top-bar--boxstyle-label' htmlFor={ `top-bar--boxstyle-${option.value}` }>
+                          { option.label }
+                        </label>
+                      </span>
+                    )
+                  }
+                </div>
               </div>
             </React.Fragment>
           :

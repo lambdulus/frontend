@@ -12,6 +12,31 @@
   min-width: 0;
 }
 
+/* Slot for box-type controls portaled from below (Run/Step). Contents
+   layout keeps the slot itself footprint-free, even while empty. */
+.boxTopBar-actions {
+  display: contents;
+}
+
+/* Standby title actions: fully laid out but unseeing, so activating
+   the box never grows the title bar and shoves content. Unlike
+   opacity:0 the hidden buttons catch neither clicks nor keyboards. */
+.box-top-bar-actions--standby {
+  visibility: hidden;
+}
+
+.boxTopBar-spacer {
+  flex: 1 1 auto;
+}
+
+.boxTopBar-actions .debug-controls {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0;
+  margin: 0;
+}
+
 .box-top-bar--title-text {
   max-width: 100%;
   display: inline-block;

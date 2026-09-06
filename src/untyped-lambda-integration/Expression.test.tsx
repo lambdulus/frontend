@@ -1,0 +1,333 @@
+import React from 'react';
+import { readFileSync } from 'fs';
+import { test, expect, vi, afterEach } from 'vitest';
+import { render, fireEvent, cleanup } from '@testing-library/react';
+import Expression from './Expression';
+import { EvaluationStrategy, StepValidity, UntypedLambdaState } from './Types';
+import { tokenize, parse, None } from '@lambdulus/core';
+
+afterEach(() => cleanup());
+
+function buildHistory () {
+  const macrotable = {};
+  const ast = parse(tokenize('(λx.x) y', { lambdaLetters : ['λ'], singleLetterVars : true, macromap : macrotable }), macrotable);
+  const message = { validity : StepValidity.CORRECT, userInput : '', message : '' };
+  return [
+    { ast, lastReduction : new None(), step : 0, message, isNormalForm : false, exerciseStep : false },
+    { ast : ast.clone(), lastReduction : new None(), step : 1, message, isNormalForm : false, exerciseStep : false },
+    { ast : ast.clone(), lastReduction : new None(), step : 2, message, isNormalForm : false, exerciseStep : false },
+  ];
+}
+
+function renderExpression () {
+  const history = buildHistory();
+  const state = {
+    strategy : EvaluationStrategy.NORMAL,
+    SDE : true,
+    macrotable : {},
+    collapseOldSteps : true,
+    isRunning : false,
+  } as unknown as UntypedLambdaState;
+
+  return render(
+    <Expression
+      className='box boxEval'
+      state={ state }
+      breakpoints={ [] }
+      history={ history }
+      editor={ { placeholder : '', content : '', syntaxError : null } }
+      isNormalForm={ false }
+      isExercise={ false }
+      createBoxFrom={ () => state }
+      setBoxState={ () => void 0 }
+      onContent={ () => void 0 }
+      onEnter={ () => void 0 }
+      onExecute={ () => void 0 }
+      addBox={ () => void 0 }
+      shouldShowDebugControls={ false }
+    />
+  );
+}
+
+test('initial and latest steps pin outside while middle steps scroll', () => {
+  const { container } = renderExpression();
+
+  const initial = container.querySelector('.box-initial-step');
+  expect(initial).not.toBeNull();
+  expect(container.querySelector('.box-history-scroll .box-initial-step')).toBeNull();
+  expect(initial?.querySelector('.stepNumber')?.textContent).toMatch(/0 :/);
+
+  const scrolled = container.querySelectorAll('.box-history-scroll li.inactiveStep');
+  expect(scrolled.length).toBe(1);
+  expect(scrolled[0].textContent).toMatch(/1 :/);
+
+  const current = container.querySelector('.box-current-step');
+  expect(current).not.toBeNull();
+  expect(container.querySelector('.box-history-scroll .box-current-step')).toBeNull();
+  expect(current?.querySelector('.stepNumber')?.textContent).toMatch(/2 :/);
+});
+
+test('two steps pin both endpoints with no marks and no middle', () => {
+  const { container } = render(
+    <Expression
+      className='box boxEval'
+      state={ { strategy : EvaluationStrategy.NORMAL, SDE : true, macrotable : {}, collapseOldSteps : true, isRunning : false } as unknown as UntypedLambdaState }
+      breakpoints={ [] }
+      history={ buildHistory().slice(0, 2) }
+      editor={ { placeholder : '', content : '', syntaxError : null } }
+      isNormalForm={ false }
+      isExercise={ false }
+      createBoxFrom={ () => { throw new Error('unused') } }
+      setBoxState={ () => void 0 }
+      onContent={ () => void 0 }
+      onEnter={ () => void 0 }
+      onExecute={ () => void 0 }
+      addBox={ () => void 0 }
+      shouldShowDebugControls={ false }
+    />
+  );
+
+  expect(container.querySelector('.box-initial-step .stepNumber')?.textContent).toMatch(/0 :/);
+  expect(container.querySelectorAll('.box-history-scroll li').length).toBe(0);
+  expect(container.querySelectorAll('.history-gap-indicator').length).toBe(0);
+  expect(container.querySelector('.box-current-step .stepNumber')?.textContent).toMatch(/1 :/);
+});
+
+test('gap marks mount at both ends, hidden while history shows everything', () => {
+  const { container } = renderExpression();
+
+  // Marks float inside a positioning wrap over the scroll, so showing
+  // them never reflows the box.
+  expect(container.querySelector('.box-history-wrap .box-history-scroll')).not.toBeNull();
+
+  const marks = container.querySelectorAll('.history-gap-indicator');
+  expect(marks.length).toBe(2);
+  expect(marks[0].classList.contains('history-gap-indicator--top')).toBe(true);
+  expect(marks[1].classList.contains('history-gap-indicator--bottom')).toBe(true);
+  marks.forEach((mark) => {
+    expect(mark.querySelector('.gap-saw')).not.toBeNull();
+  });
+
+  // The pill must stand taller than the hover chevrons it swaps in.
+  const css = readFileSync('src/untyped-lambda-integration/styles/EvaluatorBox.css', 'utf8');
+  const pill = css.match(/\.history-gap-indicator\s*\{[^}]*\}/)?.[0] ?? '';
+  expect(pill).toMatch(/padding\s*:\s*8px 12px/);
+  marks.forEach((mark) => {
+    expect(mark.classList.contains('visible')).toBe(false);
+    expect((mark as HTMLElement).tabIndex).toBe(-1);
+  });
+});
+
+function scrollerWithGeometry (container : HTMLElement) : HTMLElement {
+  const scroller = container.querySelector('.box-history-scroll') as HTMLElement;
+  Object.defineProperty(scroller, 'scrollHeight', { configurable : true, value : 1000 });
+  Object.defineProperty(scroller, 'clientHeight', { configurable : true, value : 200 });
+  return scroller;
+}
+
+test('scrolling away from either end reveals that end’s mark', () => {
+  const { container } = renderExpression();
+  const scroller = scrollerWithGeometry(container);
+
+  scroller.scrollTop = 300;
+  fireEvent.scroll(scroller);
+
+  const marks = container.querySelectorAll('.history-gap-indicator');
+  expect(marks[0].classList.contains('visible')).toBe(true);
+  expect(marks[1].classList.contains('visible')).toBe(true);
+  marks.forEach((mark) => expect((mark as HTMLElement).tabIndex).toBe(0));
+  expect(scroller.classList.contains('mask-top')).toBe(true);
+  expect(scroller.classList.contains('mask-bottom')).toBe(true);
+
+  scroller.scrollTop = 0;
+  fireEvent.scroll(scroller);
+
+  expect(marks[0].classList.contains('visible')).toBe(false);
+  expect(marks[1].classList.contains('visible')).toBe(true);
+  expect(scroller.classList.contains('mask-top')).toBe(false);
+  expect(scroller.classList.contains('mask-bottom')).toBe(true);
+});
+
+test('clicking the top mark jumps the history to its start', () => {
+  const { container } = renderExpression();
+  const scroller = scrollerWithGeometry(container);
+  scroller.scrollTop = 300;
+  fireEvent.scroll(scroller);
+
+  const proto = window.HTMLElement.prototype as any;
+  const originalScrollTo = proto.scrollTo;
+  const spy = vi.fn();
+  proto.scrollTo = spy;
+  try {
+    const topMark = container.querySelector('.history-gap-indicator--top') as HTMLElement;
+    fireEvent.click(topMark);
+    expect(spy).toHaveBeenCalledWith({ top : 0, behavior : 'smooth' });
+  }
+  finally {
+    proto.scrollTo = originalScrollTo;
+  }
+});
+
+test('history scroll is allowed to chain out to the notebook', () => {
+  // The sticky ends are enforced in JS (see below); the CSS must not
+  // trap the scroll or pushing past an end could never reach the page.
+  const css = readFileSync('src/untyped-lambda-integration/styles/EvaluatorBox.css', 'utf8');
+  const block = css.match(/\.box-history-scroll\s*\{[^}]*\}/)?.[0] ?? '';
+  expect(block).not.toMatch(/overscroll-behavior\s*:\s*contain/);
+});
+
+test('hitting either end of the history sticks before chaining through', () => {
+  const { container } = renderExpression();
+  const scroller = scrollerWithGeometry(container);
+
+  // Pinned at the top end: the first push is swallowed...
+  scroller.scrollTop = 0;
+  expect(fireEvent.wheel(scroller, { deltaY : -100 })).toBe(false);
+  // ...then the scroll lets go and chains out to the notebook.
+  expect(fireEvent.wheel(scroller, { deltaY : -100 })).toBe(true);
+
+  // Scrolling down through the middle re-arms the other end.
+  scroller.scrollTop = 300;
+  fireEvent.wheel(scroller, { deltaY : 100 });
+
+  // Same at the bottom end.
+  scroller.scrollTop = 800;
+  expect(fireEvent.wheel(scroller, { deltaY : 100 })).toBe(false);
+  expect(fireEvent.wheel(scroller, { deltaY : 100 })).toBe(true);
+});
+
+test('scrolling back inward re-arms the sticky end', () => {
+  const { container } = renderExpression();
+  const scroller = scrollerWithGeometry(container);
+
+  scroller.scrollTop = 0;
+  expect(fireEvent.wheel(scroller, { deltaY : -100 })).toBe(false);
+  fireEvent.wheel(scroller, { deltaY : 50 });
+  expect(fireEvent.wheel(scroller, { deltaY : -100 })).toBe(false);
+  expect(fireEvent.wheel(scroller, { deltaY : -100 })).toBe(true);
+});
+
+test('wheel over the pinned endpoints drives the history', () => {
+  const { container } = renderExpression();
+  const scroller = scrollerWithGeometry(container);
+  const initial = container.querySelector('.box-initial-step') as HTMLElement;
+  const current = container.querySelector('.box-current-step') as HTMLElement;
+
+  // Mid-history: the endpoints feed the pane instead of the page.
+  scroller.scrollTop = 300;
+  expect(fireEvent.wheel(current, { deltaY : -100 })).toBe(false);
+  expect(scroller.scrollTop).toBe(200);
+  expect(fireEvent.wheel(initial, { deltaY : 100 })).toBe(false);
+  expect(scroller.scrollTop).toBe(300);
+
+  // At a true end the events flow through to the notebook untouched.
+  scroller.scrollTop = 0;
+  expect(fireEvent.wheel(current, { deltaY : -100 })).toBe(true);
+  expect(scroller.scrollTop).toBe(0);
+  scroller.scrollTop = 800;
+  expect(fireEvent.wheel(initial, { deltaY : 100 })).toBe(true);
+  expect(scroller.scrollTop).toBe(800);
+});
+
+test('wrapped steps clear their highlight boxes', () => {
+  // The inline redex/breakpoint boxes extend past the glyph box; the
+  // step needs leading to match or wrapped lines collide with them.
+  const css = readFileSync('src/untyped-lambda-integration/styles/Step.css', 'utf8');
+  const step = css.match(/\.step\s*\{[^}]*\}/)?.[0] ?? '';
+  expect(step).toMatch(/line-height\s*:\s*1\.75/);
+});
+
+test('collapsed steps leave room for redex borders', () => {
+  // The collapsed line clips horizontally for the ellipsis, but the
+  // 1px redex borders must still paint above and below the line:
+  // plain overflow:hidden slices them into two floating side ticks.
+  const css = readFileSync('src/untyped-lambda-integration/styles/Step.css', 'utf8');
+  const block = css.match(/\.collapse-history \.inactiveStep \.inlineblock\s*\{[^}]*\}/)?.[0] ?? '';
+  expect(block).toMatch(/overflow\s*:\s*clip/);
+  expect(block).toMatch(/overflow-clip-margin/);
+});
+
+test('history without overflow chains immediately', () => {
+  const { container } = renderExpression();
+  const scroller = container.querySelector('.box-history-scroll') as HTMLElement;
+  Object.defineProperty(scroller, 'scrollHeight', { configurable : true, value : 200 });
+  Object.defineProperty(scroller, 'clientHeight', { configurable : true, value : 200 });
+
+  scroller.scrollTop = 0;
+  expect(fireEvent.wheel(scroller, { deltaY : -100 })).toBe(true);
+});
+
+test('no indicator mounts when there is no history yet', () => {
+  const { container } = render(
+    <Expression
+      className='box boxEval'
+      state={ { strategy : EvaluationStrategy.NORMAL, SDE : true, macrotable : {}, collapseOldSteps : true, isRunning : false } as unknown as UntypedLambdaState }
+      breakpoints={ [] }
+      history={ buildHistory().slice(0, 1) }
+      editor={ { placeholder : '', content : '', syntaxError : null } }
+      isNormalForm={ false }
+      isExercise={ false }
+      createBoxFrom={ () => { throw new Error('unused') } }
+      setBoxState={ () => void 0 }
+      onContent={ () => void 0 }
+      onEnter={ () => void 0 }
+      onExecute={ () => void 0 }
+      addBox={ () => void 0 }
+      shouldShowDebugControls={ false }
+    />
+  );
+
+  expect(container.querySelectorAll('.box-history-scroll li').length).toBe(0);
+  expect(container.querySelectorAll('.history-gap-indicator').length).toBe(0);
+  expect(container.querySelector('.box-current-step .stepNumber')?.textContent).toMatch(/0 :/);
+});
+
+test('expand hint stays silent where nothing is hidden', () => {
+  const { container } = renderExpression();
+  const li = container.querySelector('li.inactiveStep') as HTMLElement;
+
+  // jsdom measures no overflow: fully visible, no tooltip.
+  expect(li.title).toBe('');
+  fireEvent.mouseEnter(li);
+  expect(li.title).toBe('');
+});
+
+test('expand hint promises expansion only for truncated steps', () => {
+  const { container } = renderExpression();
+  const li = container.querySelector('li.inactiveStep') as HTMLElement;
+  const line = li.querySelector('.inlineblock') as HTMLElement;
+  Object.defineProperty(line, 'scrollWidth', { value : 500, configurable : true });
+  Object.defineProperty(line, 'clientWidth', { value : 100, configurable : true });
+
+  fireEvent.mouseEnter(li);
+  expect(li.title).toBe('Click to expand this step');
+});
+
+test('macros dock as a pill unfolding into an animated panel', () => {
+  const css = readFileSync('src/untyped-lambda-integration/styles/MacroList.css', 'utf8');
+  // The dock rides the viewport's left margin (past the 940px
+  // column), out of flow so it never reflows the box...
+  const dock = css.match(/\.macro-dock\s*\{[^}]*\}/)?.[0] ?? '';
+  expect(dock).toMatch(/position\s*:\s*absolute/);
+  expect(dock).toMatch(/left\s*:\s*calc\(-1 \* max\(22px, \(100vw - 940px\)/);
+  expect(dock).toMatch(/width\s*:\s*420px/);
+  // ...opens into a card holding the header, at least 320px tall
+  // even for small boxes...
+  const open = css.match(/\.macro-dock--open\s*\{[^}]*\}/)?.[0] ?? '';
+  expect(open).toMatch(/bottom\s*:\s*0/);
+  expect(open).toMatch(/min-height\s*:\s*320px/);
+  expect(open).toMatch(/background-color\s*:\s*var\(--surface\)/);
+  expect(open).toMatch(/box-shadow\s*:/);
+  // ...with the panel filling the card so long lists scroll inside.
+  expect(css).toMatch(/\.macro-dock--open \.macro-dock--panel\s*\{[^}]*flex\s*:\s*1 1 auto/);
+  // ...whose panel stays mounted and collapses through grid rows
+  // plus a quick fade, with the list scrolling in its own box.
+  const panel = css.match(/\.macro-dock--panel\s*\{[^}]*\}/)?.[0] ?? '';
+  expect(panel).not.toMatch(/background-color/);
+  expect(panel).toMatch(/grid-template-rows\s*:\s*0fr/);
+  expect(panel).toMatch(/transition\s*:[^;]*grid-template-rows/);
+  expect(panel).toMatch(/visibility\s*:\s*hidden/);
+  expect(css).toMatch(/\.macro-dock--open \.macro-dock--panel\s*\{[^}]*grid-template-rows\s*:\s*1fr/);
+  const scroll = css.match(/\.macro-dock--scroll\s*\{[^}]*\}/)?.[0] ?? '';
+  expect(scroll).toMatch(/overflow-y\s*:\s*auto/);
+});

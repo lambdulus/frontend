@@ -14,7 +14,7 @@ import { uniqueKey } from './uniqueKey'
 
 import TopBar from './components/TopBar'
 import Notebook from './screens/Notebook'
-import { Accent, AppState, NotebookState, GlobalSettings, BoxType, BoxState } from './Types'
+import { Accent, BoxStyle, AppState, NotebookState, GlobalSettings, BoxType, BoxState } from './Types'
 import { CODE_NAME as UNTYPED_LAMBDA_CODE_NAME, createNewUntypedLambdaBoxFromSource, defaultSettings } from './untyped-lambda-integration/Constants'
 import { UntypedLambdaState, UntypedLambdaSettings, EvaluationStrategy, UntypedLambdaType } from './untyped-lambda-integration/Types'
 import { MacroTable } from '@lambdulus/core'
@@ -38,6 +38,7 @@ export default class App extends Component<{}, AppState> {
     this.clearNotebook = this.clearNotebook.bind(this)
     this.resetWorkspace = this.resetWorkspace.bind(this)
     this.updateAccent = this.updateAccent.bind(this)
+    this.updateBoxStyle = this.updateBoxStyle.bind(this)
     this.toggleTheme = this.toggleTheme.bind(this)
     this.selectNotebook = this.selectNotebook.bind(this)
     this.addNotebook = this.addNotebook.bind(this)
@@ -126,7 +127,7 @@ export default class App extends Component<{}, AppState> {
 
   // NOTE: render is OK
   render () {
-    const { notebooks, activeNotebookIndex, theme, accent } = this.state
+    const { notebooks, activeNotebookIndex, theme, accent, boxStyle } = this.state
     const notebook : NotebookState = notebooks[activeNotebookIndex]
     const { settings } = notebook
 
@@ -136,7 +137,7 @@ export default class App extends Component<{}, AppState> {
       <ThemeContext.Provider value={ theme }>
         <SettingsContext.Provider value={ settings }>
 
-          <div id='app' className={ darkmode ? 'dark' : 'light' } data-accent={ accent }>
+          <div id='app' className={ darkmode ? 'dark' : 'light' } data-accent={ accent } data-box-style={ boxStyle }>
             <div id="bad-screen-message">
               Lambdulus only runs on screens at least 900 pixels wide.
             </div>
@@ -145,8 +146,10 @@ export default class App extends Component<{}, AppState> {
               activeNotebookIndex={ activeNotebookIndex }
               theme={ theme }
               accent={ accent }
+              boxStyle={ boxStyle }
               settings={ settings }
               onAccentChange={ this.updateAccent }
+              onBoxStyleChange={ this.updateBoxStyle }
               onNotebookSelect={ this.selectNotebook }
               onNotebookAdd={ this.addNotebook }
               onNotebookRemove={ this.removeNotebook }
@@ -155,6 +158,7 @@ export default class App extends Component<{}, AppState> {
               onResetWorkspace={ this.resetWorkspace }
               onDarkModeChange={ this.toggleTheme }
               onSettingsChange={ this.updateSettings }
+              onZenModeChange={ (zenMode : boolean) => this.updateNotebook({ zenMode }) }
             />
 
             <Notebook state={ notebook } updateNotebook={ this.updateNotebook } />
@@ -322,6 +326,11 @@ export default class App extends Component<{}, AppState> {
   updateAccent (accent : Accent) : void {
     this.setState({ accent })
     updateAppStateToStorage({ ...this.state, accent })
+  }
+
+  updateBoxStyle (boxStyle : BoxStyle) : void {
+    this.setState({ boxStyle })
+    updateAppStateToStorage({ ...this.state, boxStyle })
   }
 
 }
