@@ -89,7 +89,8 @@ export default class Notebook extends PureComponent<Props, State> {
   private lastSeatAt : number
   private primeRaf : number | null
   private primeTrail : number | null
-  private preZenScrollY : number | null
+  private listRef : React.RefObject<HTMLUListElement>
+  private listObserver : ResizeObserver | null
 
   constructor (props : Props) {
     super(props)
@@ -100,7 +101,8 @@ export default class Notebook extends PureComponent<Props, State> {
     this.lastSeatAt = 0
     this.primeRaf = null
     this.primeTrail = null
-    this.preZenScrollY = null
+    this.listRef = React.createRef<HTMLUListElement>()
+    this.listObserver = null
     this.state = { mapAtTop : true, mapAtBottom : true }
 
     this.insertBefore = this.insertBefore.bind(this)
@@ -116,6 +118,16 @@ export default class Notebook extends PureComponent<Props, State> {
   componentDidMount () : void {
     window.addEventListener('keydown', this.onPageKeyDown)
     window.addEventListener('scroll', this.onPageScroll, { passive : true })
+    // Async content settling (editors, fonts) can move the page
+    // without firing scroll events, leaving focus stale on a box the
+    // view no longer shows; re-priming off the list's own resizes
+    // keeps the anchor on what is actually visible.
+    if (typeof ResizeObserver !== 'undefined' && this.listRef.current !== null) {
+      this.listObserver = new ResizeObserver(() => {
+        this.syncAnchorToPrime()
+      })
+      this.listObserver.observe(this.listRef.current)
+    }
     this.syncBodyZen()
     this.syncMapEdges()
   }
@@ -142,6 +154,9 @@ export default class Notebook extends PureComponent<Props, State> {
     }
     if (this.primeTrail !== null) {
       window.clearTimeout(this.primeTrail)
+    }
+    if (this.listObserver !== null) {
+      this.listObserver.disconnect()
     }
     document.body.classList.remove('zen')
   }
@@ -238,8 +253,6 @@ export default class Notebook extends PureComponent<Props, State> {
       return { top : rect.top, height : rect.height }
     })
     const prime : number = selectPrimeBox(tops, window.innerHeight * 0.65)
-    // TEMP-DEBUG: revert before merging.
-    console.log('[zen-debug] prime', { y : window.scrollY, tops, prime, focused : focusedBoxIndex, active : activeBoxIndex })
     if (prime !== (focusedBoxIndex ?? activeBoxIndex)) {
       this.props.updateNotebook({ focusedBoxIndex : prime })
     }
@@ -297,7 +310,7 @@ export default class Notebook extends PureComponent<Props, State> {
           </span>
         </h1>
         {/* TODO: This will be refactored out to standalone component. */}
-        <ul className="boxList UL">
+        <ul className="boxList UL" ref={ this.listRef }>
           { boxList.map(
             (box : BoxState, i : number) =>
             <li
@@ -578,26 +591,19 @@ export default class Notebook extends PureComponent<Props, State> {
     // stranding the view on the first box (and re-priming focus onto
     // it); parking while unlocked is harmless either way.
     const zenFlipped : boolean = this.props.state.zenMode !== prevProps.state.zenMode
-    if (zenFlipped && this.props.state.zenMode === true) {
-      this.preZenScrollY = window.scrollY
-    }
-    // TEMP-DEBUG: revert before merging.
-    if (zenFlipped) {
-      console.log('[zen-debug] flip', { to : this.props.state.zenMode, scrollY : window.scrollY, preZen : this.preZenScrollY, lockBefore : document.body.classList.contains('zen') })
-    }
     this.syncBodyZen()
     if (zenFlipped) {
-      // TEMP-DEBUG: revert before merging.
-      console.log('[zen-debug] jump', { to : this.props.state.zenMode, target : this.props.state.zenMode === true ? 0 : this.preZenScrollY, lockAfter : document.body.classList.contains('zen') })
       if (this.props.state.zenMode === true) {
         window.scrollTo({ top : 0, behavior : 'auto' })
       }
-      else if (this.preZenScrollY !== null) {
-        window.scrollTo({ top : this.preZenScrollY, behavior : 'auto' })
-      }
       else {
+        // Leaving: seat the anchor instantly, never restore pixels.
+        // The layout may have shifted silently while away (async
+        // content settling moves the scroll without firing scroll
+        // events), so a recorded position can point at the wrong box;
+        // the anchor's identity stays right whatever moved.
         const { focusedBoxIndex, activeBoxIndex } = this.props.state
-        this.ensureFocusRoom(focusedBoxIndex ?? activeBoxIndex)
+        this.ensureFocusRoom(focusedBoxIndex ?? activeBoxIndex, 'auto')
       }
     }
   }
@@ -605,7 +611,7 @@ export default class Notebook extends PureComponent<Props, State> {
   // Seat the focused box just under the fixed bar so it occupies the
   // view. The permanent bottom spacer holds enough scroll potential
   // for any box to reach the seating position, so this only scrolls.
-  ensureFocusRoom (index : number) : void {
+  ensureFocusRoom (index : number, behavior : ScrollBehavior = 'smooth') : void {
     const el : HTMLLIElement | null | undefined = this.boxRefs[index]
     if (el === null || el === undefined) {
       return
@@ -621,14 +627,12 @@ export default class Notebook extends PureComponent<Props, State> {
     const targetTop : number = this.props.state.zenMode === true ? 76 : 60
 
     const targetScrollY : number = window.scrollY + top - targetTop
-    // TEMP-DEBUG: revert before merging.
-    console.log('[zen-debug] seat', { index, from : window.scrollY, top, target : targetScrollY })
     if (Math.abs(targetScrollY - window.scrollY) < 2) {
       return
     }
 
     this.lastSeatAt = Date.now()
-    window.scrollTo({ top : targetScrollY, behavior : 'smooth' })
+    window.scrollTo({ top : targetScrollY, behavior })
   }
 
   onBlur (index : number) : void {

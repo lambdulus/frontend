@@ -517,10 +517,8 @@ test('entering zen parks the page at the top', () => {
     __key : 'nb',
   };
   const originalScrollTo = window.scrollTo;
-  const scrollYDescriptor = Object.getOwnPropertyDescriptor(window, 'scrollY');
   const spy = vi.fn();
   window.scrollTo = spy;
-  Object.defineProperty(window, 'scrollY', { value : 200, configurable : true });
   const { rerender, unmount } = render(<Notebook state={ base } updateNotebook={ () => void 0 } />);
   try {
     spy.mockClear();
@@ -530,18 +528,14 @@ test('entering zen parks the page at the top', () => {
   finally {
     unmount();
     window.scrollTo = originalScrollTo;
-    if (scrollYDescriptor !== undefined) {
-      Object.defineProperty(window, 'scrollY', scrollYDescriptor);
-    }
   }
 });
 
-test('leaving zen restores the pre-zen scroll position', () => {
-  // Leaving brings the title and siblings back into the exact layout
-  // we left, so the flip jumps back to the recorded scroll position
-  // instantly: the anchor lands on its seat with nothing moving. The
-  // box pinning steps aside across the flip, so no pin scroll fires
-  // the prime sync mid-flip either.
+test('leaving zen seats the anchor instantly', () => {
+  // Leaving brings the title and siblings back; seating the anchor
+  // (instantly, no glide) lands it whatever shifted silently while
+  // away. The box pinning steps aside across the flip, so no pin
+  // scroll fires the prime sync mid-flip either.
   const base : NotebookState = {
     name : 'Test',
     boxList : [ noteBox('first', 'a'), noteBox('second', 'b') ],
@@ -554,23 +548,22 @@ test('leaving zen restores the pre-zen scroll position', () => {
   const patches : Array<Partial<NotebookState>> = [];
   const onPatch = (patch : Partial<NotebookState>) : void => { patches.push(patch); };
   const originalScrollTo = window.scrollTo;
-  const scrollYDescriptor = Object.getOwnPropertyDescriptor(window, 'scrollY');
   const lockAtJump : Array<boolean> = [];
   const spy = vi.fn(() => {
     lockAtJump.push(document.body.classList.contains('zen'));
   });
   window.scrollTo = spy;
-  Object.defineProperty(window, 'scrollY', { value : 200, configurable : true });
   const { rerender, unmount } = render(<Notebook state={ base } updateNotebook={ onPatch } />);
   try {
     rerender(<Notebook state={ { ...base, zenMode : true } } updateNotebook={ onPatch } />);
     spy.mockClear();
     lockAtJump.length = 0;
     rerender(<Notebook state={ { ...base, zenMode : false } } updateNotebook={ onPatch } />);
-    expect(spy).toHaveBeenCalledWith({ top : 200, behavior : 'auto' });
-    // The lock is already gone when the restore jump runs: under the
-    // zen lock the deep jump would clamp back to the top, stranding
-    // the view (and the re-primed focus) on the first box.
+    // jsdom measures every box top at 0, so the 60px seat reads as
+    // a -60 jump: what matters is that exit seats, instantly.
+    expect(spy).toHaveBeenCalledWith({ top : -60, behavior : 'auto' });
+    // The lock is already gone when the seat runs: under the zen lock
+    // a deep seat would clamp back towards the top.
     expect(lockAtJump).toEqual([ false ]);
     // And nothing re-derives the focus: the anchor keeps it.
     expect(patches.some((patch) => patch.focusedBoxIndex !== undefined)).toBe(false);
@@ -578,9 +571,45 @@ test('leaving zen restores the pre-zen scroll position', () => {
   finally {
     unmount();
     window.scrollTo = originalScrollTo;
-    if (scrollYDescriptor !== undefined) {
-      Object.defineProperty(window, 'scrollY', scrollYDescriptor);
+  }
+});
+
+test('silent layout shifts re-prime the anchor', () => {
+  // Async content settling can move the view without firing scroll
+  // events, leaving focus stale on a box the view no longer shows;
+  // the list observer re-primes from the new layout.
+  let observerCallback : () => void = () => void 0;
+  vi.stubGlobal('ResizeObserver', class {
+    constructor (callback : () => void) {
+      observerCallback = callback;
     }
+    observe () : void { /* noop */ }
+    unobserve () : void { /* noop */ }
+    disconnect () : void { /* noop */ }
+  });
+  const patches : Array<Partial<NotebookState>> = [];
+  const state : NotebookState = {
+    name : 'Test',
+    boxList : [ noteBox('first', 'a'), noteBox('second', 'b'), noteBox('third', 'c') ],
+    activeBoxIndex : 1,
+    focusedBoxIndex : 2,
+    menuOpen : false,
+    settings : {},
+    __key : 'nb',
+  };
+  const { container, unmount } = render(<Notebook state={ state } updateNotebook={ (patch) => { patches.push(patch); } } />);
+  try {
+    const rows = container.querySelectorAll('.boxList > .LI');
+    const tops = [ 60, 280, 500 ];
+    rows.forEach((row, i) => {
+      (row as HTMLElement).getBoundingClientRect = () => rect(tops[i] ?? 0, 200);
+    });
+    observerCallback();
+    expect(patches.some((patch) => patch.focusedBoxIndex === 0)).toBe(true);
+  }
+  finally {
+    unmount();
+    vi.unstubAllGlobals();
   }
 });
 
