@@ -569,9 +569,19 @@ export default class Notebook extends PureComponent<Props, State> {
     // the layout is the one we left, so the anchor lands back on its
     // seat with nothing moving. (Box pinning steps aside across the
     // flip, so these jumps are the only scrolls.)
-    if (this.props.state.zenMode !== prevProps.state.zenMode) {
+    //
+    // Order matters: the body scroll lock must follow the mode BEFORE
+    // any flip jump runs. Restoring the deep pre-zen position while
+    // the zen lock is still on clamps the jump back to the top,
+    // stranding the view on the first box (and re-priming focus onto
+    // it); parking while unlocked is harmless either way.
+    const zenFlipped : boolean = this.props.state.zenMode !== prevProps.state.zenMode
+    if (zenFlipped && this.props.state.zenMode === true) {
+      this.preZenScrollY = window.scrollY
+    }
+    this.syncBodyZen()
+    if (zenFlipped) {
       if (this.props.state.zenMode === true) {
-        this.preZenScrollY = window.scrollY
         window.scrollTo({ top : 0, behavior : 'auto' })
       }
       else if (this.preZenScrollY !== null) {
@@ -582,7 +592,6 @@ export default class Notebook extends PureComponent<Props, State> {
         this.ensureFocusRoom(focusedBoxIndex ?? activeBoxIndex)
       }
     }
-    this.syncBodyZen()
   }
 
   // Seat the focused box just under the fixed bar so it occupies the
