@@ -224,6 +224,16 @@ test('wheel over the pinned endpoints drives the history', () => {
   expect(scroller.scrollTop).toBe(800);
 });
 
+test('collapsed steps leave room for redex borders', () => {
+  // The collapsed line clips horizontally for the ellipsis, but the
+  // 1px redex borders must still paint above and below the line:
+  // plain overflow:hidden slices them into two floating side ticks.
+  const css = readFileSync('src/untyped-lambda-integration/styles/Step.css', 'utf8');
+  const block = css.match(/\.collapse-history \.inactiveStep \.inlineblock\s*\{[^}]*\}/)?.[0] ?? '';
+  expect(block).toMatch(/overflow\s*:\s*clip/);
+  expect(block).toMatch(/overflow-clip-margin/);
+});
+
 test('history without overflow chains immediately', () => {
   const { container } = renderExpression();
   const scroller = container.querySelector('.box-history-scroll') as HTMLElement;

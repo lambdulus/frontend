@@ -173,7 +173,15 @@
   display: block;
   max-width: 75%;
   white-space: nowrap;
-  overflow: hidden;
+  overflow: clip;
+  /* Let redex borders paint above and below the line: clip (unlike
+     hidden) honors a clip margin, so the green argument border
+     survives collapsing while the row keeps its exact height. The
+     right padding absorbs the margin so the ellipsis edge stays
+     clean; the negative margin keeps the box itself unchanged. */
+  overflow-clip-margin: 4px;
+  padding-right: 4px;
+  margin-right: -4px;
   text-overflow: ellipsis;
   cursor: pointer;
 }
