@@ -155,6 +155,7 @@ export default class App extends Component<{}, AppState> {
               onResetWorkspace={ this.resetWorkspace }
               onDarkModeChange={ this.toggleTheme }
               onSettingsChange={ this.updateSettings }
+              onZenModeChange={ (zenMode : boolean) => this.updateNotebook({ zenMode }) }
             />
 
             <Notebook state={ notebook } updateNotebook={ this.updateNotebook } />

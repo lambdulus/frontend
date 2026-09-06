@@ -151,6 +151,7 @@ export default class Expression extends PureComponent<EvaluatorProps, Expression
     }
 
     e.preventDefault()
+    e.stopPropagation()
     el.scrollTop += deltaY
   }
 
@@ -174,7 +175,11 @@ export default class Expression extends PureComponent<EvaluatorProps, Expression
     const atTop : boolean = el.scrollTop <= 1
     const atBottom : boolean = el.scrollHeight - el.scrollTop - el.clientHeight <= 1
     if (! ((deltaY < 0 && atTop) || (deltaY > 0 && atBottom))) {
+      // The pane consumes this push itself; shield it from the
+      // page-level listeners so internal history scrolling is never
+      // mistaken for an attempt to move the page.
       this.edgeBump = 0
+      e.stopPropagation()
       return
     }
 

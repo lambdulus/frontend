@@ -42,6 +42,7 @@ export interface GlobalSettings {
 export interface NotebookState {
   name : string
   locked ?: boolean
+  zenMode ?: boolean
 
   boxList : Array<BoxState>
   activeBoxIndex : number

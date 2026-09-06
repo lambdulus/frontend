@@ -36,6 +36,16 @@
   color: var(--text);
 }
 
+/* The scrollable history sits back a little against the wall of
+   terms; the step opened for reading comes back forward. */
+.box-history-scroll .inactiveStep {
+  opacity: 0.8;
+}
+
+.box-history-scroll .inactiveStep:focus-within {
+  opacity: 1;
+}
+
 /* The endpoint steps get air plus an accent bar, so "start", history
    and "now" read apart without shifting text size while stepping.
    The pinned initial expression above the scroll and the pinned
