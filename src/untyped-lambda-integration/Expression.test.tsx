@@ -1,4 +1,5 @@
 import React from 'react';
+import { readFileSync } from 'fs';
 import { test, expect, vi, afterEach } from 'vitest';
 import { render, fireEvent, cleanup } from '@testing-library/react';
 import Expression from './Expression';
@@ -157,6 +158,16 @@ test('clicking the top mark jumps the history to its start', () => {
   finally {
     proto.scrollTo = originalScrollTo;
   }
+});
+
+test('history scroll traps input instead of chaining to the notebook', () => {
+  // jsdom never performs real scroll chaining, so guard the CSS
+  // contract directly: without overscroll-behavior the browser hands
+  // the wheel to the notebook at either end of the history and the
+  // pane strands itself mid-gesture with no way back in.
+  const css = readFileSync('src/untyped-lambda-integration/styles/EvaluatorBox.css', 'utf8');
+  const block = css.match(/\.box-history-scroll\s*\{[^}]*\}/)?.[0] ?? '';
+  expect(block).toMatch(/overscroll-behavior\s*:\s*contain/);
 });
 
 test('no indicator mounts when there is no history yet', () => {
