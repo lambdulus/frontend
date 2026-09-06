@@ -161,6 +161,12 @@
   color: var(--warning);
 }
 
+/* Mirrored in light mode: the moon drops to the dark text ink on
+   hover, deliberately rather than via the generic action hover. */
+#app.light .top-bar--theme-toggle:hover {
+  color: var(--text);
+}
+
 /* Zen mode is a real switch: the Focus knob slides across the track
    and the track itself takes the accent when on. The side swap is
    instant (flex position does not transition); the state color fades. */

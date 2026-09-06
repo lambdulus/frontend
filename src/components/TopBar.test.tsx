@@ -50,6 +50,8 @@ test('theme toggle carries its styling hook and warms in the dark', () => {
   const css = readFileSync('src/styles/TopBar.css', 'utf8');
   const warm = css.match(/#app\.dark \.top-bar--theme-toggle:hover\s*\{[^}]*\}/)?.[0] ?? '';
   expect(warm).toMatch(/color\s*:\s*var\(--warning\)/);
+  const night = css.match(/#app\.light \.top-bar--theme-toggle:hover\s*\{[^}]*\}/)?.[0] ?? '';
+  expect(night).toMatch(/color\s*:\s*var\(--text\)/);
 });
 
 test('zen control is a real switch reflecting the mode', () => {
