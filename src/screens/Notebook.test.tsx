@@ -131,6 +131,20 @@ function noteBox (note : string, key : string) : NoteState {
   };
 }
 
+function rect (top : number, height : number) : DOMRect {
+  return {
+    top,
+    left : 0,
+    bottom : top + height,
+    right : 0,
+    width : 0,
+    height,
+    x : 0,
+    y : 0,
+    toJSON : () => ({}),
+  } as DOMRect;
+}
+
 function renderZenNotebook (onPatch : (patch : Partial<NotebookState>) => void, anchor : number = 0) {
   const state : NotebookState = {
     name : 'Test',
@@ -631,10 +645,11 @@ test('map highlight and card lift share one anchor', () => {
 
 test('scroll-end sync re-primes from the landed layout', async () => {
   // A seat-glide that outlasts the settle guard can re-prime from
-  // mid-flight geometry; once motion stops the trailing sync measures
-  // the landed layout and fixes the anchor. (jsdom measures every box
-  // top at 0 with no height, so the landed prime is box 0; the frame
-  // sync is stubbed out to isolate the trailing path.)
+  // mid-flight geometry (here the focus sits on the last box); once
+  // motion stops the trailing sync measures the landed layout, where
+  // the first box owns as much of the upper view as the second, and
+  // fixes the anchor on it. The frame sync is stubbed out to isolate
+  // the trailing path.
   const originalRaf = window.requestAnimationFrame;
   window.requestAnimationFrame = () : number => 1;
   const patches : Array<Partial<NotebookState>> = [];
@@ -647,8 +662,13 @@ test('scroll-end sync re-primes from the landed layout', async () => {
     settings : {},
     __key : 'nb',
   };
-  const { unmount } = render(<Notebook state={ state } updateNotebook={ (patch) => { patches.push(patch); } } />);
+  const { container, unmount } = render(<Notebook state={ state } updateNotebook={ (patch) => { patches.push(patch); } } />);
   try {
+    const rows = container.querySelectorAll('.boxList > .LI');
+    const tops = [ 60, 280, 500 ];
+    rows.forEach((row, i) => {
+      (row as HTMLElement).getBoundingClientRect = () => rect(tops[i] ?? 0, 200);
+    });
     fireEvent.scroll(window);
     await new Promise((resolve) => setTimeout(resolve, 250));
     expect(patches.some((patch) => patch.focusedBoxIndex === 0)).toBe(true);
