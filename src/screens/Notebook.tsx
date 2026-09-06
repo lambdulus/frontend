@@ -13,12 +13,12 @@ interface Props {
   updateNotebook (notebook : Partial<NotebookState>) : void
 }
 
-// The prime line is the vertical center of the view: the last box (in
-// order) whose top bar sits above it owns the side arrows, whether it
-// got there by click or by plain scrolling. Centering the rule makes
-// both directions symmetric: scrolling up keeps the lower box until
-// the one above truly takes over the view, and scrolling down hands
-// over as soon as the next box fills the lower half.
+// The prime line sits a little below the vertical center of the view
+// (65% down): the last box (in order) whose top bar sits above it
+// owns the side arrows, whether it got there by click or by plain
+// scrolling. The lead below center anticipates the handover: scrolling
+// down switches while the next box is still closing in, and scrolling
+// up holds the lower box until the one above truly takes over.
 export interface BoxTop {
   top : number
   height : number
@@ -196,7 +196,7 @@ export default class Notebook extends PureComponent<Props, State> {
       const rect : DOMRect = el.getBoundingClientRect()
       return { top : rect.top, height : rect.height }
     })
-    const prime : number = selectPrimeBox(tops, window.innerHeight / 2)
+    const prime : number = selectPrimeBox(tops, window.innerHeight * 0.65)
     if (prime !== (focusedBoxIndex ?? activeBoxIndex)) {
       this.props.updateNotebook({ focusedBoxIndex : prime })
     }
