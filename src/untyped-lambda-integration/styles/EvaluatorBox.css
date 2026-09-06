@@ -78,6 +78,23 @@ li.activeStep,
   position: relative;
 }
 
+/* Steps dissolve under each floating mark instead of clipping hard
+   against it; each edge fades only while its mark is shown. */
+.box-history-scroll.mask-top {
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 30px);
+  mask-image: linear-gradient(to bottom, transparent 0, #000 30px);
+}
+
+.box-history-scroll.mask-bottom {
+  -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - 30px), transparent 100%);
+  mask-image: linear-gradient(to bottom, #000 calc(100% - 30px), transparent 100%);
+}
+
+.box-history-scroll.mask-top.mask-bottom {
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 30px, #000 calc(100% - 30px), transparent 100%);
+  mask-image: linear-gradient(to bottom, transparent 0, #000 30px, #000 calc(100% - 30px), transparent 100%);
+}
+
 .history-gap-indicator {
   position: absolute;
   left: 50%;
