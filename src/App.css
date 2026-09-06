@@ -297,7 +297,7 @@ body {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  font-size: 0.85em;
+  font-size: 0.9em;
 }
 
 /* The page itself never moves in zen: with the box hard-clamped this
