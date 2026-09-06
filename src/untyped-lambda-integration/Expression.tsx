@@ -9,13 +9,14 @@ import { mapLeftFromTo } from '../misc'
 import './styles/Expression.css'
 
 // Outward wheel travel swallowed at either end of the history before
-// the scroll chains out to the notebook: crossing an end takes one
-// light extra push instead of slipping through mid-gesture.
-const HISTORY_EDGE_BUMP_PX : number = 80
+// the scroll chains out to the notebook: crossing an end costs a
+// single small tick, just enough to stop accidental slip-throughs
+// mid-gesture without ever fighting a deliberate push.
+const HISTORY_EDGE_BUMP_PX : number = 24
 
 // A paused push is a new push: the bump re-arms after this long with
-// no wheel input, so an old half-push never chains unexpectedly.
-const EDGE_BUMP_RESET_MS : number = 300
+// no wheel input, so separate gestures never stack up into a wall.
+const EDGE_BUMP_RESET_MS : number = 150
 
 interface EvaluatorProps {
   className : string
