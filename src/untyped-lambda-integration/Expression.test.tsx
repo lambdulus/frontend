@@ -237,7 +237,7 @@ test('wrapped steps clear their highlight boxes', () => {
   // step needs leading to match or wrapped lines collide with them.
   const css = readFileSync('src/untyped-lambda-integration/styles/Step.css', 'utf8');
   const step = css.match(/\.step\s*\{[^}]*\}/)?.[0] ?? '';
-  expect(step).toMatch(/line-height\s*:\s*1\.5/);
+  expect(step).toMatch(/line-height\s*:\s*1\.75/);
 });
 
 test('collapsed steps leave room for redex borders', () => {
