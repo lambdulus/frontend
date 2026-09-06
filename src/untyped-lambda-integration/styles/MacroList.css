@@ -21,11 +21,16 @@
   max-width: calc(100vw - 24px);
 }
 
-/* Open, the dock reaches the full box height flush top and bottom;
-   closed, only the pill shows. */
+/* Open, the dock is a full-height card flush with the box, top and
+   bottom, holding the header and the unfolding panel; closed, only
+   the pill shows. */
 .macro-dock--open {
   bottom: 0;
   align-items: stretch;
+  background-color: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  box-shadow: var(--shadow);
 }
 
 /* Squared pill echoing the popup card, with room to breathe. */
@@ -83,10 +88,6 @@
   opacity: 0;
   visibility: hidden;
   transition: grid-template-rows .18s ease-out, opacity .15s ease-out, visibility 0s linear .18s;
-  background-color: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  box-shadow: var(--shadow);
   overflow: hidden;
 }
 
