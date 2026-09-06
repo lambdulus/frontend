@@ -107,6 +107,11 @@ test('gap marks mount at both ends, hidden while history shows everything', () =
   marks.forEach((mark) => {
     expect(mark.querySelector('.gap-saw')).not.toBeNull();
   });
+
+  // The pill must stand taller than the hover chevrons it swaps in.
+  const css = readFileSync('src/untyped-lambda-integration/styles/EvaluatorBox.css', 'utf8');
+  const pill = css.match(/\.history-gap-indicator\s*\{[^}]*\}/)?.[0] ?? '';
+  expect(pill).toMatch(/padding\s*:\s*8px 12px/);
   marks.forEach((mark) => {
     expect(mark.classList.contains('visible')).toBe(false);
     expect((mark as HTMLElement).tabIndex).toBe(-1);

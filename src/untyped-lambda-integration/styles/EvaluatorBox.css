@@ -90,7 +90,8 @@ li.activeStep,
   left: 50%;
   transform: translateX(-50%);
   display: flex;
-  padding: 4px 12px;
+  /* Tall enough that the hover chevrons never cram against the rim. */
+  padding: 8px 12px;
   border-radius: 999px;
   background-color: var(--surface);
   border: 1px solid var(--border);
