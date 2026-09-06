@@ -161,11 +161,11 @@ test('zen box clamps to the viewport with history as the shrinker', () => {
   expect(css).toMatch(/body\.zen\s*\{[^}]*overflow\s*:\s*hidden/);
 });
 
-test('zen settings panel floats above the box', () => {
+test('box settings panel floats above the box', () => {
   // Overlay, not in-flow: opening settings must never squeeze the
   // history, and it docks right under the title bar.
-  const css = readFileSync('src/App.css', 'utf8');
-  const panel = css.match(/\.mainSpace\.zen \.box-settings\s*\{[^}]*\}/)?.[0] ?? '';
+  const css = readFileSync('src/untyped-lambda-integration/styles/Settings.css', 'utf8');
+  const panel = css.match(/\.box-settings\s*\{[^}]*\}/)?.[0] ?? '';
   expect(panel).toMatch(/position\s*:\s*absolute/);
   expect(panel).toMatch(/right\s*:/);
   expect(panel).toMatch(/z-index\s*:/);

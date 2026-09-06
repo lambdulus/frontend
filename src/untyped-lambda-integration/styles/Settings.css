@@ -2,14 +2,23 @@
   margin-top: 20px;
 }
 
-/* Box-local settings read as a small panel */
+/* Box-local settings float above the box (anchored to the container,
+   which is positioned) instead of squeezing the history: right-docked
+   under the title bar, with their own capped scroll. */
 .box-settings {
+  position: absolute;
+  top: 60px;
+  right: 8px;
+  z-index: 20;
+  width: min(340px, calc(100% - 16px));
+  margin: 0;
   padding: 12px 14px 16px;
-  margin: auto;
-  margin-top: 10px;
   background-color: var(--surface);
   border: 1px solid var(--border);
   border-radius: 8px;
+  box-shadow: var(--shadow);
+  max-height: 40vh;
+  overflow-y: auto;
 }
 
 .untyped-lambda-settings-label {
