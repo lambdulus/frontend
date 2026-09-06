@@ -1,7 +1,6 @@
 import React, { Component, MouseEvent } from 'react'
 import { Check, Link2, Maximize2, Minimize2, Pencil, Settings, Trash2 } from 'lucide-react'
 import { BoxType, BoxState } from '../Types'
-import UntypedLambdaBTB from '../untyped-lambda-integration/BoxTopBar'
 import { UntypedLambdaState } from '../untyped-lambda-integration/Types'
 
 import MarkdownBTB from '../markdown-integration/BoxTopBar'
@@ -24,6 +23,8 @@ interface Props {
   updateBoxState : (box : BoxState) => void
   addBoxBefore : (box : BoxState) => void
   addBoxAfter : (box : BoxState) => void
+  hideTitle? : boolean
+  titleActionsHost? : React.RefObject<HTMLSpanElement>
 }
 
 interface State {
@@ -46,7 +47,7 @@ export default class BoxTitleBar extends Component<Props, State> {
   }
 
   render () : JSX.Element {
-    const { state, isActive, updateBoxState, removeBox, seatBox } : Props = this.props
+    const { state, isActive, updateBoxState, removeBox, seatBox, hideTitle, titleActionsHost } : Props = this.props
     const { type, title, minimized } = state
 
     const { shareLinkOpen } : State = this.state
@@ -58,54 +59,74 @@ export default class BoxTitleBar extends Component<Props, State> {
           seatBox()
         } }
       >
-        <div
-          className='topBarTitle'
-        >
-          <span
-                className='box-top-bar--title-text'
-                contentEditable={ ! state.readOnly }
-                suppressContentEditableWarning={true}
-                onClick={ (e) => {
-                  // NOTE: this is really ugly and dangerous quick fix
-                  // I am trying to fix a bug where for some reason markdown boxes, when clicked into title
-                  // it causes focus, then immidiately it loses focus
-                  // so now, when I click in the title, I won't make it active at all
-                  e.stopPropagation()
-                } }
-                onBlur={ (e) => updateBoxState({ ...state, title : e.target.textContent || "" })  }
-              >
-              { title }
-          </span>
-        </div>
+        {
+          hideTitle ?
+            null
+          :
+            <div
+              className='topBarTitle'
+            >
+              <span
+                    className='box-top-bar--title-text'
+                    contentEditable={ ! state.readOnly }
+                    suppressContentEditableWarning={true}
+                    onClick={ (e) => {
+                      // NOTE: this is really ugly and dangerous quick fix
+                      // I am trying to fix a bug where for some reason markdown boxes, when clicked into title
+                      // it causes focus, then immidiately it loses focus
+                      // so now, when I click in the title, I won't make it active at all
+                      e.stopPropagation()
+                    } }
+                    onBlur={ (e) => updateBoxState({ ...state, title : e.target.textContent || "" })  }
+                  >
+                  { title }
+              </span>
+            </div>
+        }
+        {
+          // The macro dock owns its toggle now; the title bar keeps
+          // only the portaled Run/Step slot and the right-side box
+          // furniture.
+          titleActionsHost ?
+            <span className='boxTopBar-actions' ref={ titleActionsHost } />
+          :
+            null
+        }
+        {
+          // With the title gone something else must push the icons
+          // right; the portaled actions stay left where the title was.
+          hideTitle ?
+            <div className='boxTopBar-spacer' />
+          :
+            null
+        }
 
-        <div className='box-top-bar-custom'>
-          {
-            (type === BoxType.UNTYPED_LAMBDA) ? 
-              (
-                <UntypedLambdaBTB
-                  state={ state as UntypedLambdaState }
-                  isActive={ isActive }
-                  removeBox={ removeBox }
-                  updateBoxState={ updateBoxState }
-                />
-              )
-            :
-            (type === BoxType.MARKDOWN) ?
-              (
-                <MarkdownBTB
-                  state={ state as NoteState }
-                  isActive={ isActive }
-                  removeBox={ removeBox }
-                  updateBoxState={ updateBoxState }
-                />
-              )
-            :
-              (
-                <EmptyBTB />
-              )
-          }
+        {
+          // The lambda toggle moved left; only the remaining types
+          // keep a right-side custom group (and never an empty one,
+          // whose padding and border would leave a footprint).
+          type === BoxType.UNTYPED_LAMBDA ?
+            null
+          :
+            <div className='box-top-bar-custom'>
+              {
+                (type === BoxType.MARKDOWN) ?
+                  (
+                    <MarkdownBTB
+                      state={ state as NoteState }
+                      isActive={ isActive }
+                      removeBox={ removeBox }
+                      updateBoxState={ updateBoxState }
+                    />
+                  )
+                :
+                  (
+                    <EmptyBTB />
+                  )
+              }
 
-        </div>
+            </div>
+        }
         <div className='box-top-bar-controls'>
           {
             state.readOnly ?
@@ -127,7 +148,7 @@ export default class BoxTitleBar extends Component<Props, State> {
                 e.stopPropagation()
                 updateBoxState({ ...state, minimized : ! minimized })
               } }
-              className='box-top-bar--controls-item'
+              className='box-top-bar--controls-item box-top-bar--collapse-toggle'
               title={ minimized ? 'Expand this Box' : 'Collapse this Box' }
             >
               {

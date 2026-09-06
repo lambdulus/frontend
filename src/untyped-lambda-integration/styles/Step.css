@@ -3,6 +3,10 @@
   /* break-word (not anywhere): prefer wrapping between tokens, and only
      snap a token itself when it alone overflows the line. */
   overflow-wrap: break-word;
+  /* Room for the inline highlight boxes: with the default tight leading
+     their padding and borders paint into the neighboring wrapped lines.
+     1.75 clears the tallest of them on any system font, with air. */
+  line-height: 1.75;
 }
 
 .left.redex {
@@ -173,7 +177,15 @@
   display: block;
   max-width: 75%;
   white-space: nowrap;
-  overflow: hidden;
+  overflow: clip;
+  /* Let redex borders paint above and below the line: clip (unlike
+     hidden) honors a clip margin, so the green argument border
+     survives collapsing while the row keeps its exact height. The
+     right padding absorbs the margin so the ellipsis edge stays
+     clean; the negative margin keeps the box itself unchanged. */
+  overflow-clip-margin: 4px;
+  padding-right: 4px;
+  margin-right: -4px;
   text-overflow: ellipsis;
   cursor: pointer;
 }

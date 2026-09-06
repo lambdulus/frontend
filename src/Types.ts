@@ -42,6 +42,7 @@ export interface GlobalSettings {
 export interface NotebookState {
   name : string
   locked ?: boolean
+  zenMode ?: boolean
 
   boxList : Array<BoxState>
   activeBoxIndex : number
@@ -56,9 +57,12 @@ export interface NotebookState {
 
 export type Accent = 'emerald' | 'blue' | 'amber'
 
+export type BoxStyle = 'cards' | 'classic'
+
 export interface AppState {
   notebooks : Array<NotebookState>,
   activeNotebookIndex : number,
   theme : Theme,
-  accent : Accent
+  accent : Accent,
+  boxStyle : BoxStyle
 }

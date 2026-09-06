@@ -1,4 +1,5 @@
 import React, { PureComponent } from 'react'
+import { ChevronDown, ChevronUp } from 'lucide-react'
 
 import { BoxType } from '../Types'
 import { UntypedLambdaState, UntypedLambdaType, UntypedLambdaSettings, PromptPlaceholder, StepMessage, StepValidity } from './Types'
@@ -15,14 +16,16 @@ interface Props {
   state : UntypedLambdaState
   isActive : boolean
   isFocused : boolean
+  isAnchorBox : boolean
 
   setBoxState (state : UntypedLambdaState) : void
   addBox (box : UntypedLambdaState) : void
+  titleActionsHost? : React.RefObject<HTMLSpanElement>
 }
 
 export default class UntypedLambdaBox extends PureComponent<Props> {
   render () {
-    const { state, isActive, isFocused, setBoxState, addBox } : Props = this.props
+    const { state, isActive, isFocused, isAnchorBox, setBoxState, addBox, titleActionsHost } : Props = this.props
     const { settingsOpen, subtype, macrolistOpen, SLI, expandStandalones, strategy, SDE, collapseOldSteps, editor, minimized } : UntypedLambdaState = state
 
 
@@ -58,8 +61,10 @@ export default class UntypedLambdaBox extends PureComponent<Props> {
               state={ state }
               isActive={ isActive }
               isFocused={ isFocused }
+              isAnchorBox={ isAnchorBox }
               setBoxState={ setBoxState }
               addBox={ addBox }
+              titleActionsHost={ titleActionsHost }
             />
           )
         
@@ -77,7 +82,7 @@ export default class UntypedLambdaBox extends PureComponent<Props> {
     }
 
     return (
-      <div>
+      <div className='untypedLambdaBox'>
         {
           settingsOpen ?
             <div className='box-settings'>
@@ -98,15 +103,31 @@ export default class UntypedLambdaBox extends PureComponent<Props> {
             null
         }
         {
-          macrolistOpen ?
-            <div className='untyped-lambda-box--macrolist'>
-              <MacroList macroTable={ state.macrotable }  />
+          // Macro dock: a persistent pill in the empty space left of the
+          // box that unfolds into header plus scrolling middle. The
+          // panel stays mounted and collapses through CSS, so opening
+          // and closing animate instead of popping.
+          <div className={ `macro-dock${ macrolistOpen ? ' macro-dock--open' : '' }` }>
+            <button
+              className='macro-dock--head'
+              onClick={ () => setBoxState({ ...state, macrolistOpen : ! macrolistOpen }) }
+              title={ macrolistOpen ? 'Hide macros for this box' : 'Show macros for this box' }
+              aria-expanded={ macrolistOpen }
+            >
+              <span className='macro-dock--title'>Macros</span>
+              { macrolistOpen ? <ChevronUp size={ 14 } strokeWidth={ 2 } /> : <ChevronDown size={ 14 } strokeWidth={ 2 } /> }
+            </button>
+            <div className='macro-dock--panel'>
+              <div className='macro-dock--body'>
+                <div className='macro-dock--scroll'>
+                  <MacroList macroTable={ state.macrotable }  />
+                </div>
+              </div>
             </div>
-          :
-            null
+          </div>
         }
 
-        <div>
+        <div className='untypedLambdaBoxContent'>
           { renderBoxContent() }
         </div>
 
