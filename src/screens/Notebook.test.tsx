@@ -161,13 +161,14 @@ test('zen box clamps to the viewport with history as the shrinker', () => {
   expect(css).toMatch(/body\.zen\s*\{[^}]*overflow\s*:\s*hidden/);
 });
 
-test('zen settings panel docks right instead of centering', () => {
-  // In zen the panel is a flex item, where its base margin:auto would
-  // center it; the zen rule must pin it to the right edge instead.
+test('zen settings panel floats above the box', () => {
+  // Overlay, not in-flow: opening settings must never squeeze the
+  // history, and it docks right under the title bar.
   const css = readFileSync('src/App.css', 'utf8');
   const panel = css.match(/\.mainSpace\.zen \.box-settings\s*\{[^}]*\}/)?.[0] ?? '';
-  expect(panel).toMatch(/margin-left\s*:\s*auto/);
-  expect(panel).toMatch(/margin-right\s*:\s*0/);
+  expect(panel).toMatch(/position\s*:\s*absolute/);
+  expect(panel).toMatch(/right\s*:/);
+  expect(panel).toMatch(/z-index\s*:/);
 });
 
 test('zen locks the page scroll on the body while mounted', () => {
