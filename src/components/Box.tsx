@@ -19,11 +19,10 @@ interface BoxProperties {
 
   updateBoxState (box : BoxState) : void
   addBoxAfter (box : BoxState) : void
-  seatBox () : void
 }
 
 export default function Box (props : BoxProperties) : JSX.Element {
-  const { state, isActive, isFocused, updateBoxState, addBoxAfter, seatBox } : BoxProperties = props
+  const { state, isActive, isFocused, updateBoxState, addBoxAfter } : BoxProperties = props
   const { type } = state
 
   // const macroTable = useContext(MacroTableContext)
@@ -39,7 +38,6 @@ export default function Box (props : BoxProperties) : JSX.Element {
 
         setBoxState={ updateBoxState }
         addBox={ addBoxAfter }
-        seatBox={ seatBox }
       />
     )
   }

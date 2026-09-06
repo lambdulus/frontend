@@ -28,21 +28,47 @@ interface State {
 
 export class BoxContainer extends Component<Props, State> {
   private modalRef : React.RefObject<HTMLDivElement>
+  private rootRef : React.RefObject<HTMLDivElement>
 
   constructor (props: Props) {
     super(props)
 
     this.modalRef = React.createRef<HTMLDivElement>()
+    this.rootRef = React.createRef<HTMLDivElement>()
     this.state = {
       modalOpen : false
     }
   }
 
-  componentDidUpdate (_prevProps : Props, prevState : State) : void {
+  getSnapshotBeforeUpdate (prevProps : Props) : number | null {
+    // Focus transitions own the page scroll (Notebook seats the newly
+    // focused box), so only glue the viewport across plain resizes.
+    if (prevProps.isFocusedBox !== this.props.isFocusedBox) {
+      return null
+    }
+
+    const el : HTMLDivElement | null = this.rootRef.current
+    return el === null ? null : el.getBoundingClientRect().top
+  }
+
+  componentDidUpdate (_prevProps : Props, prevState : State, snapshot : number | null) : void {
     // The add-box dialog opens below the button; nudge the page just
     // enough to bring the whole dialog into view.
     if ( ! prevState.modalOpen && this.state.modalOpen && this.modalRef.current !== null) {
       this.modalRef.current.scrollIntoView({ block : 'nearest', behavior : 'smooth' })
+    }
+
+    // Pin the box where it was on screen: when this box resizes itself
+    // (a settings toggle collapsing the history!), the page would
+    // otherwise jump as clamping and anchoring kick in.
+    if (snapshot !== null) {
+      const el : HTMLDivElement | null = this.rootRef.current
+      if (el !== null) {
+        const drift : number = el.getBoundingClientRect().top - snapshot
+        if (Math.abs(drift) > 0.5) {
+          window.scrollBy({ top : drift, behavior : 'auto' })
+        }
+      }
     }
   }
 
@@ -65,7 +91,7 @@ export class BoxContainer extends Component<Props, State> {
     const boxTypeClassName : string = mapBoxTypeToStr(box.type)
   
     return (
-      <div>
+      <div ref={ this.rootRef }>
         <div
           className={ `boxContainer ${ isActiveBox ? 'active' : 'inactive' } ${boxTypeClassName}` }
           onClick={ makeActive }
@@ -91,7 +117,6 @@ export class BoxContainer extends Component<Props, State> {
             isFocused={ isFocusedBox }
             updateBoxState={ updateBoxState }
             addBoxAfter={ addBoxAfter }
-            seatBox={ seatBox }
           />
         </div>
 
