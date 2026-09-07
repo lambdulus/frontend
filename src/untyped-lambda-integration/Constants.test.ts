@@ -1,6 +1,6 @@
 import { test, expect } from 'vitest';
-import { NormalEvaluator } from '@lambdulus/core';
-import { createNewUntypedLambdaExpression, defaultSettings, strategyToEvaluator } from './Constants';
+import { NormalEvaluator, tokenize, parse } from '@lambdulus/core';
+import { createNewUntypedLambdaExpression, defaultSettings, strategyToEvaluator, findSimplifiedReduction, toMacroMap, MacroBeta } from './Constants';
 import { EvaluationStrategy, UntypedLambdaSettings } from './Types';
 
 test('constructor never leaves strategy/SLI/SDE undefined', () => {
@@ -19,4 +19,35 @@ test('unknown strategy falls back to normal evaluation', () => {
   // undefined to `new` (which surfaces as a syntax error on healthy input).
   expect(strategyToEvaluator('bogus' as EvaluationStrategy)).toBe(NormalEvaluator);
   expect(strategyToEvaluator(undefined as unknown as EvaluationStrategy)).toBe(NormalEvaluator);
+});
+
+test('macro bodies keep multi-letter binders with SLI on', () => {
+  // SLI must never split the binders inside a macro definition body:
+  // `(λ fact n . …)` tokenized letter-wise becomes five binders and the
+  // arity check later claims the macro is given too few arguments.
+  const macromap = toMacroMap([ 'FACT := (λ fact n . ZERO n 1 (* n (fact (- n 1))))' ], true);
+  expect(macromap['FACT']).toBe('(λ fact n . ZERO n 1 (* n (fact (- n 1))))');
+});
+
+test('Y FACT 3 steps without arity mismatch and reaches 6', () => {
+  const content = 'FACT := (λ fact n . ZERO n 1 (* n (fact (- n 1)))); Y FACT 3';
+  const definitions : Array<string> = content.split(';');
+  const expression : string = definitions.pop() || '';
+  const macromap = toMacroMap(definitions, true);
+  let ast = parse(tokenize(expression, { lambdaLetters : [ 'λ' ], singleLetterVars : true, macromap }), macromap);
+
+  let guard = 0;
+  while (guard++ < 500) {
+    const [ reduction, perform ] = findSimplifiedReduction(ast, EvaluationStrategy.NORMAL, macromap);
+    if (reduction.constructor.name === 'None') {
+      break;
+    }
+    if (reduction instanceof MacroBeta) {
+      // Step 3 used to report arity 5 with 2 applications here.
+      expect(reduction.applications.length).toBe(reduction.arity);
+    }
+    ast = perform(ast);
+  }
+
+  expect(ast.toString()).toBe('6');
 });
