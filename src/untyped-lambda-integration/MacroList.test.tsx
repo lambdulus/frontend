@@ -98,3 +98,14 @@ test('macro rows wrap with room and no rules', () => {
   const body = css.match(/\.macro-body\s*\{[^}]*\}/)?.[0] ?? '';
   expect(body).toMatch(/overflow-wrap\s*:\s*break-word/);
 });
+
+test('open tables paint above collapsed pills', () => {
+  // One shared z-index would let DOM order decide, floating a later
+  // box's pill over an earlier box's unfolding table.
+  const css = readFileSync('src/untyped-lambda-integration/styles/MacroList.css', 'utf8');
+  const closed = css.match(/\.macro-dock\s*\{[^}]*\}/)?.[0] ?? '';
+  const open = css.match(/\.macro-dock--open\s*\{[^}]*\}/)?.[0] ?? '';
+  const z = (rule : string) => Number(rule.match(/z-index\s*:\s*(\d+)/)?.[1] ?? NaN);
+  expect(z(closed)).not.toBeNaN();
+  expect(z(open)).toBeGreaterThan(z(closed));
+});
