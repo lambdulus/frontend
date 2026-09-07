@@ -2,7 +2,8 @@ import { readFileSync } from 'fs';
 import { useState } from 'react';
 import { test, expect, vi, afterEach } from 'vitest';
 import { render, fireEvent, cleanup } from '@testing-library/react';
-import Notebook, { selectPrimeBox, zenStep, mapBoxLabel } from './Notebook';
+import Notebook, { collapseForeignDocks, selectPrimeBox, zenStep, mapBoxLabel } from './Notebook';
+import { createNewUntypedLambdaExpression, defaultSettings } from '../untyped-lambda-integration/Constants';
 import { BoxType, NotebookState } from '../Types';
 import { NoteState } from '../markdown-integration/AppTypes';
 import { tokenize, parse, None } from '@lambdulus/core';
@@ -641,6 +642,54 @@ test('silent layout shifts re-prime the anchor', () => {
   finally {
     unmount();
     vi.unstubAllGlobals();
+  }
+});
+
+function lambdaBox (key : string, dockOpen : boolean) : UntypedLambdaState {
+  const box = createNewUntypedLambdaExpression(defaultSettings);
+  box.__key = key;
+  box.macrolistOpen = dockOpen;
+  return box;
+}
+
+test('focusing a box collapses only the foreign macro docks', () => {
+  const first = lambdaBox('a', true);
+  const note = noteBox('note', 'b');
+  const second = lambdaBox('c', true);
+  const next = collapseForeignDocks([ first, note, second ], 2);
+
+  expect((next[0] as UntypedLambdaState).macrolistOpen).toBe(false);
+  expect(next[1]).toBe(note);
+  expect((next[2] as UntypedLambdaState).macrolistOpen).toBe(true);
+});
+
+test('collapsing docks is a no-op without open tables', () => {
+  const boxes = [ lambdaBox('a', false), noteBox('note', 'b') ];
+  expect(collapseForeignDocks(boxes, 0)).toBe(boxes);
+  expect(collapseForeignDocks(boxes, undefined)).toBe(boxes);
+});
+
+test('focusing a box collapses the unfocused macro dock', () => {
+  const state : NotebookState = {
+    name : 'Test',
+    boxList : [ lambdaBox('a', true), lambdaBox('b', false) ],
+    activeBoxIndex : 0,
+    focusedBoxIndex : 0,
+    menuOpen : false,
+    settings : {},
+    __key : 'nb',
+  };
+  const updateNotebook = vi.fn();
+  const { container, unmount } = render(<Notebook state={ state } updateNotebook={ updateNotebook } />);
+  try {
+    fireEvent.click(container.querySelectorAll('.box-rail')[1]);
+    expect(updateNotebook).toHaveBeenCalledWith(expect.objectContaining({ activeBoxIndex : 1, focusedBoxIndex : 1 }));
+    const patched = updateNotebook.mock.calls[0][0] as NotebookState;
+    expect((patched.boxList[0] as UntypedLambdaState).macrolistOpen).toBe(false);
+    expect((patched.boxList[1] as UntypedLambdaState).macrolistOpen).toBe(false);
+  }
+  finally {
+    unmount();
   }
 });
 
