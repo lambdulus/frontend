@@ -35,27 +35,23 @@ beforeEach(() => window.localStorage.removeItem('LambdulusTour'));
 
 test('tour storage starts empty, round-trips, rejects garbage', () => {
   expect(loadTourState()).toBeNull();
-  expect(defaultTourState()).toEqual({ step : 0, done : false, seeded : false, demoBoxKey : null });
+  expect(defaultTourState()).toEqual({ step : 'welcome', done : false });
 
-  saveTourState({ step : 3, done : false, seeded : true, demoBoxKey : 'k1' });
-  expect(loadTourState()).toEqual({ step : 3, done : false, seeded : true, demoBoxKey : 'k1' });
+  saveTourState({ step : 'type', done : false });
+  expect(loadTourState()).toEqual({ step : 'type', done : false });
 
-  saveTourState({ step : 0, done : true, seeded : false, demoBoxKey : null });
-  expect(loadTourState()).toEqual({ step : 0, done : true, seeded : false, demoBoxKey : null });
-
-  // Pre-seeded-flag keys (none in the wild yet, but be tolerant).
-  window.localStorage.setItem('LambdulusTour', JSON.stringify({ step : 2, done : true }));
-  expect(loadTourState()).toEqual({ step : 2, done : true, seeded : false, demoBoxKey : null });
-
-  window.localStorage.setItem('LambdulusTour', JSON.stringify({ step : 2, done : true, seeded : true, demoBoxKey : 7 }));
-  expect(loadTourState()).toEqual({ step : 2, done : true, seeded : true, demoBoxKey : null });
+  saveTourState({ step : 'welcome', done : true });
+  expect(loadTourState()).toEqual({ step : 'welcome', done : true });
 
   window.localStorage.setItem('LambdulusTour', 'not-json{');
   expect(loadTourState()).toBeNull();
 
-  window.localStorage.setItem('LambdulusTour', JSON.stringify({ step : 'two', done : 'yes' }));
+  window.localStorage.setItem('LambdulusTour', 'not-json{');
   expect(loadTourState()).toBeNull();
 
-  window.localStorage.setItem('LambdulusTour', JSON.stringify({ step : -1, done : false }));
+  window.localStorage.setItem('LambdulusTour', JSON.stringify({ step : 2, done : false }));
+  expect(loadTourState()).toBeNull();
+
+  window.localStorage.setItem('LambdulusTour', JSON.stringify({ step : '', done : true }));
   expect(loadTourState()).toBeNull();
 });

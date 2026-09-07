@@ -1,71 +1,103 @@
 import { test, expect, vi, afterEach, beforeEach } from 'vitest';
-import { render, fireEvent, cleanup } from '@testing-library/react';
+import { render, fireEvent, cleanup, waitFor } from '@testing-library/react';
 import Tour, { TOUR_STEPS } from './Tour';
 import { loadTourState } from '../Constants';
 
 afterEach(() => cleanup());
 beforeEach(() => window.localStorage.removeItem('LambdulusTour'));
 
-function buttons (container : Element) : Record<string, Element | null> {
-  const all = [...container.querySelectorAll('.tour--actions button')];
-  const byText = (text : string) => all.find((b) => b.textContent === text) ?? null;
-  return { back : byText('Back'), skip : byText('Skip'), next : byText('Next'), done : byText('Done') };
+interface TourCallbacks {
+  onClose : () => void
+  onAddLambdaBox : () => string | null
+  onFillBoxEditor : (boxKey : string, content : string) => void
+  onDeleteBox : (boxKey : string) => void
 }
 
-test('tour walks forward and back, persisting each step', () => {
+function props (over : Partial<{ initialStep : string } & TourCallbacks> = {}) {
+  return {
+    initialStep : 'welcome',
+    onClose : () => void 0,
+    onAddLambdaBox : () => null,
+    onFillBoxEditor : () => void 0,
+    onDeleteBox : () => void 0,
+    ...over,
+  };
+}
+
+function titleOf (container : HTMLElement) : string | null | undefined {
+  return container.querySelector('.tour--title')?.textContent;
+}
+
+function nextBtn (container : HTMLElement) : Element {
+  return [...container.querySelectorAll('.tour--actions button')].find((b) => b.textContent === 'Next') as Element;
+}
+
+function plantFrame (container : HTMLElement, boxClass : string, key : string) : Element {
+  const frame = document.createElement('div');
+  frame.className = 'box-frame';
+  frame.setAttribute('data-box-key', key);
+  const inner = document.createElement('div');
+  inner.className = boxClass;
+  frame.appendChild(inner);
+  container.appendChild(frame);
+
+  return frame;
+}
+
+test('tour walks the main path, persisting each step id', () => {
   const onClose = vi.fn();
-  const { container } = render(<Tour initialStep={ 0 } demoBoxKey={ null } onClose={ onClose } />);
+  const { container } = render(<Tour { ...props({ onClose }) } />);
 
-  expect(container.querySelector('.tour--title')?.textContent).toBe(TOUR_STEPS[0].title);
-  expect(container.querySelector('.tour--kicker')?.textContent).toContain('1 of 6');
+  expect(titleOf(container)).toBe('Welcome to Lambdulus');
 
-  fireEvent.click(buttons(container).next as HTMLElement);
-  expect(container.querySelector('.tour--title')?.textContent).toBe(TOUR_STEPS[1].title);
-  expect(loadTourState()).toEqual({ step : 1, done : false, seeded : false, demoBoxKey : null });
-
-  fireEvent.click(buttons(container).back as HTMLElement);
-  expect(container.querySelector('.tour--title')?.textContent).toBe(TOUR_STEPS[0].title);
-  expect(loadTourState()).toEqual({ step : 0, done : false, seeded : false, demoBoxKey : null });
+  fireEvent.click(nextBtn(container));
+  expect(titleOf(container)).toBe('Add a box');
+  expect(loadTourState()).toEqual({ step : 'add', done : false });
   expect(onClose).not.toHaveBeenCalled();
 });
 
-test('skip snoozes at the current step, done restarts from zero', () => {
-  const onClose = vi.fn();
-  const { container, unmount } = render(<Tour initialStep={ 2 } demoBoxKey={ null } onClose={ onClose } />);
-  expect(container.querySelector('.tour--kicker')?.textContent).toContain('3 of 6');
+test('back follows the branch map', () => {
+  const { container } = render(<Tour { ...props({ initialStep : 'macros' }) } />);
+  const back = [...container.querySelectorAll('.tour--actions button')].find((b) => b.textContent === 'Back') as Element;
+  fireEvent.click(back);
+  expect(titleOf(container)).toBe('Step through evaluation');
+});
 
-  fireEvent.click(buttons(container).skip as HTMLElement);
+test('unknown initial step lands on welcome', () => {
+  const { container } = render(<Tour { ...props({ initialStep : 'bogus' }) } />);
+  expect(titleOf(container)).toBe('Welcome to Lambdulus');
+});
+
+test('a type step without its box loops back to adding', async () => {
+  // Reloads forget the tracked element by design: never touch a stranger.
+  const { container } = render(<Tour { ...props({ initialStep : 'type' }) } />);
+  await waitFor(() => expect(titleOf(container)).toBe('Add a box'));
+  expect(loadTourState()).toEqual({ step : 'add', done : false });
+});
+
+test('skip snoozes with the id, done restarts from welcome', () => {
+  const onClose = vi.fn();
+  const { container, unmount } = render(<Tour { ...props({ initialStep : 'macros', onClose }) } />);
+  const skip = [...container.querySelectorAll('.tour--actions button')].find((b) => b.textContent === 'Skip') as Element;
+  fireEvent.click(skip);
   expect(onClose).toHaveBeenCalledTimes(1);
-  expect(loadTourState()).toEqual({ step : 2, done : true, seeded : false, demoBoxKey : null });
+  expect(loadTourState()).toEqual({ step : 'macros', done : true });
   unmount();
 
   const onClose2 = vi.fn();
-  const second = render(<Tour initialStep={ 5 } demoBoxKey={ null } onClose={ onClose2 } />);
-  expect(second.container.querySelector('.tour--kicker')?.textContent).toContain('6 of 6');
-  expect(buttons(second.container).next).toBeNull();
-  fireEvent.click(buttons(second.container).done as HTMLElement);
+  const second = render(<Tour { ...props({ initialStep : 'yours', onClose : onClose2 }) } />);
+  const done = [...second.container.querySelectorAll('.tour--actions button')].find((b) => b.textContent === 'Done') as Element;
+  fireEvent.click(done);
   expect(onClose2).toHaveBeenCalledTimes(1);
-  expect(loadTourState()).toEqual({ step : 0, done : true, seeded : false, demoBoxKey : null });
+  expect(loadTourState()).toEqual({ step : 'welcome', done : true });
 });
 
 test('backdrop click snoozes like skip', () => {
   const onClose = vi.fn();
-  const { container } = render(<Tour initialStep={ 1 } demoBoxKey={ null } onClose={ onClose } />);
-  fireEvent.click(container.querySelector('.tour--backdrop') as HTMLElement);
+  const { container } = render(<Tour { ...props({ initialStep : 'add', onClose }) } />);
+  fireEvent.click(container.querySelector('.tour--backdrop') as Element);
   expect(onClose).toHaveBeenCalledTimes(1);
-  expect(loadTourState()).toEqual({ step : 1, done : true, seeded : false, demoBoxKey : null });
-});
-
-test('out-of-range initial step clamps into the tour', () => {
-  const { container } = render(<Tour initialStep={ 99 } demoBoxKey={ null } onClose={ () => void 0 } />);
-  expect(container.querySelector('.tour--kicker')?.textContent).toContain('6 of 6');
-});
-
-test('missing targets never break the card', () => {
-  // jsdom rects are zero-sized, so no ring — but the card stands alone.
-  const { container } = render(<Tour initialStep={ 0 } demoBoxKey={ null } onClose={ () => void 0 } />);
-  expect(container.querySelector('.tour--ring')).toBeNull();
-  expect(container.querySelector('[role="dialog"]')).not.toBeNull();
+  expect(loadTourState()).toEqual({ step : 'add', done : true });
 });
 
 test('operating the + control advances just like next', () => {
@@ -73,15 +105,15 @@ test('operating the + control advances just like next', () => {
   const { container } = render(
     <div>
       <div className='add_box_after' onMouseDown={ onPlus } />
-      <Tour initialStep={ 1 } demoBoxKey={ null } onClose={ () => void 0 } />
+      <Tour { ...props({ initialStep : 'add' }) } />
     </div>
   );
 
   expect(container.querySelector('.tour')?.classList.contains('tour--interactive')).toBe(true);
   fireEvent.mouseDown(container.querySelector('.add_box_after') as Element);
   expect(onPlus).toHaveBeenCalledTimes(1);
-  expect(container.querySelector('.tour--title')?.textContent).toBe(TOUR_STEPS[2].title);
-  expect(loadTourState()).toEqual({ step : 2, done : false, seeded : false, demoBoxKey : null });
+  expect(titleOf(container)).toBe('Pick a box type');
+  expect(loadTourState()).toEqual({ step : 'pick', done : false });
   expect(container.querySelector('.tour')?.classList.contains('tour--interactive')).toBe(false);
 });
 
@@ -90,28 +122,118 @@ test('next on the + step works the control, advancing exactly once', () => {
   const { container } = render(
     <div>
       <div className='add_box_after' onMouseDown={ onPlus } />
-      <Tour initialStep={ 1 } demoBoxKey={ null } onClose={ () => void 0 } />
+      <Tour { ...props({ initialStep : 'add' }) } />
     </div>
   );
 
-  const next = [...container.querySelectorAll('.tour--actions button')].find((b) => b.textContent === 'Next') as Element;
-  fireEvent.click(next);
+  fireEvent.click(nextBtn(container));
   // Chauffeur mode: the control got its mousedown, the flagged events did
   // not re-advance, and we walked on exactly once.
   expect(onPlus).toHaveBeenCalledTimes(1);
-  expect(container.querySelector('.tour--title')?.textContent).toBe(TOUR_STEPS[2].title);
-  expect(loadTourState()).toEqual({ step : 2, done : false, seeded : false, demoBoxKey : null });
+  expect(titleOf(container)).toBe('Pick a box type');
+  expect(loadTourState()).toEqual({ step : 'pick', done : false });
 });
 
-test('the stepping step points at the demo box when its key is known', () => {
+test('a new lambda box routes pick to the typing step', async () => {
+  const { container } = render(<Tour { ...props({ initialStep : 'pick' }) } />);
+  expect(titleOf(container)).toBe('Pick a box type');
+
+  plantFrame(container, 'untypedLambdaBox', 'k-lambda');
+  await waitFor(() => expect(titleOf(container)).toBe('Write and evaluate'));
+  expect(loadTourState()).toEqual({ step : 'type', done : false });
+});
+
+test('a new markdown box routes pick to the detour', async () => {
+  const { container } = render(<Tour { ...props({ initialStep : 'pick' }) } />);
+
+  plantFrame(container, 'markDownBox', 'k-md');
+  await waitFor(() => expect(titleOf(container)).toBe('A Markdown box'));
+  expect(loadTourState()).toEqual({ step : 'md-explain', done : false });
+});
+
+test('an evaluated box advances typing to stepping', async () => {
+  const { container } = render(<Tour { ...props({ initialStep : 'pick' }) } />);
+  const frame = plantFrame(container, 'untypedLambdaBox', 'k-lambda');
+  await waitFor(() => expect(titleOf(container)).toBe('Write and evaluate'));
+
+  const evaluated = document.createElement('div');
+  evaluated.className = 'box-history-wrap';
+  frame.appendChild(evaluated);
+  await waitFor(() => expect(titleOf(container)).toBe('Step through evaluation'));
+  expect(loadTourState()).toEqual({ step : 'stepping', done : false });
+});
+
+test('a deleted box loops back to adding', async () => {
+  const { container } = render(<Tour { ...props({ initialStep : 'pick' }) } />);
+  const frame = plantFrame(container, 'untypedLambdaBox', 'k-lambda');
+  await waitFor(() => expect(titleOf(container)).toBe('Write and evaluate'));
+
+  frame.remove();
+  await waitFor(() => expect(titleOf(container)).toBe('Add a box'));
+  expect(loadTourState()).toEqual({ step : 'add', done : false });
+});
+
+test('the markdown detour loops back once the box is gone', async () => {
+  const onDeleteBox = vi.fn();
+  const { container } = render(<Tour { ...props({ initialStep : 'pick', onDeleteBox }) } />);
+  const frame = plantFrame(container, 'markDownBox', 'k-md');
+  await waitFor(() => expect(titleOf(container)).toBe('A Markdown box'));
+
+  // Through the explainer to the delete step, then chauffeur the deletion.
+  fireEvent.click(nextBtn(container));
+  expect(titleOf(container)).toBe('Delete a box');
+  fireEvent.click(nextBtn(container));
+  expect(onDeleteBox).toHaveBeenCalledWith('k-md');
+
+  // The watcher sees the real removal and loops back to adding.
+  frame.remove();
+  await waitFor(() => expect(titleOf(container)).toBe('Add a box'));
+});
+
+test('pick next prefers the open picker, falling back to state', () => {
+  const onPick = vi.fn();
+  const onAddLambdaBox = vi.fn(() => 'k-fallback');
   const { container } = render(
     <div>
-      <div data-box-key='demo-1' />
-      <Tour initialStep={ 3 } demoBoxKey='demo-1' onClose={ () => void 0 } />
+      <div title='Create new λ box' onClick={ onPick } />
+      <Tour { ...props({ initialStep : 'pick', onAddLambdaBox }) } />
     </div>
   );
-  // The ring itself needs real layout, but the step resolved its target:
-  // with an unknown key the same step stays ringless by construction.
-  expect(container.querySelector('[data-box-key="demo-1"]')).not.toBeNull();
-  expect(container.querySelector('.tour--title')?.textContent).toBe(TOUR_STEPS[3].title);
+
+  fireEvent.click(nextBtn(container));
+  expect(onPick).toHaveBeenCalledTimes(1);
+  expect(onAddLambdaBox).not.toHaveBeenCalled();
+  // No box appeared, so the tour correctly stays put.
+  expect(titleOf(container)).toBe('Pick a box type');
+});
+
+test('pick next without a modal creates the box through state', () => {
+  const onAddLambdaBox = vi.fn(() => 'k-fallback');
+  const { container } = render(<Tour { ...props({ initialStep : 'pick', onAddLambdaBox }) } />);
+
+  fireEvent.click(nextBtn(container));
+  expect(onAddLambdaBox).toHaveBeenCalledTimes(1);
+});
+
+test('type next fills the editor and submits for them', () => {
+  const onFillBoxEditor = vi.fn();
+  const { container } = render(<Tour { ...props({ initialStep : 'pick', onFillBoxEditor }) } />);
+  const frame = plantFrame(container, 'untypedLambdaBox', 'k-lambda');
+  const debug = document.createElement('button');
+  debug.className = 'open-as-debug';
+  const submitted : Array<string> = [];
+  debug.addEventListener('click', () => submitted.push('debug'));
+  frame.appendChild(debug);
+
+  return waitFor(() => expect(titleOf(container)).toBe('Write and evaluate')).then(() => {
+    fireEvent.click(nextBtn(container));
+    expect(onFillBoxEditor).toHaveBeenCalledWith('k-lambda', '(λ x . x y) a');
+    expect(submitted).toEqual([ 'debug' ]);
+  });
+});
+
+test('the tour ids stay addressable', () => {
+  expect(TOUR_STEPS.map((s) => s.id)).toEqual([
+    'welcome', 'add', 'pick', 'type', 'stepping', 'macros', 'yours', 'md-explain', 'md-delete',
+  ]);
 });
