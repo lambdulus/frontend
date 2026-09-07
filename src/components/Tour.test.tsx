@@ -60,7 +60,7 @@ test('back follows the branch map', () => {
   const { container } = render(<Tour { ...props({ initialStep : 'macros' }) } />);
   const back = [...container.querySelectorAll('.tour--actions button')].find((b) => b.textContent === 'Back') as Element;
   fireEvent.click(back);
-  expect(titleOf(container)).toBe('Step through evaluation');
+  expect(titleOf(container)).toBe('Evaluation Strategies');
 });
 
 test('unknown initial step lands on welcome', () => {
@@ -92,22 +92,21 @@ test('skip snoozes with the id, done restarts from welcome', () => {
   expect(loadTourState()).toEqual({ step : 'welcome', done : true });
 });
 
-test('backdrop click snoozes like skip on blocking steps', () => {
-  const onClose = vi.fn();
-  const { container } = render(<Tour { ...props({ initialStep : 'welcome', onClose }) } />);
-  fireEvent.click(container.querySelector('.tour--backdrop') as Element);
-  expect(onClose).toHaveBeenCalledTimes(1);
-  expect(loadTourState()).toEqual({ step : 'welcome', done : true });
+test('the tour never dims: no step renders a backdrop', () => {
+  for (const step of TOUR_STEPS) {
+    const { container, unmount } = render(<Tour { ...props({ initialStep : step.id }) } />);
+    expect(container.querySelector('.tour--backdrop'), step.id).toBeNull();
+    unmount();
+  }
 });
 
-test('working steps go click-through, reading steps stay blocking', () => {
-  const live = render(<Tour { ...props({ initialStep : 'type' }) } />);
-  expect(live.container.querySelector('.tour')?.classList.contains('tour--live')).toBe(true);
-  live.unmount();
-
-  const blocking = render(<Tour { ...props({ initialStep : 'yours' }) } />);
-  expect(blocking.container.querySelector('.tour')?.classList.contains('tour--live')).toBe(false);
-  blocking.unmount();
+test('every step leaves the app clickable', () => {
+  for (const step of TOUR_STEPS) {
+    const { container, unmount } = render(<Tour { ...props({ initialStep : step.id }) } />);
+    expect(container.querySelector('.tour')?.classList.contains('tour--live'), step.id).toBe(false);
+    expect(container.querySelector('.tour > .tour--card'), step.id).not.toBeNull();
+    unmount();
+  }
 });
 
 test('operating the + control advances just like next', () => {
@@ -119,13 +118,10 @@ test('operating the + control advances just like next', () => {
     </div>
   );
 
-  expect(container.querySelector('.tour')?.classList.contains('tour--live')).toBe(true);
   fireEvent.mouseDown(container.querySelector('.add_box_after') as Element);
   expect(onPlus).toHaveBeenCalledTimes(1);
   expect(titleOf(container)).toBe('Pick a box type');
   expect(loadTourState()).toEqual({ step : 'pick', done : false });
-  // The pick step stays live: its modal must remain operable.
-  expect(container.querySelector('.tour')?.classList.contains('tour--live')).toBe(true);
 });
 
 test('next on the + step works the control, advancing exactly once', () => {
@@ -245,6 +241,58 @@ test('type next fills the editor and submits for them', () => {
 
 test('the tour ids stay addressable', () => {
   expect(TOUR_STEPS.map((s) => s.id)).toEqual([
-    'welcome', 'add', 'pick', 'type', 'stepping', 'macros', 'yours', 'md-explain', 'md-delete',
+    'welcome', 'add', 'pick', 'type', 'stepping',
+    'settings', 'set-sli', 'set-sde', 'set-collapse', 'set-strategy',
+    'macros', 'yours', 'md-explain', 'md-delete',
   ]);
+});
+
+test('deleting early on the explainer loops back at once', async () => {
+  const { container } = render(<Tour { ...props({ initialStep : 'pick' }) } />);
+  const frame = plantFrame(container, 'markDownBox', 'k-md');
+  await waitFor(() => expect(titleOf(container)).toBe('A Markdown box'));
+
+  frame.remove();
+  await waitFor(() => expect(titleOf(container)).toBe('Add a box'));
+  expect(loadTourState()).toEqual({ step : 'add', done : false });
+});
+
+test('settings next opens the real gear and walks each switch', async () => {
+  const { container } = render(<Tour { ...props({ initialStep : 'pick' }) } />);
+  const frame = plantFrame(container, 'untypedLambdaBox', 'k-lambda');
+  const gear = document.createElement('div');
+  gear.setAttribute('title', 'Open this Boxs\' settings');
+  const opened : Array<string> = [];
+  gear.addEventListener('click', () => opened.push('gear'));
+  frame.appendChild(gear);
+  await waitFor(() => expect(titleOf(container)).toBe('Write and evaluate'));
+
+  const evaluated = document.createElement('div');
+  evaluated.className = 'box-history-wrap';
+  frame.appendChild(evaluated);
+  await waitFor(() => expect(titleOf(container)).toBe('Step through evaluation'));
+
+  fireEvent.click(nextBtn(container));
+  expect(titleOf(container)).toBe('Box settings');
+
+  fireEvent.click(nextBtn(container));
+  expect(opened).toEqual([ 'gear' ]);
+  expect(titleOf(container)).toBe('Single Letter Names');
+
+  for (const title of [ 'Simplified Evaluation', 'Collapse Old Steps', 'Evaluation Strategies' ]) {
+    fireEvent.click(nextBtn(container));
+    expect(titleOf(container)).toBe(title);
+  }
+
+  fireEvent.click(nextBtn(container));
+  expect(titleOf(container)).toBe('Macros');
+});
+
+test('dictated expressions render as delimited code', async () => {
+  const { container } = render(<Tour { ...props({ initialStep : 'pick' }) } />);
+  plantFrame(container, 'untypedLambdaBox', 'k-lambda');
+  await waitFor(() => expect(titleOf(container)).toBe('Write and evaluate'));
+
+  const code = container.querySelector('.tour--code');
+  expect(code?.textContent).toBe('(λ x . x y) a');
 });

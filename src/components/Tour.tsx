@@ -9,25 +9,30 @@ import '../styles/Tour.css'
 export interface TourStep {
   id : string
   title : string
+  // Backtick spans render as inline code, so expressions read as
+  // expressions instead of dissolving into the sentence.
   body : string
   // CSS selector of the UI the step points at. When it matches a visible
   // element a ring highlights it; otherwise the card simply stands alone,
   // so steps never break on screens where the target is absent.
   target ?: string
+  // Same, scoped to the box this run is working with: the ring follows
+  // tracked.querySelector(selector), so per-box controls stay addressable.
+  targetInTracked ?: string
   // CSS selector of a live control the user may operate mid-step. Clicking
   // it advances the tour to advanceTo just like Next does; pressing Next
   // activates ("clicks") it first, so both paths walk the same road.
   advanceOn ?: string
+  // Same, scoped to the tracked box.
+  advanceOnInTracked ?: string
   // Where operating advanceOn (or chauffeuring it through Next) walks to.
   advanceTo ?: string
-  // Click-through step: the overlay dims but never intercepts, so the user
-  // can operate the app the step talks about. Every step that asks for a
-  // real click must be live, or the backdrop traps the user out.
-  live ?: boolean
   // Ring the box this tour run is working with instead of a selector.
   ringTracked ?: boolean
   // Detour steps render the main-path dots parked at the + step.
   branch ?: boolean
+  // Park this step's dot on another step (settings cluster, detour).
+  dot ?: string
 }
 
 // The clickable add-box controls: the big + panel's button on empty
@@ -37,6 +42,22 @@ const ADD_BOX_SELECTOR = '.create-box-plus, .add_box_after'
 
 const LAMBDA_PICK_TITLE = 'Create new λ box'
 const TYPE_EXPRESSION = '(λ x . x y) a'
+
+// Per-box controls the tour conducts: the settings gear and its panel,
+// the macros dock, and one row hook per box setting.
+const GEAR_SELECTOR = '[title="Open this Boxs\' settings"]'
+const SETTINGS_PANEL = '.box-settings'
+const MACRO_DOCK = '.macro-dock'
+const MACRO_HEAD = '.macro-dock--head'
+const MACRO_OPEN = 'macro-dock--open'
+const SLI_ROW = '.untyped-lambda-settings-SLI'
+const SDE_ROW = '.untyped-lambda-settings-SDE'
+const COLLAPSE_ROW = '.untyped-lambda-settings-collapse'
+const STRATEGY_ROW = '.untyped-lambda-settings-strategies'
+
+// The top-bar themes control and its panel.
+const THEMES_ICON = '[title="Accent theme"]'
+const THEMES_PANEL = '.top-bar--accent-pick'
 
 export const TOUR_STEPS : Array<TourStep> = [
   {
@@ -52,57 +73,89 @@ export const TOUR_STEPS : Array<TourStep> = [
     target : ADD_BOX_SELECTOR,
     advanceOn : ADD_BOX_SELECTOR,
     advanceTo : 'pick',
-    live : true,
   },
   {
     id : 'pick',
     title : 'Pick a box type',
     body : 'A λ Expression box evaluates lambda calculus step by step. A Markdown box holds notes and docs. Pick λ Expression to keep walking with me.',
-    live : true,
   },
   {
     id : 'type',
     title : 'Write and evaluate',
-    body : 'Type (\\ x . x y) a into the editor — the backslash becomes λ as you type — then press Debug (Ctrl + Enter). Press Next and I will do it for you.',
-    live : true,
+    body : 'Type `(λ x . x y) a` into the editor — the backslash becomes λ as you type — then press Debug (Ctrl + Enter). Press Next and I will do it for you.',
   },
   {
     id : 'stepping',
     title : 'Step through evaluation',
-    body : 'There it is — evaluated and waiting at its first step. Run walks all the way to the normal form, Step advances once — try it now. A box\u2019s settings switch the strategy (normal, applicative…), toggle single-letter variables, and expand standalones.',
+    body : 'Evaluated, waiting at its first step. Run walks all the way to the normal form; Step advances once. Try it now.',
     ringTracked : true,
-    live : true,
+  },
+  {
+    id : 'settings',
+    title : 'Box settings',
+    body : 'Every box carries its own settings, behind this gear. Click it — or press Next and I will — and we will walk each switch.',
+    targetInTracked : GEAR_SELECTOR,
+    advanceOnInTracked : GEAR_SELECTOR,
+    advanceTo : 'set-sli',
+  },
+  {
+    id : 'set-sli',
+    title : 'Single Letter Names',
+    body : 'Lone letters count as variables, no spaces needed. Flip it and Step again to feel it.',
+    targetInTracked : SLI_ROW,
+    dot : 'settings',
+  },
+  {
+    id : 'set-sde',
+    title : 'Simplified Evaluation',
+    body : 'This steers stepping by a different strategy — try the same expression with it on and off.',
+    targetInTracked : SDE_ROW,
+    dot : 'settings',
+  },
+  {
+    id : 'set-collapse',
+    title : 'Collapse Old Steps',
+    body : 'This shortens older steps — click any shortened step to expand it again.',
+    targetInTracked : COLLAPSE_ROW,
+    dot : 'settings',
+  },
+  {
+    id : 'set-strategy',
+    title : 'Evaluation Strategies',
+    body : 'Normal and Applicative reduce in a different order — run the same expression under each.',
+    targetInTracked : STRATEGY_ROW,
+    dot : 'settings',
   },
   {
     id : 'macros',
     title : 'Macros',
-    body : 'Church numerals, booleans and arithmetic (Y, ZERO, SUC, +, *) are builtin. Your own definitions unfold in the Macros dock beside each box.',
-    live : true,
+    body : 'Builtins live here — Y, ZERO, SUC and arithmetic — and `name := …` above the expression defines your own.',
+    targetInTracked : MACRO_DOCK,
   },
   {
     id : 'yours',
     title : 'Make it yours',
-    body : 'Hover the accent dots or box-style tiles to preview them live across the whole page — click to keep. The top bar also holds notebook settings, zen mode, and export.',
-    target : '[title="Accent theme"]',
+    body : 'The themes panel is open — hover the accent dots or box-style tiles to preview them live, click to keep. Notebook settings, zen mode and export live up here too.',
+    target : THEMES_ICON,
   },
   {
     id : 'md-explain',
     title : 'A Markdown box',
-    body : 'Notes, docs, headings — Markdown boxes hold text, not calculus. Since we came for lambda, let\u2019s remove this one next — deleting boxes is worth knowing anyway.',
+    body : 'Notes, docs, headings — Markdown boxes hold text, not calculus. Since we came for lambda, let’s remove this one next — deleting boxes is worth knowing anyway.',
     branch : true,
-    live : true,
+    dot : 'add',
   },
   {
     id : 'md-delete',
     title : 'Delete a box',
     body : 'Every box deletes from its title-bar controls. Delete this Markdown box now — or press Next and I will do it for you.',
     branch : true,
+    dot : 'add',
     ringTracked : true,
-    live : true,
   },
 ]
 
-const MAIN_DOTS = [ 'welcome', 'add', 'pick', 'type', 'stepping', 'macros', 'yours' ]
+const MAIN_DOTS = [ 'welcome', 'add', 'pick', 'type', 'stepping', 'settings', 'macros', 'yours' ]
 
 const BACK : Record<string, string | null> = {
   welcome : null,
@@ -110,7 +163,12 @@ const BACK : Record<string, string | null> = {
   pick : 'add',
   type : 'pick',
   stepping : 'type',
-  macros : 'stepping',
+  settings : 'stepping',
+  'set-sli' : 'settings',
+  'set-sde' : 'set-sli',
+  'set-collapse' : 'set-sde',
+  'set-strategy' : 'set-collapse',
+  macros : 'set-strategy',
   yours : 'macros',
   'md-explain' : 'pick',
   'md-delete' : 'md-explain',
@@ -119,7 +177,12 @@ const BACK : Record<string, string | null> = {
 const NEXT_MAIN : Record<string, string> = {
   welcome : 'add',
   add : 'pick',
-  stepping : 'macros',
+  stepping : 'settings',
+  settings : 'set-sli',
+  'set-sli' : 'set-sde',
+  'set-sde' : 'set-collapse',
+  'set-collapse' : 'set-strategy',
+  'set-strategy' : 'macros',
   macros : 'yours',
   'md-explain' : 'md-delete',
 }
@@ -130,6 +193,17 @@ function stepById (id : string) : TourStep {
 
 function boxKeyOf (element : Element) : string | null {
   return element.closest('[data-box-key]')?.getAttribute('data-box-key') ?? null
+}
+
+// Backtick spans become inline code, so the expression a step dictates
+// reads as one delimited unit instead of dissolving into the sentence.
+function renderBody (body : string) : React.ReactNode {
+  return body.split(/(`[^`]+`)/g).map((part : string, index : number) =>
+    part.length > 2 && part.startsWith('`') && part.endsWith('`') ?
+      <code key={ index } className='tour--code'>{ part.slice(1, -1) }</code>
+    :
+      part
+  )
 }
 
 
@@ -159,7 +233,7 @@ export default function Tour (props : Props) : JSX.Element {
   const known = useRef<Set<Element>>(new Set())
   const current : TourStep = stepById(id)
   const last : boolean = id === 'yours'
-  const dotIndex : number = current.branch === true ? MAIN_DOTS.indexOf('add') : MAIN_DOTS.indexOf(id)
+  const dotIndex : number = MAIN_DOTS.indexOf(current.dot ?? id)
 
   const goId = (next : string) => {
     if (next === 'add') {
@@ -170,7 +244,7 @@ export default function Tour (props : Props) : JSX.Element {
     saveTourState({ step : stepById(next).id, done : false })
   }
 
-  // Skip (or backdrop): done for now, resume where left off via the icon.
+  // Skip: done for now, resume where left off via the icon.
   const snooze = () => {
     saveTourState({ step : id, done : true })
     onClose()
@@ -213,20 +287,39 @@ export default function Tour (props : Props) : JSX.Element {
 
   // Interactive step: operating the control advances just like Next.
   // Capture phase, so no stopPropagation inside the app can swallow it.
+  // There is no dim and no blocking step anymore — the whole page stays
+  // visibly clickable, so "live" is not a step property but the default.
   useEffect(() => {
-    if (current.advanceOn === undefined) {
+    const docSel : string | undefined = current.advanceOn
+    const scopedSel : string | undefined = current.advanceOnInTracked
+
+    if (docSel === undefined && scopedSel === undefined) {
       return
     }
 
-    const selector : string = current.advanceOn
     const target : string = current.advanceTo ?? id
     const onActivate = (e : Event) => {
       if ((e as Event & Record<string, boolean>)[CHAUFFEUR] === true) {
         return
       }
 
-      if ((e.target as Element | null)?.closest?.(selector) != null) {
+      const el : Element | null = e.target as Element | null
+
+      if (el === null || el.closest === undefined) {
+        return
+      }
+
+      if (docSel !== undefined && el.closest(docSel) !== null) {
         goId(target)
+        return
+      }
+
+      if (scopedSel !== undefined && tracked !== null && tracked.isConnected) {
+        const hit : Element | null = el.closest(scopedSel)
+
+        if (hit !== null && tracked.contains(hit)) {
+          goId(target)
+        }
       }
     }
 
@@ -237,10 +330,12 @@ export default function Tour (props : Props) : JSX.Element {
       document.removeEventListener('mousedown', onActivate, true)
       document.removeEventListener('click', onActivate, true)
     }
-  }, [ id, current.advanceOn ])
+  }, [ id, current.advanceOn, current.advanceOnInTracked, tracked ])
 
   // Branch routing: watch the app for the boxes this run creates, evaluates
-  // or deletes, and walk on when the real thing happens.
+  // or deletes, and walk on when the real thing happens. The detour watches
+  // from its explainer already, so deleting early advances at once instead
+  // of stranding the user on a step about a box that is gone.
   useEffect(() => {
     if (id === 'pick') {
       known.current = new Set([ ...document.querySelectorAll('.box-frame') ])
@@ -276,7 +371,7 @@ export default function Tour (props : Props) : JSX.Element {
       return () => observer.disconnect()
     }
 
-    if (id === 'type' || id === 'md-delete') {
+    if (id === 'type' || id === 'md-delete' || id === 'md-explain') {
       if (tracked === null || !tracked.isConnected) {
         goId('add')
         return
@@ -302,6 +397,23 @@ export default function Tour (props : Props) : JSX.Element {
     }
 
     return undefined
+  }, [ id ])
+
+  // Show, don't tell: the macros and themes steps open the real panels on
+  // arrival — never toggling one that is already open — so the tour points
+  // at living UI instead of describing it.
+  useEffect(() => {
+    if (id === 'macros' && tracked !== null && tracked.isConnected) {
+      const dock : Element | null = tracked.querySelector(MACRO_DOCK)
+
+      if (dock !== null && !dock.classList.contains(MACRO_OPEN)) {
+        (dock.querySelector(MACRO_HEAD) as HTMLElement | null)?.click()
+      }
+    }
+
+    if (id === 'yours' && document.querySelector(THEMES_PANEL) === null) {
+      (document.querySelector(THEMES_ICON) as HTMLElement | null)?.click()
+    }
   }, [ id ])
 
   const chauffeurPickLambda = () => {
@@ -339,6 +451,20 @@ export default function Tour (props : Props) : JSX.Element {
     )
   }
 
+  const chauffeurGear = () => {
+    if (tracked === null || !tracked.isConnected) {
+      goId('add')
+      return
+    }
+
+    // Same road as the hand: open the real panel unless it already is.
+    if (tracked.querySelector(SETTINGS_PANEL) === null) {
+      (tracked.querySelector(GEAR_SELECTOR) as HTMLElement | null)?.click()
+    }
+
+    goId('set-sli')
+  }
+
   const chauffeurDelete = () => {
     if (tracked === null || !tracked.isConnected) {
       goId('add')
@@ -371,6 +497,9 @@ export default function Tour (props : Props) : JSX.Element {
       case 'type':
         chauffeurTypeAndDebug()
         return
+      case 'settings':
+        chauffeurGear()
+        return
       case 'md-delete':
         chauffeurDelete()
         return
@@ -388,6 +517,8 @@ export default function Tour (props : Props) : JSX.Element {
     const element : Element | null =
       current.ringTracked === true ?
         (tracked !== null && tracked.isConnected ? tracked : null)
+      : current.targetInTracked !== undefined ?
+        (tracked !== null && tracked.isConnected ? tracked.querySelector(current.targetInTracked) : null)
       : current.target !== undefined ?
         document.querySelector(current.target)
       :
@@ -397,21 +528,37 @@ export default function Tour (props : Props) : JSX.Element {
       return
     }
 
-    const rect : DOMRect = element.getBoundingClientRect()
+    // The ring re-seats on resize, scroll and the element's own growth —
+    // a stepping box grows under it — so the highlight never lags behind.
+    const place = () => {
+      const rect : DOMRect = element.getBoundingClientRect()
 
-    if (rect.width === 0 && rect.height === 0) {
-      return
+      if (rect.width === 0 && rect.height === 0) {
+        setRing(null)
+        return
+      }
+
+      setRing({ top : rect.top, left : rect.left, width : rect.width, height : rect.height })
     }
 
-    setRing({ top : rect.top, left : rect.left, width : rect.width, height : rect.height })
+    place()
+
+    const ro : ResizeObserver | null =
+      typeof ResizeObserver === 'undefined' ? null : new ResizeObserver(place)
+
+    ro?.observe(element)
+    window.addEventListener('resize', place)
+    document.addEventListener('scroll', place, true)
+
+    return () => {
+      ro?.disconnect()
+      window.removeEventListener('resize', place)
+      document.removeEventListener('scroll', place, true)
+    }
   }, [ id, tracked ])
 
   return (
-    <div className={ current.live === true ? 'tour tour--live' : 'tour' }>
-      { /* Live steps dim without intercepting, so the user can operate the
-           app the step talks about. Snoozing stays one click away on the
-           blocking steps; Skip is always there, so nothing can trap. */ }
-      <div className='tour--backdrop' onClick={ snooze } />
+    <div className='tour'>
       {
         ring !== null ?
           <div
@@ -437,7 +584,7 @@ export default function Tour (props : Props) : JSX.Element {
           }
         </p>
         <p className='tour--title'>{ current.title }</p>
-        <p className='tour--body'>{ current.body }</p>
+        <p className='tour--body'>{ renderBody(current.body) }</p>
         <div className='tour--dots' aria-hidden='true'>
           {
             MAIN_DOTS.map((dot : string) =>
