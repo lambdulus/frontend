@@ -1,7 +1,10 @@
+/* Topmost interactive layer: must clear the fixed top bar (888), whose
+   panel backdrop otherwise swallows tour clicks — DONE included — to
+   close itself. */
 .tour {
   position: fixed;
   inset: 0;
-  z-index: 200;
+  z-index: 1000;
   pointer-events: none;
 }
 

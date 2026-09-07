@@ -24,6 +24,52 @@ interface Props {
 }
 
 export default class UntypedLambdaBox extends PureComponent<Props> {
+  constructor (props : Props) {
+    super(props)
+
+    this.onOutsideSettings = this.onOutsideSettings.bind(this)
+  }
+
+  componentDidMount () : void {
+    document.addEventListener('mousedown', this.onOutsideSettings)
+  }
+
+  componentWillUnmount () : void {
+    document.removeEventListener('mousedown', this.onOutsideSettings)
+  }
+
+  // An open settings panel closes on mousedown outside it — the same
+  // beat the + rows open on. Exempt: the panel itself (any box's — panels
+  // coexist), the gear (its toggle owns the click), and the tour (which
+  // conducts panels deliberately step by step).
+  onOutsideSettings (event : MouseEvent) : void {
+    const { state, setBoxState } : Props = this.props
+
+    if (state.settingsOpen !== true) {
+      return
+    }
+
+    const target : Element | null = event.target as Element | null
+
+    if (target === null || target.closest === undefined) {
+      return
+    }
+
+    if (target.closest('.box-settings') !== null) {
+      return
+    }
+
+    if (target.closest('[title="Open this Boxs\' settings"]') !== null) {
+      return
+    }
+
+    if (target.closest('.tour') !== null) {
+      return
+    }
+
+    setBoxState({ ...state, settingsOpen : false })
+  }
+
   render () {
     const { state, isActive, isFocused, isAnchorBox, setBoxState, addBox, titleActionsHost } : Props = this.props
     const { settingsOpen, subtype, macrolistOpen, SLI, expandStandalones, strategy, SDE, collapseOldSteps, editor, minimized } : UntypedLambdaState = state

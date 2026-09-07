@@ -180,6 +180,16 @@ test('dismissing the popup drops any preview with it', () => {
   expect(container.querySelector('.top-bar--accent-pick')).toBeNull();
 });
 
+test('the global settings panel closes on outside click too', () => {
+  const { container } = render(<TopBar { ...baseProps(() => void 0) } />);
+
+  fireEvent.click(container.querySelector('[title="Notebook settings"]') as HTMLElement);
+  expect(container.querySelector('.top-bar--settings-panel')).not.toBeNull();
+
+  fireEvent.click(container.querySelector('.top-bar--backdrop') as HTMLElement);
+  expect(container.querySelector('.top-bar--settings-panel')).toBeNull();
+});
+
 test('hovering a box tile previews it, leaving the row falls back', () => {
   const onBoxStylePreview = vi.fn();
   const { container } = render(

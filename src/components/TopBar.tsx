@@ -10,6 +10,7 @@ import UntypedLambdaCalculusSet from '../untyped-lambda-integration/Settings'
 import {
   CODE_NAME as UNTYPED_CODE_NAME,
   GLOBAL_SETTINGS_ENABLER as UNTYPED_GLOBAL_SETTINGS_ENABLER,
+  defaultSettings as UNTYPED_DEFAULT_SETTINGS,
 } from '../untyped-lambda-integration/Constants'
 import { UntypedLambdaSettings } from '../untyped-lambda-integration/Types'
 
@@ -99,7 +100,9 @@ export default function TopBar (props : Props) : JSX.Element {
   const link : string = useMemo(() => createURL(serialized), [ serialized ])
   const fileName : string = `${ notebook.name.replace(/[^\w\- ]+/g, '').trim() || 'notebook' }.lus`
 
-  const untypedSettings : UntypedLambdaSettings = settings[UNTYPED_CODE_NAME] as UntypedLambdaSettings
+  // Settings-less notebooks (years-old storage) fall back to the defaults
+  // instead of crashing the panel open, same as the box picker modal.
+  const untypedSettings : UntypedLambdaSettings = (settings[UNTYPED_CODE_NAME] as UntypedLambdaSettings | undefined) ?? UNTYPED_DEFAULT_SETTINGS
 
   return (
     <div className='top-bar'>
