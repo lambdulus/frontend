@@ -131,14 +131,7 @@ export function toMacroMap (definitions : Array<string>, SLI : boolean) : MacroM
     // not even any real reduction
     // I just need it to parse and then serialize the body of the macro
     // that's it!
-    // Macro bodies are always tokenized with singleLetterVars OFF, no matter
-    // the SLI toggle: bodies are written in full-identifier style (multi-letter
-    // binders like `fact`, builtin references like `ZERO`), and SLI-splitting
-    // them into single letters corrupts the definition — e.g. `(λ fact n . …)`
-    // becomes five binders `(λ f a c t n . …)`, so the arity check later claims
-    // the macro is given too few arguments. The expression itself still honors
-    // SLI; macro *names* keep lexing as one token via couldBeMacro.
-    const tokens : Array<Token> = tokenize(body.trim(), { lambdaLetters : ['λ'], singleLetterVars : false, macromap : mNames })
+    const tokens : Array<Token> = tokenize(body.trim(), { lambdaLetters : ['λ'], singleLetterVars : SLI, macromap : mNames })
     const ast : AST = parse(tokens, mNames) // macroTable
 
     return { ...acc, [name.trim()] : ast.toString() }
