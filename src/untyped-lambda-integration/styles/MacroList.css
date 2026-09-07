@@ -128,6 +128,35 @@
   transition: grid-template-rows .18s ease-out, opacity .15s ease-out, visibility 0s;
 }
 
+/* Closing bridge (open + shut): keeps every bit of the open
+   containment — bottom, cap, flex panel — while the content collapses
+   and fades inside it, so a close never flashes full-height naked
+   content. A timer drops the bridge once the fade lands; reopening
+   mid-shut drops it at once. Later than the open rules at equal
+   specificity, so every conflict resolves toward shutting. */
+.macro-dock--shut {
+  min-height: 0;
+  background-color: transparent;
+  border-color: transparent;
+  box-shadow: none;
+  transition:
+    min-height .12s ease-out,
+    background-color .12s ease-out,
+    border-color .12s ease-out,
+    border-radius .12s ease-out,
+    box-shadow .12s ease-out;
+}
+
+.macro-dock--shut .macro-dock--panel {
+  grid-template-rows: 0fr;
+  opacity: 0;
+  visibility: hidden;
+  transition:
+    grid-template-rows .12s ease-out,
+    opacity .1s ease-out,
+    visibility 0s linear .1s;
+}
+
 .macro-dock--body {
   min-height: 0;
   overflow: hidden;
@@ -149,6 +178,12 @@
     transition: none;
   }
   .macro-dock--open {
+    transition: none;
+  }
+  .macro-dock--shut {
+    transition: none;
+  }
+  .macro-dock--shut .macro-dock--panel {
     transition: none;
   }
 }

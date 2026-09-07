@@ -1,8 +1,8 @@
 import { readFileSync } from 'fs';
 import { test, expect, vi, afterEach } from 'vitest';
-import { render, fireEvent, cleanup } from '@testing-library/react';
+import { render, fireEvent, cleanup, act } from '@testing-library/react';
 import MacroList from './MacroList';
-import UntypedLambdaBox from './UntypedLambdaBox';
+import UntypedLambdaBox, { dockClassName } from './UntypedLambdaBox';
 import { EvaluationStrategy, UntypedLambdaState, UntypedLambdaType } from './Types';
 import { BoxType } from '../Types';
 
@@ -116,6 +116,76 @@ test('the card chrome fades with the panel, never snaps', () => {
   expect(beat(open)).toBeGreaterThan(beat(dock));
   expect(css).toMatch(/prefers-reduced-motion[\s\S]*?\.macro-dock\s*\{[^}]*transition\s*:\s*none/);
   expect(css).toMatch(/prefers-reduced-motion[\s\S]*?\.macro-dock--open\s*\{[^}]*transition\s*:\s*none/);
+});
+
+test('dock classes keep containment through a close', () => {
+  expect(dockClassName(false, false)).toBe('macro-dock');
+  expect(dockClassName(true, false)).toBe('macro-dock macro-dock--open');
+  // Closing bridges open + shut; reopening mid-shut drops the bridge.
+  expect(dockClassName(false, true)).toBe('macro-dock macro-dock--open macro-dock--shut');
+  expect(dockClassName(true, true)).toBe('macro-dock macro-dock--open');
+});
+
+function dockElement (open : boolean) : JSX.Element {
+  return (
+    <UntypedLambdaBox
+      state={ lambdaState(open) }
+      isActive={ true }
+      isFocused={ true }
+      isAnchorBox={ true }
+      setBoxState={ () => void 0 }
+      addBox={ () => void 0 }
+    />
+  );
+}
+
+test('closing the dock bridges containment, then stands down', () => {
+  vi.useFakeTimers();
+  try {
+    const { container, rerender } = render(dockElement(true));
+    const dock = () => container.querySelector('.macro-dock') as HTMLElement;
+    expect(dock().className).toBe('macro-dock macro-dock--open');
+
+    rerender(dockElement(false));
+    expect(dock().className).toBe('macro-dock macro-dock--open macro-dock--shut');
+
+    act(() => { vi.advanceTimersByTime(200); });
+    expect(dock().className).toBe('macro-dock');
+  }
+  finally {
+    vi.useRealTimers();
+  }
+});
+
+test('reopening mid-shut drops the bridge at once', () => {
+  vi.useFakeTimers();
+  try {
+    const { container, rerender } = render(dockElement(true));
+    const dock = () => container.querySelector('.macro-dock') as HTMLElement;
+
+    rerender(dockElement(false));
+    expect(dock().className).toBe('macro-dock macro-dock--open macro-dock--shut');
+
+    rerender(dockElement(true));
+    expect(dock().className).toBe('macro-dock macro-dock--open');
+  }
+  finally {
+    vi.useRealTimers();
+  }
+});
+
+test('the shut bridge keeps open containment while collapsing', () => {
+  // The whole point: bottom, cap and flex panel still apply through
+  // the close, so the fade plays inside the card instead of flashing
+  // full-height naked content.
+  const css = readFileSync('src/untyped-lambda-integration/styles/MacroList.css', 'utf8');
+  const shut = css.match(/\.macro-dock--shut\s*\{[^}]*\}/)?.[0] ?? '';
+  expect(shut).not.toMatch(/bottom/);
+  expect(shut).not.toMatch(/max-height/);
+  expect(shut).toMatch(/background-color\s*:\s*transparent/);
+  const shutPanel = css.match(/\.macro-dock--shut \.macro-dock--panel\s*\{[^}]*\}/)?.[0] ?? '';
+  expect(shutPanel).toMatch(/opacity\s*:\s*0/);
+  expect(shutPanel).toMatch(/visibility\s*:\s*hidden/);
 });
 
 test('open tables hang capped instead of filling tall boxes', () => {
