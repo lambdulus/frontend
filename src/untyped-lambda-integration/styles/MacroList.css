@@ -28,26 +28,37 @@
   min-height: 0;
   background-color: transparent;
   border: 1px solid transparent;
+  /* Closing beat: snappy, so the outgoing card is gone before the
+     incoming one can read as the same table morphing. */
   transition:
-    min-height .18s ease-out,
-    background-color .18s ease-out,
-    border-color .18s ease-out,
-    border-radius .18s ease-out,
-    box-shadow .18s ease-out;
+    min-height .12s ease-out,
+    background-color .12s ease-out,
+    border-color .12s ease-out,
+    border-radius .12s ease-out,
+    box-shadow .12s ease-out;
 }
 
-/* Open, the dock is a card flush with the box top and reaching at
-   least 320px down (past the bottom of small boxes), holding the
-   header and the unfolding panel; closed, only the pill shows. */
+/* Open, the dock is a card hanging from the box top: at least 320px
+   down (past the bottom of small boxes), at most 70vh — tall boxes no
+   longer snap a screen-filling card in one frame, the inner scroll
+   takes over past the cap instead. Closed, only the pill shows. */
 .macro-dock--open {
   bottom: 0;
   align-items: stretch;
   z-index: 50;
   min-height: 320px;
+  max-height: 70vh;
   background-color: var(--surface);
   border: 1px solid var(--border);
   border-radius: 8px;
   box-shadow: var(--shadow);
+  /* Opening beat: a gentle bloom, slower than the closing fade. */
+  transition:
+    min-height .2s ease-out,
+    background-color .2s ease-out,
+    border-color .2s ease-out,
+    border-radius .2s ease-out,
+    box-shadow .2s ease-out;
 }
 
 /* Squared pill echoing the popup card, with room to breathe. */
@@ -135,6 +146,9 @@
     transition: none;
   }
   .macro-dock {
+    transition: none;
+  }
+  .macro-dock--open {
     transition: none;
   }
 }
