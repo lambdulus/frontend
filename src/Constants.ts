@@ -168,7 +168,7 @@ export function decode (state : AppState) : AppState | never {
 
   const notebooks : Array<NotebookState> = legacy.notebooks.map(decodeNotebook)
   const accent : Accent =
-    legacy.accent === 'blue' || legacy.accent === 'amber' || legacy.accent === 'emerald' ?
+    legacy.accent === 'blue' || legacy.accent === 'amber' || legacy.accent === 'emerald' || legacy.accent === 'indigo' ?
       legacy.accent
     :
       'emerald'

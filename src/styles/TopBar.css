@@ -408,7 +408,7 @@
 .top-bar--accent-pick {
   display: flex;
   margin-top: 8px;
-  gap: 4px;
+  gap: 6px;
 }
 
 .top-bar--accent-option {
@@ -429,7 +429,7 @@
   flex-direction: column;
   align-items: center;
   gap: 6px;
-  width: 76px;
+  width: 64px;
   padding: 6px 4px;
   border-radius: 10px;
   cursor: pointer;
@@ -439,8 +439,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 44px;
-  height: 44px;
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
   transition: transform .15s ease-in-out, box-shadow .15s ease-in-out;
 }
@@ -450,7 +450,7 @@
 }
 
 .top-bar--accent-glyph {
-  font-size: 21px;
+  font-size: 19px;
   font-weight: 600;
   line-height: 1;
 }
@@ -465,6 +465,10 @@
 
 .top-bar--theme-swatch--amber {
   background-color: #f59e0b;
+}
+
+.top-bar--theme-swatch--indigo {
+  background-color: #6366f1;
 }
 
 .top-bar--accent-dot.top-bar--theme-swatch--emerald {
@@ -489,6 +493,14 @@
 
 .top-bar--accent-option input[type='radio']:checked + .top-bar--accent-choice .top-bar--accent-dot.top-bar--theme-swatch--amber {
   box-shadow: 0 0 0 2px var(--surface), 0 0 0 4px #f59e0b;
+}
+
+.top-bar--accent-dot.top-bar--theme-swatch--indigo {
+  color: #ffffff;
+}
+
+.top-bar--accent-option input[type='radio']:checked + .top-bar--accent-choice .top-bar--accent-dot.top-bar--theme-swatch--indigo {
+  box-shadow: 0 0 0 2px var(--surface), 0 0 0 4px #6366f1;
 }
 
 .top-bar--accent-option input[type='radio']:focus-visible + .top-bar--accent-choice {

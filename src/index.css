@@ -64,6 +64,18 @@
   --accent-ink: #fffbeb;
 }
 
+#app.dark[data-accent='indigo'] {
+  --accent: #818cf8;
+  --accent-strong: #6366f1;
+  --accent-ink: #ffffff;
+}
+
+#app.light[data-accent='indigo'] {
+  --accent: #4338ca;
+  --accent-strong: #3730a3;
+  --accent-ink: #ffffff;
+}
+
 body {
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
