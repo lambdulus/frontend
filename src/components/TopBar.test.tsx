@@ -79,6 +79,38 @@ test('zen control is a real switch reflecting the mode', () => {
   expect(onZenModeChange).toHaveBeenCalledWith(false);
 });
 
+test('accents are lettered dots in one row', () => {
+  // β Beta, λ Lambda, α Alpha: the dots themselves toggle the native
+  // radios, captions below, popup closing on select as before.
+  const onAccentChange = vi.fn();
+  const { container } = render(
+    <TopBar { ...baseProps(() => void 0) } accent='emerald' onAccentChange={ onAccentChange } />
+  );
+
+  fireEvent.click(container.querySelector('[title="Accent theme"]') as HTMLElement);
+  const row = container.querySelector('.top-bar--accent-pick');
+  expect(row).not.toBeNull();
+
+  const radios = row?.querySelectorAll("input[type='radio']") ?? [];
+  expect(radios.length).toBe(3);
+  expect((radios[0] as HTMLInputElement).checked).toBe(true);
+
+  const glyphs = row?.querySelectorAll('.top-bar--accent-glyph') ?? [];
+  expect([...glyphs].map((g) => g.textContent)).toEqual([ 'β', 'λ', 'α' ]);
+  const captions = row?.querySelectorAll('.top-bar--accent-caption') ?? [];
+  expect([...captions].map((c) => c.textContent)).toEqual([ 'Beta', 'Lambda', 'Alpha' ]);
+
+  fireEvent.click(radios[2]);
+  expect(onAccentChange).toHaveBeenCalledWith('amber');
+
+  const css = readFileSync('src/styles/TopBar.css', 'utf8');
+  const dot = css.match(/\.top-bar--accent-dot\s*\{[^}]*\}/)?.[0] ?? '';
+  expect(dot).toMatch(/width\s*:\s*44px/);
+  expect(dot).toMatch(/border-radius\s*:\s*50%/);
+  const ring = css.match(/\.top-bar--accent-option input\[type='radio'\]:checked \+ \.top-bar--accent-choice \.top-bar--accent-dot\.top-bar--theme-swatch--amber\s*\{[^}]*\}/)?.[0] ?? '';
+  expect(ring).toMatch(/box-shadow\s*:/);
+});
+
 test('box style is picked by preview tiles acting as radios', () => {
   // Two miniature boxes side by side; the tiles themselves toggle the
   // native radios, and the panel stays open so the looks compare.
