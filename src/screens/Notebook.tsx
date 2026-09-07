@@ -13,15 +13,19 @@ interface Props {
   updateNotebook (notebook : Partial<NotebookState>) : void
 }
 
-// The prime line sits a little below the vertical center of the view
-// (65% down): the box owning the most of the view above it owns the
-// side arrows, whether it got there by click or by plain scrolling.
-// Measuring shares instead of tops keeps the handover honest: a short
-// next box no longer steals focus while the current one still fills
-// the upper view; it takes over only once it actually displaces it.
-// Ties stay with the upper box. Hidden boxes report no height and
-// never win; with nothing in the upper view the last box stays prime
-// past the end and the first before the start.
+// The prime line sits in the upper third of the view: the box owning
+// the most of the view above it owns the side arrows, whether it got
+// there by click or by plain scrolling. A low (center-ish) line lets a
+// tall box below outshare a tiny middle box at every scroll position,
+// so slow scrolling skips it outright; up here the middle box wins its
+// window as soon as it displaces its predecessor. Measuring shares
+// instead of tops keeps the handover honest: a short next box no longer
+// steals focus while the current one still fills the upper view; it
+// takes over only once it actually displaces it. Ties stay with the
+// upper box. Hidden boxes report no height and never win; with nothing
+// in the upper view the last box stays prime past the end and the first
+// before the start.
+const PRIME_LINE_RATIO : number = 0.35
 export interface BoxTop {
   top : number
   height : number }
@@ -252,7 +256,7 @@ export default class Notebook extends PureComponent<Props, State> {
       const rect : DOMRect = el.getBoundingClientRect()
       return { top : rect.top, height : rect.height }
     })
-    const prime : number = selectPrimeBox(tops, window.innerHeight * 0.65)
+    const prime : number = selectPrimeBox(tops, window.innerHeight * PRIME_LINE_RATIO)
     if (prime !== (focusedBoxIndex ?? activeBoxIndex)) {
       this.props.updateNotebook({ focusedBoxIndex : prime })
     }

@@ -1,3 +1,4 @@
+import { readFileSync } from 'fs';
 import { test, expect, vi, afterEach, beforeEach } from 'vitest';
 import { render, fireEvent, cleanup, waitFor } from '@testing-library/react';
 import Tour, { TOUR_STEPS } from './Tour';
@@ -102,6 +103,14 @@ test('the tour never dims: no step renders a backdrop', () => {
     expect(container.querySelector('.tour--backdrop'), step.id).toBeNull();
     unmount();
   }
+});
+
+test('the tour tops the fixed top bar, whose backdrop ate DONE', () => {
+  // The top bar paints at 888 with a viewport-wide backdrop per panel;
+  // below it the backdrop swallows tour clicks to close itself instead.
+  const css = readFileSync('src/styles/Tour.css', 'utf8');
+  const root = css.match(/\.tour\s*\{[^}]*\}/)?.[0] ?? '';
+  expect(root).toMatch(/z-index\s*:\s*1000/);
 });
 
 test('every step leaves the app clickable', () => {

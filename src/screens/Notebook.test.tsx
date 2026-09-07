@@ -99,6 +99,21 @@ test('prime hands over once the next box owns the upper view', () => {
   ], 520)).toBe(1);
 });
 
+test('a tiny middle box wins its window on a high prime line', () => {
+  // One-term middle box, fully visible, predecessor almost gone, tall
+  // last box rising below. On the old center-ish line (585 of 900) the
+  // last box outshares it at every scroll position, so slow scrolling
+  // skips the middle outright; on the upper-third line (315) the last
+  // box has not entered the upper view yet and the middle box wins.
+  const boxes = [
+    { top : -350, height : 400 },
+    { top : 162, height : 120 },
+    { top : 394, height : 500 },
+  ];
+  expect(selectPrimeBox(boxes, 585)).toBe(2);
+  expect(selectPrimeBox(boxes, 315)).toBe(1);
+});
+
 test('a seated short box keeps focus over the next one', () => {
   // Clicking the second-to-last box seats it at the top; the last box
   // sits above the line too, but the seated box owns as much of the
