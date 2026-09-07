@@ -1,5 +1,5 @@
 import React, { ChangeEvent, useEffect, useMemo, useRef, useState } from 'react'
-import { Bug, Check, Download, Eraser, Focus, Lock, Moon, Palette, Plus, Settings as SettingsIcon, Sun, Upload, X } from 'lucide-react'
+import { Bug, Download, Eraser, Focus, Lock, Moon, Palette, Plus, Settings as SettingsIcon, Sun, Upload, X } from 'lucide-react'
 
 import { Accent, BoxStyle, GlobalSettings, NotebookState } from '../Types'
 
@@ -237,26 +237,34 @@ export default function TopBar (props : Props) : JSX.Element {
               <div className='top-bar--backdrop' onClick={ () => setOpenPanel(null) } />
               <div className='top-bar--settings-panel'>
                 <p className='top-bar--settings-title'>Accent theme</p>
-                {
-                  ([
-                    { value : 'emerald' as Accent, label : 'Beta emerald' },
-                    { value : 'blue' as Accent, label : 'Lambda blue' },
-                    { value : 'amber' as Accent, label : 'Gamma amber' },
-                  ]).map((option) =>
-                    <button
-                      key={ option.value }
-                      className={ `btn top-bar--theme-btn top-bar--theme-btn--${option.value}${accent === option.value ? ' top-bar--theme-btn--active' : ''}` }
-                      onClick={ () => {
-                        onAccentChange(option.value)
-                        setOpenPanel(null)
-                      } }
-                    >
-                      <span className={ `top-bar--theme-swatch top-bar--theme-swatch--${option.value}` } />
-                      { option.label }
-                      { accent === option.value ? <Check size={ 14 } strokeWidth={ 2 } /> : null }
-                    </button>
-                  )
-                }
+                <div className='top-bar--accent-pick'>
+                  {
+                    ([
+                      { value : 'emerald' as Accent, label : 'Beta', glyph : 'β' },
+                      { value : 'blue' as Accent, label : 'Lambda', glyph : 'λ' },
+                      { value : 'amber' as Accent, label : 'Alpha', glyph : 'α' },
+                    ]).map((option) =>
+                      <span className='top-bar--accent-option' key={ option.value }>
+                        <input
+                          id={ `top-bar--accent-${option.value}` }
+                          type='radio'
+                          name='top-bar--accent'
+                          checked={ accent === option.value }
+                          onChange={ () => {
+                            onAccentChange(option.value)
+                            setOpenPanel(null)
+                          } }
+                        />
+                        <label className='top-bar--accent-choice' htmlFor={ `top-bar--accent-${option.value}` }>
+                          <span className={ `top-bar--accent-dot top-bar--theme-swatch--${option.value}` } aria-hidden='true'>
+                            <span className='top-bar--accent-glyph'>{ option.glyph }</span>
+                          </span>
+                          <span className='top-bar--accent-caption'>{ option.label }</span>
+                        </label>
+                      </span>
+                    )
+                  }
+                </div>
                 <p className='top-bar--settings-title'>Box style</p>
                 <div className='top-bar--boxpreview'>
                   {
