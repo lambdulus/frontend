@@ -79,6 +79,13 @@ test('first load opens the guided tour, afterwards only the icon does', () => {
         expect(second.container.querySelector(selector), selector).not.toBeNull();
       }
     }
+    // Tracked-box selectors resolve only against a live box (covered by
+    // the conducted walk below); here they must at least exist as hooks.
+    for (const selector of [ step.targetInTracked, step.advanceOnInTracked ]) {
+      if (selector !== undefined) {
+        expect(typeof selector, step.id).toBe('string');
+      }
+    }
   }
 
   // The icon resumes where the tour left off.
@@ -126,16 +133,86 @@ test('the tour conducts a lambda box from + to evaluated', async () => {
   await waitFor(() => expect(title()).toBe('Step through evaluation'));
   expect(container.querySelector('.box-history-wrap')).not.toBeNull();
 
-  // To the end: the box stays behind for them to keep.
+  // Settings get their own steps: the gear starts closed, Next opens it.
+  fireEvent.click(nextBtn());
+  expect(title()).toBe('Box settings');
+  expect(container.querySelector('.box-settings')).toBeNull();
+
+  fireEvent.click(nextBtn());
+  expect(title()).toBe('Single Letter Names');
+  expect(container.querySelector('.box-settings')).not.toBeNull();
+  expect(container.querySelector('.untyped-lambda-settings-SLI')).not.toBeNull();
+  fireEvent.click(nextBtn());
+  expect(title()).toBe('Simplified Evaluation');
+  expect(container.querySelector('.untyped-lambda-settings-SDE')).not.toBeNull();
+  fireEvent.click(nextBtn());
+  expect(title()).toBe('Collapse Old Steps');
+  expect(container.querySelector('.untyped-lambda-settings-collapse')).not.toBeNull();
+  fireEvent.click(nextBtn());
+  expect(title()).toBe('Evaluation Strategies');
+  expect(container.querySelector('.untyped-lambda-settings-strategies')).not.toBeNull();
+
+  // Macros open themselves on arrival; the themes panel does too.
   fireEvent.click(nextBtn());
   expect(title()).toBe('Macros');
+  await waitFor(() => expect(container.querySelector('.macro-dock--open')).not.toBeNull());
   fireEvent.click(nextBtn());
   expect(title()).toBe('Make it yours');
+  await waitFor(() => expect(container.querySelector('.top-bar--accent-pick')).not.toBeNull());
+
+  // To the end: the box stays behind for them to keep.
   const done = [...container.querySelectorAll('.tour--actions button')].find((b) => b.textContent === 'Done') as Element;
   fireEvent.click(done);
   expect(container.querySelector('[role="dialog"]')).toBeNull();
   expect(container.querySelectorAll('.box-frame').length).toBe(1);
   expect(loadTourState()).toEqual({ step : 'welcome', done : true });
+});
+
+async function walkToMdDelete (container : HTMLElement) : Promise<() => Element> {
+  const nextBtn = () => [...container.querySelectorAll('.tour--actions button')].find((b) => b.textContent === 'Next') as Element;
+  const title = () => container.querySelector('.tour--title')?.textContent;
+
+  fireEvent.click(nextBtn());
+  fireEvent.click(container.querySelector('.create-box-plus') as Element);
+  expect(title()).toBe('Pick a box type');
+  fireEvent.click(container.querySelector('[title="Create new MarkDown box"]') as Element);
+  await waitFor(() => expect(title()).toBe('A Markdown box'));
+  fireEvent.click(nextBtn());
+  await waitFor(() => expect(title()).toBe('Delete a box'));
+
+  return nextBtn;
+}
+
+test('deleting the markdown box on the delete step loops back at once', async () => {
+  window.localStorage.clear();
+  const { container } = render(<App />);
+  await walkToMdDelete(container);
+
+  const frame = container.querySelector('.box-frame:has(.markDownBox)') as HTMLElement;
+  expect(frame).not.toBeNull();
+  fireEvent.click(frame.querySelector('[title="Delete this Box from the Notebook"]') as HTMLElement);
+
+  await waitFor(() => expect(container.querySelector('.tour--title')?.textContent).toBe('Add a box'));
+  expect(container.querySelectorAll('.box-frame').length).toBe(0);
+});
+
+test('deleting early on the explainer loops back through next', async () => {
+  window.localStorage.clear();
+  const { container } = render(<App />);
+  const nextBtn = () => [...container.querySelectorAll('.tour--actions button')].find((b) => b.textContent === 'Next') as Element;
+  const title = () => container.querySelector('.tour--title')?.textContent;
+
+  fireEvent.click(nextBtn());
+  fireEvent.click(container.querySelector('.create-box-plus') as Element);
+  fireEvent.click(container.querySelector('[title="Create new MarkDown box"]') as Element);
+  await waitFor(() => expect(title()).toBe('A Markdown box'));
+
+  const frame = container.querySelector('.box-frame:has(.markDownBox)') as HTMLElement;
+  fireEvent.click(frame.querySelector('[title="Delete this Box from the Notebook"]') as HTMLElement);
+  fireEvent.click(nextBtn());
+
+  await waitFor(() => expect(title()).toBe('Add a box'));
+  expect(container.querySelectorAll('.box-frame').length).toBe(0);
 });
 
 test('the markdown detour loops back once its box is deleted', async () => {
