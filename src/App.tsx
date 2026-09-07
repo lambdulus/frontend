@@ -38,6 +38,7 @@ export default class App extends Component<{}, AppState> {
     this.clearNotebook = this.clearNotebook.bind(this)
     this.resetWorkspace = this.resetWorkspace.bind(this)
     this.updateAccent = this.updateAccent.bind(this)
+    this.previewAccent = this.previewAccent.bind(this)
     this.updateBoxStyle = this.updateBoxStyle.bind(this)
     this.toggleTheme = this.toggleTheme.bind(this)
     this.selectNotebook = this.selectNotebook.bind(this)
@@ -125,6 +126,15 @@ export default class App extends Component<{}, AppState> {
     }
   }
 
+  // Hover preview of an accent theme: transient pointer state, deliberately
+  // kept out of AppState so it can never persist or restore from storage.
+  private accentPreview : Accent | null = null
+
+  previewAccent (accent : Accent | null) : void {
+    this.accentPreview = accent
+    this.forceUpdate()
+  }
+
   // NOTE: render is OK
   render () {
     const { notebooks, activeNotebookIndex, theme, accent, boxStyle } = this.state
@@ -137,7 +147,7 @@ export default class App extends Component<{}, AppState> {
       <ThemeContext.Provider value={ theme }>
         <SettingsContext.Provider value={ settings }>
 
-          <div id='app' className={ darkmode ? 'dark' : 'light' } data-accent={ accent } data-box-style={ boxStyle }>
+          <div id='app' className={ darkmode ? 'dark' : 'light' } data-accent={ this.accentPreview ?? accent } data-box-style={ boxStyle }>
             <div id="bad-screen-message">
               Lambdulus only runs on screens at least 900 pixels wide.
             </div>
@@ -149,6 +159,7 @@ export default class App extends Component<{}, AppState> {
               boxStyle={ boxStyle }
               settings={ settings }
               onAccentChange={ this.updateAccent }
+              onAccentPreview={ this.previewAccent }
               onBoxStyleChange={ this.updateBoxStyle }
               onNotebookSelect={ this.selectNotebook }
               onNotebookAdd={ this.addNotebook }
@@ -324,6 +335,7 @@ export default class App extends Component<{}, AppState> {
   }
 
   updateAccent (accent : Accent) : void {
+    this.accentPreview = null
     this.setState({ accent })
     updateAppStateToStorage({ ...this.state, accent })
   }

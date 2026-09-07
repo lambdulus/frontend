@@ -22,6 +22,7 @@ interface Props {
   boxStyle : BoxStyle
   settings : GlobalSettings
   onAccentChange (accent : Accent) : void
+  onAccentPreview (accent : Accent | null) : void
   onBoxStyleChange (boxStyle : BoxStyle) : void
   onNotebookSelect (index : number) : void
   onNotebookAdd () : void
@@ -43,6 +44,7 @@ export default function TopBar (props : Props) : JSX.Element {
     boxStyle,
     settings,
     onAccentChange,
+    onAccentPreview,
     onBoxStyleChange,
     onNotebookSelect,
     onNotebookAdd,
@@ -59,7 +61,14 @@ export default function TopBar (props : Props) : JSX.Element {
   // instead of closing first and forgetting the click.
   const [ openPanel, setOpenPanel ] = useState<'settings' | 'clear' | 'themes' | null>(null)
   const togglePanel = (panel : 'settings' | 'clear' | 'themes') => {
-    setOpenPanel(openPanel === panel ? null : panel)
+    if (openPanel === panel) {
+      setOpenPanel(null)
+      // Closing panels drops any stuck hover preview with them.
+      onAccentPreview(null)
+    }
+    else {
+      setOpenPanel(panel)
+    }
   }
   const tabsRef = useRef<HTMLElement>(null)
 
@@ -234,10 +243,25 @@ export default function TopBar (props : Props) : JSX.Element {
         {
           openPanel === 'themes' ?
             <React.Fragment>
-              <div className='top-bar--backdrop' onClick={ () => setOpenPanel(null) } />
+              <div className='top-bar--backdrop' onClick={ () => {
+                setOpenPanel(null)
+                onAccentPreview(null)
+              } } />
               <div className='top-bar--settings-panel'>
                 <p className='top-bar--settings-title'>Accent theme</p>
-                <div className='top-bar--accent-pick'>
+                { /* Hovering or keyboard-focusing an option previews its
+                     theme site-wide; leaving the row without picking
+                     falls back to the committed accent. Picking never
+                     closes the popup, same as the box style picker. */ }
+                <div
+                  className='top-bar--accent-pick'
+                  onMouseLeave={ () => onAccentPreview(null) }
+                  onBlur={ (e) => {
+                    if (!e.currentTarget.contains(e.relatedTarget as Node | null)) {
+                      onAccentPreview(null)
+                    }
+                  } }
+                >
                   {
                     ([
                       { value : 'emerald' as Accent, label : 'Beta', glyph : 'β' },
@@ -245,16 +269,18 @@ export default function TopBar (props : Props) : JSX.Element {
                       { value : 'indigo' as Accent, label : 'Eta', glyph : 'η' },
                       { value : 'amber' as Accent, label : 'Alpha', glyph : 'α' },
                     ]).map((option) =>
-                      <span className='top-bar--accent-option' key={ option.value }>
+                      <span
+                        className='top-bar--accent-option'
+                        key={ option.value }
+                        onMouseEnter={ () => onAccentPreview(option.value) }
+                      >
                         <input
                           id={ `top-bar--accent-${option.value}` }
                           type='radio'
                           name='top-bar--accent'
                           checked={ accent === option.value }
-                          onChange={ () => {
-                            onAccentChange(option.value)
-                            setOpenPanel(null)
-                          } }
+                          onChange={ () => onAccentChange(option.value) }
+                          onFocus={ () => onAccentPreview(option.value) }
                         />
                         <label className='top-bar--accent-choice' htmlFor={ `top-bar--accent-${option.value}` }>
                           <span className={ `top-bar--accent-dot top-bar--theme-swatch--${option.value}` } aria-hidden='true'>

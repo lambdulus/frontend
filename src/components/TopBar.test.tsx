@@ -30,6 +30,7 @@ function baseProps (onZenModeChange : (zenMode : boolean) => void) {
     boxStyle : 'cards' as const,
     settings : {},
     onAccentChange : () => void 0,
+    onAccentPreview : () => void 0,
     onBoxStyleChange : () => void 0,
     onNotebookSelect : () => void 0,
     onNotebookAdd : () => void 0,
@@ -81,7 +82,8 @@ test('zen control is a real switch reflecting the mode', () => {
 
 test('accents are lettered dots in one row', () => {
   // β Beta, λ Lambda, η Eta, α Alpha: the dots themselves toggle
-  // the native radios, captions below, popup closing on select.
+  // the native radios, captions below, popup staying open on select
+  // like the box style picker below it.
   const onAccentChange = vi.fn();
   const { container } = render(
     <TopBar { ...baseProps(() => void 0) } accent='emerald' onAccentChange={ onAccentChange } />
@@ -102,6 +104,8 @@ test('accents are lettered dots in one row', () => {
 
   fireEvent.click(radios[2]);
   expect(onAccentChange).toHaveBeenCalledWith('indigo');
+  // Same as the box picker: the panel stays open to keep comparing.
+  expect(container.querySelector('.top-bar--accent-pick')).not.toBeNull();
 
   const css = readFileSync('src/styles/TopBar.css', 'utf8');
   const dot = css.match(/\.top-bar--accent-dot\s*\{[^}]*\}/)?.[0] ?? '';
@@ -111,6 +115,62 @@ test('accents are lettered dots in one row', () => {
   expect(swatch).toMatch(/background-color\s*:\s*#6366f1/);
   const ring = css.match(/\.top-bar--accent-option input\[type='radio'\]:checked \+ \.top-bar--accent-choice \.top-bar--accent-dot\.top-bar--theme-swatch--indigo\s*\{[^}]*\}/)?.[0] ?? '';
   expect(ring).toMatch(/box-shadow\s*:/);
+});
+
+test('hovering an accent previews it, leaving the row falls back', () => {
+  const onAccentPreview = vi.fn();
+  const { container } = render(
+    <TopBar { ...baseProps(() => void 0) } accent='emerald' onAccentPreview={ onAccentPreview } />
+  );
+
+  fireEvent.click(container.querySelector('[title="Accent theme"]') as HTMLElement);
+  const options = container.querySelectorAll('.top-bar--accent-option');
+  expect(options.length).toBe(4);
+
+  fireEvent.mouseEnter(options[2]);
+  expect(onAccentPreview).toHaveBeenLastCalledWith('indigo');
+
+  fireEvent.mouseLeave(container.querySelector('.top-bar--accent-pick') as HTMLElement);
+  expect(onAccentPreview).toHaveBeenLastCalledWith(null);
+});
+
+test('keyboard focus previews, tabbing out of the row falls back', () => {
+  const onAccentPreview = vi.fn();
+  const { container } = render(
+    <TopBar { ...baseProps(() => void 0) } accent='emerald' onAccentPreview={ onAccentPreview } />
+  );
+
+  fireEvent.click(container.querySelector('[title="Accent theme"]') as HTMLElement);
+  const row = container.querySelector('.top-bar--accent-pick') as HTMLElement;
+  const radios = row.querySelectorAll("input[type='radio']");
+
+  fireEvent.focus(radios[1]);
+  expect(onAccentPreview).toHaveBeenLastCalledWith('blue');
+
+  // Moving between options keeps the preview alive.
+  fireEvent.blur(radios[1], { relatedTarget : radios[2] });
+  expect(onAccentPreview).toHaveBeenLastCalledWith('blue');
+
+  // Leaving the row entirely drops it.
+  fireEvent.focus(radios[2]);
+  fireEvent.blur(radios[2], { relatedTarget : document.body });
+  expect(onAccentPreview).toHaveBeenLastCalledWith(null);
+});
+
+test('dismissing the popup drops any preview with it', () => {
+  const onAccentPreview = vi.fn();
+  const { container } = render(
+    <TopBar { ...baseProps(() => void 0) } accent='emerald' onAccentPreview={ onAccentPreview } />
+  );
+
+  fireEvent.click(container.querySelector('[title="Accent theme"]') as HTMLElement);
+  const radios = container.querySelectorAll(".top-bar--accent-pick input[type='radio']");
+  fireEvent.focus(radios[3]);
+  expect(onAccentPreview).toHaveBeenLastCalledWith('amber');
+
+  fireEvent.click(container.querySelector('.top-bar--backdrop') as HTMLElement);
+  expect(onAccentPreview).toHaveBeenLastCalledWith(null);
+  expect(container.querySelector('.top-bar--accent-pick')).toBeNull();
 });
 
 test('box style is picked by preview tiles acting as radios', () => {
