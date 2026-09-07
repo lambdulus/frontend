@@ -9,11 +9,14 @@
    room to spare, on narrower screens it slides over the box as far as
    it must. (Below the slim-column breakpoint the offset follows the
    850px column from the narrow-screen block in App.css.) */
+/* Collapsed, the dock is just its pill, sitting below every open table:
+   Same z-index on all docks would let DOM order decide, floating a
+   later box's pill over an earlier box's unfolding table. */
 .macro-dock {
   position: absolute;
   top: 0;
   left: calc(-1 * max(22px, (100vw - 940px) / 2 + 22px));
-  z-index: 50;
+  z-index: 40;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
@@ -27,6 +30,7 @@
 .macro-dock--open {
   bottom: 0;
   align-items: stretch;
+  z-index: 50;
   min-height: 320px;
   background-color: var(--surface);
   border: 1px solid var(--border);
