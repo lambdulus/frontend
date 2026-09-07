@@ -2,7 +2,8 @@ import React from 'react';
 import { test, expect } from 'vitest';
 import { render, fireEvent } from '@testing-library/react';
 import App from './App';
-import { createDefaultAppState, preferredTheme } from './Constants';
+import { createDefaultAppState, preferredTheme, saveTourState } from './Constants';
+import { TOUR_STEPS } from './components/Tour';
 import { defaultSettings, createNewUntypedLambdaExpression } from './untyped-lambda-integration/Constants';
 import { Theme } from './contexts/Theme';
 
@@ -56,6 +57,30 @@ test('app shell carries the box style hook', () => {
 
 test('new boxes start with settings closed', () => {
   expect(createNewUntypedLambdaExpression(defaultSettings).settingsOpen).toBe(false);
+});
+
+test('first load opens the guided tour, afterwards only the icon does', () => {
+  window.localStorage.clear();
+  const first = render(<App />);
+  expect(first.container.querySelector('[role="dialog"]')).not.toBeNull();
+  expect(first.container.querySelector('.tour--title')?.textContent).toBe(TOUR_STEPS[0].title);
+  first.unmount();
+
+  // Snoozed mid-tour: no auto-open, and every step target resolves
+  // in a fresh render so the tour cannot rot silently.
+  saveTourState({ step : 2, done : true });
+  const second = render(<App />);
+  expect(second.container.querySelector('[role="dialog"]')).toBeNull();
+  for (const step of TOUR_STEPS) {
+    if (step.target !== undefined) {
+      expect(second.container.querySelector(step.target), step.target).not.toBeNull();
+    }
+  }
+
+  // The icon resumes where the tour left off.
+  fireEvent.click(second.container.querySelector('[title="Guided tour"]') as HTMLElement);
+  expect(second.container.querySelector('.tour--title')?.textContent).toBe(TOUR_STEPS[2].title);
+  second.unmount();
 });
 
 test('accent hover previews site-wide, click commits, popup stays open', () => {
