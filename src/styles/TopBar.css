@@ -265,50 +265,114 @@
   margin-top: 16px;
 }
 
-/* Box style segmented radio, mirroring the evaluation strategy
-   control: native radios with the labels as the pills. */
-.top-bar--boxstyle-seg {
-  display: inline-flex;
+/* Box style previews: two miniature boxes side by side, the tiles
+   themselves the radios (native inputs, strategy-control style). */
+.top-bar--boxpreview {
+  display: flex;
   margin-top: 8px;
-  gap: 2px;
-  padding: 3px;
-  border-radius: 999px;
-  background-color: var(--raised);
-  border: 1px solid var(--border);
+  gap: 8px;
 }
 
-.top-bar--boxstyle-radio-wrapper {
+.top-bar--boxpreview-option {
   margin: 0;
   padding: 0;
   border: none;
 }
 
-.top-bar--boxstyle-radio-wrapper input[type='radio'] {
+.top-bar--boxpreview-option input[type='radio'] {
   position: absolute;
   opacity: 0;
   width: 0;
   margin: 0;
 }
 
-.top-bar--boxstyle-label {
-  display: inline-block;
-  padding: 4px 16px;
-  border-radius: 999px;
+.top-bar--boxpreview-tile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  box-sizing: border-box;
+  width: 84px;
+  padding: 10px 8px 8px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
   cursor: pointer;
-  font-size: 0.85em;
-  color: var(--muted);
-  transition: color .15s ease-in-out, background-color .15s ease-in-out;
+  transition: border-color .15s ease-in-out, box-shadow .15s ease-in-out;
 }
 
-.top-bar--boxstyle-radio-wrapper input[type='radio']:checked + .top-bar--boxstyle-label {
-  background-color: var(--accent);
-  color: var(--accent-ink);
-  font-weight: 600;
+.top-bar--boxpreview-tile:hover {
+  border-color: var(--muted);
 }
 
-.top-bar--boxstyle-radio-wrapper input[type='radio']:focus-visible + .top-bar--boxstyle-label {
+.top-bar--boxpreview-option input[type='radio']:checked + .top-bar--boxpreview-tile {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 1px var(--accent);
+}
+
+.top-bar--boxpreview-option input[type='radio']:focus-visible + .top-bar--boxpreview-tile {
   outline: 2px solid var(--accent);
   outline-offset: 2px;
+}
+
+.top-bar--boxpreview-art {
+  position: relative;
+  box-sizing: border-box;
+  width: 52px;
+  height: 40px;
+  padding: 9px 8px;
+}
+
+.top-bar--boxpreview-art--cards {
+  background-color: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  box-shadow: var(--shadow);
+  padding: 8px 7px;
+}
+
+.top-bar--boxpreview-art--classic {
+  padding-left: 15px;
+}
+
+.top-bar--boxpreview-art--classic::before {
+  content: "";
+  position: absolute;
+  left: 7px;
+  top: 5px;
+  bottom: 5px;
+  width: 2px;
+  border-radius: 1px;
+  background-color: var(--accent);
+}
+
+.top-bar--boxpreview-bar {
+  display: block;
+  height: 2px;
+  border-radius: 1px;
+  background-color: var(--muted);
+  opacity: 0.65;
+}
+
+.top-bar--boxpreview-bar + .top-bar--boxpreview-bar {
+  margin-top: 4px;
+}
+
+.top-bar--boxpreview-bar--long {
+  width: 100%;
+}
+
+.top-bar--boxpreview-bar--short {
+  width: 55%;
+}
+
+.top-bar--boxpreview-caption {
+  font-size: 0.75em;
+  color: var(--muted);
+}
+
+.top-bar--boxpreview-option input[type='radio']:checked + .top-bar--boxpreview-tile .top-bar--boxpreview-caption {
+  color: var(--text);
+  font-weight: 600;
 }
 
 .top-bar--clear-btn {
