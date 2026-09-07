@@ -105,7 +105,10 @@ export class BoxContainer extends Component<Props, State> {
   
     return (
       <div ref={ this.rootRef }>
-        <div className={ `box-frame${ isFocusedBox ? ' box-frame--focused' : '' }${ isAnchorBox ? ' box-frame--anchor' : '' }` }>
+        <div
+          className={ `box-frame${ isFocusedBox ? ' box-frame--focused' : '' }${ isAnchorBox ? ' box-frame--anchor' : '' }` }
+          data-box-key={ box.__key }
+        >
           <div
             className="box-rail"
             title="Focus this box"

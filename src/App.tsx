@@ -6,6 +6,7 @@ import  { loadAppStateFromStorage
         , updateAppStateToStorage
         , updateNotebookStateToStorage
         , loadTourState
+        , saveTourState
         , CLEAR_NOTEBOOK_CONFIRMATION
         , RESET_WORKSPACE_CONFIRMATION
         , createEmptyNotebook
@@ -59,10 +60,46 @@ export default class App extends Component<{}, AppState> {
   }
 
   private tourOpen : boolean
+  private demoBoxKey : string | null = null
 
   openTour () : void {
+    this.seedDemoBox()
     this.tourOpen = true
     this.forceUpdate()
+  }
+
+  // The tour shows, not just tells: opening it seeds one evaluated demo box
+  // into the active notebook (once ever — relaunches never duplicate it,
+  // and deleting it is respected). Locked notebooks take no new boxes, so
+  // a Manual-active tour simply opens ringless.
+  seedDemoBox () : void {
+    const stored = loadTourState()
+    this.demoBoxKey = stored?.demoBoxKey ?? null
+
+    if (stored?.seeded === true) {
+      return
+    }
+
+    const { notebooks, activeNotebookIndex } = this.state
+    const notebook : NotebookState | undefined = notebooks[activeNotebookIndex]
+
+    if (notebook === undefined || notebook.locked === true) {
+      return
+    }
+
+    try {
+      const settings = notebook.settings[UNTYPED_LAMBDA_CODE_NAME] as UntypedLambdaSettings | undefined
+      const demo = createNewUntypedLambdaBoxFromSource('(λ x . x y) a', settings ?? defaultSettings, UntypedLambdaType.ORDINARY, {})
+      this.demoBoxKey = demo.__key
+      this.updateNotebook({
+        boxList : [ ...notebook.boxList, demo ],
+        activeBoxIndex : notebook.boxList.length,
+      })
+      saveTourState({ step : stored?.step ?? 0, done : false, seeded : true, demoBoxKey : demo.__key })
+    }
+    catch (e) {
+      console.error(`Demo box seeding failed, opening the tour anyway.\n\n${e}`)
+    }
   }
 
   closeTour () : void {
@@ -71,7 +108,15 @@ export default class App extends Component<{}, AppState> {
   }
 
   componentDidMount () : void {
-    this.createNotebookFromURL()
+    const shared : boolean = this.createNotebookFromURL()
+
+    // First-run auto-open seeds the demo box too (the icon path seeds
+    // inside openTour; the constructor cannot setState for it). A shared
+    // link already delivers its own box — and its setState is still queued,
+    // so seeding here would read stale state and clobber it.
+    if (this.tourOpen && !shared) {
+      this.seedDemoBox()
+    }
   }
 
   // TODO: all of this needs to be moved to more apropriate component
@@ -79,12 +124,13 @@ export default class App extends Component<{}, AppState> {
   // I don't think it should get moved to the component, standalone helper function would be OK
   // OR -> split it --> there will be very simple top level abstraction implementation
   // and according the type of the BOX - specific Integration Module will handle the actual deserialization
-  createNotebookFromURL () {
+  // true when a shared-link notebook was installed (and its setState queued).
+  createNotebookFromURL () : boolean {
     const urlSearchParams : URLSearchParams = new URL(window.location.toString()).searchParams
     const type : string | null = urlSearchParams.get('type')
 
     if (type === null) {
-      return
+      return false
     }
 
     switch (type) {
@@ -97,7 +143,7 @@ export default class App extends Component<{}, AppState> {
         const SLI : string | null = urlSearchParams.get('SLI')
         
         if (source === null || macros == null || subtype === null || strategy === null || SDE === null || SLI === null) {
-          return
+          return false
         }
 
         const strat : EvaluationStrategy = EvaluationStrategy.NORMAL === strategy ? EvaluationStrategy.NORMAL : EvaluationStrategy.APPLICATIVE
@@ -136,9 +182,12 @@ export default class App extends Component<{}, AppState> {
             notebooks,
             activeNotebookIndex : notebooks.length - 1,
           })
+
+          return true
         }
         catch (ex) {
           window.history.replaceState(null, '', '/') // TODO: decide if remove or leave
+          return false
         }
       }
       break
@@ -146,6 +195,8 @@ export default class App extends Component<{}, AppState> {
       default:
         break;
     }
+
+    return false
   }
 
   // Hover previews of accent theme and box style: transient pointer state,
@@ -207,7 +258,11 @@ export default class App extends Component<{}, AppState> {
 
             {
               this.tourOpen ?
-                <Tour initialStep={ loadTourState()?.step ?? 0 } onClose={ this.closeTour } />
+                <Tour
+                  initialStep={ loadTourState()?.step ?? 0 }
+                  demoBoxKey={ this.demoBoxKey }
+                  onClose={ this.closeTour }
+                />
               :
                 null
             }
