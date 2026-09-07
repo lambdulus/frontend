@@ -258,13 +258,13 @@ export default function TopBar (props : Props) : JSX.Element {
                   )
                 }
                 <p className='top-bar--settings-title'>Box style</p>
-                <div className='top-bar--boxstyle-seg'>
+                <div className='top-bar--boxpreview'>
                   {
                     ([
                       { value : 'cards' as BoxStyle, label : 'Cards' },
                       { value : 'classic' as BoxStyle, label : 'Classic' },
                     ]).map((option) =>
-                      <span className='top-bar--boxstyle-radio-wrapper' key={ option.value }>
+                      <span className='top-bar--boxpreview-option' key={ option.value }>
                         <input
                           id={ `top-bar--boxstyle-${option.value}` }
                           type='radio'
@@ -272,8 +272,12 @@ export default function TopBar (props : Props) : JSX.Element {
                           checked={ boxStyle === option.value }
                           onChange={ () => onBoxStyleChange(option.value) }
                         />
-                        <label className='top-bar--boxstyle-label' htmlFor={ `top-bar--boxstyle-${option.value}` }>
-                          { option.label }
+                        <label className='top-bar--boxpreview-tile' htmlFor={ `top-bar--boxstyle-${option.value}` }>
+                          <span className={ `top-bar--boxpreview-art top-bar--boxpreview-art--${option.value}` } aria-hidden='true'>
+                            <span className='top-bar--boxpreview-bar top-bar--boxpreview-bar--long' />
+                            <span className='top-bar--boxpreview-bar top-bar--boxpreview-bar--short' />
+                          </span>
+                          <span className='top-bar--boxpreview-caption'>{ option.label }</span>
                         </label>
                       </span>
                     )
