@@ -50,6 +50,7 @@ const TYPE_EXPRESSION = '(λ x . x y) a'
 // Per-box controls the tour conducts: the settings gear and its panel,
 // the macros dock, and one row hook per box setting.
 const GEAR_SELECTOR = '[title="Open this Boxs\' settings"]'
+const DELETE_SELECTOR = '[title="Delete this Box from the Notebook"]'
 const MACRO_DOCK = '.macro-dock'
 const SLI_ROW = '.untyped-lambda-settings-SLI'
 const SDE_ROW = '.untyped-lambda-settings-SDE'
@@ -149,7 +150,7 @@ export const TOUR_STEPS : Array<TourStep> = [
   {
     id : 'md-explain',
     title : 'A Markdown box',
-    body : 'Notes, docs, headings — Markdown boxes hold text, not calculus. Since we came for lambda, let’s remove this one next — deleting boxes is worth knowing anyway.',
+    body : 'Notes, docs, headings — Markdown boxes hold text, not calculus. Since we came for lambda-calculus, let’s remove this one next — deleting boxes is worth knowing anyway.',
     branch : true,
     dot : 'add',
   },
@@ -159,7 +160,7 @@ export const TOUR_STEPS : Array<TourStep> = [
     body : 'Every box deletes from its title-bar controls. Delete this Markdown box now — or press Next and I will do it for you.',
     branch : true,
     dot : 'add',
-    ringTracked : true,
+    targetInTracked : DELETE_SELECTOR,
   },
 ]
 
