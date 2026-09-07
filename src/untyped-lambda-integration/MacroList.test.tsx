@@ -102,14 +102,28 @@ test('macro rows wrap with room and no rules', () => {
 test('the card chrome fades with the panel, never snaps', () => {
   // The naked-content flash: on close the open class (and its white
   // card) vanished instantly while the content faded out. Fading the
-  // chrome alongside doubles as the expand animation on focus.
+  // chrome alongside doubles as the expand animation on focus, blooming
+  // slower than the closing fade so handoffs never read as one morph.
   const css = readFileSync('src/untyped-lambda-integration/styles/MacroList.css', 'utf8');
   const dock = css.match(/\.macro-dock\s*\{[^}]*\}/)?.[0] ?? '';
   expect(dock).toMatch(/background-color\s*:\s*transparent/);
   expect(dock).toMatch(/border\s*:\s*1px solid transparent/);
-  expect(dock).toMatch(/background-color\s+\.18s/);
-  expect(dock).toMatch(/border-color\s+\.18s/);
+  const open = css.match(/\.macro-dock--open\s*\{[^}]*\}/)?.[0] ?? '';
+  const beat = (rule : string) => {
+    const list = rule.match(/transition\s*:([^;]+)/)?.[1] ?? '';
+    return Math.max(...[...list.matchAll(/(\d*\.?\d+)s/g)].map((m) => Number(m[1])));
+  };
+  expect(beat(open)).toBeGreaterThan(beat(dock));
   expect(css).toMatch(/prefers-reduced-motion[\s\S]*?\.macro-dock\s*\{[^}]*transition\s*:\s*none/);
+  expect(css).toMatch(/prefers-reduced-motion[\s\S]*?\.macro-dock--open\s*\{[^}]*transition\s*:\s*none/);
+});
+
+test('open tables hang capped instead of filling tall boxes', () => {
+  // bottom:0 alone snaps a screen-filling card in one frame on tall
+  // boxes; the cap hands the overflow to the inner scroll instead.
+  const css = readFileSync('src/untyped-lambda-integration/styles/MacroList.css', 'utf8');
+  const open = css.match(/\.macro-dock--open\s*\{[^}]*\}/)?.[0] ?? '';
+  expect(open).toMatch(/max-height\s*:\s*70vh/);
 });
 
 test('open tables paint above collapsed pills', () => {
