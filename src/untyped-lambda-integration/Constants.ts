@@ -52,9 +52,13 @@ export const defaultSettings : UntypedLambdaSettings = {
   collapseOldSteps : true,
 }
 
-export function createNewUntypedLambdaExpression (defaultSettings : UntypedLambdaSettings) : UntypedLambdaState {
+export function createNewUntypedLambdaExpression (settings : UntypedLambdaSettings) : UntypedLambdaState {
   return {
+    // Module defaults first: a partial caller (e.g. notebook settings from
+    // years-old storage, missing strategy/SLI/SDE) can never leave the box
+    // unevaluatable. The shadowing parameter name hid this until now.
     ...defaultSettings,
+    ...settings,
     __key : uniqueKey(),
     type : BoxType.UNTYPED_LAMBDA,
     subtype : UntypedLambdaType.EMPTY,
@@ -995,5 +999,11 @@ export function strategyToEvaluator (strategy : EvaluationStrategy) : Evaluator 
 
     case EvaluationStrategy.ABSTRACTION: // this will be removed
       return NormalAbstractionEvaluator as any // this will be removed
+
+    default:
+      // Unknown strategy (e.g. a corrupt or future value from old storage):
+      // fall back to normal evaluation instead of handing undefined back
+      // to `new`, which reads as a syntax error on a healthy expression.
+      return NormalEvaluator as any
   }
 }

@@ -216,10 +216,35 @@ export function decodeNotebook (notebook : NotebookState) : NotebookState | neve
     readOnly : box.readOnly === true,
   }))
 
+  // Notebooks persisted before per-notebook settings existed (or with a
+  // partial settings object) would otherwise hand undefined strategy/SLI/SDE
+  // to every box created from them, and no submitted expression would ever
+  // evaluate — strategyToEvaluator would get undefined and `new undefined()`
+  // throws. Backfill so old notebooks behave like fresh ones.
+  const storedSettings : GlobalSettings =
+    typeof notebook.settings === 'object' && notebook.settings !== null ?
+      notebook.settings
+    :
+      {}
+  const storedUntyped : object =
+    typeof storedSettings[UNTYPED_CODE_NAME] === 'object' && storedSettings[UNTYPED_CODE_NAME] !== null ?
+      storedSettings[UNTYPED_CODE_NAME] as unknown as object
+    :
+      {}
+  const settings : GlobalSettings = {
+    ...createDefaultSettings(),
+    ...storedSettings,
+    [UNTYPED_CODE_NAME] : {
+      ...UntypedLambdaDefaultSettings,
+      ...storedUntyped,
+    },
+  }
+
   return {
     ...notebook,
     name : typeof notebook.name === 'string' && notebook.name.length > 0 ? notebook.name : 'Notebook',
     locked,
     boxList : normalizedBoxes,
+    settings,
   }
 }
