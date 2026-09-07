@@ -12,7 +12,15 @@ export interface TourStep {
   // element a ring highlights it; otherwise the card simply stands alone,
   // so steps never break on screens where the target is absent.
   target ?: string
+  // CSS selector of a live control the user may operate mid-step. Clicking
+  // it advances the tour just like Next does; pressing Next activates
+  // ("clicks") it first, so both paths walk the same road.
+  advanceOn ?: string
 }
+
+// The add-box affordance differs by notebook state: an empty notebook shows
+// the big + panel, an occupied one a + row after each box.
+const ADD_BOX_SELECTOR = '.top-level--create-box, .add_box_after, .create-box-plus'
 
 export const TOUR_STEPS : Array<TourStep> = [
   {
@@ -21,8 +29,10 @@ export const TOUR_STEPS : Array<TourStep> = [
     target : '.top-bar--tabs',
   },
   {
-    title : 'Here\u2019s your first box',
-    body : 'We added an evaluated expression — (λ x . x y) applied to a, waiting at its first step below. Hit the + affordance to add more boxes anytime; this one deletes like any other.',
+    title : 'Add a box',
+    body : 'Boxes are the cells of a notebook — your evaluated sample below is one already. Add your own: click the + affordance yourself, or press Next and I will click it for you.',
+    target : ADD_BOX_SELECTOR,
+    advanceOn : ADD_BOX_SELECTOR,
   },
   {
     title : 'Write and evaluate',
@@ -30,7 +40,7 @@ export const TOUR_STEPS : Array<TourStep> = [
   },
   {
     title : 'Step through evaluation',
-    body : 'Run walks all the way, Step advances once. A box\u2019s settings switch the strategy (normal, applicative…), toggle single-letter variables, and expand standalones.',
+    body : 'Run walks all the way to the normal form, Step advances once — try it on your sample box below. A box\u2019s settings switch the strategy (normal, applicative…), toggle single-letter variables, and expand standalones.',
   },
   {
     title : 'Macros',
@@ -70,7 +80,7 @@ function clampStep (step : number) : number {
 export default function Tour (props : Props) : JSX.Element {
   const { initialStep, demoBoxKey, onClose } : Props = props
   const steps : Array<TourStep> = TOUR_STEPS.map((step, i) =>
-    i === 1 && demoBoxKey !== null ?
+    i === 3 && demoBoxKey !== null ?
       { ...step, target : `[data-box-key="${demoBoxKey}"]` }
     :
       step
@@ -91,6 +101,64 @@ export default function Tour (props : Props) : JSX.Element {
     const clamped : number = clampStep(next)
     setStep(clamped)
     persist(clamped, false)
+  }
+
+  // Flag marking events the tour dispatches itself, so the document
+  // listener below can tell chauffeur mode apart from the user's own hand.
+  const CHAUFFEUR = '__tourChauffeur'
+
+  // "Click" a target the way the + affordances listen: the rows open on
+  // mousedown, the empty-notebook panel on click. Flagged so the listener
+  // opens the control's UI without advancing the tour a second time.
+  const activateTarget = (selector : string) : void => {
+    const element : Element | null = document.querySelector(selector)
+
+    if (element === null) {
+      return
+    }
+
+    for (const kind of [ 'mousedown', 'click' ]) {
+      const event : MouseEvent & Record<string, boolean> = new MouseEvent(kind, { bubbles : true, cancelable : true }) as MouseEvent & Record<string, boolean>
+      event[CHAUFFEUR] = true
+      element.dispatchEvent(event)
+    }
+  }
+
+  // Interactive step: operating the control advances just like Next.
+  // Capture phase, so no stopPropagation inside the app can swallow it.
+  useEffect(() => {
+    if (current.advanceOn === undefined) {
+      return
+    }
+
+    const selector : string = current.advanceOn
+    const onActivate = (e : Event) => {
+      if ((e as Event & Record<string, boolean>)[CHAUFFEUR] === true) {
+        return
+      }
+
+      if ((e.target as Element | null)?.closest?.(selector) != null) {
+        go(step + 1)
+      }
+    }
+
+    document.addEventListener('mousedown', onActivate, true)
+    document.addEventListener('click', onActivate, true)
+
+    return () => {
+      document.removeEventListener('mousedown', onActivate, true)
+      document.removeEventListener('click', onActivate, true)
+    }
+  }, [ step, current.advanceOn ])
+
+  const next = () => {
+    // Chauffeur mode: work the control ourselves (its flagged events open
+    // the control's UI but never advance), then walk on exactly once.
+    if (current.advanceOn !== undefined) {
+      activateTarget(current.advanceOn)
+    }
+
+    go(step + 1)
   }
 
   // Skip (or backdrop): done for now, resume where left off via the icon.
@@ -128,7 +196,9 @@ export default function Tour (props : Props) : JSX.Element {
   }, [ step, current.target ])
 
   return (
-    <div className='tour'>
+    <div className={ current.advanceOn !== undefined ? 'tour tour--interactive' : 'tour' }>
+      { /* Interactive steps let clicks through to the live control below;
+           Skip stays the way out, so nothing can trap the user. */ }
       <div className='tour--backdrop' onClick={ snooze } />
       {
         ring !== null ?
@@ -168,7 +238,7 @@ export default function Tour (props : Props) : JSX.Element {
             last ?
               <button className='tour--btn tour--btn--primary' onClick={ finish }>Done</button>
             :
-              <button className='tour--btn tour--btn--primary' onClick={ () => go(step + 1) }>Next</button>
+              <button className='tour--btn tour--btn--primary' onClick={ next }>Next</button>
           }
         </div>
       </div>
