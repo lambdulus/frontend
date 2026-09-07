@@ -80,7 +80,7 @@ test('zen control is a real switch reflecting the mode', () => {
 });
 
 test('accents are lettered dots in one row', () => {
-  // β Beta, λ Lambda, δ Delta, α Alpha: the dots themselves toggle
+  // β Beta, λ Lambda, η Eta, α Alpha: the dots themselves toggle
   // the native radios, captions below, popup closing on select.
   const onAccentChange = vi.fn();
   const { container } = render(
@@ -96,9 +96,9 @@ test('accents are lettered dots in one row', () => {
   expect((radios[0] as HTMLInputElement).checked).toBe(true);
 
   const glyphs = row?.querySelectorAll('.top-bar--accent-glyph') ?? [];
-  expect([...glyphs].map((g) => g.textContent)).toEqual([ 'β', 'λ', 'δ', 'α' ]);
+  expect([...glyphs].map((g) => g.textContent)).toEqual([ 'β', 'λ', 'η', 'α' ]);
   const captions = row?.querySelectorAll('.top-bar--accent-caption') ?? [];
-  expect([...captions].map((c) => c.textContent)).toEqual([ 'Beta', 'Lambda', 'Delta', 'Alpha' ]);
+  expect([...captions].map((c) => c.textContent)).toEqual([ 'Beta', 'Lambda', 'Eta', 'Alpha' ]);
 
   fireEvent.click(radios[2]);
   expect(onAccentChange).toHaveBeenCalledWith('indigo');
