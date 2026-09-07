@@ -92,12 +92,22 @@ test('skip snoozes with the id, done restarts from welcome', () => {
   expect(loadTourState()).toEqual({ step : 'welcome', done : true });
 });
 
-test('backdrop click snoozes like skip', () => {
+test('backdrop click snoozes like skip on blocking steps', () => {
   const onClose = vi.fn();
-  const { container } = render(<Tour { ...props({ initialStep : 'add', onClose }) } />);
+  const { container } = render(<Tour { ...props({ initialStep : 'welcome', onClose }) } />);
   fireEvent.click(container.querySelector('.tour--backdrop') as Element);
   expect(onClose).toHaveBeenCalledTimes(1);
-  expect(loadTourState()).toEqual({ step : 'add', done : true });
+  expect(loadTourState()).toEqual({ step : 'welcome', done : true });
+});
+
+test('working steps go click-through, reading steps stay blocking', () => {
+  const live = render(<Tour { ...props({ initialStep : 'type' }) } />);
+  expect(live.container.querySelector('.tour')?.classList.contains('tour--live')).toBe(true);
+  live.unmount();
+
+  const blocking = render(<Tour { ...props({ initialStep : 'yours' }) } />);
+  expect(blocking.container.querySelector('.tour')?.classList.contains('tour--live')).toBe(false);
+  blocking.unmount();
 });
 
 test('operating the + control advances just like next', () => {
@@ -109,12 +119,13 @@ test('operating the + control advances just like next', () => {
     </div>
   );
 
-  expect(container.querySelector('.tour')?.classList.contains('tour--interactive')).toBe(true);
+  expect(container.querySelector('.tour')?.classList.contains('tour--live')).toBe(true);
   fireEvent.mouseDown(container.querySelector('.add_box_after') as Element);
   expect(onPlus).toHaveBeenCalledTimes(1);
   expect(titleOf(container)).toBe('Pick a box type');
   expect(loadTourState()).toEqual({ step : 'pick', done : false });
-  expect(container.querySelector('.tour')?.classList.contains('tour--interactive')).toBe(false);
+  // The pick step stays live: its modal must remain operable.
+  expect(container.querySelector('.tour')?.classList.contains('tour--live')).toBe(true);
 });
 
 test('next on the + step works the control, advancing exactly once', () => {

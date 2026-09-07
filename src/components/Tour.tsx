@@ -15,18 +15,25 @@ export interface TourStep {
   // so steps never break on screens where the target is absent.
   target ?: string
   // CSS selector of a live control the user may operate mid-step. Clicking
-  // it advances the tour just like Next does; pressing Next activates
-  // ("clicks") it first, so both paths walk the same road.
+  // it advances the tour to advanceTo just like Next does; pressing Next
+  // activates ("clicks") it first, so both paths walk the same road.
   advanceOn ?: string
+  // Where operating advanceOn (or chauffeuring it through Next) walks to.
+  advanceTo ?: string
+  // Click-through step: the overlay dims but never intercepts, so the user
+  // can operate the app the step talks about. Every step that asks for a
+  // real click must be live, or the backdrop traps the user out.
+  live ?: boolean
   // Ring the box this tour run is working with instead of a selector.
   ringTracked ?: boolean
   // Detour steps render the main-path dots parked at the + step.
   branch ?: boolean
 }
 
-// The add-box affordance differs by notebook state: an empty notebook shows
-// the big + panel, an occupied one a + row after each box.
-const ADD_BOX_SELECTOR = '.top-level--create-box, .add_box_after, .create-box-plus'
+// The clickable add-box controls: the big + panel's button on empty
+// notebooks, the + row after each box on occupied ones. (Their inert
+// wrapper divs are deliberately excluded — "clicking" those opens nothing.)
+const ADD_BOX_SELECTOR = '.create-box-plus, .add_box_after'
 
 const LAMBDA_PICK_TITLE = 'Create new λ box'
 const TYPE_EXPRESSION = '(λ x . x y) a'
@@ -44,27 +51,33 @@ export const TOUR_STEPS : Array<TourStep> = [
     body : 'Boxes are the cells of a notebook. Add one now: click the + affordance — or press Next and I will click it for you.',
     target : ADD_BOX_SELECTOR,
     advanceOn : ADD_BOX_SELECTOR,
+    advanceTo : 'pick',
+    live : true,
   },
   {
     id : 'pick',
     title : 'Pick a box type',
     body : 'A λ Expression box evaluates lambda calculus step by step. A Markdown box holds notes and docs. Pick λ Expression to keep walking with me.',
+    live : true,
   },
   {
     id : 'type',
     title : 'Write and evaluate',
     body : 'Type (\\ x . x y) a into the editor — the backslash becomes λ as you type — then press Debug (Ctrl + Enter). Press Next and I will do it for you.',
+    live : true,
   },
   {
     id : 'stepping',
     title : 'Step through evaluation',
     body : 'There it is — evaluated and waiting at its first step. Run walks all the way to the normal form, Step advances once — try it now. A box\u2019s settings switch the strategy (normal, applicative…), toggle single-letter variables, and expand standalones.',
     ringTracked : true,
+    live : true,
   },
   {
     id : 'macros',
     title : 'Macros',
     body : 'Church numerals, booleans and arithmetic (Y, ZERO, SUC, +, *) are builtin. Your own definitions unfold in the Macros dock beside each box.',
+    live : true,
   },
   {
     id : 'yours',
@@ -77,6 +90,7 @@ export const TOUR_STEPS : Array<TourStep> = [
     title : 'A Markdown box',
     body : 'Notes, docs, headings — Markdown boxes hold text, not calculus. Since we came for lambda, let\u2019s remove this one next — deleting boxes is worth knowing anyway.',
     branch : true,
+    live : true,
   },
   {
     id : 'md-delete',
@@ -84,6 +98,7 @@ export const TOUR_STEPS : Array<TourStep> = [
     body : 'Every box deletes from its title-bar controls. Delete this Markdown box now — or press Next and I will do it for you.',
     branch : true,
     ringTracked : true,
+    live : true,
   },
 ]
 
@@ -204,13 +219,14 @@ export default function Tour (props : Props) : JSX.Element {
     }
 
     const selector : string = current.advanceOn
+    const target : string = current.advanceTo ?? id
     const onActivate = (e : Event) => {
       if ((e as Event & Record<string, boolean>)[CHAUFFEUR] === true) {
         return
       }
 
       if ((e.target as Element | null)?.closest?.(selector) != null) {
-        goId(MAIN_DOTS[MAIN_DOTS.indexOf(id) + 1] ?? id)
+        goId(target)
       }
     }
 
@@ -344,7 +360,7 @@ export default function Tour (props : Props) : JSX.Element {
     // events open the picker's UI but never advance), then walk on once.
     if (current.advanceOn !== undefined) {
       activateTarget(current.advanceOn)
-      goId(NEXT_MAIN[id] ?? id)
+      goId(current.advanceTo ?? id)
       return
     }
 
@@ -391,9 +407,10 @@ export default function Tour (props : Props) : JSX.Element {
   }, [ id, tracked ])
 
   return (
-    <div className={ current.advanceOn !== undefined ? 'tour tour--interactive' : 'tour' }>
-      { /* Interactive steps let clicks through to the live control below;
-           Skip stays the way out, so nothing can trap the user. */ }
+    <div className={ current.live === true ? 'tour tour--live' : 'tour' }>
+      { /* Live steps dim without intercepting, so the user can operate the
+           app the step talks about. Snoozing stays one click away on the
+           blocking steps; Skip is always there, so nothing can trap. */ }
       <div className='tour--backdrop' onClick={ snooze } />
       {
         ring !== null ?

@@ -1,7 +1,9 @@
 import React from 'react';
-import { test, expect } from 'vitest';
-import { render, fireEvent, waitFor } from '@testing-library/react';
+import { test, expect, afterEach } from 'vitest';
+import { render, fireEvent, waitFor, cleanup } from '@testing-library/react';
 import App from './App';
+
+afterEach(() => cleanup());
 import { createDefaultAppState, preferredTheme, saveTourState, loadTourState } from './Constants';
 import { TOUR_STEPS } from './components/Tour';
 import { defaultSettings, createNewUntypedLambdaExpression } from './untyped-lambda-integration/Constants';
@@ -83,6 +85,20 @@ test('first load opens the guided tour, afterwards only the icon does', () => {
   fireEvent.click(second.container.querySelector('[title="Guided tour"]') as HTMLElement);
   expect(second.container.querySelector('.tour--title')?.textContent).toBe('Macros');
   second.unmount();
+});
+
+test('chauffeur next on the + step opens the real picker', async () => {
+  window.localStorage.clear();
+  const { container } = render(<App />);
+  const nextBtn = () => [...container.querySelectorAll('.tour--actions button')].find((b) => b.textContent === 'Next') as Element;
+
+  fireEvent.click(nextBtn());
+  expect(container.querySelector('.tour--title')?.textContent).toBe('Add a box');
+  fireEvent.click(nextBtn());
+  expect(container.querySelector('.tour--title')?.textContent).toBe('Pick a box type');
+  // The chauffeur worked the clickable control, not its inert wrapper:
+  // the real picker opens (a tick later — native dispatch flushes async).
+  await waitFor(() => expect(container.querySelector('[title="Create new λ box"]')).not.toBeNull());
 });
 
 test('the tour conducts a lambda box from + to evaluated', async () => {
