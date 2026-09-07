@@ -10,6 +10,8 @@ interface TourCallbacks {
   onClose : () => void
   onAddLambdaBox : () => string | null
   onFillBoxEditor : (boxKey : string, content : string) => void
+  onSetBoxSettings : (boxKey : string, open : boolean) => void
+  onShowBoxMacros : (boxKey : string) => void
   onDeleteBox : (boxKey : string) => void
 }
 
@@ -19,6 +21,8 @@ function props (over : Partial<{ initialStep : string } & TourCallbacks> = {}) {
     onClose : () => void 0,
     onAddLambdaBox : () => null,
     onFillBoxEditor : () => void 0,
+    onSetBoxSettings : () => void 0,
+    onShowBoxMacros : () => void 0,
     onDeleteBox : () => void 0,
     ...over,
   };
@@ -241,7 +245,7 @@ test('type next fills the editor and submits for them', () => {
 
 test('the tour ids stay addressable', () => {
   expect(TOUR_STEPS.map((s) => s.id)).toEqual([
-    'welcome', 'add', 'pick', 'type', 'stepping',
+    'welcome', 'add', 'pick', 'type', 'stepping', 'boxmap',
     'settings', 'set-sli', 'set-sde', 'set-collapse', 'set-strategy',
     'macros', 'yours', 'md-explain', 'md-delete',
   ]);
@@ -257,26 +261,27 @@ test('deleting early on the explainer loops back at once', async () => {
   expect(loadTourState()).toEqual({ step : 'add', done : false });
 });
 
-test('settings next opens the real gear and walks each switch', async () => {
-  const { container } = render(<Tour { ...props({ initialStep : 'pick' }) } />);
-  const frame = plantFrame(container, 'untypedLambdaBox', 'k-lambda');
-  const gear = document.createElement('div');
-  gear.setAttribute('title', 'Open this Boxs\' settings');
-  const opened : Array<string> = [];
-  gear.addEventListener('click', () => opened.push('gear'));
-  frame.appendChild(gear);
+test('settings next opens the panel through state and walks each switch', async () => {
+  const onSetBoxSettings = vi.fn();
+  const onShowBoxMacros = vi.fn();
+  const { container } = render(<Tour { ...props({ initialStep : 'pick', onSetBoxSettings, onShowBoxMacros }) } />);
+  plantFrame(container, 'untypedLambdaBox', 'k-lambda');
   await waitFor(() => expect(titleOf(container)).toBe('Write and evaluate'));
 
   const evaluated = document.createElement('div');
   evaluated.className = 'box-history-wrap';
-  frame.appendChild(evaluated);
+  container.querySelector('.box-frame')?.appendChild(evaluated);
   await waitFor(() => expect(titleOf(container)).toBe('Step through evaluation'));
+
+  fireEvent.click(nextBtn(container));
+  expect(titleOf(container)).toBe('The box map');
 
   fireEvent.click(nextBtn(container));
   expect(titleOf(container)).toBe('Box settings');
 
+  // Explicit value through state, never the render-closure toggle.
   fireEvent.click(nextBtn(container));
-  expect(opened).toEqual([ 'gear' ]);
+  expect(onSetBoxSettings).toHaveBeenCalledWith('k-lambda', true);
   expect(titleOf(container)).toBe('Single Letter Names');
 
   for (const title of [ 'Simplified Evaluation', 'Collapse Old Steps', 'Evaluation Strategies' ]) {
@@ -284,8 +289,10 @@ test('settings next opens the real gear and walks each switch', async () => {
     expect(titleOf(container)).toBe(title);
   }
 
+  // Macros arrival hands the panels over atomically, never toggling.
   fireEvent.click(nextBtn(container));
   expect(titleOf(container)).toBe('Macros');
+  expect(onShowBoxMacros).toHaveBeenCalledWith('k-lambda');
 });
 
 test('dictated expressions render as delimited code', async () => {
@@ -294,5 +301,5 @@ test('dictated expressions render as delimited code', async () => {
   await waitFor(() => expect(titleOf(container)).toBe('Write and evaluate'));
 
   const code = container.querySelector('.tour--code');
-  expect(code?.textContent).toBe('(λ x . x y) a');
+  expect(code?.textContent).toBe('(\\ x . x y) a');
 });

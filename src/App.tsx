@@ -53,6 +53,8 @@ export default class App extends Component<{}, AppState> {
     this.closeTour = this.closeTour.bind(this)
     this.addTourLambdaBox = this.addTourLambdaBox.bind(this)
     this.fillTourBoxEditor = this.fillTourBoxEditor.bind(this)
+    this.setTourBoxSettings = this.setTourBoxSettings.bind(this)
+    this.showTourBoxMacros = this.showTourBoxMacros.bind(this)
     this.deleteTourBox = this.deleteTourBox.bind(this)
 
     // First load ever opens the guided tour; afterwards only the top-bar
@@ -107,6 +109,35 @@ export default class App extends Component<{}, AppState> {
     const boxList : Array<BoxState> = notebooks[activeNotebookIndex].boxList.map((box : BoxState) =>
       box.__key === boxKey && box.type === BoxType.UNTYPED_LAMBDA ?
         { ...(box as UntypedLambdaState), editor : { ...(box as UntypedLambdaState).editor, content, syntaxError : null } }
+      :
+        box
+    )
+    this.updateNotebook({ boxList })
+  }
+
+  // Explicit settings value through fresh store state: the title-bar gear
+  // is a render-closure toggle, so working it programmatically would read
+  // stale props whenever the bar skipped a render.
+  setTourBoxSettings (boxKey : string, open : boolean) : void {
+    const { notebooks, activeNotebookIndex } = this.state
+    const boxList : Array<BoxState> = notebooks[activeNotebookIndex].boxList.map((box : BoxState) =>
+      box.__key === boxKey && box.type === BoxType.UNTYPED_LAMBDA ?
+        { ...(box as UntypedLambdaState), settingsOpen : open }
+      :
+        box
+    )
+    this.updateNotebook({ boxList })
+  }
+
+  // Atomic panel handoff for the macros step: one commit closes settings
+  // and opens the dock, so two toggles can never resurrect each other's
+  // stale key through the box replace. Setting values, not toggling, so
+  // an already-open dock simply stays open.
+  showTourBoxMacros (boxKey : string) : void {
+    const { notebooks, activeNotebookIndex } = this.state
+    const boxList : Array<BoxState> = notebooks[activeNotebookIndex].boxList.map((box : BoxState) =>
+      box.__key === boxKey && box.type === BoxType.UNTYPED_LAMBDA ?
+        { ...(box as UntypedLambdaState), settingsOpen : false, macrolistOpen : true }
       :
         box
     )
@@ -285,6 +316,8 @@ export default class App extends Component<{}, AppState> {
                   onClose={ this.closeTour }
                   onAddLambdaBox={ this.addTourLambdaBox }
                   onFillBoxEditor={ this.fillTourBoxEditor }
+                  onSetBoxSettings={ this.setTourBoxSettings }
+                  onShowBoxMacros={ this.showTourBoxMacros }
                   onDeleteBox={ this.deleteTourBox }
                 />
               :

@@ -74,6 +74,9 @@ test('first load opens the guided tour, afterwards only the icon does', () => {
   const second = render(<App />);
   expect(second.container.querySelector('[role="dialog"]')).toBeNull();
   for (const step of TOUR_STEPS) {
+    if (step.needsBox === true) {
+      continue;
+    }
     for (const selector of [ step.target, step.advanceOn ]) {
       if (selector !== undefined) {
         expect(second.container.querySelector(selector), selector).not.toBeNull();
@@ -133,6 +136,11 @@ test('the tour conducts a lambda box from + to evaluated', async () => {
   await waitFor(() => expect(title()).toBe('Step through evaluation'));
   expect(container.querySelector('.box-history-wrap')).not.toBeNull();
 
+  // The box map rides the right edge: lines jump, arrows page.
+  fireEvent.click(nextBtn());
+  expect(title()).toBe('The box map');
+  expect(container.querySelector('.box-map')).not.toBeNull();
+
   // Settings get their own steps: the gear starts closed, Next opens it.
   fireEvent.click(nextBtn());
   expect(title()).toBe('Box settings');
@@ -152,10 +160,11 @@ test('the tour conducts a lambda box from + to evaluated', async () => {
   expect(title()).toBe('Evaluation Strategies');
   expect(container.querySelector('.untyped-lambda-settings-strategies')).not.toBeNull();
 
-  // Macros open themselves on arrival; the themes panel does too.
+  // Macros open themselves on arrival and close the settings behind us.
   fireEvent.click(nextBtn());
   expect(title()).toBe('Macros');
   await waitFor(() => expect(container.querySelector('.macro-dock--open')).not.toBeNull());
+  expect(container.querySelector('.box-settings')).toBeNull();
   fireEvent.click(nextBtn());
   expect(title()).toBe('Make it yours');
   await waitFor(() => expect(container.querySelector('.top-bar--accent-pick')).not.toBeNull());
