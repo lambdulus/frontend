@@ -23,10 +23,30 @@ interface Props {
   titleActionsHost? : React.RefObject<HTMLSpanElement>
 }
 
-export default class UntypedLambdaBox extends PureComponent<Props> {
+// How long a closing dock keeps its contained shut state before the
+// pill stands alone: past the close beat with room to spare.
+const DOCK_SHUT_MS : number = 160
+
+// The dock keeps its open containment through a close (open + shut)
+// so the fade plays inside the capped card instead of flashing the
+// full-height content; reopening mid-shut drops the bridge at once.
+export function dockClassName (macrolistOpen : boolean, shutting : boolean) : string {
+  const contain : boolean = macrolistOpen || shutting
+  const bridge : boolean = shutting && !macrolistOpen
+  return `macro-dock${contain ? ' macro-dock--open' : ''}${bridge ? ' macro-dock--shut' : ''}`
+}
+
+interface State {
+  dockShutting : boolean
+}
+
+export default class UntypedLambdaBox extends PureComponent<Props, State> {
+  private dockShutTimer : number | null = null
+
   constructor (props : Props) {
     super(props)
 
+    this.state = { dockShutting : false }
     this.onOutsideSettings = this.onOutsideSettings.bind(this)
   }
 
@@ -36,6 +56,33 @@ export default class UntypedLambdaBox extends PureComponent<Props> {
 
   componentWillUnmount () : void {
     document.removeEventListener('mousedown', this.onOutsideSettings)
+
+    if (this.dockShutTimer !== null) {
+      window.clearTimeout(this.dockShutTimer)
+      this.dockShutTimer = null
+    }
+  }
+
+  componentDidUpdate (prevProps : Props) : void {
+    if (prevProps.state.macrolistOpen && !this.props.state.macrolistOpen) {
+      // Bridging the close: hold containment for the fade, then stand down.
+      if (this.dockShutTimer !== null) {
+        window.clearTimeout(this.dockShutTimer)
+      }
+
+      this.setState({ dockShutting : true })
+      this.dockShutTimer = window.setTimeout(() => {
+        this.dockShutTimer = null
+        this.setState({ dockShutting : false })
+      }, DOCK_SHUT_MS)
+    }
+
+    if (!prevProps.state.macrolistOpen && this.props.state.macrolistOpen && this.dockShutTimer !== null) {
+      // Reopened mid-shut: the open state owns containment again.
+      window.clearTimeout(this.dockShutTimer)
+      this.dockShutTimer = null
+      this.setState({ dockShutting : false })
+    }
   }
 
   // An open settings panel closes on mousedown outside it — the same
@@ -153,7 +200,7 @@ export default class UntypedLambdaBox extends PureComponent<Props> {
           // box that unfolds into header plus scrolling middle. The
           // panel stays mounted and collapses through CSS, so opening
           // and closing animate instead of popping.
-          <div className={ `macro-dock${ macrolistOpen ? ' macro-dock--open' : '' }` }>
+          <div className={ dockClassName(macrolistOpen, this.state.dockShutting && !macrolistOpen) }>
             <button
               className='macro-dock--head'
               onClick={ () => setBoxState({ ...state, macrolistOpen : ! macrolistOpen }) }
