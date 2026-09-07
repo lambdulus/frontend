@@ -32,6 +32,21 @@ export interface EvaluationProperties {
   addBox (box : UntypedLambdaState) : void
 }
 
+// The exercise-step submitter reports parse failures locally, through
+// the editor error — same shape as the expression submitter above.
+function exerciseSyntaxError (content : string) : Error {
+  let errorMessage : string = "Something is wrong with your expression. Please inspect it closely."
+
+  if (content.match(/:=/g)?.length !== content.match(/;/g)?.length) {
+    errorMessage = "Did you forget to write a semicolon after the Macro definition?"
+  }
+  if (content.match(/\s*;\s*$/g)) {
+    errorMessage = "There's a semicolon at the end."
+  }
+
+  return Error(errorMessage)
+}
+
 export default class ExerciseBox extends PureComponent<EvaluationProperties> {
   constructor (props : EvaluationProperties) {
     super(props)
@@ -158,8 +173,12 @@ export default class ExerciseBox extends PureComponent<EvaluationProperties> {
   onEnter () : void {
     const { editor : { content } } = this.props.state
 
+    // Empty input steps for the user; anything else validates as their
+    // step. No fall-through: validating '' would flag a step that was
+    // just taken for them.
     if (content === '') {
       this.onStep()
+      return
     }
 
     this.onExerciseStep()
@@ -332,10 +351,15 @@ export default class ExerciseBox extends PureComponent<EvaluationProperties> {
         }
       })
     } catch (exception) {
-      // TODO: print syntax error
-      // TODO: do it localy - no missuse of onSubmit
+      console.error((exception as Error).toString())
 
-      // TODO: print syntax error
+      setBoxState({
+        ...state,
+        editor : {
+          ...state.editor,
+          syntaxError : exerciseSyntaxError(content),
+        }
+      })
     }
 
 
@@ -445,10 +469,15 @@ export default class ExerciseBox extends PureComponent<EvaluationProperties> {
         }
       })
     } catch (exception) {
-      // TODO: print syntax error
-      // TODO: do it localy - no missuse of onSubmit
+      console.error((exception as Error).toString())
 
-      // TODO: print syntax error
+      setBoxState({
+        ...state,
+        editor : {
+          ...state.editor,
+          syntaxError : exerciseSyntaxError(content),
+        }
+      })
     }
   }
 
