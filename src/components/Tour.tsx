@@ -29,6 +29,10 @@ export interface TourStep {
   advanceTo ?: string
   // Ring the box this tour run is working with instead of a selector.
   ringTracked ?: boolean
+  // The target only resolves once a box exists (the box map hides on an
+  // empty notebook): the fresh-render selector sweep skips these, and the
+  // conducted walk asserts them against its live box instead.
+  needsBox ?: boolean
   // Detour steps render the main-path dots parked at the + step.
   branch ?: boolean
   // Park this step's dot on another step (settings cluster, detour).
@@ -46,10 +50,7 @@ const TYPE_EXPRESSION = '(λ x . x y) a'
 // Per-box controls the tour conducts: the settings gear and its panel,
 // the macros dock, and one row hook per box setting.
 const GEAR_SELECTOR = '[title="Open this Boxs\' settings"]'
-const SETTINGS_PANEL = '.box-settings'
 const MACRO_DOCK = '.macro-dock'
-const MACRO_HEAD = '.macro-dock--head'
-const MACRO_OPEN = 'macro-dock--open'
 const SLI_ROW = '.untyped-lambda-settings-SLI'
 const SDE_ROW = '.untyped-lambda-settings-SDE'
 const COLLAPSE_ROW = '.untyped-lambda-settings-collapse'
@@ -82,13 +83,20 @@ export const TOUR_STEPS : Array<TourStep> = [
   {
     id : 'type',
     title : 'Write and evaluate',
-    body : 'Type `(λ x . x y) a` into the editor — the backslash becomes λ as you type — then press Debug (Ctrl + Enter). Press Next and I will do it for you.',
+    body : 'Type `(\\ x . x y) a` into the editor — the backslash becomes λ as you type — then press Debug (Ctrl + Enter). Press Next and I will do it for you.',
   },
   {
     id : 'stepping',
     title : 'Step through evaluation',
-    body : 'Evaluated, waiting at its first step. Run walks all the way to the normal form; Step advances once. Try it now.',
+    body : 'Evaluated, waiting at its first step. Run walks all the way to the normal form; Step advances once. Try it now — or press `F8` to step, `F9` to run.',
     ringTracked : true,
+  },
+  {
+    id : 'boxmap',
+    title : 'The box map',
+    body : 'The strip on the right edge maps every box — click a line to jump to it, or page with `ArrowUp` and `ArrowDown`. The accent bar marks where you are.',
+    target : '.box-map',
+    needsBox : true,
   },
   {
     id : 'settings',
@@ -155,7 +163,7 @@ export const TOUR_STEPS : Array<TourStep> = [
   },
 ]
 
-const MAIN_DOTS = [ 'welcome', 'add', 'pick', 'type', 'stepping', 'settings', 'macros', 'yours' ]
+const MAIN_DOTS = [ 'welcome', 'add', 'pick', 'type', 'stepping', 'boxmap', 'settings', 'macros', 'yours' ]
 
 const BACK : Record<string, string | null> = {
   welcome : null,
@@ -163,7 +171,8 @@ const BACK : Record<string, string | null> = {
   pick : 'add',
   type : 'pick',
   stepping : 'type',
-  settings : 'stepping',
+  boxmap : 'stepping',
+  settings : 'boxmap',
   'set-sli' : 'settings',
   'set-sde' : 'set-sli',
   'set-collapse' : 'set-sde',
@@ -177,7 +186,8 @@ const BACK : Record<string, string | null> = {
 const NEXT_MAIN : Record<string, string> = {
   welcome : 'add',
   add : 'pick',
-  stepping : 'settings',
+  stepping : 'boxmap',
+  boxmap : 'settings',
   settings : 'set-sli',
   'set-sli' : 'set-sde',
   'set-sde' : 'set-collapse',
@@ -212,6 +222,8 @@ interface Props {
   onClose () : void
   onAddLambdaBox () : string | null
   onFillBoxEditor (boxKey : string, content : string) : void
+  onSetBoxSettings (boxKey : string, open : boolean) : void
+  onShowBoxMacros (boxKey : string) : void
   onDeleteBox (boxKey : string) : void
 }
 
@@ -223,7 +235,7 @@ interface Ring {
 }
 
 export default function Tour (props : Props) : JSX.Element {
-  const { initialStep, onClose, onAddLambdaBox, onFillBoxEditor, onDeleteBox } : Props = props
+  const { initialStep, onClose, onAddLambdaBox, onFillBoxEditor, onSetBoxSettings, onShowBoxMacros, onDeleteBox } : Props = props
   const [ id, setId ] = useState(() => stepById(initialStep).id)
   // The box frame this tour run is working with. Session-only: a reload
   // forgets it, and the wait steps below loop back to 'add' instead of
@@ -400,14 +412,17 @@ export default function Tour (props : Props) : JSX.Element {
   }, [ id ])
 
   // Show, don't tell: the macros and themes steps open the real panels on
-  // arrival — never toggling one that is already open — so the tour points
-  // at living UI instead of describing it.
+  // arrival, so the tour points at living UI instead of describing it.
+  // The macros arrival is one atomic handoff — settings closed, dock
+  // open — because two programmatic toggles would read stale props and
+  // resurrect each other through the box replace. Setting values, never
+  // toggling, so an already-open dock simply stays open.
   useEffect(() => {
     if (id === 'macros' && tracked !== null && tracked.isConnected) {
-      const dock : Element | null = tracked.querySelector(MACRO_DOCK)
+      const boxKey : string | null = boxKeyOf(tracked)
 
-      if (dock !== null && !dock.classList.contains(MACRO_OPEN)) {
-        (dock.querySelector(MACRO_HEAD) as HTMLElement | null)?.click()
+      if (boxKey !== null) {
+        onShowBoxMacros(boxKey)
       }
     }
 
@@ -457,11 +472,18 @@ export default function Tour (props : Props) : JSX.Element {
       return
     }
 
-    // Same road as the hand: open the real panel unless it already is.
-    if (tracked.querySelector(SETTINGS_PANEL) === null) {
-      (tracked.querySelector(GEAR_SELECTOR) as HTMLElement | null)?.click()
+    const boxKey : string | null = boxKeyOf(tracked)
+
+    if (boxKey === null) {
+      goId('add')
+      return
     }
 
+    // Explicit value through state, not the gear toggle: the title bar only
+    // re-renders on box commits, so a programmatic toggle would read stale
+    // props whenever the bar skipped a render. The user's own hand still
+    // works the real gear (it commits, then re-renders, then is fresh).
+    onSetBoxSettings(boxKey, true)
     goId('set-sli')
   }
 
