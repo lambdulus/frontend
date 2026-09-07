@@ -37,19 +37,26 @@ const SEAT_SETTLE_MS : number = 600
 // Scroll-end backstop: re-prime once motion stops so the focus always
 // ends on the landed layout.
 const SCROLL_END_MS : number = 150
-// Focusing a box collapses every other box's macro dock: an open table
-// on an unfocused box only overlaps the boxes below it, so no box but
-// the focused one keeps its table. Returns the same array when nothing
-// is open, so callers never re-render for a no-op.
-export function collapseForeignDocks (boxList : Array<BoxState>, keepIndex : number | null | undefined) : Array<BoxState> {
+// Macro tables follow focus: the focused box always shows its table,
+// every other box collapses its own, so an open table never overlaps
+// the boxes below. Closing the focused box's table by hand sticks
+// until focus leaves and comes back. Returns the same array when every
+// table already matches, so callers never re-render for a no-op.
+export function syncDocksToFocus (boxList : Array<BoxState>, focusedIndex : number | null | undefined) : Array<BoxState> {
   let changed : boolean = false
   const next : Array<BoxState> = boxList.map((box : BoxState, i : number) => {
-    if (i !== keepIndex && box.type === BoxType.UNTYPED_LAMBDA && (box as UntypedLambdaState).macrolistOpen === true) {
-      changed = true
-      return { ...(box as UntypedLambdaState), macrolistOpen : false }
+    if (box.type !== BoxType.UNTYPED_LAMBDA) {
+      return box
     }
 
-    return box
+    const wantOpen : boolean = i === focusedIndex
+
+    if ((box as UntypedLambdaState).macrolistOpen === wantOpen) {
+      return box
+    }
+
+    changed = true
+    return { ...(box as UntypedLambdaState), macrolistOpen : wantOpen }
   })
 
   return changed ? next : boxList
@@ -276,7 +283,7 @@ export default class Notebook extends PureComponent<Props, State> {
     })
     const prime : number = selectPrimeBox(tops, window.innerHeight * PRIME_LINE_RATIO)
     if (prime !== (focusedBoxIndex ?? activeBoxIndex)) {
-      this.props.updateNotebook({ focusedBoxIndex : prime, boxList : collapseForeignDocks(boxList, prime) })
+      this.props.updateNotebook({ focusedBoxIndex : prime, boxList : syncDocksToFocus(boxList, prime) })
     }
   }
 
@@ -502,7 +509,7 @@ export default class Notebook extends PureComponent<Props, State> {
 
     boxListCopy.splice(index, 0, box)
 
-    this.props.updateNotebook({ boxList : collapseForeignDocks(boxListCopy, index), activeBoxIndex : index, focusedBoxIndex : index })
+    this.props.updateNotebook({ boxList : syncDocksToFocus(boxListCopy, index), activeBoxIndex : index, focusedBoxIndex : index })
     this.seatRequested = index
   }
 
@@ -511,7 +518,7 @@ export default class Notebook extends PureComponent<Props, State> {
     const { boxList } = this.props.state
 
     boxList.splice(index + 1, 0, box)
-    this.props.updateNotebook({ boxList : collapseForeignDocks(boxList, index + 1), activeBoxIndex : index + 1, focusedBoxIndex : index + 1})
+    this.props.updateNotebook({ boxList : syncDocksToFocus(boxList, index + 1), activeBoxIndex : index + 1, focusedBoxIndex : index + 1})
     this.seatRequested = index + 1
   }
 
@@ -582,7 +589,7 @@ export default class Notebook extends PureComponent<Props, State> {
           break
       }
 
-      this.props.updateNotebook({ activeBoxIndex : index, focusedBoxIndex : index, boxList : collapseForeignDocks(boxList, index) })
+      this.props.updateNotebook({ activeBoxIndex : index, focusedBoxIndex : index, boxList : syncDocksToFocus(boxList, index) })
     }
 
     // Consumed post-commit below: measures final heights, so collapsing
@@ -685,6 +692,6 @@ export default class Notebook extends PureComponent<Props, State> {
         break
     }
 
-    this.props.updateNotebook({ boxList : collapseForeignDocks(boxList, undefined), focusedBoxIndex : undefined })
+    this.props.updateNotebook({ boxList : syncDocksToFocus(boxList, undefined), focusedBoxIndex : undefined })
   }
 }

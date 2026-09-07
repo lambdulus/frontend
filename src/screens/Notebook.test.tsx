@@ -2,7 +2,7 @@ import { readFileSync } from 'fs';
 import { useState } from 'react';
 import { test, expect, vi, afterEach } from 'vitest';
 import { render, fireEvent, cleanup } from '@testing-library/react';
-import Notebook, { collapseForeignDocks, selectPrimeBox, zenStep, mapBoxLabel } from './Notebook';
+import Notebook, { syncDocksToFocus, selectPrimeBox, zenStep, mapBoxLabel } from './Notebook';
 import { createNewUntypedLambdaExpression, defaultSettings } from '../untyped-lambda-integration/Constants';
 import { BoxType, NotebookState } from '../Types';
 import { NoteState } from '../markdown-integration/AppTypes';
@@ -652,24 +652,25 @@ function lambdaBox (key : string, dockOpen : boolean) : UntypedLambdaState {
   return box;
 }
 
-test('focusing a box collapses only the foreign macro docks', () => {
-  const first = lambdaBox('a', true);
+test('macro tables follow focus: open on the focused box only', () => {
+  const first = lambdaBox('a', false);
   const note = noteBox('note', 'b');
   const second = lambdaBox('c', true);
-  const next = collapseForeignDocks([ first, note, second ], 2);
+  const next = syncDocksToFocus([ first, note, second ], 0);
 
-  expect((next[0] as UntypedLambdaState).macrolistOpen).toBe(false);
+  expect((next[0] as UntypedLambdaState).macrolistOpen).toBe(true);
   expect(next[1]).toBe(note);
-  expect((next[2] as UntypedLambdaState).macrolistOpen).toBe(true);
+  expect((next[2] as UntypedLambdaState).macrolistOpen).toBe(false);
 });
 
-test('collapsing docks is a no-op without open tables', () => {
-  const boxes = [ lambdaBox('a', false), noteBox('note', 'b') ];
-  expect(collapseForeignDocks(boxes, 0)).toBe(boxes);
-  expect(collapseForeignDocks(boxes, undefined)).toBe(boxes);
+test('syncing docks is a no-op when every table matches', () => {
+  const boxes = [ lambdaBox('a', true), noteBox('note', 'b'), lambdaBox('c', false) ];
+  expect(syncDocksToFocus(boxes, 0)).toBe(boxes);
+  const cleared = [ lambdaBox('a', false), noteBox('note', 'b') ];
+  expect(syncDocksToFocus(cleared, undefined)).toBe(cleared);
 });
 
-test('focusing a box collapses the unfocused macro dock', () => {
+test('focusing a box opens its table and collapses the old one', () => {
   const state : NotebookState = {
     name : 'Test',
     boxList : [ lambdaBox('a', true), lambdaBox('b', false) ],
@@ -686,7 +687,7 @@ test('focusing a box collapses the unfocused macro dock', () => {
     expect(updateNotebook).toHaveBeenCalledWith(expect.objectContaining({ activeBoxIndex : 1, focusedBoxIndex : 1 }));
     const patched = updateNotebook.mock.calls[0][0] as NotebookState;
     expect((patched.boxList[0] as UntypedLambdaState).macrolistOpen).toBe(false);
-    expect((patched.boxList[1] as UntypedLambdaState).macrolistOpen).toBe(false);
+    expect((patched.boxList[1] as UntypedLambdaState).macrolistOpen).toBe(true);
   }
   finally {
     unmount();
