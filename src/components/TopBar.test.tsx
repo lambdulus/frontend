@@ -42,6 +42,7 @@ function baseProps (onZenModeChange : (zenMode : boolean) => void) {
     onDarkModeChange : () => void 0,
     onSettingsChange : () => void 0,
     onZenModeChange,
+    onTourOpen : () => void 0,
   };
 }
 
@@ -217,6 +218,18 @@ test('keyboard focus previews the box tile, tabbing out falls back', () => {
   fireEvent.focus(radios[0]);
   fireEvent.blur(radios[0], { relatedTarget : document.body });
   expect(onBoxStylePreview).toHaveBeenLastCalledWith(null);
+});
+
+test('tour icon opens the tour and parks any open panel', () => {
+  const onTourOpen = vi.fn();
+  const { container } = render(<TopBar { ...baseProps(() => void 0) } onTourOpen={ onTourOpen } />);
+
+  fireEvent.click(container.querySelector('[title="Accent theme"]') as HTMLElement);
+  expect(container.querySelector('.top-bar--accent-pick')).not.toBeNull();
+
+  fireEvent.click(container.querySelector('[title="Guided tour"]') as HTMLElement);
+  expect(onTourOpen).toHaveBeenCalledTimes(1);
+  expect(container.querySelector('.top-bar--accent-pick')).toBeNull();
 });
 
 test('box style is picked by preview tiles acting as radios', () => {

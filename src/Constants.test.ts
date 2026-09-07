@@ -1,5 +1,5 @@
-import { test, expect } from 'vitest';
-import { decodeNotebook } from './Constants';
+import { test, expect, beforeEach } from 'vitest';
+import { decodeNotebook, loadTourState, saveTourState, defaultTourState } from './Constants';
 import { CODE_NAME as UNTYPED_CODE_NAME } from './untyped-lambda-integration/Constants';
 import { EvaluationStrategy } from './untyped-lambda-integration/Types';
 import { NotebookState } from './Types';
@@ -29,4 +29,26 @@ test('decode keeps stored settings, filling only the gaps', () => {
   expect(untyped.strategy).toBe(EvaluationStrategy.APPLICATIVE);
   expect(untyped.SLI).toBe(true);
   expect(untyped.SDE).toBe(true);
+});
+
+beforeEach(() => window.localStorage.removeItem('LambdulusTour'));
+
+test('tour storage starts empty, round-trips, rejects garbage', () => {
+  expect(loadTourState()).toBeNull();
+  expect(defaultTourState()).toEqual({ step : 0, done : false });
+
+  saveTourState({ step : 3, done : false });
+  expect(loadTourState()).toEqual({ step : 3, done : false });
+
+  saveTourState({ step : 0, done : true });
+  expect(loadTourState()).toEqual({ step : 0, done : true });
+
+  window.localStorage.setItem('LambdulusTour', 'not-json{');
+  expect(loadTourState()).toBeNull();
+
+  window.localStorage.setItem('LambdulusTour', JSON.stringify({ step : 'two', done : 'yes' }));
+  expect(loadTourState()).toBeNull();
+
+  window.localStorage.setItem('LambdulusTour', JSON.stringify({ step : -1, done : false }));
+  expect(loadTourState()).toBeNull();
 });

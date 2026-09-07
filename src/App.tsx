@@ -5,6 +5,7 @@ import './App.css'
 import  { loadAppStateFromStorage
         , updateAppStateToStorage
         , updateNotebookStateToStorage
+        , loadTourState
         , CLEAR_NOTEBOOK_CONFIRMATION
         , RESET_WORKSPACE_CONFIRMATION
         , createEmptyNotebook
@@ -13,6 +14,7 @@ import  { loadAppStateFromStorage
 import { uniqueKey } from './uniqueKey'
 
 import TopBar from './components/TopBar'
+import Tour from './components/Tour'
 import Notebook from './screens/Notebook'
 import { Accent, BoxStyle, AppState, NotebookState, GlobalSettings, BoxType, BoxState } from './Types'
 import { CODE_NAME as UNTYPED_LAMBDA_CODE_NAME, createNewUntypedLambdaBoxFromSource, defaultSettings } from './untyped-lambda-integration/Constants'
@@ -47,6 +49,25 @@ export default class App extends Component<{}, AppState> {
     this.removeNotebook = this.removeNotebook.bind(this)
 
     this.createNotebookFromURL = this.createNotebookFromURL.bind(this)
+    this.openTour = this.openTour.bind(this)
+    this.closeTour = this.closeTour.bind(this)
+
+    // First load ever opens the guided tour; afterwards only the top-bar
+    // icon opens it, resuming the saved step. Transient UI state, same as
+    // the accent previews below — never part of AppState.
+    this.tourOpen = loadTourState() === null
+  }
+
+  private tourOpen : boolean
+
+  openTour () : void {
+    this.tourOpen = true
+    this.forceUpdate()
+  }
+
+  closeTour () : void {
+    this.tourOpen = false
+    this.forceUpdate()
   }
 
   componentDidMount () : void {
@@ -179,9 +200,17 @@ export default class App extends Component<{}, AppState> {
               onDarkModeChange={ this.toggleTheme }
               onSettingsChange={ this.updateSettings }
               onZenModeChange={ (zenMode : boolean) => this.updateNotebook({ zenMode }) }
+              onTourOpen={ this.openTour }
             />
 
             <Notebook state={ notebook } updateNotebook={ this.updateNotebook } />
+
+            {
+              this.tourOpen ?
+                <Tour initialStep={ loadTourState()?.step ?? 0 } onClose={ this.closeTour } />
+              :
+                null
+            }
           </div>
 
         </SettingsContext.Provider>

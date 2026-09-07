@@ -142,6 +142,49 @@ export function updateNotebookStateToStorage (index : number, notebook : Noteboo
   updateAppStateToStorage(state)
 }
 
+// Guided-tour progress, kept outside AppState on purpose: the tour is
+// transient UI onboarding, not workspace data, and must survive workspace
+// resets (clearing notebooks must not resurrect the tour).
+export interface TourState {
+  step : number
+  done : boolean
+}
+
+const TOUR_KEY = 'LambdulusTour'
+
+export function defaultTourState () : TourState {
+  return { step : 0, done : false }
+}
+
+// null means never started (or unreadable): first load opens the tour.
+export function loadTourState () : TourState | null {
+  const raw : string | null = localStorage.getItem(TOUR_KEY)
+
+  if (raw === null) {
+    return null
+  }
+
+  try {
+    const parsed : unknown = JSON.parse(raw)
+
+    if (typeof parsed === 'object' && parsed !== null
+        && typeof (parsed as TourState).step === 'number'
+        && (parsed as TourState).step >= 0
+        && typeof (parsed as TourState).done === 'boolean') {
+      return { step : Math.floor((parsed as TourState).step), done : (parsed as TourState).done }
+    }
+  }
+  catch (e) {
+    console.error(`Error while loading tour state from the storage.\n\n${e}`)
+  }
+
+  return null
+}
+
+export function saveTourState (state : TourState) : void {
+  localStorage.setItem(TOUR_KEY, JSON.stringify(state))
+}
+
 // TODO: This function is going to be replaced with correct implementation of decoding
 // this slowly becomes better and better base for the final implementation
 /**

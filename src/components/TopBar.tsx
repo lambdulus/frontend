@@ -1,5 +1,5 @@
 import React, { ChangeEvent, useEffect, useMemo, useRef, useState } from 'react'
-import { Bug, Download, Eraser, Focus, Lock, Moon, Palette, Plus, Settings as SettingsIcon, Sun, Upload, X } from 'lucide-react'
+import { Bug, Download, Eraser, Focus, Footprints, Lock, Moon, Palette, Plus, Settings as SettingsIcon, Sun, Upload, X } from 'lucide-react'
 
 import { Accent, BoxStyle, GlobalSettings, NotebookState } from '../Types'
 
@@ -34,6 +34,7 @@ interface Props {
   onDarkModeChange () : void
   onSettingsChange (settings : GlobalSettings) : void
   onZenModeChange (zenMode : boolean) : void
+  onTourOpen () : void
 }
 
 export default function TopBar (props : Props) : JSX.Element {
@@ -57,6 +58,7 @@ export default function TopBar (props : Props) : JSX.Element {
     onDarkModeChange,
     onSettingsChange,
     onZenModeChange,
+    onTourOpen,
   } : Props = props
 
   // A single open panel: switching icons swaps popovers in one click
@@ -209,6 +211,17 @@ export default function TopBar (props : Props) : JSX.Element {
             onClick={ () => togglePanel('themes') }
           >
             <Palette size={ 17 } strokeWidth={ 1.75 } />
+          </button>
+
+          <button
+            className='top-bar--action'
+            title='Guided tour'
+            onClick={ () => {
+              setOpenPanel(null)
+              onTourOpen()
+            } }
+          >
+            <Footprints size={ 17 } strokeWidth={ 1.75 } />
           </button>
 
           <a
