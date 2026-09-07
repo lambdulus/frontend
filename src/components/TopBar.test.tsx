@@ -80,8 +80,8 @@ test('zen control is a real switch reflecting the mode', () => {
 });
 
 test('accents are lettered dots in one row', () => {
-  // β Beta, λ Lambda, α Alpha: the dots themselves toggle the native
-  // radios, captions below, popup closing on select as before.
+  // β Beta, λ Lambda, δ Delta, α Alpha: the dots themselves toggle
+  // the native radios, captions below, popup closing on select.
   const onAccentChange = vi.fn();
   const { container } = render(
     <TopBar { ...baseProps(() => void 0) } accent='emerald' onAccentChange={ onAccentChange } />
@@ -92,22 +92,24 @@ test('accents are lettered dots in one row', () => {
   expect(row).not.toBeNull();
 
   const radios = row?.querySelectorAll("input[type='radio']") ?? [];
-  expect(radios.length).toBe(3);
+  expect(radios.length).toBe(4);
   expect((radios[0] as HTMLInputElement).checked).toBe(true);
 
   const glyphs = row?.querySelectorAll('.top-bar--accent-glyph') ?? [];
-  expect([...glyphs].map((g) => g.textContent)).toEqual([ 'β', 'λ', 'α' ]);
+  expect([...glyphs].map((g) => g.textContent)).toEqual([ 'β', 'λ', 'δ', 'α' ]);
   const captions = row?.querySelectorAll('.top-bar--accent-caption') ?? [];
-  expect([...captions].map((c) => c.textContent)).toEqual([ 'Beta', 'Lambda', 'Alpha' ]);
+  expect([...captions].map((c) => c.textContent)).toEqual([ 'Beta', 'Lambda', 'Delta', 'Alpha' ]);
 
   fireEvent.click(radios[2]);
-  expect(onAccentChange).toHaveBeenCalledWith('amber');
+  expect(onAccentChange).toHaveBeenCalledWith('indigo');
 
   const css = readFileSync('src/styles/TopBar.css', 'utf8');
   const dot = css.match(/\.top-bar--accent-dot\s*\{[^}]*\}/)?.[0] ?? '';
-  expect(dot).toMatch(/width\s*:\s*44px/);
+  expect(dot).toMatch(/width\s*:\s*40px/);
   expect(dot).toMatch(/border-radius\s*:\s*50%/);
-  const ring = css.match(/\.top-bar--accent-option input\[type='radio'\]:checked \+ \.top-bar--accent-choice \.top-bar--accent-dot\.top-bar--theme-swatch--amber\s*\{[^}]*\}/)?.[0] ?? '';
+  const swatch = css.match(/\.top-bar--theme-swatch--indigo\s*\{[^}]*\}/)?.[0] ?? '';
+  expect(swatch).toMatch(/background-color\s*:\s*#6366f1/);
+  const ring = css.match(/\.top-bar--accent-option input\[type='radio'\]:checked \+ \.top-bar--accent-choice \.top-bar--accent-dot\.top-bar--theme-swatch--indigo\s*\{[^}]*\}/)?.[0] ?? '';
   expect(ring).toMatch(/box-shadow\s*:/);
 });
 

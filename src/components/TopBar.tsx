@@ -242,6 +242,7 @@ export default function TopBar (props : Props) : JSX.Element {
                     ([
                       { value : 'emerald' as Accent, label : 'Beta', glyph : 'β' },
                       { value : 'blue' as Accent, label : 'Lambda', glyph : 'λ' },
+                      { value : 'indigo' as Accent, label : 'Delta', glyph : 'δ' },
                       { value : 'amber' as Accent, label : 'Alpha', glyph : 'α' },
                     ]).map((option) =>
                       <span className='top-bar--accent-option' key={ option.value }>

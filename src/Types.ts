@@ -55,7 +55,7 @@ export interface NotebookState {
   __key : string
 }
 
-export type Accent = 'emerald' | 'blue' | 'amber'
+export type Accent = 'emerald' | 'blue' | 'amber' | 'indigo'
 
 export type BoxStyle = 'cards' | 'classic'
 
