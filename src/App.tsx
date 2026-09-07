@@ -15,7 +15,7 @@ import { uniqueKey } from './uniqueKey'
 
 import TopBar from './components/TopBar'
 import Tour from './components/Tour'
-import Notebook from './screens/Notebook'
+import Notebook, { syncDocksToFocus } from './screens/Notebook'
 import { Accent, BoxStyle, AppState, NotebookState, GlobalSettings, BoxType, BoxState } from './Types'
 import { CODE_NAME as UNTYPED_LAMBDA_CODE_NAME, createNewUntypedLambdaBoxFromSource, createNewUntypedLambdaExpression, defaultSettings } from './untyped-lambda-integration/Constants'
 import { UntypedLambdaState, UntypedLambdaSettings, EvaluationStrategy, UntypedLambdaType } from './untyped-lambda-integration/Types'
@@ -55,7 +55,10 @@ export default class App extends Component<{}, AppState> {
     this.fillTourBoxEditor = this.fillTourBoxEditor.bind(this)
     this.setTourBoxSettings = this.setTourBoxSettings.bind(this)
     this.showTourBoxMacros = this.showTourBoxMacros.bind(this)
+    this.hideTourBoxMacros = this.hideTourBoxMacros.bind(this)
     this.deleteTourBox = this.deleteTourBox.bind(this)
+    this.setZenMode = this.setZenMode.bind(this)
+    this.setTourZenMode = this.setTourZenMode.bind(this)
 
     // First load ever opens the guided tour; afterwards only the top-bar
     // icon opens it, resuming the saved step. Transient UI state, same as
@@ -129,6 +132,21 @@ export default class App extends Component<{}, AppState> {
     this.updateNotebook({ boxList })
   }
 
+  // The macros step demonstrates the dock, then steps out of the way:
+  // leaving for share collapses the display while the want survives —
+  // Back re-opens it on arrival, zen entry forgets it right after — so
+  // the next step never starts obstructed.
+  hideTourBoxMacros (boxKey : string) : void {
+    const { notebooks, activeNotebookIndex } = this.state
+    const boxList : Array<BoxState> = notebooks[activeNotebookIndex].boxList.map((box : BoxState) =>
+      box.__key === boxKey && box.type === BoxType.UNTYPED_LAMBDA ?
+        { ...(box as UntypedLambdaState), macrolistOpen : false }
+      :
+        box
+    )
+    this.updateNotebook({ boxList })
+  }
+
   // Atomic panel handoff for the macros step: one commit closes settings
   // and opens the dock, so two toggles can never resurrect each other's
   // stale key through the box replace. Setting values, not toggling, so
@@ -137,11 +155,37 @@ export default class App extends Component<{}, AppState> {
     const { notebooks, activeNotebookIndex } = this.state
     const boxList : Array<BoxState> = notebooks[activeNotebookIndex].boxList.map((box : BoxState) =>
       box.__key === boxKey && box.type === BoxType.UNTYPED_LAMBDA ?
-        { ...(box as UntypedLambdaState), settingsOpen : false, macrolistOpen : true }
+        { ...(box as UntypedLambdaState), settingsOpen : false, macrolistOpen : true, macrolistWanted : true }
       :
         box
     )
     this.updateNotebook({ boxList })
+  }
+
+  // One zen road for the switch and the tour: entering closes every macro
+  // table FORGETFULLY — the want is cleared, not just collapsed — so
+  // nothing springs back open on the way back out. A dock demonstrated
+  // mid-tour stays shut after the finale; a dock opened mid-zen still
+  // restores on leaving, and focus memory across box switches (which
+  // never passes through here) is untouched.
+  setZenMode (zenMode : boolean) : void {
+    const { boxList, focusedBoxIndex, activeBoxIndex } = this.state.notebooks[this.state.activeNotebookIndex]
+    const entered : Array<BoxState> = zenMode ? boxList.map((box : BoxState) =>
+      box.type === BoxType.UNTYPED_LAMBDA ?
+        { ...(box as UntypedLambdaState), macrolistOpen : false, macrolistWanted : false }
+      :
+        box
+    ) : boxList
+    this.updateNotebook({
+      zenMode,
+      boxList : syncDocksToFocus(entered, zenMode ? null : (focusedBoxIndex ?? activeBoxIndex), zenMode),
+    })
+  }
+
+  // Explicit zen value for the finale steps: setting, never toggling,
+  // so an already-zen notebook simply stays zen.
+  setTourZenMode (zenMode : boolean) : void {
+    this.setZenMode(zenMode)
   }
 
   // Same nearest-valid-index rule as the notebook's own removeBox.
@@ -303,7 +347,7 @@ export default class App extends Component<{}, AppState> {
               onResetWorkspace={ this.resetWorkspace }
               onDarkModeChange={ this.toggleTheme }
               onSettingsChange={ this.updateSettings }
-              onZenModeChange={ (zenMode : boolean) => this.updateNotebook({ zenMode }) }
+              onZenModeChange={ this.setZenMode }
               onTourOpen={ this.openTour }
             />
 
@@ -318,7 +362,9 @@ export default class App extends Component<{}, AppState> {
                   onFillBoxEditor={ this.fillTourBoxEditor }
                   onSetBoxSettings={ this.setTourBoxSettings }
                   onShowBoxMacros={ this.showTourBoxMacros }
+                  onHideBoxMacros={ this.hideTourBoxMacros }
                   onDeleteBox={ this.deleteTourBox }
+                  onSetZenMode={ this.setTourZenMode }
                 />
               :
                 null

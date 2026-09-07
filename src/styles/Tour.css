@@ -19,11 +19,14 @@
   pointer-events: none;
 }
 
+/* The card rides low the whole tour: centered dialogs (like the box
+   picker) stay uncovered, and the card never jumps between steps. */
 .tour--card {
   position: fixed;
-  top: 50%;
+  top: auto;
+  bottom: 24px;
   left: 50%;
-  transform: translate(-50%, -50%);
+  transform: translateX(-50%);
   width: min(420px, calc(100vw - 48px));
   background-color: var(--surface);
   border: 1px solid var(--border);

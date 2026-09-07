@@ -70,6 +70,11 @@ export interface UntypedLambdaState extends AbstractBoxState {
   collapseOldSteps : boolean
 
   macrolistOpen : boolean
+  // The dock the user asked for: set by the dock head and the tour, never
+  // by focus syncs. Focus opens the dock only when this remembers an open,
+  // so a fresh box stays a pill until opened, a hand-closed dock stays
+  // shut across refocus, and old notebooks (field absent) stay shut too.
+  macrolistWanted? : boolean
   macrotable : MacroMap
   
   editor : {

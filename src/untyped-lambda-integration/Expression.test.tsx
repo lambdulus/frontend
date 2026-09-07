@@ -67,6 +67,21 @@ test('initial and latest steps pin outside while middle steps scroll', () => {
   expect(current?.querySelector('.stepNumber')?.textContent).toMatch(/2 :/);
 });
 
+test('pinned endpoints carry the clone affordance and reveal it on hover', () => {
+  const { container } = renderExpression();
+
+  // The icon renders in all three places, not just the scrolling middle.
+  expect(container.querySelector('.box-initial-step [title="Clone this expression to the new box"]')).not.toBeNull();
+  expect(container.querySelector('.box-history-scroll [title="Clone this expression to the new box"]')).not.toBeNull();
+  expect(container.querySelector('.box-current-step [title="Clone this expression to the new box"]')).not.toBeNull();
+
+  // ...and the hover rule reaches the pins, which sit outside any li.
+  const css = readFileSync('src/untyped-lambda-integration/styles/EvaluatorBox.css', 'utf8');
+  const reveal = css.match(/[^{}]*\.hiddenIcon\s*\{[^}]*display\s*:\s*inline[^}]*\}/)?.[0] ?? '';
+  expect(reveal).toMatch(/\.box-initial-step:hover/);
+  expect(reveal).toMatch(/\.box-current-step:hover/);
+});
+
 test('two steps pin both endpoints with no marks and no middle', () => {
   const { container } = render(
     <Expression

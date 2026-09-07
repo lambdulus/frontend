@@ -166,7 +166,11 @@ li.activeStep,
   vertical-align: -1px;
 }
 
-li:hover > .step > .inlineblock > .hiddenIcon {
+/* The pinned 0th and current steps sit outside any li, so the row
+   rule above never fires for them: they reveal on their own hover. */
+li:hover > .step > .inlineblock > .hiddenIcon,
+.box-initial-step:hover > .step > .inlineblock > .hiddenIcon,
+.box-current-step:hover > .step > .inlineblock > .hiddenIcon {
   display: inline;
   color: var(--text);
   cursor: pointer;

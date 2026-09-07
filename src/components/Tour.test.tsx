@@ -13,7 +13,9 @@ interface TourCallbacks {
   onFillBoxEditor : (boxKey : string, content : string) => void
   onSetBoxSettings : (boxKey : string, open : boolean) => void
   onShowBoxMacros : (boxKey : string) => void
+  onHideBoxMacros : (boxKey : string) => void
   onDeleteBox : (boxKey : string) => void
+  onSetZenMode : (zenMode : boolean) => void
 }
 
 function props (over : Partial<{ initialStep : string } & TourCallbacks> = {}) {
@@ -24,7 +26,9 @@ function props (over : Partial<{ initialStep : string } & TourCallbacks> = {}) {
     onFillBoxEditor : () => void 0,
     onSetBoxSettings : () => void 0,
     onShowBoxMacros : () => void 0,
+    onHideBoxMacros : () => void 0,
     onDeleteBox : () => void 0,
+    onSetZenMode : () => void 0,
     ...over,
   };
 }
@@ -90,7 +94,7 @@ test('skip snoozes with the id, done restarts from welcome', () => {
   unmount();
 
   const onClose2 = vi.fn();
-  const second = render(<Tour { ...props({ initialStep : 'yours', onClose : onClose2 }) } />);
+  const second = render(<Tour { ...props({ initialStep : 'recap', onClose : onClose2 }) } />);
   const done = [...second.container.querySelectorAll('.tour--actions button')].find((b) => b.textContent === 'Done') as Element;
   fireEvent.click(done);
   expect(onClose2).toHaveBeenCalledTimes(1);
@@ -272,12 +276,86 @@ test('type next fills the editor and submits for them', () => {
   });
 });
 
+test('the tour card rides low instead of covering centered dialogs', () => {
+  const css = readFileSync('src/styles/Tour.css', 'utf8');
+  const card = css.match(/\.tour--card\s*\{[^}]*\}/)?.[0] ?? '';
+  expect(card).toMatch(/bottom\s*:\s*24px/);
+  expect(card).not.toMatch(/top\s*:\s*50%/);
+});
+
 test('the tour ids stay addressable', () => {
   expect(TOUR_STEPS.map((s) => s.id)).toEqual([
     'welcome', 'add', 'pick', 'type', 'stepping', 'boxmap',
     'settings', 'set-sli', 'set-sde', 'set-collapse', 'set-strategy',
-    'macros', 'yours', 'md-explain', 'md-delete',
+    'macros', 'share', 'zen', 'zen-dwell', 'cleaning', 'clean-notebook', 'clean-workspace',
+    'yours', 'theme-accent', 'theme-style', 'transfer', 'report', 'recap',
+    'md-explain', 'md-delete',
   ]);
+});
+
+test('zen next enables zen mode through state and dwells before the finale', () => {
+  const onSetZenMode = vi.fn();
+  const { container } = render(<Tour { ...props({ initialStep : 'zen', onSetZenMode }) } />);
+  expect(titleOf(container)).toBe('Zen mode');
+
+  fireEvent.click(nextBtn(container));
+  expect(onSetZenMode).toHaveBeenCalledWith(true);
+  expect(titleOf(container)).toBe('Settle into zen');
+
+  fireEvent.click(nextBtn(container));
+  expect(titleOf(container)).toBe('A clean slate');
+});
+
+test('the zen switch click walks on like next', () => {
+  const { container } = render(
+    <div>
+      <button className='top-bar--zen' />
+      <Tour { ...props({ initialStep : 'zen' }) } />
+    </div>
+  );
+
+  fireEvent.click(container.querySelector('.top-bar--zen') as Element);
+  expect(titleOf(container)).toBe('Settle into zen');
+});
+
+test('zen arrival steps open panels out of the way', () => {
+  const onBackdrop = vi.fn();
+  const { unmount } = render(
+    <div>
+      <div className='top-bar--backdrop' onClick={ onBackdrop } />
+      <Tour { ...props({ initialStep : 'zen' }) } />
+    </div>
+  );
+  expect(onBackdrop).toHaveBeenCalledTimes(1);
+  unmount();
+});
+
+test('cleaning arrival opens the clearing options but presses nothing', () => {
+  const onEraser = vi.fn();
+  const { container, unmount } = render(
+    <div>
+      <button title='Clearing options' onClick={ onEraser } />
+      <Tour { ...props({ initialStep : 'cleaning' }) } />
+    </div>
+  );
+  // Shown, not done: the panel opens, and the step carries no clear
+  // callback to fire through.
+  expect(onEraser).toHaveBeenCalledTimes(1);
+  expect(titleOf(container)).toBe('A clean slate');
+  unmount();
+});
+
+test('cleaning arrival leaves an open clearing panel alone', () => {
+  const onEraser = vi.fn();
+  const { unmount } = render(
+    <div>
+      <button title='Clearing options' onClick={ onEraser } />
+      <button title='Erase all notebooks and start over with the defaults' />
+      <Tour { ...props({ initialStep : 'cleaning' }) } />
+    </div>
+  );
+  expect(onEraser).not.toHaveBeenCalled();
+  unmount();
 });
 
 test('deleting early on the explainer loops back at once', async () => {
@@ -331,4 +409,62 @@ test('dictated expressions render as delimited code', async () => {
 
   const code = container.querySelector('.tour--code');
   expect(code?.textContent).toBe('(\\ x . x y) a');
+});
+
+test('starting or resuming seats the step subject below the top bar', () => {
+  // A scrolled page (or boxes above the tour's own) must not leave the
+  // card pointing off-screen: init seats the step's own target, else the
+  // first box frame, below the fixed bar — the notebook's own 60px seat.
+  // (jsdom has no layout, so the subjects below carry stubbed rects.)
+  const rectAt = (top : number) => () => ({ top, left : 0, bottom : top + 50, right : 10, width : 10, height : 50, x : 0, y : top, toJSON : () => ({}) }) as unknown as DOMRect;
+  const original : typeof window.scrollTo = window.scrollTo;
+  const scrollTo = vi.fn();
+  window.scrollTo = scrollTo as unknown as typeof window.scrollTo;
+
+  try {
+    const tabs = document.createElement('div');
+    tabs.className = 'top-bar--tabs';
+    tabs.getBoundingClientRect = rectAt(900);
+    document.body.appendChild(tabs);
+    const started = render(<Tour { ...props({ initialStep : 'welcome' }) } />);
+    expect(scrollTo).toHaveBeenCalledTimes(1);
+    expect(scrollTo).toHaveBeenLastCalledWith({ top : 840, behavior : 'auto' });
+    started.unmount();
+    tabs.remove();
+
+    const shell = document.createElement('div');
+    document.body.appendChild(shell);
+    const frame = document.createElement('div');
+    frame.className = 'box-frame';
+    frame.getBoundingClientRect = rectAt(-200);
+    shell.appendChild(frame);
+    const resumed = render(<Tour { ...props({ initialStep : 'macros' }) } />);
+    expect(scrollTo).toHaveBeenCalledTimes(2);
+    expect(scrollTo).toHaveBeenLastCalledWith({ top : 0, behavior : 'auto' });
+    resumed.unmount();
+    shell.remove();
+  } finally {
+    window.scrollTo = original;
+  }
+});
+
+test('a visible subject stays exactly where the user put it', () => {
+  // Only subjects actually out of view move: a step landing on visible
+  // UI must never yank the page.
+  const original : typeof window.scrollTo = window.scrollTo;
+  const scrollTo = vi.fn();
+  window.scrollTo = scrollTo as unknown as typeof window.scrollTo;
+
+  try {
+    const tabs = document.createElement('div');
+    tabs.className = 'top-bar--tabs';
+    tabs.getBoundingClientRect = () => ({ top : 100, left : 0, bottom : 150, right : 10, width : 10, height : 50, x : 0, y : 100, toJSON : () => ({}) }) as unknown as DOMRect;
+    document.body.appendChild(tabs);
+    const { unmount } = render(<Tour { ...props({ initialStep : 'welcome' }) } />);
+    expect(scrollTo).not.toHaveBeenCalled();
+    unmount();
+    tabs.remove();
+  } finally {
+    window.scrollTo = original;
+  }
 });

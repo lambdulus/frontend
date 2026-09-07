@@ -74,7 +74,7 @@ test('first load opens the guided tour, afterwards only the icon does', () => {
   const second = render(<App />);
   expect(second.container.querySelector('[role="dialog"]')).toBeNull();
   for (const step of TOUR_STEPS) {
-    if (step.needsBox === true) {
+    if (step.needsBox === true || step.needsPanel === true) {
       continue;
     }
     for (const selector of [ step.target, step.advanceOn ]) {
@@ -131,10 +131,12 @@ test('the tour conducts a lambda box from + to evaluated', async () => {
   await waitFor(() => expect(title()).toBe('Write and evaluate'));
   expect(container.querySelectorAll('.box-frame').length).toBe(1);
 
-  // Next does their typing and debugging; the evaluated box walks on.
+  // Next does their typing and debugging; the evaluated box walks on,
+  // and the ring sits on the Step button alone — never the whole box.
   fireEvent.click(nextBtn());
   await waitFor(() => expect(title()).toBe('Step through evaluation'));
   expect(container.querySelector('.box-history-wrap')).not.toBeNull();
+  expect(container.querySelector('.debug-controls--step')).not.toBeNull();
 
   // The box map rides the right edge: lines jump, arrows page.
   fireEvent.click(nextBtn());
@@ -165,16 +167,88 @@ test('the tour conducts a lambda box from + to evaluated', async () => {
   expect(title()).toBe('Macros');
   await waitFor(() => expect(container.querySelector('.macro-dock--open')).not.toBeNull());
   expect(container.querySelector('.box-settings')).toBeNull();
+
+  // Share one box rides with the box cluster, before the top-bar globals —
+  // and the demonstrated dock collapses on the way out, after its shut
+  // bridge plays out.
+  fireEvent.click(nextBtn());
+  expect(title()).toBe('Share one box');
+  expect(container.querySelector('[title="Copy the link to this Expression."]')).not.toBeNull();
+  await waitFor(() => expect(container.querySelector('.macro-dock--open')).toBeNull());
+
+  // Zen mode, conducted both ways: Next flips the real switch through
+  // state — and the demonstrated dock closes forgetfully with it, never
+  // obstructing the clean box nor springing back afterwards.
+  fireEvent.click(nextBtn());
+  expect(title()).toBe('Zen mode');
+  fireEvent.click(nextBtn());
+  expect(title()).toBe('Settle into zen');
+  fireEvent.click(nextBtn());
+  expect(title()).toBe('A clean slate');
+  expect(container.querySelector('.mainSpace.zen')).not.toBeNull();
+  // The demonstrated dock collapses with it — after its shut bridge
+  // plays out — remembered but never obstructing the clean box.
+  await waitFor(() => expect(container.querySelector('.macro-dock--open')).toBeNull());
+
+  // The middle finale only shows: the clearing options open with both
+  // exits, and nothing is pressed behind the user's back.
+  await waitFor(() => expect(container.querySelector('[title="Erase all notebooks and start over with the defaults"]')).not.toBeNull());
+  expect(container.querySelectorAll('.box-frame').length).toBe(1);
+
+  // The exits walk one by one, settings-cluster style — shown, never pressed.
+  fireEvent.click(nextBtn());
+  expect(title()).toBe('Clear notebook');
+  expect(container.querySelector('.top-bar--clear-btn:not(.btn-danger)')).not.toBeNull();
+  fireEvent.click(nextBtn());
+  expect(title()).toBe('Clean entire workspace');
+
+  // Yours opens themes; the finale then walks take-with-you and meta.
   fireEvent.click(nextBtn());
   expect(title()).toBe('Make it yours');
   await waitFor(() => expect(container.querySelector('.top-bar--accent-pick')).not.toBeNull());
 
-  // To the end: the box stays behind for them to keep.
+  // Themes get their own walks too: accent dots, then box-style tiles.
+  fireEvent.click(nextBtn());
+  expect(title()).toBe('Accent color');
+  fireEvent.click(nextBtn());
+  expect(title()).toBe('Box style');
+  expect(container.querySelector('.top-bar--boxpreview')).not.toBeNull();
+
+  // Export for persistent storage, import for sharing between people —
+  // and the themes panel steps out on the way in.
+  fireEvent.click(nextBtn());
+  expect(title()).toBe('Import and export');
+  expect(container.querySelector('.top-bar--accent-pick')).toBeNull();
+  expect(container.querySelector('[title="Download this Notebook"]')).not.toBeNull();
+
+  // The bug icon reports to the GitHub repo.
+  fireEvent.click(nextBtn());
+  expect(title()).toBe('Report a bug');
+  expect(container.querySelector('[title="Submit a bug or a feature request"]')).not.toBeNull();
+
+  // The walkme icon replays the tour — last step, Done finishes.
+  fireEvent.click(nextBtn());
+  expect(title()).toBe('Walk me again');
+  expect(container.querySelector('[title="Guided tour"]')).not.toBeNull();
+
+  // To the end: the box stays behind for them to keep, and the panels
+  // step out with the tour instead of lingering open.
   const done = [...container.querySelectorAll('.tour--actions button')].find((b) => b.textContent === 'Done') as Element;
   fireEvent.click(done);
   expect(container.querySelector('[role="dialog"]')).toBeNull();
+  expect(container.querySelector('.top-bar--settings-panel')).toBeNull();
   expect(container.querySelectorAll('.box-frame').length).toBe(1);
   expect(loadTourState()).toEqual({ step : 'welcome', done : true });
+
+  // Leaving zen restores nothing: entering forgot the demonstrated dock,
+  // so it stays shut on the way back out — and re-entering keeps it shut.
+  const zenSwitch = container.querySelector('.top-bar--zen') as Element;
+  fireEvent.click(zenSwitch);
+  expect(container.querySelector('.mainSpace.zen')).toBeNull();
+  expect(container.querySelector('.macro-dock--open')).toBeNull();
+  fireEvent.click(zenSwitch);
+  expect(container.querySelector('.mainSpace.zen')).not.toBeNull();
+  await waitFor(() => expect(container.querySelector('.macro-dock--open')).toBeNull());
 });
 
 async function walkToMdDelete (container : HTMLElement) : Promise<() => Element> {

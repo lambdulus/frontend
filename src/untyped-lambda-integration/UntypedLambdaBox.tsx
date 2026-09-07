@@ -203,7 +203,9 @@ export default class UntypedLambdaBox extends PureComponent<Props, State> {
           <div className={ dockClassName(macrolistOpen, this.state.dockShutting && !macrolistOpen) }>
             <button
               className='macro-dock--head'
-              onClick={ () => setBoxState({ ...state, macrolistOpen : ! macrolistOpen }) }
+              // The head remembers, not just toggles: focus syncs restore
+              // this wish on refocus and never invent one of their own.
+              onClick={ () => setBoxState({ ...state, macrolistOpen : ! macrolistOpen, macrolistWanted : ! macrolistOpen }) }
               title={ macrolistOpen ? 'Hide macros for this box' : 'Show macros for this box' }
               aria-expanded={ macrolistOpen }
             >
