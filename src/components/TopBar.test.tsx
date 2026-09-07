@@ -32,6 +32,7 @@ function baseProps (onZenModeChange : (zenMode : boolean) => void) {
     onAccentChange : () => void 0,
     onAccentPreview : () => void 0,
     onBoxStyleChange : () => void 0,
+    onBoxStylePreview : () => void 0,
     onNotebookSelect : () => void 0,
     onNotebookAdd : () => void 0,
     onNotebookRemove : () => void 0,
@@ -159,18 +160,63 @@ test('keyboard focus previews, tabbing out of the row falls back', () => {
 
 test('dismissing the popup drops any preview with it', () => {
   const onAccentPreview = vi.fn();
+  const onBoxStylePreview = vi.fn();
   const { container } = render(
-    <TopBar { ...baseProps(() => void 0) } accent='emerald' onAccentPreview={ onAccentPreview } />
+    <TopBar { ...baseProps(() => void 0) } accent='emerald' onAccentPreview={ onAccentPreview } onBoxStylePreview={ onBoxStylePreview } />
   );
 
   fireEvent.click(container.querySelector('[title="Accent theme"]') as HTMLElement);
   const radios = container.querySelectorAll(".top-bar--accent-pick input[type='radio']");
   fireEvent.focus(radios[3]);
   expect(onAccentPreview).toHaveBeenLastCalledWith('amber');
+  const tiles = container.querySelectorAll(".top-bar--boxpreview input[type='radio']");
+  fireEvent.focus(tiles[1]);
+  expect(onBoxStylePreview).toHaveBeenLastCalledWith('classic');
 
   fireEvent.click(container.querySelector('.top-bar--backdrop') as HTMLElement);
   expect(onAccentPreview).toHaveBeenLastCalledWith(null);
+  expect(onBoxStylePreview).toHaveBeenLastCalledWith(null);
   expect(container.querySelector('.top-bar--accent-pick')).toBeNull();
+});
+
+test('hovering a box tile previews it, leaving the row falls back', () => {
+  const onBoxStylePreview = vi.fn();
+  const { container } = render(
+    <TopBar { ...baseProps(() => void 0) } boxStyle='cards' onBoxStylePreview={ onBoxStylePreview } />
+  );
+
+  fireEvent.click(container.querySelector('[title="Accent theme"]') as HTMLElement);
+  const options = container.querySelectorAll('.top-bar--boxpreview-option');
+  expect(options.length).toBe(2);
+
+  fireEvent.mouseEnter(options[1]);
+  expect(onBoxStylePreview).toHaveBeenLastCalledWith('classic');
+
+  fireEvent.mouseLeave(container.querySelector('.top-bar--boxpreview') as HTMLElement);
+  expect(onBoxStylePreview).toHaveBeenLastCalledWith(null);
+});
+
+test('keyboard focus previews the box tile, tabbing out falls back', () => {
+  const onBoxStylePreview = vi.fn();
+  const { container } = render(
+    <TopBar { ...baseProps(() => void 0) } boxStyle='cards' onBoxStylePreview={ onBoxStylePreview } />
+  );
+
+  fireEvent.click(container.querySelector('[title="Accent theme"]') as HTMLElement);
+  const row = container.querySelector('.top-bar--boxpreview') as HTMLElement;
+  const radios = row.querySelectorAll("input[type='radio']");
+
+  fireEvent.focus(radios[1]);
+  expect(onBoxStylePreview).toHaveBeenLastCalledWith('classic');
+
+  // Moving between tiles keeps the preview alive.
+  fireEvent.blur(radios[1], { relatedTarget : radios[0] });
+  expect(onBoxStylePreview).toHaveBeenLastCalledWith('classic');
+
+  // Leaving the row entirely drops it.
+  fireEvent.focus(radios[0]);
+  fireEvent.blur(radios[0], { relatedTarget : document.body });
+  expect(onBoxStylePreview).toHaveBeenLastCalledWith(null);
 });
 
 test('box style is picked by preview tiles acting as radios', () => {

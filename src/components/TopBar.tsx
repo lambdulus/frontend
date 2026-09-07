@@ -24,6 +24,7 @@ interface Props {
   onAccentChange (accent : Accent) : void
   onAccentPreview (accent : Accent | null) : void
   onBoxStyleChange (boxStyle : BoxStyle) : void
+  onBoxStylePreview (boxStyle : BoxStyle | null) : void
   onNotebookSelect (index : number) : void
   onNotebookAdd () : void
   onNotebookRemove (index : number) : void
@@ -46,6 +47,7 @@ export default function TopBar (props : Props) : JSX.Element {
     onAccentChange,
     onAccentPreview,
     onBoxStyleChange,
+    onBoxStylePreview,
     onNotebookSelect,
     onNotebookAdd,
     onNotebookRemove,
@@ -65,6 +67,7 @@ export default function TopBar (props : Props) : JSX.Element {
       setOpenPanel(null)
       // Closing panels drops any stuck hover preview with them.
       onAccentPreview(null)
+      onBoxStylePreview(null)
     }
     else {
       setOpenPanel(panel)
@@ -246,6 +249,7 @@ export default function TopBar (props : Props) : JSX.Element {
               <div className='top-bar--backdrop' onClick={ () => {
                 setOpenPanel(null)
                 onAccentPreview(null)
+                onBoxStylePreview(null)
               } } />
               <div className='top-bar--settings-panel'>
                 <p className='top-bar--settings-title'>Accent theme</p>
@@ -293,19 +297,35 @@ export default function TopBar (props : Props) : JSX.Element {
                   }
                 </div>
                 <p className='top-bar--settings-title'>Box style</p>
-                <div className='top-bar--boxpreview'>
+                { /* Same preview contract as the accent row above:
+                     hover or focus previews, leaving without picking
+                     falls back, picking never closes the popup. */ }
+                <div
+                  className='top-bar--boxpreview'
+                  onMouseLeave={ () => onBoxStylePreview(null) }
+                  onBlur={ (e) => {
+                    if (!e.currentTarget.contains(e.relatedTarget as Node | null)) {
+                      onBoxStylePreview(null)
+                    }
+                  } }
+                >
                   {
                     ([
                       { value : 'cards' as BoxStyle, label : 'Cards' },
                       { value : 'classic' as BoxStyle, label : 'Classic' },
                     ]).map((option) =>
-                      <span className='top-bar--boxpreview-option' key={ option.value }>
+                      <span
+                        className='top-bar--boxpreview-option'
+                        key={ option.value }
+                        onMouseEnter={ () => onBoxStylePreview(option.value) }
+                      >
                         <input
                           id={ `top-bar--boxstyle-${option.value}` }
                           type='radio'
                           name='top-bar--boxstyle'
                           checked={ boxStyle === option.value }
                           onChange={ () => onBoxStyleChange(option.value) }
+                          onFocus={ () => onBoxStylePreview(option.value) }
                         />
                         <label className='top-bar--boxpreview-tile' htmlFor={ `top-bar--boxstyle-${option.value}` }>
                           <span className={ `top-bar--boxpreview-art top-bar--boxpreview-art--${option.value}` } aria-hidden='true'>

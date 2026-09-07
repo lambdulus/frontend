@@ -39,6 +39,7 @@ export default class App extends Component<{}, AppState> {
     this.resetWorkspace = this.resetWorkspace.bind(this)
     this.updateAccent = this.updateAccent.bind(this)
     this.previewAccent = this.previewAccent.bind(this)
+    this.previewBoxStyle = this.previewBoxStyle.bind(this)
     this.updateBoxStyle = this.updateBoxStyle.bind(this)
     this.toggleTheme = this.toggleTheme.bind(this)
     this.selectNotebook = this.selectNotebook.bind(this)
@@ -126,12 +127,19 @@ export default class App extends Component<{}, AppState> {
     }
   }
 
-  // Hover preview of an accent theme: transient pointer state, deliberately
-  // kept out of AppState so it can never persist or restore from storage.
+  // Hover previews of accent theme and box style: transient pointer state,
+  // deliberately kept out of AppState so it can never persist or restore
+  // from storage.
   private accentPreview : Accent | null = null
+  private boxStylePreview : BoxStyle | null = null
 
   previewAccent (accent : Accent | null) : void {
     this.accentPreview = accent
+    this.forceUpdate()
+  }
+
+  previewBoxStyle (boxStyle : BoxStyle | null) : void {
+    this.boxStylePreview = boxStyle
     this.forceUpdate()
   }
 
@@ -147,7 +155,7 @@ export default class App extends Component<{}, AppState> {
       <ThemeContext.Provider value={ theme }>
         <SettingsContext.Provider value={ settings }>
 
-          <div id='app' className={ darkmode ? 'dark' : 'light' } data-accent={ this.accentPreview ?? accent } data-box-style={ boxStyle }>
+          <div id='app' className={ darkmode ? 'dark' : 'light' } data-accent={ this.accentPreview ?? accent } data-box-style={ this.boxStylePreview ?? boxStyle }>
             <div id="bad-screen-message">
               Lambdulus only runs on screens at least 900 pixels wide.
             </div>
@@ -160,6 +168,7 @@ export default class App extends Component<{}, AppState> {
               settings={ settings }
               onAccentChange={ this.updateAccent }
               onAccentPreview={ this.previewAccent }
+              onBoxStylePreview={ this.previewBoxStyle }
               onBoxStyleChange={ this.updateBoxStyle }
               onNotebookSelect={ this.selectNotebook }
               onNotebookAdd={ this.addNotebook }
@@ -341,6 +350,7 @@ export default class App extends Component<{}, AppState> {
   }
 
   updateBoxStyle (boxStyle : BoxStyle) : void {
+    this.boxStylePreview = null
     this.setState({ boxStyle })
     updateAppStateToStorage({ ...this.state, boxStyle })
   }
