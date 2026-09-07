@@ -468,7 +468,7 @@
 }
 
 .top-bar--accent-dot.top-bar--theme-swatch--emerald {
-  color: #ffffff;
+  color: #0a1a24;
 }
 
 .top-bar--accent-dot.top-bar--theme-swatch--blue {
@@ -476,7 +476,7 @@
 }
 
 .top-bar--accent-dot.top-bar--theme-swatch--amber {
-  color: #ffffff;
+  color: #241305;
 }
 
 .top-bar--accent-option input[type='radio']:checked + .top-bar--accent-choice .top-bar--accent-dot.top-bar--theme-swatch--emerald {
