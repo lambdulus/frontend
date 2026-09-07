@@ -67,6 +67,22 @@ test('zen hides the grab rail', () => {
   expect(css).toMatch(/\.mainSpace\.zen \.box-rail\s*\{[^}]*display\s*:\s*none/);
 });
 
+test('the + row breathes a line-high on both sides', () => {
+  // Small boxes need the vertical room for the scrolling autofocus,
+  // and an open macro dock must not invade the box below.
+  const css = readFileSync('src/styles/BoxContainer.css', 'utf8');
+  const row = css.match(/\.add_box_after\s*\{[^}]*\}/)?.[0] ?? '';
+  expect(row).toMatch(/margin\s*:\s*1\.5em\s+auto/);
+});
+
+test('cards drop the invisible rail so the card meets the + row', () => {
+  // The rail is a transparent duplicate of the card's own click to
+  // focus; hiding it lets the card stretch left edge-to-edge with
+  // the full-width + row. Classic keeps its visible anchor line.
+  const css = readFileSync('src/styles/BoxContainer.css', 'utf8');
+  expect(css).toMatch(/#app\[data-box-style='cards'\] \.box-frame \.box-rail\s*\{[^}]*display\s*:\s*none/);
+});
+
 test('zen hides the collapse toggle', () => {
   // Collapsing the single zen box serves nothing, so the toggle
   // steps out with the other box furniture.

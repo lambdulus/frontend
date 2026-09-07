@@ -40,11 +40,21 @@
   background-color: var(--accent);
 }
 
+/* Cards: the rail is an invisible duplicate of the card's own click to
+   focus, so it steps out and the card stretches left to meet the + row
+   edge-to-edge. Classic keeps its visible anchor line. */
+#app[data-box-style='cards'] .box-frame .box-rail {
+  display: none;
+}
+
+/* A line-high of air on both sides: small boxes gain the vertical room
+   the scrolling autofocus needs, and an open macro dock stops invading
+   the box below. */
 .add_box_after {
   font-size: 1em;
   font-weight: 500;
   width: 100%;
-  margin: auto;
+  margin: 1.5em auto;
   color: var(--muted);
   padding-top: 8px;
   padding-bottom: 8px;
@@ -53,7 +63,6 @@
   background-color: var(--surface);
   border: 1px dashed var(--muted);
   border-radius: 6px;
-  margin-top: 4px;
   transition: color .15s ease-in-out, border-color .15s ease-in-out, background-color .15s ease-in-out;
 }
 
