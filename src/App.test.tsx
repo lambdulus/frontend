@@ -1,6 +1,6 @@
 import React from 'react';
 import { test, expect } from 'vitest';
-import { render } from '@testing-library/react';
+import { render, fireEvent } from '@testing-library/react';
 import App from './App';
 import { createDefaultAppState, preferredTheme } from './Constants';
 import { defaultSettings, createNewUntypedLambdaExpression } from './untyped-lambda-integration/Constants';
@@ -56,4 +56,31 @@ test('app shell carries the box style hook', () => {
 
 test('new boxes start with settings closed', () => {
   expect(createNewUntypedLambdaExpression(defaultSettings).settingsOpen).toBe(false);
+});
+
+test('accent hover previews site-wide, click commits, popup stays open', () => {
+  window.localStorage.clear();
+  const { container } = render(<App />);
+  const shellAccent = () => container.querySelector('#app')?.getAttribute('data-accent');
+  const storedAccent = () => JSON.parse(window.localStorage.getItem('AppState') ?? '{}').accent;
+  expect(shellAccent()).toBe('emerald');
+
+  fireEvent.click(container.querySelector('[title="Accent theme"]') as HTMLElement);
+  const options = container.querySelectorAll('.top-bar--accent-option');
+
+  // Preview: the whole shell follows the hover, storage keeps the committed accent.
+  fireEvent.mouseEnter(options[2]);
+  expect(shellAccent()).toBe('indigo');
+  expect(storedAccent()).toBe('emerald');
+
+  // No click: leaving the row falls back to the committed accent.
+  fireEvent.mouseLeave(container.querySelector('.top-bar--accent-pick') as HTMLElement);
+  expect(shellAccent()).toBe('emerald');
+
+  // Click commits, persists, and the popup stays open for comparing.
+  const radios = container.querySelectorAll(".top-bar--accent-pick input[type='radio']");
+  fireEvent.click(radios[3]);
+  expect(shellAccent()).toBe('amber');
+  expect(storedAccent()).toBe('amber');
+  expect(container.querySelector('.top-bar--accent-pick')).not.toBeNull();
 });
