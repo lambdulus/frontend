@@ -99,6 +99,19 @@ test('macro rows wrap with room and no rules', () => {
   expect(body).toMatch(/overflow-wrap\s*:\s*break-word/);
 });
 
+test('the card chrome fades with the panel, never snaps', () => {
+  // The naked-content flash: on close the open class (and its white
+  // card) vanished instantly while the content faded out. Fading the
+  // chrome alongside doubles as the expand animation on focus.
+  const css = readFileSync('src/untyped-lambda-integration/styles/MacroList.css', 'utf8');
+  const dock = css.match(/\.macro-dock\s*\{[^}]*\}/)?.[0] ?? '';
+  expect(dock).toMatch(/background-color\s*:\s*transparent/);
+  expect(dock).toMatch(/border\s*:\s*1px solid transparent/);
+  expect(dock).toMatch(/background-color\s+\.18s/);
+  expect(dock).toMatch(/border-color\s+\.18s/);
+  expect(css).toMatch(/prefers-reduced-motion[\s\S]*?\.macro-dock\s*\{[^}]*transition\s*:\s*none/);
+});
+
 test('open tables paint above collapsed pills', () => {
   // One shared z-index would let DOM order decide, floating a later
   // box's pill over an earlier box's unfolding table.

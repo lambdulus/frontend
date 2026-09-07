@@ -11,7 +11,10 @@
    850px column from the narrow-screen block in App.css.) */
 /* Collapsed, the dock is just its pill, sitting below every open table:
    Same z-index on all docks would let DOM order decide, floating a
-   later box's pill over an earlier box's unfolding table. */
+   later box's pill over an earlier box's unfolding table. The card
+   chrome fades with the panel (never snaps): on close the white card
+   lingers around the fading content instead of flashing it naked, and
+   on focus the table blooms out of the pill instead of popping. */
 .macro-dock {
   position: absolute;
   top: 0;
@@ -22,6 +25,15 @@
   align-items: flex-start;
   width: 420px;
   max-width: calc(100vw - 24px);
+  min-height: 0;
+  background-color: transparent;
+  border: 1px solid transparent;
+  transition:
+    min-height .18s ease-out,
+    background-color .18s ease-out,
+    border-color .18s ease-out,
+    border-radius .18s ease-out,
+    box-shadow .18s ease-out;
 }
 
 /* Open, the dock is a card flush with the box top and reaching at
@@ -120,6 +132,9 @@
 
 @media (prefers-reduced-motion: reduce) {
   .macro-dock--panel {
+    transition: none;
+  }
+  .macro-dock {
     transition: none;
   }
 }
