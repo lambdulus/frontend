@@ -134,6 +134,7 @@ export default class ExpressionBox extends PureComponent<EvaluationProperties> {
       <span className={ isAnchorBox ? undefined : 'box-top-bar-actions--standby' } aria-hidden={ isAnchorBox ? undefined : true }>
         <DebugControls
           isRunning={ state.isRunning }
+          shortcutsEnabled={ isAnchorBox }
           onStep={ this.onStep }
           onRun={ this.onExecute }
         />
