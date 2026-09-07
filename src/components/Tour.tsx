@@ -27,12 +27,15 @@ export interface TourStep {
   advanceOnInTracked ?: string
   // Where operating advanceOn (or chauffeuring it through Next) walks to.
   advanceTo ?: string
-  // Ring the box this tour run is working with instead of a selector.
-  ringTracked ?: boolean
   // The target only resolves once a box exists (the box map hides on an
   // empty notebook): the fresh-render selector sweep skips these, and the
   // conducted walk asserts them against its live box instead.
   needsBox ?: boolean
+  // The target lives inside transient UI the tour opens on arrival (the
+  // box-type picker, the clearing options, the theme panels): absent in
+  // a fresh render by construction, covered by the conducted walk with
+  // the panels actually open instead.
+  needsPanel ?: boolean
   // Detour steps render the main-path dots parked at the + step.
   branch ?: boolean
   // Park this step's dot on another step (settings cluster, detour).
@@ -45,7 +48,11 @@ export interface TourStep {
 const ADD_BOX_SELECTOR = '.create-box-plus, .add_box_after'
 
 const LAMBDA_PICK_TITLE = 'Create new λ box'
+const LAMBDA_PICK_SELECTOR = `[title="${LAMBDA_PICK_TITLE}"]`
 const TYPE_EXPRESSION = '(λ x . x y) a'
+
+// The Debug Step button, ringed alone — never the whole evaluated box.
+const STEP_SELECTOR = '.debug-controls--step'
 
 // Per-box controls the tour conducts: the settings gear and its panel,
 // the macros dock, and one row hook per box setting.
@@ -60,6 +67,27 @@ const STRATEGY_ROW = '.untyped-lambda-settings-strategies'
 // The top-bar themes control and its panel.
 const THEMES_ICON = '[title="Accent theme"]'
 const THEMES_PANEL = '.top-bar--accent-pick'
+
+// The zen switch, and the clearing-options eraser with the workspace
+// button that marks its open panel.
+const ZEN_SELECTOR = '.top-bar--zen'
+const CLEAR_SELECTOR = '[title="Clearing options"]'
+const CLEAN_WORKSPACE_TITLE = 'Erase all notebooks and start over with the defaults'
+
+// The take-with-you and meta controls closing the tour: notebook
+// export, the per-box share-link control, the bug reporter, and the
+// walkme icon itself.
+const EXPORT_SELECTOR = '[title="Download this Notebook"]'
+const SHARE_SELECTOR = '[title="Copy the link to this Expression."]'
+const BUG_SELECTOR = '[title="Submit a bug or a feature request"]'
+const TOUR_SELECTOR = '[title="Guided tour"]'
+
+// The clearing panel's two exits: Clear notebook is the plain button
+// (its title carries the live notebook name), Clean workspace the
+// danger one. The theme panel's accent row and box-style tiles.
+const CLEAR_NOTEBOOK_SELECTOR = '.top-bar--clear-btn:not(.btn-danger)'
+const CLEAN_WORKSPACE_SELECTOR = `[title="${CLEAN_WORKSPACE_TITLE}"]`
+const THEME_STYLE_SELECTOR = '.top-bar--boxpreview'
 
 export const TOUR_STEPS : Array<TourStep> = [
   {
@@ -79,7 +107,9 @@ export const TOUR_STEPS : Array<TourStep> = [
   {
     id : 'pick',
     title : 'Pick a box type',
-    body : 'A λ Expression box evaluates lambda calculus step by step. A Markdown box holds notes and docs. Pick λ Expression to keep walking with me.',
+    body : 'A λ Expression box evaluates lambda calculus step by step. A Markdown box holds notes and docs. Pick λ Expression — the highlighted one — to keep walking with me.',
+    target : LAMBDA_PICK_SELECTOR,
+    needsPanel : true,
   },
   {
     id : 'type',
@@ -90,7 +120,7 @@ export const TOUR_STEPS : Array<TourStep> = [
     id : 'stepping',
     title : 'Step through evaluation',
     body : 'Evaluated, waiting at its first step. Run walks all the way to the normal form; Step advances once. Try it now — or press `F8` to step, `F9` to run.',
-    ringTracked : true,
+    targetInTracked : STEP_SELECTOR,
   },
   {
     id : 'boxmap',
@@ -142,10 +172,86 @@ export const TOUR_STEPS : Array<TourStep> = [
     targetInTracked : MACRO_DOCK,
   },
   {
+    id : 'share',
+    title : 'Share one box',
+    body : 'This link control copies a link that carries exactly this one box — expression, macros and all. Send it to someone and they get this box, not the whole notebook.',
+    targetInTracked : SHARE_SELECTOR,
+  },
+  {
+    id : 'zen',
+    title : 'Zen mode',
+    body : 'One box gets the whole viewport — no siblings, no rails, nothing competing for your eyes. Flip the zen switch up top — or press Next and I will — and feel how quiet calculus gets.',
+    target : ZEN_SELECTOR,
+    advanceOn : ZEN_SELECTOR,
+    advanceTo : 'zen-dwell',
+  },
+  {
+    id : 'zen-dwell',
+    title : 'Settle into zen',
+    body : 'No sibling boxes, no rails, no panels — just this box and the top bar. Scroll it, keep stepping through the evaluation, feel how quiet calculus gets. When the quiet lands, walk on.',
+    dot : 'zen',
+  },
+  {
+    id : 'cleaning',
+    title : 'A clean slate',
+    body : 'The eraser up top holds both exits — let us walk them one by one. Showing only: your boxes stay exactly where they are.',
+    target : CLEAR_SELECTOR,
+  },
+  {
+    id : 'clean-notebook',
+    title : 'Clear notebook',
+    body : 'Clear notebook empties this notebook — every box goes, the notebook itself stays. Showing only: nothing is pressed behind your back.',
+    target : CLEAR_NOTEBOOK_SELECTOR,
+    needsPanel : true,
+    dot : 'cleaning',
+  },
+  {
+    id : 'clean-workspace',
+    title : 'Clean entire workspace',
+    body : 'Clean entire workspace restarts everything from the defaults — every notebook, back to a clean slate. Showing only: the box we built stays put, yours to keep.',
+    target : CLEAN_WORKSPACE_SELECTOR,
+    needsPanel : true,
+    dot : 'cleaning',
+  },
+  {
     id : 'yours',
     title : 'Make it yours',
-    body : 'The themes panel is open — hover the accent dots or box-style tiles to preview them live, click to keep. Notebook settings, zen mode and export live up here too.',
+    body : 'Lambdulus dresses to your taste — the themes panel is open. Two quick walks: accent color first, then box style. Notebook settings, zen mode and export live up here too.',
     target : THEMES_ICON,
+  },
+  {
+    id : 'theme-accent',
+    title : 'Accent color',
+    body : 'Hover the accent dots — Beta, Lambda, Eta, Alpha — to preview each live across the whole site. Click to keep the one you love.',
+    target : THEMES_PANEL,
+    needsPanel : true,
+    dot : 'yours',
+  },
+  {
+    id : 'theme-style',
+    title : 'Box style',
+    body : 'The tiles below switch the boxes themselves — Cards or Classic. Hover to preview, click to keep.',
+    target : THEME_STYLE_SELECTOR,
+    needsPanel : true,
+    dot : 'yours',
+  },
+  {
+    id : 'transfer',
+    title : 'Import and export',
+    body : 'The download arrow exports this notebook to a file — persistent storage for your work. The upload arrow imports such a file back, so notebooks are easy to share with other people.',
+    target : EXPORT_SELECTOR,
+  },
+  {
+    id : 'report',
+    title : 'Report a bug',
+    body : 'If something breaks or misbehaves, the bug icon reports it to the GitHub repo — issues and feature requests both live there.',
+    target : BUG_SELECTOR,
+  },
+  {
+    id : 'recap',
+    title : 'Walk me again',
+    body : 'And if you ever need a recap, here is the walkme again — this icon replays the tour whenever you want it.',
+    target : TOUR_SELECTOR,
   },
   {
     id : 'md-explain',
@@ -164,7 +270,7 @@ export const TOUR_STEPS : Array<TourStep> = [
   },
 ]
 
-const MAIN_DOTS = [ 'welcome', 'add', 'pick', 'type', 'stepping', 'boxmap', 'settings', 'macros', 'yours' ]
+const MAIN_DOTS = [ 'welcome', 'add', 'pick', 'type', 'stepping', 'boxmap', 'settings', 'macros', 'share', 'zen', 'cleaning', 'yours', 'transfer', 'report', 'recap' ]
 
 const BACK : Record<string, string | null> = {
   welcome : null,
@@ -179,7 +285,18 @@ const BACK : Record<string, string | null> = {
   'set-collapse' : 'set-sde',
   'set-strategy' : 'set-collapse',
   macros : 'set-strategy',
-  yours : 'macros',
+  share : 'macros',
+  zen : 'share',
+  'zen-dwell' : 'zen',
+  cleaning : 'zen-dwell',
+  'clean-notebook' : 'cleaning',
+  'clean-workspace' : 'clean-notebook',
+  yours : 'clean-workspace',
+  'theme-accent' : 'yours',
+  'theme-style' : 'theme-accent',
+  transfer : 'theme-style',
+  report : 'transfer',
+  recap : 'report',
   'md-explain' : 'pick',
   'md-delete' : 'md-explain',
 }
@@ -194,7 +311,18 @@ const NEXT_MAIN : Record<string, string> = {
   'set-sde' : 'set-collapse',
   'set-collapse' : 'set-strategy',
   'set-strategy' : 'macros',
-  macros : 'yours',
+  macros : 'share',
+  share : 'zen',
+  zen : 'zen-dwell',
+  'zen-dwell' : 'cleaning',
+  cleaning : 'clean-notebook',
+  'clean-notebook' : 'clean-workspace',
+  'clean-workspace' : 'yours',
+  yours : 'theme-accent',
+  'theme-accent' : 'theme-style',
+  'theme-style' : 'transfer',
+  transfer : 'report',
+  report : 'recap',
   'md-explain' : 'md-delete',
 }
 
@@ -225,7 +353,9 @@ interface Props {
   onFillBoxEditor (boxKey : string, content : string) : void
   onSetBoxSettings (boxKey : string, open : boolean) : void
   onShowBoxMacros (boxKey : string) : void
+  onHideBoxMacros (boxKey : string) : void
   onDeleteBox (boxKey : string) : void
+  onSetZenMode (zenMode : boolean) : void
 }
 
 interface Ring {
@@ -236,7 +366,7 @@ interface Ring {
 }
 
 export default function Tour (props : Props) : JSX.Element {
-  const { initialStep, onClose, onAddLambdaBox, onFillBoxEditor, onSetBoxSettings, onShowBoxMacros, onDeleteBox } : Props = props
+  const { initialStep, onClose, onAddLambdaBox, onFillBoxEditor, onSetBoxSettings, onShowBoxMacros, onHideBoxMacros, onDeleteBox, onSetZenMode } : Props = props
   const [ id, setId ] = useState(() => stepById(initialStep).id)
   // The box frame this tour run is working with. Session-only: a reload
   // forgets it, and the wait steps below loop back to 'add' instead of
@@ -245,7 +375,7 @@ export default function Tour (props : Props) : JSX.Element {
   const [ ring, setRing ] = useState<Ring | null>(null)
   const known = useRef<Set<Element>>(new Set())
   const current : TourStep = stepById(id)
-  const last : boolean = id === 'yours'
+  const last : boolean = id === 'recap'
   const dotIndex : number = MAIN_DOTS.indexOf(current.dot ?? id)
 
   const goId = (next : string) => {
@@ -264,9 +394,15 @@ export default function Tour (props : Props) : JSX.Element {
   }
 
   // Done on the last step: restart from the beginning next time.
+  // Done means done — and the finale's clearing panel steps out with
+  // the tour, never left open behind it.
   const finish = () => {
     saveTourState({ step : 'welcome', done : true })
     onClose()
+    const backdrop : HTMLElement | null = document.querySelector('.top-bar--backdrop')
+    if (backdrop !== null) {
+      backdrop.click()
+    }
   }
 
   const back = () => {
@@ -427,8 +563,30 @@ export default function Tour (props : Props) : JSX.Element {
       }
     }
 
-    if (id === 'yours' && document.querySelector(THEMES_PANEL) === null) {
+    // The themes walk re-opens its panel whenever a step lands without
+    // it — backing in from later steps replaces panels, so the accent
+    // row and tiles would otherwise point at nothing.
+    if ((id === 'yours' || id === 'theme-accent' || id === 'theme-style') && document.querySelector(THEMES_PANEL) === null) {
       (document.querySelector(THEMES_ICON) as HTMLElement | null)?.click()
+    }
+
+    // Entering zen declutters first: any open top-bar panel steps out
+    // with the rest of the furniture, so the quiet lands at once.
+    if (id === 'zen') {
+      (document.querySelector('.top-bar--backdrop') as HTMLElement | null)?.click()
+    }
+
+    // The finale only shows: open the clearing options so both exits
+    // read live, but press neither — the boxes stay put. Same re-open
+    // for the exit sub-steps, for the same backing-in reason as themes.
+    if ((id === 'cleaning' || id === 'clean-notebook' || id === 'clean-workspace') && document.querySelector(`[title="${CLEAN_WORKSPACE_TITLE}"]`) === null) {
+      (document.querySelector(CLEAR_SELECTOR) as HTMLElement | null)?.click()
+    }
+
+    // Stepping on to take-with-you closes the themes panel behind us —
+    // its rows would otherwise linger over the export and import icons.
+    if (id === 'transfer') {
+      (document.querySelector('.top-bar--backdrop') as HTMLElement | null)?.click()
     }
   }, [ id ])
 
@@ -504,7 +662,24 @@ export default function Tour (props : Props) : JSX.Element {
     onDeleteBox(boxKey)
   }
 
+  // Explicit zen value through state, never the switch toggle: working
+  // the toggle programmatically would flip an already-zen notebook
+  // back out. The user's own hand still works the real switch (and
+  // the advance listener walks on from it, same destination).
+  const chauffeurZen = () => {
+    onSetZenMode(true)
+    goId('zen-dwell')
+  }
+
   const next = () => {
+    // The zen step carries a document advanceOn for the user's hand,
+    // but Next must set — never toggle — so it chauffeurs past the
+    // generic activate-target road above, same destination.
+    if (id === 'zen') {
+      chauffeurZen()
+      return
+    }
+
     // Chauffeur mode on the + step: work the control ourselves (its flagged
     // events open the picker's UI but never advance), then walk on once.
     if (current.advanceOn !== undefined) {
@@ -526,7 +701,20 @@ export default function Tour (props : Props) : JSX.Element {
       case 'md-delete':
         chauffeurDelete()
         return
-      case 'yours':
+      case 'macros': {
+        // Demonstrated, now out of the way: collapse the dock before
+        // share, so the next step never starts obstructed. The want
+        // survives for Back; zen forgets it right after.
+        const boxKey : string | null = tracked !== null && tracked.isConnected ? boxKeyOf(tracked) : null
+
+        if (boxKey !== null) {
+          onHideBoxMacros(boxKey)
+        }
+
+        goId(NEXT_MAIN[id] ?? id)
+        return
+      }
+      case 'recap':
         finish()
         return
       default:
@@ -534,13 +722,47 @@ export default function Tour (props : Props) : JSX.Element {
     }
   }
 
+  // Seating on init and every step change — start, resume or walk-on:
+  // the tour conducts from the top of its subject, so a scrolled page
+  // (or boxes seated above the tour's own) can never leave the card
+  // pointing off-screen. Only subjects actually out of view move — under
+  // the fixed bar or off the fold; anything visible stays exactly where
+  // the user put it. Seated below the fixed top bar, mirroring the
+  // notebook's own focus seating (60 normal, 76 zen, same 2px hush).
+  useEffect(() => {
+    const subject : Element | null =
+      (
+        tracked !== null && tracked.isConnected && current.targetInTracked !== undefined ?
+          tracked.querySelector(current.targetInTracked)
+        :
+          null
+      )
+      ?? (current.target !== undefined ? document.querySelector(current.target) : null)
+      ?? (tracked !== null && tracked.isConnected ? tracked : null)
+      ?? document.querySelector('.box-frame')
+
+    if (subject === null) {
+      return
+    }
+
+    const rect : DOMRect = subject.getBoundingClientRect()
+
+    if (rect.width === 0 && rect.height === 0) {
+      return
+    }
+
+    const seat : number = document.querySelector('.mainSpace.zen') === null ? 60 : 76
+
+    if (rect.top < seat - 2 || rect.bottom < seat || rect.top > window.innerHeight - 2) {
+      window.scrollTo({ top : Math.max(window.scrollY + rect.top - seat, 0), behavior : 'auto' })
+    }
+  }, [ id, tracked ])
+
   useEffect(() => {
     setRing(null)
 
     const element : Element | null =
-      current.ringTracked === true ?
-        (tracked !== null && tracked.isConnected ? tracked : null)
-      : current.targetInTracked !== undefined ?
+      current.targetInTracked !== undefined ?
         (tracked !== null && tracked.isConnected ? tracked.querySelector(current.targetInTracked) : null)
       : current.target !== undefined ?
         document.querySelector(current.target)
@@ -551,17 +773,28 @@ export default function Tour (props : Props) : JSX.Element {
       return
     }
 
-    // The ring re-seats on resize, scroll and the element's own growth —
-    // a stepping box grows under it — so the highlight never lags behind.
+    // The ring re-seats on resize, scroll, the element's own growth — a
+    // stepping box grows under it — and any DOM arrival: panels the tour
+    // itself opens (macros dock, clearing and theme options) land after
+    // this effect runs, so without the observer their rings would never
+    // appear. The rect guard keeps the observer from re-rendering on
+    // unrelated mutations.
+    let lastKey : string | null = null
+
     const place = () => {
       const rect : DOMRect = element.getBoundingClientRect()
+      const key : string =
+        rect.width === 0 && rect.height === 0 ?
+          'null'
+        :
+          [ rect.top, rect.left, rect.width, rect.height ].map((n : number) => Math.round(n)).join(',')
 
-      if (rect.width === 0 && rect.height === 0) {
-        setRing(null)
+      if (key === lastKey) {
         return
       }
 
-      setRing({ top : rect.top, left : rect.left, width : rect.width, height : rect.height })
+      lastKey = key
+      setRing(key === 'null' ? null : { top : rect.top, left : rect.left, width : rect.width, height : rect.height })
     }
 
     place()
@@ -572,11 +805,14 @@ export default function Tour (props : Props) : JSX.Element {
     ro?.observe(element)
     window.addEventListener('resize', place)
     document.addEventListener('scroll', place, true)
+    const mo : MutationObserver = new MutationObserver(place)
+    mo.observe(document.body, { childList : true, subtree : true })
 
     return () => {
       ro?.disconnect()
       window.removeEventListener('resize', place)
       document.removeEventListener('scroll', place, true)
+      mo.disconnect()
     }
   }, [ id, tracked ])
 

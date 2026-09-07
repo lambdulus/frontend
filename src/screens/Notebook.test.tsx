@@ -4,7 +4,7 @@ import { test, expect, vi, afterEach } from 'vitest';
 import { render, fireEvent, cleanup } from '@testing-library/react';
 import Notebook, { syncDocksToFocus, selectPrimeBox, zenStep, mapBoxLabel } from './Notebook';
 import { createNewUntypedLambdaExpression, defaultSettings } from '../untyped-lambda-integration/Constants';
-import { BoxType, NotebookState } from '../Types';
+import { BoxType, BoxState, NotebookState } from '../Types';
 import { NoteState } from '../markdown-integration/AppTypes';
 import { tokenize, parse, None } from '@lambdulus/core';
 import { EvaluationStrategy, StepValidity, UntypedLambdaState, UntypedLambdaType } from '../untyped-lambda-integration/Types';
@@ -237,6 +237,384 @@ test('zen arrow keys never nudge the page, even past the last box', () => {
   expect(fireEvent.keyDown(document, { key : 'ArrowDown' })).toBe(false);
   expect(patches.length).toBe(0);
   last.unmount();
+});
+
+test('zen wheel over the map pages one box per push', async () => {
+  const patches : Array<Partial<NotebookState>> = [];
+  const { container, unmount } = renderZenNotebook((patch) => { patches.push(patch); });
+  try {
+    const nav = container.querySelector('.box-map') as HTMLElement;
+    expect(nav).not.toBeNull();
+
+    // One push past the travel bar steps exactly one box down.
+    fireEvent.wheel(nav, { deltaY : 120 });
+    expect(patches.length).toBe(1);
+    expect(patches[0]).toMatchObject({ activeBoxIndex : 1, focusedBoxIndex : 1 });
+
+    // The gesture's tail (trackpad momentum included) goes quiet:
+    // pushing on inside the lock steps nothing more.
+    fireEvent.wheel(nav, { deltaY : 120 });
+    fireEvent.wheel(nav, { deltaY : 30 });
+    expect(patches.length).toBe(1);
+
+    // Pushing on after the lock re-arms the trigger, so continuous
+    // scrolling keeps paging.
+    await new Promise((resolve) => setTimeout(resolve, 400));
+    fireEvent.wheel(nav, { deltaY : 120 });
+    expect(patches.length).toBe(2);
+  }
+  finally {
+    unmount();
+  }
+});
+
+test('a flick with a long momentum tail still pages exactly once', async () => {
+  const patches : Array<Partial<NotebookState>> = [];
+  const { container, unmount } = renderZenNotebook((patch) => { patches.push(patch); });
+  try {
+    const nav = container.querySelector('.box-map') as HTMLElement;
+    const nap = (ms : number) => new Promise((resolve) => setTimeout(resolve, ms));
+
+    // The flick: one decisive push pages at once.
+    fireEvent.wheel(nav, { deltaY : 120 });
+    expect(patches.length).toBe(1);
+
+    // Its momentum tail runs half a second with no quiet gap: deaf
+    // through all of it, never a second page.
+    for (let i = 0; i < 12; i++) {
+      await nap(40);
+      fireEvent.wheel(nav, { deltaY : 18 });
+    }
+    expect(patches.length).toBe(1);
+
+    // The next real push pages again.
+    await nap(250);
+    fireEvent.wheel(nav, { deltaY : 120 });
+    expect(patches.length).toBe(2);
+  }
+  finally {
+    unmount();
+  }
+});
+
+test('a fresh push into the tail pages again at once', async () => {
+  const patches : Array<Partial<NotebookState>> = [];
+  const { container, unmount } = renderZenNotebook((patch) => { patches.push(patch); });
+  try {
+    const nav = container.querySelector('.box-map') as HTMLElement;
+    const nap = (ms : number) => new Promise((resolve) => setTimeout(resolve, ms));
+
+    // The first swipe pages at once.
+    fireEvent.wheel(nav, { deltaY : 120 });
+    expect(patches.length).toBe(1);
+
+    // Its cooling tail flows on, dense and decaying: deaf through all
+    // of it, never a second page from the same swipe.
+    for (const tail of [ 90, 75, 60, 50, 40, 32, 26, 21, 17, 14, 12, 10, 9, 8, 7 ]) {
+      fireEvent.wheel(nav, { deltaY : tail });
+    }
+    expect(patches.length).toBe(1);
+
+    // A new push ramping out of the cooled tail re-arms mid-gesture:
+    // no trap gap, the second swipe pages without waiting out the
+    // momentum — while its own third event correctly stays quiet.
+    fireEvent.wheel(nav, { deltaY : 30 });
+    fireEvent.wheel(nav, { deltaY : 45 });
+    expect(patches.length).toBe(2);
+    fireEvent.wheel(nav, { deltaY : 60 });
+    expect(patches.length).toBe(2);
+
+    // ...and the road after is normal again.
+    await nap(250);
+    fireEvent.wheel(nav, { deltaY : 120 });
+    expect(patches.length).toBe(3);
+  }
+  finally {
+    unmount();
+  }
+});
+
+test('rapid mouse notches page per notch', async () => {
+  const patches : Array<Partial<NotebookState>> = [];
+  const mkState = (anchor : number) : NotebookState => ({
+    name : 'Test',
+    zenMode : true,
+    boxList : [ noteBox('first', 'a'), noteBox('second', 'b') ],
+    activeBoxIndex : anchor,
+    focusedBoxIndex : anchor,
+    menuOpen : false,
+    settings : {},
+    __key : 'nb',
+  });
+  const onPatch = (patch : Partial<NotebookState>) => { patches.push(patch); };
+  const { container, unmount, rerender } = render(<Notebook state={ mkState(0) } updateNotebook={ onPatch } />);
+  try {
+    const nav = container.querySelector('.box-map') as HTMLElement;
+    const nap = (ms : number) => new Promise((resolve) => setTimeout(resolve, ms));
+
+    // Notches 100ms apart never reach the quiet window, but each is a
+    // full discrete shove: every one pages.
+    fireEvent.wheel(nav, { deltaY : 120 });
+    expect(patches.length).toBe(1);
+    expect(patches[0]).toMatchObject({ focusedBoxIndex : 1 });
+
+    await nap(100);
+    rerender(<Notebook state={ mkState(1) } updateNotebook={ onPatch } />);
+    fireEvent.wheel(nav, { deltaY : -120 });
+    expect(patches.length).toBe(2);
+    expect(patches[1]).toMatchObject({ focusedBoxIndex : 0 });
+
+    await nap(100);
+    rerender(<Notebook state={ mkState(0) } updateNotebook={ onPatch } />);
+    fireEvent.wheel(nav, { deltaY : 120 });
+    expect(patches.length).toBe(3);
+    expect(patches[2]).toMatchObject({ focusedBoxIndex : 1 });
+  }
+  finally {
+    unmount();
+  }
+});
+
+test('sustained scrolling cruises past the first window', async () => {
+  const patches : Array<Partial<NotebookState>> = [];
+  const { container, unmount } = renderZenNotebook((patch) => { patches.push(patch); });
+  try {
+    const nav = container.querySelector('.box-map') as HTMLElement;
+    const nap = (ms : number) => new Promise((resolve) => setTimeout(resolve, ms));
+
+    fireEvent.wheel(nav, { deltaY : 120 });
+    expect(patches.length).toBe(1);
+
+    // Steady pushing past the cap window: strength stays up, so the
+    // stream cruises into a second page on its own.
+    for (let t = 0; t < 2200; t += 50) {
+      await nap(50);
+      fireEvent.wheel(nav, { deltaY : 30 });
+    }
+    expect(patches.length).toBeGreaterThanOrEqual(2);
+
+    // ...and keeps cruising on the short cadence while the flow runs.
+    for (let t = 0; t < 400; t += 50) {
+      await nap(50);
+      fireEvent.wheel(nav, { deltaY : 30 });
+    }
+    expect(patches.length).toBeGreaterThanOrEqual(3);
+  }
+  finally {
+    unmount();
+  }
+});
+
+test('a gentle but deliberate re-push still pages', () => {
+  const patches : Array<Partial<NotebookState>> = [];
+  const { container, unmount } = renderZenNotebook((patch) => { patches.push(patch); });
+  try {
+    const nav = container.querySelector('.box-map') as HTMLElement;
+
+    // Opening push pages at once; its tail dips low and stays quiet.
+    fireEvent.wheel(nav, { deltaY : 120 });
+    expect(patches.length).toBe(1);
+    for (const tail of [ 60, 40, 25, 15, 10, 6, 4, 2 ]) {
+      fireEvent.wheel(nav, { deltaY : tail });
+    }
+    expect(patches.length).toBe(1);
+
+    // A soft ramp — no hard shove anywhere — re-arms on its first
+    // event and pages once its travel arrives, still exactly once.
+    fireEvent.wheel(nav, { deltaY : 28 });
+    expect(patches.length).toBe(1);
+    fireEvent.wheel(nav, { deltaY : 32 });
+    expect(patches.length).toBe(2);
+  }
+  finally {
+    unmount();
+  }
+});
+
+test('micro-swipes peaking at single pixels still page', () => {
+  const patches : Array<Partial<NotebookState>> = [];
+  const { container, unmount } = renderZenNotebook((patch) => { patches.push(patch); });
+  try {
+    const nav = container.querySelector('.box-map') as HTMLElement;
+    const stream = (deltas : Array<number>) => {
+      for (const deltaY of deltas) {
+        fireEvent.wheel(nav, { deltaY });
+      }
+    };
+
+    // A gentle push totaling just past the bar pages, on small events.
+    stream([ 1, 2, 3, 4, 6, 7, 8, 8, 8, 8, 7 ]);
+    expect(patches.length).toBe(1);
+
+    // Its tail dies out quietly, never a second page.
+    stream([ 7, 6, 5, 4, 3, 2, 2, 1, 1 ]);
+    expect(patches.length).toBe(1);
+
+    // A re-push hump peaking at 8px re-arms through the low floor and
+    // pages on its travel — while the event right after the page,
+    // with no dip behind it, stays quiet.
+    stream([ 5, 7, 8, 8, 8, 8, 8, 8, 7 ]);
+    expect(patches.length).toBe(2);
+    stream([ 8 ]);
+    expect(patches.length).toBe(2);
+  }
+  finally {
+    unmount();
+  }
+});
+
+test('re-pushes inside one unbroken stream page push by push', () => {
+  const patches : Array<Partial<NotebookState>> = [];
+  const { container, unmount } = renderZenNotebook((patch) => { patches.push(patch); });
+  try {
+    const nav = container.querySelector('.box-map') as HTMLElement;
+    const stream = (deltas : Array<number>) => {
+      for (const deltaY of deltas) {
+        fireEvent.wheel(nav, { deltaY });
+      }
+    };
+
+    // The opening push pages at once; its tail never pages twice.
+    stream([ 66 ]);
+    expect(patches.length).toBe(1);
+    stream([ 62, 60, 55, 48, 40, 32, 25, 18, 12, 8, 5, 3, 2 ]);
+    expect(patches.length).toBe(1);
+
+    // A re-push ramping out of the dip re-arms mid-flow and pages —
+    // while its own continuation stays quiet.
+    stream([ 9, 16, 26, 40 ]);
+    expect(patches.length).toBe(2);
+    stream([ 48 ]);
+    expect(patches.length).toBe(2);
+
+    // ...and the next hump pages again the same way.
+    stream([ 45, 38, 30, 22, 15, 10, 6, 4, 3, 2 ]);
+    expect(patches.length).toBe(2);
+    stream([ 11, 26, 38 ]);
+    expect(patches.length).toBe(3);
+    stream([ 52, 73, 83, 70, 50, 30, 15, 8, 4, 2, 1 ]);
+    expect(patches.length).toBe(3);
+  }
+  finally {
+    unmount();
+  }
+});
+
+test('a stalled tail held back past the window never pages twice', async () => {
+  const patches : Array<Partial<NotebookState>> = [];
+  const { container, unmount } = renderZenNotebook((patch) => { patches.push(patch); });
+  try {
+    const nav = container.querySelector('.box-map') as HTMLElement;
+    const nap = (ms : number) => new Promise((resolve) => setTimeout(resolve, ms));
+
+    fireEvent.wheel(nav, { deltaY : 120 });
+    expect(patches.length).toBe(1);
+
+    // The page's own re-render stalls the main thread: the tail event
+    // was born mid-gesture but handled after a long wall pause. The
+    // event clock betrays the stall, so the gesture stays one page.
+    await nap(400);
+    const stale = new WheelEvent('wheel', { deltaY : 40, bubbles : true, cancelable : true });
+    Object.defineProperty(stale, 'timeStamp', { value : performance.now() - 350 });
+    nav.dispatchEvent(stale);
+    expect(patches.length).toBe(1);
+
+    // A genuinely fresh push afterwards pages again.
+    await nap(250);
+    fireEvent.wheel(nav, { deltaY : 120 });
+    expect(patches.length).toBe(2);
+  }
+  finally {
+    unmount();
+  }
+});
+
+test('zen wheel lets a scrolling map list keep the event', () => {
+  const patches : Array<Partial<NotebookState>> = [];
+  const { container, unmount } = renderZenNotebook((patch) => { patches.push(patch); });
+  try {
+    const list = container.querySelector('.box-map-list') as HTMLElement;
+    let top = 0;
+    Object.defineProperty(list, 'scrollHeight', { value : 500, configurable : true });
+    Object.defineProperty(list, 'clientHeight', { value : 100, configurable : true });
+    Object.defineProperty(list, 'scrollTop', { get : () => top, set : (v : number) => { top = v; }, configurable : true });
+    const nav = container.querySelector('.box-map') as HTMLElement;
+
+    // Room below: the list scrolls, no paging.
+    fireEvent.wheel(nav, { deltaY : 120 });
+    expect(patches.length).toBe(0);
+
+    // Scrolled to the end: paging continues past it.
+    top = 400;
+    fireEvent.wheel(nav, { deltaY : 120 });
+    expect(patches.length).toBe(1);
+    expect(patches[0]).toMatchObject({ focusedBoxIndex : 1 });
+  }
+  finally {
+    unmount();
+  }
+});
+
+test('zen swipe over the map pages, taps do not', () => {
+  const patches : Array<Partial<NotebookState>> = [];
+  const { container, unmount } = renderZenNotebook((patch) => { patches.push(patch); }, 0);
+  try {
+    const nav = container.querySelector('.box-map') as HTMLElement;
+
+    // Swipe up travels past the bar: one box forward.
+    fireEvent.touchStart(nav, { touches : [ { clientY : 100 } ] });
+    fireEvent.touchEnd(nav, { changedTouches : [ { clientY : 40 } ] });
+    expect(patches.length).toBe(1);
+    expect(patches[0]).toMatchObject({ focusedBoxIndex : 1 });
+
+    // A tap stays under the bar: nothing pages.
+    fireEvent.touchStart(nav, { touches : [ { clientY : 100 } ] });
+    fireEvent.touchEnd(nav, { changedTouches : [ { clientY : 90 } ] });
+    expect(patches.length).toBe(1);
+  }
+  finally {
+    unmount();
+  }
+});
+
+test('map wheel outside zen pages nothing', () => {
+  const patches : Array<Partial<NotebookState>> = [];
+  const state : NotebookState = {
+    name : 'Test',
+    boxList : [ noteBox('first', 'a'), noteBox('second', 'b') ],
+    activeBoxIndex : 0,
+    focusedBoxIndex : 0,
+    menuOpen : false,
+    settings : {},
+    __key : 'nb',
+  };
+  const { container, unmount } = render(<Notebook state={ state } updateNotebook={ (patch) => { patches.push(patch); } } />);
+  try {
+    fireEvent.wheel(container.querySelector('.box-map') as HTMLElement, { deltaY : 500 });
+    expect(patches.length).toBe(0);
+  }
+  finally {
+    unmount();
+  }
+});
+
+test('map paging hitbox reaches past a short map without covering the lines', () => {
+  const { container, unmount } = renderZenNotebook(() => void 0);
+  try {
+    // The layer mounts behind the list content inside the nav.
+    const hitbox = container.querySelector('.box-map > .box-map-hitbox') as HTMLElement;
+    expect(hitbox).not.toBeNull();
+    expect(hitbox.getAttribute('aria-hidden')).toBe('true');
+  }
+  finally {
+    unmount();
+  }
+
+  const css = readFileSync('src/App.css', 'utf8');
+  const block = css.match(/\.box-map-hitbox\s*\{[^}]*\}/)?.[0] ?? '';
+  expect(block).toMatch(/top\s*:\s*-18vh/);
+  expect(block).toMatch(/bottom\s*:\s*-18vh/);
+  expect(block).toMatch(/z-index\s*:\s*-1/);
 });
 
 test('zen single box fits the viewport with no page scroll', () => {
@@ -645,22 +1023,49 @@ test('silent layout shifts re-prime the anchor', () => {
   }
 });
 
-function lambdaBox (key : string, dockOpen : boolean) : UntypedLambdaState {
+function lambdaBox (key : string, dockOpen : boolean, dockWanted : boolean = dockOpen) : UntypedLambdaState {
   const box = createNewUntypedLambdaExpression(defaultSettings);
   box.__key = key;
   box.macrolistOpen = dockOpen;
+  box.macrolistWanted = dockWanted;
   return box;
 }
 
-test('macro tables follow focus: open on the focused box only', () => {
-  const first = lambdaBox('a', false);
+test('focus restores a remembered table and collapses the rest', () => {
+  const first = lambdaBox('a', false, true);
   const note = noteBox('note', 'b');
-  const second = lambdaBox('c', true);
+  const second = lambdaBox('c', true, true);
   const next = syncDocksToFocus([ first, note, second ], 0);
 
   expect((next[0] as UntypedLambdaState).macrolistOpen).toBe(true);
   expect(next[1]).toBe(note);
   expect((next[2] as UntypedLambdaState).macrolistOpen).toBe(false);
+  // Remembering survives the collapse, so refocus brings it back.
+  expect((next[2] as UntypedLambdaState).macrolistWanted).toBe(true);
+});
+
+test('focus alone never opens a dock nobody asked for', () => {
+  const shut = [ lambdaBox('a', false, false), noteBox('note', 'b'), lambdaBox('c', false, false) ];
+  expect(syncDocksToFocus(shut, 0)).toBe(shut);
+  expect(syncDocksToFocus(shut, 2)).toBe(shut);
+
+  // A stray open table still collapses on blur — without opening another.
+  const stray = [ lambdaBox('a', true, true), lambdaBox('b', false, false) ];
+  const next = syncDocksToFocus(stray, 1);
+  expect(next).not.toBe(stray);
+  expect((next[0] as UntypedLambdaState).macrolistOpen).toBe(false);
+  expect((next[1] as UntypedLambdaState).macrolistOpen).toBe(false);
+});
+
+test('zen focus never restores a remembered table', () => {
+  const boxes = [ lambdaBox('a', true, true), lambdaBox('b', false, false) ];
+  const next = syncDocksToFocus(boxes, 0, true);
+  expect(next).not.toBe(boxes);
+  expect((next[0] as UntypedLambdaState).macrolistOpen).toBe(false);
+  // Remembered, not forgotten: leaving zen brings it back.
+  expect((next[0] as UntypedLambdaState).macrolistWanted).toBe(true);
+  expect(syncDocksToFocus(next, 0, false)).not.toBe(next);
+  expect(((syncDocksToFocus(next, 0, false))[0] as UntypedLambdaState).macrolistOpen).toBe(true);
 });
 
 test('syncing docks is a no-op when every table matches', () => {
@@ -670,7 +1075,22 @@ test('syncing docks is a no-op when every table matches', () => {
   expect(syncDocksToFocus(cleared, undefined)).toBe(cleared);
 });
 
-test('focusing a box opens its table and collapses the old one', () => {
+test('a hand-closed dock stays shut across refocus', () => {
+  // Open by hand, unfocused away, back again: remembered, restored.
+  let boxes : Array<BoxState> = [ lambdaBox('a', false, true), lambdaBox('b', false, false) ];
+  boxes = syncDocksToFocus(boxes, 0);
+  expect((boxes[0] as UntypedLambdaState).macrolistOpen).toBe(true);
+  boxes = syncDocksToFocus(boxes, 1);
+  expect((boxes[0] as UntypedLambdaState).macrolistOpen).toBe(false);
+  boxes = syncDocksToFocus(boxes, 0);
+  expect((boxes[0] as UntypedLambdaState).macrolistOpen).toBe(true);
+
+  // Closed by hand (head clears the wish): refocus leaves it shut.
+  boxes = [ lambdaBox('a', false, false), lambdaBox('b', false, false) ];
+  expect(syncDocksToFocus(boxes, 0)).toBe(boxes);
+});
+
+test('focusing a box collapses the old table and opens nothing unasked', () => {
   const state : NotebookState = {
     name : 'Test',
     boxList : [ lambdaBox('a', true), lambdaBox('b', false) ],
@@ -687,7 +1107,7 @@ test('focusing a box opens its table and collapses the old one', () => {
     expect(updateNotebook).toHaveBeenCalledWith(expect.objectContaining({ activeBoxIndex : 1, focusedBoxIndex : 1 }));
     const patched = updateNotebook.mock.calls[0][0] as NotebookState;
     expect((patched.boxList[0] as UntypedLambdaState).macrolistOpen).toBe(false);
-    expect((patched.boxList[1] as UntypedLambdaState).macrolistOpen).toBe(true);
+    expect((patched.boxList[1] as UntypedLambdaState).macrolistOpen).toBe(false);
   }
   finally {
     unmount();

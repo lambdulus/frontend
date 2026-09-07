@@ -50,7 +50,7 @@ test('macro dock pill toggles the panel both ways', () => {
   expect(container.querySelector('.macro-dock--panel')).not.toBeNull();
 
   fireEvent.click(head);
-  expect(setBoxState).toHaveBeenCalledWith(expect.objectContaining({ macrolistOpen : true }));
+  expect(setBoxState).toHaveBeenCalledWith(expect.objectContaining({ macrolistOpen : true, macrolistWanted : true }));
 
   // Open: the same head collapses back (chevron swapped).
   rerender(
@@ -67,7 +67,7 @@ test('macro dock pill toggles the panel both ways', () => {
   expect(container.querySelector('.macro-dock--scroll .macro-list')).not.toBeNull();
   const openHead = container.querySelector('.macro-dock--head') as HTMLElement;
   fireEvent.click(openHead);
-  expect(setBoxState).toHaveBeenCalledWith(expect.objectContaining({ macrolistOpen : false }));
+  expect(setBoxState).toHaveBeenCalledWith(expect.objectContaining({ macrolistOpen : false, macrolistWanted : false }));
 });
 
 test('macro table renders one clean row per macro', () => {

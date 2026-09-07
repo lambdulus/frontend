@@ -290,6 +290,22 @@ body {
   pointer-events: none;
 }
 
+/* Paging hitbox: an invisible backstop behind the lines, reaching a
+   good way past the short map small notebooks draw, so wheel and
+   swipe gestures find it without hunting for a two-line strip. It
+   sits behind the list content (negative z), so lines and arrows
+   keep their clicks; it only catches the empty strip around them.
+   Always present but harmless outside zen: clicks land on empty
+   margin, and wheel chains on to the page exactly as before. */
+.box-map-hitbox {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: -18vh;
+  bottom: -18vh;
+  z-index: -1;
+}
+
 .box-map-list.mask-top {
   -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 24px);
   mask-image: linear-gradient(to bottom, transparent 0, #000 24px);

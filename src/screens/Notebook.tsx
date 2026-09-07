@@ -37,19 +37,84 @@ const SEAT_SETTLE_MS : number = 600
 // Scroll-end backstop: re-prime once motion stops so the focus always
 // ends on the landed layout.
 const SCROLL_END_MS : number = 150
-// Macro tables follow focus: the focused box always shows its table,
-// every other box collapses its own, so an open table never overlaps
-// the boxes below. Closing the focused box's table by hand sticks
-// until focus leaves and comes back. Returns the same array when every
-// table already matches, so callers never re-render for a no-op.
-export function syncDocksToFocus (boxList : Array<BoxState>, focusedIndex : number | null | undefined) : Array<BoxState> {
+// One wheel push over the map pages a single box in zen: enough
+// travel for a mouse notch or a short trackpad push. The gesture then
+// goes deaf until it truly ends (a sliding quiet window, so a flick's
+// momentum tail — however long — can never page twice), and the next
+// push starts fresh. An endless stream is deliberate continuous
+// scrolling, not momentum: past the first window it cruises, paging
+// on a short cadence while the strength stays up, never from a dying
+// tail. A quiet pause restarts the accumulation instead.
+const ZEN_WHEEL_STEP_PX : number = 60
+// A gap this long ends the gesture: the next event starts fresh.
+const ZEN_WHEEL_QUIET_MS : number = 150
+// A stream still flowing past this long after a page is deliberate,
+// not momentum: violent flicks coast well under two seconds, and a
+// tail that old has decayed past the cruise gate anyway. Strength
+// decides whether the survivor cruises or waits out.
+const ZEN_WHEEL_CAP_MS : number = 2000
+// A fresh push landing mid-flow re-arms at once: new finger energy
+// spikes past the flow's slow baseline, while one flick's own ramp
+// never dips first. Past this multiple of the baseline (and a floor,
+// so jitter never trips it), and only once the flow has dipped below
+// this many pixels since the page (a re-push follows a dip — the
+// lift and return — while a still-rising ramp never dips at all),
+// the motion is a new push, not the old tail. The baseline chases
+// cooling fast and warming slow, so it hugs a decaying tail but lags
+// a rising push.
+const ZEN_WHEEL_ONSET_RATIO : number = 1.6
+const ZEN_WHEEL_ONSET_FLOOR : number = 6
+const ZEN_WHEEL_BASE_DOWN_ALPHA : number = 0.3
+const ZEN_WHEEL_BASE_UP_ALPHA : number = 0.05
+const ZEN_WHEEL_DIP_PX : number = 15
+// A full-notch shove after a short gap is a mouse wheel, not a
+// trackpad stream: honor it at once instead of holding it for the
+// quiet window, so rapid spinning pages per notch.
+const ZEN_WHEEL_QUICK_MS : number = 80
+const ZEN_WHEEL_NOTCH_PX : number = 100
+// Cruise cadence once sustained input proves itself deliberate.
+const ZEN_WHEEL_CRUISE_MS : number = 300
+// Gesture strength tracker: trip the cruise only while the flow runs
+// hot against the page's own onset, never on a cooling tail.
+const ZEN_WHEEL_EMA_ALPHA : number = 0.25
+const ZEN_WHEEL_CRUISE_RATIO : number = 0.4
+
+// Paging revision marker: the console reports which gesture logic a
+// tab actually runs, so a stale tab never gets debugged as live code
+// again. Bump on every behavior change to the strip gestures.
+const ZEN_WHEEL_REV : number = 9
+const zenWheelRevTarget : Record<string, unknown> = window as unknown as Record<string, unknown>
+zenWheelRevTarget.__zenWheelRev = ZEN_WHEEL_REV
+
+// Paging diagnostics: set window.__zenWheelDebug = true in the
+// console and swipe over the map strip — one line per wheel event,
+// each naming the rule that owned it.
+function zenWheelLog (message : string) : void {
+  if ((window as unknown as Record<string, unknown>).__zenWheelDebug === true) {
+    console.log(`zenwheel rev=${ZEN_WHEEL_REV} ${message}`)
+  }
+}
+// A touchscreen swipe pages past this travel, taps (and list scrolls)
+// staying below it.
+const ZEN_TOUCH_STEP_PX : number = 24
+
+// Macro tables follow focus, but only the ones the user opened: the
+// focused box restores its remembered dock, every other box collapses
+// its own, so an open table never overlaps the boxes below. Focus never
+// opens a dock by itself — a fresh box stays a pill until its head is
+// worked — and a hand-closed dock stays shut across refocus. Zen mode
+// restores nothing: one clean box owns the viewport, and a table the
+// hand opens there still collapses on blur like everywhere else.
+// Returns the same array when every table already matches, so callers
+// never re-render for a no-op.
+export function syncDocksToFocus (boxList : Array<BoxState>, focusedIndex : number | null | undefined, zenMode : boolean = false) : Array<BoxState> {
   let changed : boolean = false
   const next : Array<BoxState> = boxList.map((box : BoxState, i : number) => {
     if (box.type !== BoxType.UNTYPED_LAMBDA) {
       return box
     }
 
-    const wantOpen : boolean = i === focusedIndex
+    const wantOpen : boolean = ! zenMode && i === focusedIndex && (box as UntypedLambdaState).macrolistWanted === true
 
     if ((box as UntypedLambdaState).macrolistOpen === wantOpen) {
       return box
@@ -120,6 +185,21 @@ export default class Notebook extends PureComponent<Props, State> {
   private primeTrail : number | null
   private listRef : React.RefObject<HTMLUListElement>
   private listObserver : ResizeObserver | null
+  private mapNavRef : React.RefObject<HTMLElement>
+  private mapNavEl : HTMLElement | null
+  private zenWheelAccum : number
+  private zenWheelDir : 1 | -1 | 0
+  private zenWheelLast : number
+  private zenWheelLastStamp : number
+  private zenWheelDeaf : boolean
+  private zenWheelEma : number
+  private zenWheelFireEma : number
+  private zenWheelBase : number
+  private zenWheelDipMin : number
+  private zenWheelQuietTimer : number | null
+  private zenWheelCapTimer : number | null
+  private zenTouchY : number | null
+  private zenTouchListTop : number | null
 
   constructor (props : Props) {
     super(props)
@@ -132,6 +212,21 @@ export default class Notebook extends PureComponent<Props, State> {
     this.primeTrail = null
     this.listRef = React.createRef<HTMLUListElement>()
     this.listObserver = null
+    this.mapNavRef = React.createRef<HTMLElement>()
+    this.mapNavEl = null
+    this.zenWheelAccum = 0
+    this.zenWheelDir = 0
+    this.zenWheelLast = 0
+    this.zenWheelLastStamp = 0
+    this.zenWheelDeaf = false
+    this.zenWheelEma = 0
+    this.zenWheelFireEma = 0
+    this.zenWheelBase = 0
+    this.zenWheelDipMin = Number.POSITIVE_INFINITY
+    this.zenWheelQuietTimer = null
+    this.zenWheelCapTimer = null
+    this.zenTouchY = null
+    this.zenTouchListTop = null
     this.state = { mapAtTop : true, mapAtBottom : true }
 
     this.insertBefore = this.insertBefore.bind(this)
@@ -142,6 +237,9 @@ export default class Notebook extends PureComponent<Props, State> {
     this.onBlur = this.onBlur.bind(this)
     this.onPageKeyDown = this.onPageKeyDown.bind(this)
     this.onPageScroll = this.onPageScroll.bind(this)
+    this.onMapWheel = this.onMapWheel.bind(this)
+    this.onMapTouchStart = this.onMapTouchStart.bind(this)
+    this.onMapTouchEnd = this.onMapTouchEnd.bind(this)
   }
 
   componentDidMount () : void {
@@ -159,6 +257,29 @@ export default class Notebook extends PureComponent<Props, State> {
     }
     this.syncBodyZen()
     this.syncMapEdges()
+    this.attachMapGestures()
+  }
+
+  // The map's paging gestures listen natively: React's delegated wheel
+  // listener is passive, but paging needs preventDefault, and the map
+  // nav mounts conditionally (empty notebooks have none). Tracked by
+  // node, so each nav gets exactly one set across remounts.
+  attachMapGestures () : void {
+    const nav : HTMLElement | null = this.mapNavRef.current
+    if (nav === this.mapNavEl) {
+      return
+    }
+    if (this.mapNavEl !== null) {
+      this.mapNavEl.removeEventListener('wheel', this.onMapWheel)
+      this.mapNavEl.removeEventListener('touchstart', this.onMapTouchStart)
+      this.mapNavEl.removeEventListener('touchend', this.onMapTouchEnd)
+    }
+    this.mapNavEl = nav
+    if (nav !== null) {
+      nav.addEventListener('wheel', this.onMapWheel, { passive : false })
+      nav.addEventListener('touchstart', this.onMapTouchStart, { passive : true })
+      nav.addEventListener('touchend', this.onMapTouchEnd, { passive : true })
+    }
   }
 
   // The map fades only at the ends scrolled away from, mirroring the
@@ -186,6 +307,20 @@ export default class Notebook extends PureComponent<Props, State> {
     }
     if (this.listObserver !== null) {
       this.listObserver.disconnect()
+    }
+    if (this.mapNavEl !== null) {
+      this.mapNavEl.removeEventListener('wheel', this.onMapWheel)
+      this.mapNavEl.removeEventListener('touchstart', this.onMapTouchStart)
+      this.mapNavEl.removeEventListener('touchend', this.onMapTouchEnd)
+      this.mapNavEl = null
+    }
+    if (this.zenWheelQuietTimer !== null) {
+      window.clearTimeout(this.zenWheelQuietTimer)
+      this.zenWheelQuietTimer = null
+    }
+    if (this.zenWheelCapTimer !== null) {
+      window.clearTimeout(this.zenWheelCapTimer)
+      this.zenWheelCapTimer = null
     }
     document.body.classList.remove('zen')
   }
@@ -283,7 +418,203 @@ export default class Notebook extends PureComponent<Props, State> {
     })
     const prime : number = selectPrimeBox(tops, window.innerHeight * PRIME_LINE_RATIO)
     if (prime !== (focusedBoxIndex ?? activeBoxIndex)) {
-      this.props.updateNotebook({ focusedBoxIndex : prime, boxList : syncDocksToFocus(boxList, prime) })
+      this.props.updateNotebook({ focusedBoxIndex : prime, boxList : syncDocksToFocus(boxList, prime, this.props.state.zenMode) })
+    }
+  }
+
+  // Zen paging over the map strip: one accumulated push steps a single
+  // box. The gesture then goes deaf: the tail never pages twice, while
+  // a fresh push spiking out of a dip re-arms mid-flow, so continuous
+  // swiping pages push by push. Outside zen the strip keeps its native
+  // behavior (list scrolls, page chains). A map list with room left in
+  // the push direction keeps the event, so long maps scroll to their
+  // end before paging continues past it.
+  onMapWheel (e : WheelEvent) : void {
+    if (this.props.state.zenMode !== true) {
+      return
+    }
+    const unit : number = e.deltaMode === 1 ? 16 : e.deltaMode === 2 ? 480 : 1
+    const deltaY : number = e.deltaY * unit
+    if (deltaY === 0) {
+      return
+    }
+    const dir : 1 | -1 = deltaY > 0 ? 1 : -1
+    const list : HTMLDivElement | null = this.mapListRef.current
+    if (list !== null) {
+      const roomDown : boolean = list.scrollHeight - list.scrollTop - list.clientHeight > 1
+      const roomUp : boolean = list.scrollTop > 1
+      if ((dir === 1 && roomDown) || (dir === -1 && roomUp)) {
+        zenWheelLog(`mag=${Math.round(Math.abs(deltaY))} list keeps it (room to scroll)`)
+        return
+      }
+    }
+    e.preventDefault()
+
+    const now : number = Date.now()
+    const mag : number = Math.abs(deltaY)
+    zenWheelLog(`event mag=${Math.round(mag)} dir=${dir} accum=${Math.round(this.zenWheelAccum)} deaf=${this.zenWheelDeaf} base=${Math.round(this.zenWheelBase)}`)
+    // A quiet gap ends the previous gesture: fresh hand, fresh count.
+    // Both clocks must agree — a stall (say, the page's own re-render)
+    // can hold events back for longer than the window, and that pause
+    // is main-thread jank, not a lifted hand. A full-notch shove after
+    // a short gap is a mouse wheel talking, and it gets the same.
+    const wallGap : number = now - this.zenWheelLast
+    const stampGap : number = e.timeStamp - this.zenWheelLastStamp
+    const rested : boolean = wallGap > ZEN_WHEEL_QUIET_MS && stampGap > ZEN_WHEEL_QUIET_MS
+    const notched : boolean = mag >= ZEN_WHEEL_NOTCH_PX && wallGap > ZEN_WHEEL_QUICK_MS && stampGap > ZEN_WHEEL_QUICK_MS
+    if (rested || notched) {
+      this.clearZenDeaf()
+      this.zenWheelDir = dir
+      this.zenWheelAccum = 0
+      this.zenWheelBase = mag
+      this.zenWheelDipMin = mag
+      zenWheelLog(rested ? 'fresh gesture' : 'notch fast lane')
+    }
+    this.zenWheelLast = now
+    this.zenWheelLastStamp = e.timeStamp
+    this.zenWheelEma += ZEN_WHEEL_EMA_ALPHA * (mag - this.zenWheelEma)
+    // A fresh push into a dying tail re-arms mid-gesture: new energy
+    // spikes past the flow's baseline, so the next swipe never waits
+    // out the last one's momentum. Runs before the fire check, so a
+    // page never re-arms on its own onset.
+    if (this.zenWheelDeaf
+      && mag > Math.max(ZEN_WHEEL_ONSET_FLOOR, ZEN_WHEEL_ONSET_RATIO * this.zenWheelBase)
+      && this.zenWheelDipMin < ZEN_WHEEL_DIP_PX) {
+      this.clearZenDeaf()
+      this.zenWheelDir = dir
+      this.zenWheelAccum = 0
+      this.zenWheelDipMin = mag
+      zenWheelLog('onset re-arm')
+    }
+    // The baseline hugs cooling and lags warming: a decaying tail
+    // drags it down event over event, while a rising push leaves it
+    // behind — exactly the split the onset check reads. The dip watch
+    // runs behind the checks, so each event is judged against the dips
+    // of its predecessors, never its own.
+    this.zenWheelBase += (mag < this.zenWheelBase ? ZEN_WHEEL_BASE_DOWN_ALPHA : ZEN_WHEEL_BASE_UP_ALPHA) * (mag - this.zenWheelBase)
+    this.zenWheelDipMin = Math.min(this.zenWheelDipMin, mag)
+    // A reversal restarts the count without breaking the deafness:
+    // jitter across the axis never stacks into a page.
+    if (dir !== this.zenWheelDir) {
+      this.zenWheelDir = dir
+      this.zenWheelAccum = 0
+    }
+    this.zenWheelAccum += mag
+    if (! this.zenWheelDeaf && this.zenWheelAccum >= ZEN_WHEEL_STEP_PX) {
+      this.zenWheelAccum = 0
+      this.pageZen(dir)
+      zenWheelLog(`PAGE dir=${dir}`)
+      this.zenWheelDeaf = true
+      this.zenWheelFireEma = this.zenWheelEma
+      this.zenWheelDipMin = Number.POSITIVE_INFINITY
+      this.armZenCap(ZEN_WHEEL_CAP_MS)
+    }
+    else {
+      zenWheelLog('hold')
+    }
+    if (this.zenWheelDeaf) {
+      // Sliding quiet window: the gesture ends 150ms after its last
+      // event, however long its momentum runs.
+      if (this.zenWheelQuietTimer !== null) {
+        window.clearTimeout(this.zenWheelQuietTimer)
+      }
+      this.zenWheelQuietTimer = window.setTimeout(() => {
+        this.zenWheelQuietTimer = null
+        zenWheelLog('quiet unlock')
+        this.clearZenDeaf()
+      }, ZEN_WHEEL_QUIET_MS)
+    }
+  }
+
+  // The gesture is over: hear everything again, timers included.
+  clearZenDeaf () : void {
+    this.zenWheelDeaf = false
+    this.zenWheelAccum = 0
+    this.zenWheelDipMin = Number.POSITIVE_INFINITY
+    if (this.zenWheelQuietTimer !== null) {
+      window.clearTimeout(this.zenWheelQuietTimer)
+      this.zenWheelQuietTimer = null
+    }
+    if (this.zenWheelCapTimer !== null) {
+      window.clearTimeout(this.zenWheelCapTimer)
+      this.zenWheelCapTimer = null
+    }
+  }
+
+  armZenCap (windowMs : number) : void {
+    if (this.zenWheelCapTimer !== null) {
+      window.clearTimeout(this.zenWheelCapTimer)
+    }
+    this.zenWheelCapTimer = window.setTimeout(() => {
+      this.zenWheelCapTimer = null
+      this.onZenCapTrip()
+    }, windowMs)
+  }
+
+  // A stream still flowing this far past a page is deliberate input,
+  // not momentum — but only while it still runs hot. Sustained
+  // strength cruises on a short cadence; a cooling tail just waits
+  // out the quiet window, never earning a second page.
+  onZenCapTrip () : void {
+    if (! this.zenWheelDeaf || this.zenWheelDir === 0) {
+      return
+    }
+    if (this.zenWheelEma > ZEN_WHEEL_CRUISE_RATIO * this.zenWheelFireEma) {
+      this.zenWheelAccum = 0
+      this.pageZen(this.zenWheelDir)
+      zenWheelLog('cap trip: cruise PAGE')
+      this.armZenCap(ZEN_WHEEL_CRUISE_MS)
+    }
+    else {
+      zenWheelLog('cap trip: tail cooling, extend')
+      this.armZenCap(ZEN_WHEEL_CRUISE_MS)
+    }
+  }
+
+  // Touchscreen twin of the wheel trigger: a swipe over the strip
+  // steps one box. Taps stay under the travel bar; a swipe that
+  // scrolled the map list belongs to the list, never to paging.
+  onMapTouchStart (e : TouchEvent) : void {
+    if (this.props.state.zenMode !== true) {
+      return
+    }
+    const touch : Touch | undefined = e.touches[0] ?? e.changedTouches[0]
+    if (touch === undefined) {
+      return
+    }
+    this.zenTouchY = touch.clientY
+    this.zenTouchListTop = this.mapListRef.current?.scrollTop ?? null
+  }
+
+  onMapTouchEnd (e : TouchEvent) : void {
+    if (this.props.state.zenMode !== true || this.zenTouchY === null) {
+      return
+    }
+    const touch : Touch | undefined = e.changedTouches[0] ?? e.touches[0]
+    const startY : number = this.zenTouchY
+    const startTop : number | null = this.zenTouchListTop
+    this.zenTouchY = null
+    this.zenTouchListTop = null
+    if (touch === undefined) {
+      return
+    }
+    if (startTop !== null && this.mapListRef.current !== null && this.mapListRef.current.scrollTop !== startTop) {
+      return
+    }
+    const travel : number = startY - touch.clientY
+    if (Math.abs(travel) < ZEN_TOUCH_STEP_PX) {
+      return
+    }
+    this.pageZen(travel > 0 ? 1 : -1)
+  }
+
+  // One zen page by gesture: past either end the push lands quietly,
+  // the page lock already barring every other motion.
+  pageZen (dir : 1 | -1) : void {
+    const { boxList, focusedBoxIndex, activeBoxIndex } = this.props.state
+    const next : number | null = zenStep(focusedBoxIndex ?? activeBoxIndex, boxList.length, dir)
+    if (next !== null) {
+      this.makeActive(next)
     }
   }
 
@@ -395,8 +726,13 @@ export default class Notebook extends PureComponent<Props, State> {
           // Clicking a line jumps straight to its box; the anchor
           // carries the accent bar, flanked by the paging arrows that
           // echo the arrow keys (the floating box arrows are retired).
+          // In zen the whole strip pages box-to-box on wheel or swipe,
+          // caught by the invisible hitbox reaching past the short map
+          // small notebooks draw; the list keeps its own scrolling
+          // where it still has room to travel.
           boxList.length > 0 ?
-            <nav className='box-map' aria-label='Boxes in this notebook'>
+            <nav className='box-map' aria-label='Boxes in this notebook' ref={ this.mapNavRef }>
+              <div className='box-map-hitbox' aria-hidden='true' />
               <div
                 className={ `box-map-list${ this.state.mapAtTop ? '' : ' mask-top' }${ this.state.mapAtBottom ? '' : ' mask-bottom' }` }
                 ref={ this.mapListRef }
@@ -509,7 +845,7 @@ export default class Notebook extends PureComponent<Props, State> {
 
     boxListCopy.splice(index, 0, box)
 
-    this.props.updateNotebook({ boxList : syncDocksToFocus(boxListCopy, index), activeBoxIndex : index, focusedBoxIndex : index })
+    this.props.updateNotebook({ boxList : syncDocksToFocus(boxListCopy, index, this.props.state.zenMode), activeBoxIndex : index, focusedBoxIndex : index })
     this.seatRequested = index
   }
 
@@ -518,7 +854,7 @@ export default class Notebook extends PureComponent<Props, State> {
     const { boxList } = this.props.state
 
     boxList.splice(index + 1, 0, box)
-    this.props.updateNotebook({ boxList : syncDocksToFocus(boxList, index + 1), activeBoxIndex : index + 1, focusedBoxIndex : index + 1})
+    this.props.updateNotebook({ boxList : syncDocksToFocus(boxList, index + 1, this.props.state.zenMode), activeBoxIndex : index + 1, focusedBoxIndex : index + 1})
     this.seatRequested = index + 1
   }
 
@@ -589,7 +925,7 @@ export default class Notebook extends PureComponent<Props, State> {
           break
       }
 
-      this.props.updateNotebook({ activeBoxIndex : index, focusedBoxIndex : index, boxList : syncDocksToFocus(boxList, index) })
+      this.props.updateNotebook({ activeBoxIndex : index, focusedBoxIndex : index, boxList : syncDocksToFocus(boxList, index, this.props.state.zenMode) })
     }
 
     // Consumed post-commit below: measures final heights, so collapsing
@@ -599,6 +935,7 @@ export default class Notebook extends PureComponent<Props, State> {
   }
 
   componentDidUpdate (prevProps : Props) : void {
+    this.attachMapGestures()
     if (this.seatRequested !== null) {
       const index : number = this.seatRequested
       this.seatRequested = null
@@ -692,6 +1029,6 @@ export default class Notebook extends PureComponent<Props, State> {
         break
     }
 
-    this.props.updateNotebook({ boxList : syncDocksToFocus(boxList, undefined), focusedBoxIndex : undefined })
+    this.props.updateNotebook({ boxList : syncDocksToFocus(boxList, undefined, this.props.state.zenMode), focusedBoxIndex : undefined })
   }
 }
