@@ -210,6 +210,26 @@ test('the markdown detour loops back once the box is gone', async () => {
   await waitFor(() => expect(titleOf(container)).toBe('Add a box'));
 });
 
+test('the delete step rings the trash button, not the whole box', async () => {
+  const { container } = render(<Tour { ...props({ initialStep : 'pick' }) } />);
+  const frame = plantFrame(container, 'markDownBox', 'k-md');
+  const trash = document.createElement('div');
+  trash.setAttribute('title', 'Delete this Box from the Notebook');
+  trash.getBoundingClientRect = () => ({ x : 20, y : 10, top : 10, left : 20, right : 36, bottom : 26, width : 16, height : 16, toJSON : () => ({}) }) as DOMRect;
+  frame.appendChild(trash);
+  await waitFor(() => expect(titleOf(container)).toBe('A Markdown box'));
+
+  fireEvent.click(nextBtn(container));
+  expect(titleOf(container)).toBe('Delete a box');
+
+  // The ring seats on the 16px trash button with a 6px margin, not the frame.
+  const ring = container.querySelector('.tour--ring') as HTMLElement;
+  expect(ring).not.toBeNull();
+  expect(ring.style.top).toBe('4px');
+  expect(ring.style.left).toBe('14px');
+  expect(ring.style.width).toBe('28px');
+});
+
 test('pick next prefers the open picker, falling back to state', () => {
   const onPick = vi.fn();
   const onAddLambdaBox = vi.fn(() => 'k-fallback');
