@@ -84,3 +84,28 @@ test('accent hover previews site-wide, click commits, popup stays open', () => {
   expect(storedAccent()).toBe('amber');
   expect(container.querySelector('.top-bar--accent-pick')).not.toBeNull();
 });
+
+test('box style hover previews shell-wide, click commits, popup stays open', () => {
+  window.localStorage.clear();
+  const { container } = render(<App />);
+  const shellStyle = () => container.querySelector('#app')?.getAttribute('data-box-style');
+  const storedStyle = () => JSON.parse(window.localStorage.getItem('AppState') ?? '{}').boxStyle;
+  expect(shellStyle()).toBe('cards');
+
+  fireEvent.click(container.querySelector('[title="Accent theme"]') as HTMLElement);
+
+  // Preview: the whole shell follows the hover, storage keeps the committed style.
+  fireEvent.mouseEnter(container.querySelectorAll('.top-bar--boxpreview-option')[1]);
+  expect(shellStyle()).toBe('classic');
+  expect(storedStyle()).toBe('cards');
+
+  // No click: leaving the row falls back to the committed style.
+  fireEvent.mouseLeave(container.querySelector('.top-bar--boxpreview') as HTMLElement);
+  expect(shellStyle()).toBe('cards');
+
+  // Click commits, persists, and the popup stays open for comparing.
+  fireEvent.click(container.querySelectorAll(".top-bar--boxpreview input[type='radio']")[1]);
+  expect(shellStyle()).toBe('classic');
+  expect(storedStyle()).toBe('classic');
+  expect(container.querySelector('.top-bar--boxpreview')).not.toBeNull();
+});
