@@ -1,6 +1,6 @@
 import React from 'react';
 import { test, expect } from 'vitest';
-import { render, fireEvent } from '@testing-library/react';
+import { render, fireEvent, waitFor } from '@testing-library/react';
 import App from './App';
 import { createDefaultAppState, preferredTheme, saveTourState, loadTourState } from './Constants';
 import { TOUR_STEPS } from './components/Tour';
@@ -63,20 +63,12 @@ test('first load opens the guided tour, afterwards only the icon does', () => {
   window.localStorage.clear();
   const first = render(<App />);
   expect(first.container.querySelector('[role="dialog"]')).not.toBeNull();
-  expect(first.container.querySelector('.tour--title')?.textContent).toBe(TOUR_STEPS[0].title);
-
-  // The tour seeds exactly one evaluated demo box and remembers its key.
-  const demoBoxes = first.container.querySelectorAll('[data-box-key]');
-  expect(demoBoxes.length).toBe(1);
-  const stored = loadTourState();
-  expect(stored?.seeded).toBe(true);
-  expect(stored?.demoBoxKey).toBe(demoBoxes[0].getAttribute('data-box-key'));
-  expect(first.container.querySelector('.untypedLambdaBox')).not.toBeNull();
+  expect(first.container.querySelector('.tour--title')?.textContent).toBe('Welcome to Lambdulus');
   first.unmount();
 
-  // Snoozed mid-tour: no auto-open, and every step target resolves
+  // Snoozed mid-tour: no auto-open, and every step selector resolves
   // in a fresh render so the tour cannot rot silently.
-  saveTourState({ step : 2, done : true, seeded : true, demoBoxKey : stored?.demoBoxKey ?? null });
+  saveTourState({ step : 'macros', done : true });
   const second = render(<App />);
   expect(second.container.querySelector('[role="dialog"]')).toBeNull();
   for (const step of TOUR_STEPS) {
@@ -87,31 +79,70 @@ test('first load opens the guided tour, afterwards only the icon does', () => {
     }
   }
 
-  // The icon resumes where the tour left off — without a second demo box.
+  // The icon resumes where the tour left off.
   fireEvent.click(second.container.querySelector('[title="Guided tour"]') as HTMLElement);
-  expect(second.container.querySelector('.tour--title')?.textContent).toBe(TOUR_STEPS[2].title);
-  expect(second.container.querySelectorAll('[data-box-key]').length).toBe(1);
+  expect(second.container.querySelector('.tour--title')?.textContent).toBe('Macros');
   second.unmount();
 });
 
-test('the + step is live: clicking it advances, next chauffeurs it', () => {
+test('the tour conducts a lambda box from + to evaluated', async () => {
   window.localStorage.clear();
   const { container } = render(<App />);
   const nextBtn = () => [...container.querySelectorAll('.tour--actions button')].find((b) => b.textContent === 'Next') as Element;
+  const title = () => container.querySelector('.tour--title')?.textContent;
 
-  // Walk to the + step, then operate the real control.
+  // Welcome to the + step (empty notebook: the big + panel).
   fireEvent.click(nextBtn());
-  expect(container.querySelector('.tour--title')?.textContent).toBe(TOUR_STEPS[1].title);
-  fireEvent.mouseDown(container.querySelector('.add_box_after') as Element);
-  expect(container.querySelector('.tour--title')?.textContent).toBe(TOUR_STEPS[2].title);
+  expect(title()).toBe('Add a box');
 
-  // Back up: chauffeur mode opens the real picker and walks on exactly once.
-  const backBtn = [...container.querySelectorAll('.tour--actions button')].find((b) => b.textContent === 'Back') as Element;
-  fireEvent.click(backBtn);
-  expect(container.querySelector('.tour--title')?.textContent).toBe(TOUR_STEPS[1].title);
+  // The user clicks + themselves: picker opens, tour walks to box types.
+  fireEvent.click(container.querySelector('.create-box-plus') as Element);
+  expect(title()).toBe('Pick a box type');
+  expect(container.querySelector('[title="Create new λ box"]')).not.toBeNull();
+
+  // They pick λ: a real box appears, the tour watches it happen.
+  fireEvent.click(container.querySelector('[title="Create new λ box"]') as Element);
+  await waitFor(() => expect(title()).toBe('Write and evaluate'));
+  expect(container.querySelectorAll('.box-frame').length).toBe(1);
+
+  // Next does their typing and debugging; the evaluated box walks on.
   fireEvent.click(nextBtn());
-  expect(container.querySelector('.tour--title')?.textContent).toBe(TOUR_STEPS[2].title);
-  expect(container.querySelector('.add-box--group')).not.toBeNull();
+  await waitFor(() => expect(title()).toBe('Step through evaluation'));
+  expect(container.querySelector('.box-history-wrap')).not.toBeNull();
+
+  // To the end: the box stays behind for them to keep.
+  fireEvent.click(nextBtn());
+  expect(title()).toBe('Macros');
+  fireEvent.click(nextBtn());
+  expect(title()).toBe('Make it yours');
+  const done = [...container.querySelectorAll('.tour--actions button')].find((b) => b.textContent === 'Done') as Element;
+  fireEvent.click(done);
+  expect(container.querySelector('[role="dialog"]')).toBeNull();
+  expect(container.querySelectorAll('.box-frame').length).toBe(1);
+  expect(loadTourState()).toEqual({ step : 'welcome', done : true });
+});
+
+test('the markdown detour loops back once its box is deleted', async () => {
+  window.localStorage.clear();
+  const { container } = render(<App />);
+  const nextBtn = () => [...container.querySelectorAll('.tour--actions button')].find((b) => b.textContent === 'Next') as Element;
+  const title = () => container.querySelector('.tour--title')?.textContent;
+
+  fireEvent.click(nextBtn());
+  fireEvent.click(container.querySelector('.create-box-plus') as Element);
+  expect(title()).toBe('Pick a box type');
+
+  // The detour: markdown explains itself, then teaches deletion.
+  fireEvent.click(container.querySelector('[title="Create new MarkDown box"]') as Element);
+  await waitFor(() => expect(title()).toBe('A Markdown box'));
+  fireEvent.click(nextBtn());
+  expect(title()).toBe('Delete a box');
+
+  // Next deletes through state; the watcher loops back to adding, easter
+  // egg intact: the user may circle here for as long as they like.
+  fireEvent.click(nextBtn());
+  await waitFor(() => expect(title()).toBe('Add a box'));
+  expect(container.querySelectorAll('.box-frame').length).toBe(0);
 });
 
 test('accent hover previews site-wide, click commits, popup stays open', () => {

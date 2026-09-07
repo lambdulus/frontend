@@ -144,22 +144,18 @@ export function updateNotebookStateToStorage (index : number, notebook : Noteboo
 
 // Guided-tour progress, kept outside AppState on purpose: the tour is
 // transient UI onboarding, not workspace data, and must survive workspace
-// resets (clearing notebooks must not resurrect the tour).
+// resets (clearing notebooks must not resurrect the tour). Steps are string
+// ids — the tour branches (markdown detour loops back), so numbers cannot
+// address them.
 export interface TourState {
-  step : number
+  step : string
   done : boolean
-  // Whether the tour already seeded its demo box. One box ever: relaunching
-  // never duplicates it, and deleting it is respected (no resurrection).
-  seeded : boolean
-  // __key of the demo box, so relaunches (even after a reload) can still
-  // ring it. A deleted box simply leaves step two ringless.
-  demoBoxKey : string | null
 }
 
 const TOUR_KEY = 'LambdulusTour'
 
 export function defaultTourState () : TourState {
-  return { step : 0, done : false, seeded : false, demoBoxKey : null }
+  return { step : 'welcome', done : false }
 }
 
 // null means never started (or unreadable): first load opens the tour.
@@ -174,16 +170,10 @@ export function loadTourState () : TourState | null {
     const parsed : unknown = JSON.parse(raw)
 
     if (typeof parsed === 'object' && parsed !== null
-        && typeof (parsed as TourState).step === 'number'
-        && (parsed as TourState).step >= 0
+        && typeof (parsed as TourState).step === 'string'
+        && (parsed as TourState).step.length > 0
         && typeof (parsed as TourState).done === 'boolean') {
-      const demoBoxKey : unknown = (parsed as TourState).demoBoxKey
-      return {
-        step : Math.floor((parsed as TourState).step),
-        done : (parsed as TourState).done,
-        seeded : (parsed as TourState).seeded === true,
-        demoBoxKey : typeof demoBoxKey === 'string' ? demoBoxKey : null,
-      }
+      return { step : (parsed as TourState).step, done : (parsed as TourState).done }
     }
   }
   catch (e) {

@@ -6,7 +6,6 @@ import  { loadAppStateFromStorage
         , updateAppStateToStorage
         , updateNotebookStateToStorage
         , loadTourState
-        , saveTourState
         , CLEAR_NOTEBOOK_CONFIRMATION
         , RESET_WORKSPACE_CONFIRMATION
         , createEmptyNotebook
@@ -18,7 +17,7 @@ import TopBar from './components/TopBar'
 import Tour from './components/Tour'
 import Notebook from './screens/Notebook'
 import { Accent, BoxStyle, AppState, NotebookState, GlobalSettings, BoxType, BoxState } from './Types'
-import { CODE_NAME as UNTYPED_LAMBDA_CODE_NAME, createNewUntypedLambdaBoxFromSource, defaultSettings } from './untyped-lambda-integration/Constants'
+import { CODE_NAME as UNTYPED_LAMBDA_CODE_NAME, createNewUntypedLambdaBoxFromSource, createNewUntypedLambdaExpression, defaultSettings } from './untyped-lambda-integration/Constants'
 import { UntypedLambdaState, UntypedLambdaSettings, EvaluationStrategy, UntypedLambdaType } from './untyped-lambda-integration/Types'
 import { MacroTable } from '@lambdulus/core'
 import { Theme, ThemeContext } from './contexts/Theme'
@@ -52,6 +51,9 @@ export default class App extends Component<{}, AppState> {
     this.createNotebookFromURL = this.createNotebookFromURL.bind(this)
     this.openTour = this.openTour.bind(this)
     this.closeTour = this.closeTour.bind(this)
+    this.addTourLambdaBox = this.addTourLambdaBox.bind(this)
+    this.fillTourBoxEditor = this.fillTourBoxEditor.bind(this)
+    this.deleteTourBox = this.deleteTourBox.bind(this)
 
     // First load ever opens the guided tour; afterwards only the top-bar
     // icon opens it, resuming the saved step. Transient UI state, same as
@@ -60,46 +62,10 @@ export default class App extends Component<{}, AppState> {
   }
 
   private tourOpen : boolean
-  private demoBoxKey : string | null = null
 
   openTour () : void {
-    this.seedDemoBox()
     this.tourOpen = true
     this.forceUpdate()
-  }
-
-  // The tour shows, not just tells: opening it seeds one evaluated demo box
-  // into the active notebook (once ever — relaunches never duplicate it,
-  // and deleting it is respected). Locked notebooks take no new boxes, so
-  // a Manual-active tour simply opens ringless.
-  seedDemoBox () : void {
-    const stored = loadTourState()
-    this.demoBoxKey = stored?.demoBoxKey ?? null
-
-    if (stored?.seeded === true) {
-      return
-    }
-
-    const { notebooks, activeNotebookIndex } = this.state
-    const notebook : NotebookState | undefined = notebooks[activeNotebookIndex]
-
-    if (notebook === undefined || notebook.locked === true) {
-      return
-    }
-
-    try {
-      const settings = notebook.settings[UNTYPED_LAMBDA_CODE_NAME] as UntypedLambdaSettings | undefined
-      const demo = createNewUntypedLambdaBoxFromSource('(λ x . x y) a', settings ?? defaultSettings, UntypedLambdaType.ORDINARY, {})
-      this.demoBoxKey = demo.__key
-      this.updateNotebook({
-        boxList : [ ...notebook.boxList, demo ],
-        activeBoxIndex : notebook.boxList.length,
-      })
-      saveTourState({ step : stored?.step ?? 0, done : false, seeded : true, demoBoxKey : demo.__key })
-    }
-    catch (e) {
-      console.error(`Demo box seeding failed, opening the tour anyway.\n\n${e}`)
-    }
   }
 
   closeTour () : void {
@@ -107,16 +73,72 @@ export default class App extends Component<{}, AppState> {
     this.forceUpdate()
   }
 
-  componentDidMount () : void {
-    const shared : boolean = this.createNotebookFromURL()
+  // Tour chauffeur callbacks: the tour conducts box creation, filling and
+  // deletion through the same state path as the real UI, so chauffeured
+  // boxes are indistinguishable from hand-made ones.
+  tourSettings () : UntypedLambdaSettings | null {
+    const notebook : NotebookState | undefined = this.state.notebooks[this.state.activeNotebookIndex]
 
-    // First-run auto-open seeds the demo box too (the icon path seeds
-    // inside openTour; the constructor cannot setState for it). A shared
-    // link already delivers its own box — and its setState is still queued,
-    // so seeding here would read stale state and clobber it.
-    if (this.tourOpen && !shared) {
-      this.seedDemoBox()
+    if (notebook === undefined || notebook.locked === true) {
+      return null
     }
+
+    return (notebook.settings[UNTYPED_LAMBDA_CODE_NAME] as UntypedLambdaSettings | undefined) ?? defaultSettings
+  }
+
+  // An empty λ box in the active notebook; null when locked or missing.
+  addTourLambdaBox () : string | null {
+    const settings : UntypedLambdaSettings | null = this.tourSettings()
+
+    if (settings === null) {
+      return null
+    }
+
+    const { notebooks, activeNotebookIndex } = this.state
+    const box : UntypedLambdaState = createNewUntypedLambdaExpression(settings)
+    const boxList : Array<BoxState> = [ ...notebooks[activeNotebookIndex].boxList, box ]
+    this.updateNotebook({ boxList, activeBoxIndex : boxList.length - 1 })
+
+    return box.__key
+  }
+
+  fillTourBoxEditor (boxKey : string, content : string) : void {
+    const { notebooks, activeNotebookIndex } = this.state
+    const boxList : Array<BoxState> = notebooks[activeNotebookIndex].boxList.map((box : BoxState) =>
+      box.__key === boxKey && box.type === BoxType.UNTYPED_LAMBDA ?
+        { ...(box as UntypedLambdaState), editor : { ...(box as UntypedLambdaState).editor, content, syntaxError : null } }
+      :
+        box
+    )
+    this.updateNotebook({ boxList })
+  }
+
+  // Same nearest-valid-index rule as the notebook's own removeBox.
+  deleteTourBox (boxKey : string) : void {
+    const { notebooks, activeNotebookIndex } = this.state
+    const boxList : Array<BoxState> = notebooks[activeNotebookIndex].boxList
+    const index : number = boxList.findIndex((box : BoxState) => box.__key === boxKey)
+
+    if (index === -1) {
+      return
+    }
+
+    const nearestValidIndex = (i : number) => {
+      if (i < activeNotebookIndex) return activeNotebookIndex - 1
+      if (i > activeNotebookIndex) return activeNotebookIndex
+      if (boxList.length === 1) return NaN
+      if (i === 0) return i
+      return i - 1
+    }
+
+    this.updateNotebook({
+      boxList : boxList.filter((box : BoxState) => box.__key !== boxKey),
+      activeBoxIndex : nearestValidIndex(index),
+    })
+  }
+
+  componentDidMount () : void {
+    this.createNotebookFromURL()
   }
 
   // TODO: all of this needs to be moved to more apropriate component
@@ -259,9 +281,11 @@ export default class App extends Component<{}, AppState> {
             {
               this.tourOpen ?
                 <Tour
-                  initialStep={ loadTourState()?.step ?? 0 }
-                  demoBoxKey={ this.demoBoxKey }
+                  initialStep={ loadTourState()?.step ?? 'welcome' }
                   onClose={ this.closeTour }
+                  onAddLambdaBox={ this.addTourLambdaBox }
+                  onFillBoxEditor={ this.fillTourBoxEditor }
+                  onDeleteBox={ this.deleteTourBox }
                 />
               :
                 null
