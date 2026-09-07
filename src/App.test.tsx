@@ -2,7 +2,7 @@ import React from 'react';
 import { test, expect } from 'vitest';
 import { render, fireEvent } from '@testing-library/react';
 import App from './App';
-import { createDefaultAppState, preferredTheme, saveTourState } from './Constants';
+import { createDefaultAppState, preferredTheme, saveTourState, loadTourState } from './Constants';
 import { TOUR_STEPS } from './components/Tour';
 import { defaultSettings, createNewUntypedLambdaExpression } from './untyped-lambda-integration/Constants';
 import { Theme } from './contexts/Theme';
@@ -64,11 +64,19 @@ test('first load opens the guided tour, afterwards only the icon does', () => {
   const first = render(<App />);
   expect(first.container.querySelector('[role="dialog"]')).not.toBeNull();
   expect(first.container.querySelector('.tour--title')?.textContent).toBe(TOUR_STEPS[0].title);
+
+  // The tour seeds exactly one evaluated demo box and remembers its key.
+  const demoBoxes = first.container.querySelectorAll('[data-box-key]');
+  expect(demoBoxes.length).toBe(1);
+  const stored = loadTourState();
+  expect(stored?.seeded).toBe(true);
+  expect(stored?.demoBoxKey).toBe(demoBoxes[0].getAttribute('data-box-key'));
+  expect(first.container.querySelector('.untypedLambdaBox')).not.toBeNull();
   first.unmount();
 
   // Snoozed mid-tour: no auto-open, and every step target resolves
   // in a fresh render so the tour cannot rot silently.
-  saveTourState({ step : 2, done : true });
+  saveTourState({ step : 2, done : true, seeded : true, demoBoxKey : stored?.demoBoxKey ?? null });
   const second = render(<App />);
   expect(second.container.querySelector('[role="dialog"]')).toBeNull();
   for (const step of TOUR_STEPS) {
@@ -77,9 +85,10 @@ test('first load opens the guided tour, afterwards only the icon does', () => {
     }
   }
 
-  // The icon resumes where the tour left off.
+  // The icon resumes where the tour left off — without a second demo box.
   fireEvent.click(second.container.querySelector('[title="Guided tour"]') as HTMLElement);
   expect(second.container.querySelector('.tour--title')?.textContent).toBe(TOUR_STEPS[2].title);
+  expect(second.container.querySelectorAll('[data-box-key]').length).toBe(1);
   second.unmount();
 });
 

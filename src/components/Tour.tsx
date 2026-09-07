@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 
-import { saveTourState } from '../Constants'
+import { loadTourState, saveTourState } from '../Constants'
 
 import '../styles/Tour.css'
 
@@ -21,11 +21,8 @@ export const TOUR_STEPS : Array<TourStep> = [
     target : '.top-bar--tabs',
   },
   {
-    title : 'Add a box',
-    body : 'Boxes are the cells of a notebook. Hit the + affordance to add a λ Expression box for evaluating, or a Markdown box for notes.',
-    // Empty notebooks offer the big + panel, occupied ones a + row after
-    // each box — whichever is on screen gets the ring.
-    target : '.top-level--create-box, .add_box_after',
+    title : 'Here\u2019s your first box',
+    body : 'We added an evaluated expression — (λ x . x y) applied to a, waiting at its first step below. Hit the + affordance to add more boxes anytime; this one deletes like any other.',
   },
   {
     title : 'Write and evaluate',
@@ -49,6 +46,9 @@ export const TOUR_STEPS : Array<TourStep> = [
 
 interface Props {
   initialStep : number
+  // __key of the demo box seeded for this tour, if any. Step two rings it;
+  // a missing or deleted box simply leaves that step ringless.
+  demoBoxKey : string | null
   onClose () : void
 }
 
@@ -68,27 +68,40 @@ function clampStep (step : number) : number {
 }
 
 export default function Tour (props : Props) : JSX.Element {
-  const { initialStep, onClose } : Props = props
+  const { initialStep, demoBoxKey, onClose } : Props = props
+  const steps : Array<TourStep> = TOUR_STEPS.map((step, i) =>
+    i === 1 && demoBoxKey !== null ?
+      { ...step, target : `[data-box-key="${demoBoxKey}"]` }
+    :
+      step
+  )
   const [ step, setStep ] = useState(() => clampStep(initialStep))
   const [ ring, setRing ] = useState<Ring | null>(null)
-  const current : TourStep = TOUR_STEPS[step]
-  const last : boolean = step === TOUR_STEPS.length - 1
+  const current : TourStep = steps[step]
+  const last : boolean = step === steps.length - 1
+
+  // Step and done move; seeded and the demo key belong to the box,
+  // never to the walk.
+  const persist = (nextStep : number, done : boolean) => {
+    const stored = loadTourState()
+    saveTourState({ step : nextStep, done, seeded : stored?.seeded ?? false, demoBoxKey : stored?.demoBoxKey ?? null })
+  }
 
   const go = (next : number) => {
     const clamped : number = clampStep(next)
     setStep(clamped)
-    saveTourState({ step : clamped, done : false })
+    persist(clamped, false)
   }
 
   // Skip (or backdrop): done for now, resume where left off via the icon.
   const snooze = () => {
-    saveTourState({ step, done : true })
+    persist(step, true)
     onClose()
   }
 
   // Done on the last step: restart from the beginning next time.
   const finish = () => {
-    saveTourState({ step : 0, done : true })
+    persist(0, true)
     onClose()
   }
 
