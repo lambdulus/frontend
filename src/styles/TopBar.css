@@ -269,6 +269,7 @@
    control: native radios with the labels as the pills. */
 .top-bar--boxstyle-seg {
   display: inline-flex;
+  margin-top: 8px;
   gap: 2px;
   padding: 3px;
   border-radius: 999px;
