@@ -109,4 +109,7 @@ test('box style section stands off from the accent section', () => {
   expect(gap).toMatch(/margin-top\s*:\s*16px/);
   const seg = css.match(/\.top-bar--boxstyle-radio-wrapper input\[type='radio'\]:checked \+ \.top-bar--boxstyle-label\s*\{[^}]*\}/)?.[0] ?? '';
   expect(seg).toMatch(/background-color\s*:\s*var\(--accent\)/);
+  // Same label-to-control rhythm as the accent buttons above it.
+  const pill = css.match(/\.top-bar--boxstyle-seg\s*\{[^}]*\}/)?.[0] ?? '';
+  expect(pill).toMatch(/margin-top\s*:\s*8px/);
 });
