@@ -520,8 +520,6 @@ export default class Notebook extends PureComponent<Props, State> {
 
   makeActive (index : number) : void {
     const { activeBoxIndex, focusedBoxIndex, boxList } = this.props.state
-    // TEMP-DEBUG: revert before merging.
-    console.log('[seat-debug] makeActive', { index, activeBoxIndex, focusedBoxIndex })
 
     const currentType : BoxType = boxList[activeBoxIndex].type
 
@@ -575,9 +573,6 @@ export default class Notebook extends PureComponent<Props, State> {
     if (this.seatRequested !== null) {
       const index : number = this.seatRequested
       this.seatRequested = null
-      // TEMP-DEBUG: revert before merging.
-      const el : HTMLLIElement | null | undefined = this.boxRefs[index]
-      console.log('[seat-debug] seat', { index, el : el == null ? null : el.getBoundingClientRect().top, from : window.scrollY })
       this.ensureFocusRoom(index)
     }
     // A zen flip reflows the whole page discontinuously (entering
