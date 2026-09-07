@@ -10,6 +10,10 @@
   background-color: rgba(0, 0, 0, 0.55);
 }
 
+.tour--interactive .tour--backdrop {
+  pointer-events: none;
+}
+
 .tour--ring {
   position: fixed;
   border: 2px solid var(--accent);

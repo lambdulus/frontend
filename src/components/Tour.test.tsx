@@ -68,15 +68,50 @@ test('missing targets never break the card', () => {
   expect(container.querySelector('[role="dialog"]')).not.toBeNull();
 });
 
-test('step two points at the demo box when its key is known', () => {
+test('operating the + control advances just like next', () => {
+  const onPlus = vi.fn();
+  const { container } = render(
+    <div>
+      <div className='add_box_after' onMouseDown={ onPlus } />
+      <Tour initialStep={ 1 } demoBoxKey={ null } onClose={ () => void 0 } />
+    </div>
+  );
+
+  expect(container.querySelector('.tour')?.classList.contains('tour--interactive')).toBe(true);
+  fireEvent.mouseDown(container.querySelector('.add_box_after') as Element);
+  expect(onPlus).toHaveBeenCalledTimes(1);
+  expect(container.querySelector('.tour--title')?.textContent).toBe(TOUR_STEPS[2].title);
+  expect(loadTourState()).toEqual({ step : 2, done : false, seeded : false, demoBoxKey : null });
+  expect(container.querySelector('.tour')?.classList.contains('tour--interactive')).toBe(false);
+});
+
+test('next on the + step works the control, advancing exactly once', () => {
+  const onPlus = vi.fn();
+  const { container } = render(
+    <div>
+      <div className='add_box_after' onMouseDown={ onPlus } />
+      <Tour initialStep={ 1 } demoBoxKey={ null } onClose={ () => void 0 } />
+    </div>
+  );
+
+  const next = [...container.querySelectorAll('.tour--actions button')].find((b) => b.textContent === 'Next') as Element;
+  fireEvent.click(next);
+  // Chauffeur mode: the control got its mousedown, the flagged events did
+  // not re-advance, and we walked on exactly once.
+  expect(onPlus).toHaveBeenCalledTimes(1);
+  expect(container.querySelector('.tour--title')?.textContent).toBe(TOUR_STEPS[2].title);
+  expect(loadTourState()).toEqual({ step : 2, done : false, seeded : false, demoBoxKey : null });
+});
+
+test('the stepping step points at the demo box when its key is known', () => {
   const { container } = render(
     <div>
       <div data-box-key='demo-1' />
-      <Tour initialStep={ 1 } demoBoxKey='demo-1' onClose={ () => void 0 } />
+      <Tour initialStep={ 3 } demoBoxKey='demo-1' onClose={ () => void 0 } />
     </div>
   );
   // The ring itself needs real layout, but the step resolved its target:
   // with an unknown key the same step stays ringless by construction.
   expect(container.querySelector('[data-box-key="demo-1"]')).not.toBeNull();
-  expect(container.querySelector('.tour--title')?.textContent).toBe(TOUR_STEPS[1].title);
+  expect(container.querySelector('.tour--title')?.textContent).toBe(TOUR_STEPS[3].title);
 });

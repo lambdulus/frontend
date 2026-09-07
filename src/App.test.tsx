@@ -80,8 +80,10 @@ test('first load opens the guided tour, afterwards only the icon does', () => {
   const second = render(<App />);
   expect(second.container.querySelector('[role="dialog"]')).toBeNull();
   for (const step of TOUR_STEPS) {
-    if (step.target !== undefined) {
-      expect(second.container.querySelector(step.target), step.target).not.toBeNull();
+    for (const selector of [ step.target, step.advanceOn ]) {
+      if (selector !== undefined) {
+        expect(second.container.querySelector(selector), selector).not.toBeNull();
+      }
     }
   }
 
@@ -90,6 +92,26 @@ test('first load opens the guided tour, afterwards only the icon does', () => {
   expect(second.container.querySelector('.tour--title')?.textContent).toBe(TOUR_STEPS[2].title);
   expect(second.container.querySelectorAll('[data-box-key]').length).toBe(1);
   second.unmount();
+});
+
+test('the + step is live: clicking it advances, next chauffeurs it', () => {
+  window.localStorage.clear();
+  const { container } = render(<App />);
+  const nextBtn = () => [...container.querySelectorAll('.tour--actions button')].find((b) => b.textContent === 'Next') as Element;
+
+  // Walk to the + step, then operate the real control.
+  fireEvent.click(nextBtn());
+  expect(container.querySelector('.tour--title')?.textContent).toBe(TOUR_STEPS[1].title);
+  fireEvent.mouseDown(container.querySelector('.add_box_after') as Element);
+  expect(container.querySelector('.tour--title')?.textContent).toBe(TOUR_STEPS[2].title);
+
+  // Back up: chauffeur mode opens the real picker and walks on exactly once.
+  const backBtn = [...container.querySelectorAll('.tour--actions button')].find((b) => b.textContent === 'Back') as Element;
+  fireEvent.click(backBtn);
+  expect(container.querySelector('.tour--title')?.textContent).toBe(TOUR_STEPS[1].title);
+  fireEvent.click(nextBtn());
+  expect(container.querySelector('.tour--title')?.textContent).toBe(TOUR_STEPS[2].title);
+  expect(container.querySelector('.add-box--group')).not.toBeNull();
 });
 
 test('accent hover previews site-wide, click commits, popup stays open', () => {
