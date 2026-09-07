@@ -43,6 +43,15 @@ export const ADD_BOX_LABEL = '+ Untyped λ Expression'
 
 export const CODE_NAME = 'UNTYPED_LAMBDA_CALCULUS'
 
+// #60: bound for the number of micro-steps a single-step macro perform may
+// grind while normalizing its application before returning to the caller.
+// A recursive macro applied to too few arguments (e.g. the function part of
+// `/ 4 2` without its pending divisor) has no normal form on its own, so an
+// unbounded loop never returns and freezes the page. Capping the loop turns
+// the freeze into partial progress: the caller reattaches the pending
+// context and evaluation continues from there.
+export const SINGLE_STEP_NORMALIZATION_CAP = 100
+
 export const defaultSettings : UntypedLambdaSettings = {
   type : BoxType.UNTYPED_LAMBDA,
   SLI : true,
@@ -620,6 +629,7 @@ export function findSimplifiedReduction (ast : AST, strategy : EvaluationStrateg
             // normalize the whole tree
             // top-most APP or ABS a result of the Macro-Beta
   
+            let wholeTreeIterations : number = 0
             while (true) {
               const [nextReduction, evaluateReduction] : [ASTReduction, any] =
                 findSimplifiedReduction(ast, strategy, macrotable)
@@ -629,6 +639,13 @@ export function findSimplifiedReduction (ast : AST, strategy : EvaluationStrateg
               }
               else {
                 ast = evaluateReduction(ast)
+                wholeTreeIterations++
+                if (wholeTreeIterations >= SINGLE_STEP_NORMALIZATION_CAP) {
+                  // #60: not converging (no normal form reachable from this
+                  // subtree alone) -- return partial progress instead of
+                  // hanging; the caller continues with the full context.
+                  break
+                }
               }
             }
           }
@@ -636,6 +653,7 @@ export function findSimplifiedReduction (ast : AST, strategy : EvaluationStrateg
             const treeSide : Child = lastparent.left.identifier === lastapp.identifier ? Child.Left : Child.Right
   
             // debugger
+            let subTreeIterations : number = 0
             while (true) {
               const [nextReduction, evaluateReduction] : [ASTReduction, any] =
                 findSimplifiedReduction(lastapp as AST, strategy, macrotable)
@@ -646,6 +664,15 @@ export function findSimplifiedReduction (ast : AST, strategy : EvaluationStrateg
               }
               else {
                 lastapp = evaluateReduction(lastapp)
+                subTreeIterations++
+                if (subTreeIterations >= SINGLE_STEP_NORMALIZATION_CAP) {
+                  // #60: not converging (no normal form reachable from this
+                  // subtree alone, e.g. recursive `/` without its pending
+                  // divisor) -- reattach partial progress and return instead
+                  // of hanging; the caller continues with the full context.
+                  lastparent[treeSide] = lastapp as AST
+                  return ast
+                }
               }
             }
           }
