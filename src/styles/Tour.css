@@ -10,8 +10,12 @@
   background-color: rgba(0, 0, 0, 0.55);
 }
 
-.tour--interactive .tour--backdrop {
+.tour--live {
   pointer-events: none;
+}
+
+.tour--live .tour--card {
+  pointer-events: auto;
 }
 
 .tour--ring {
