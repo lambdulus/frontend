@@ -322,3 +322,39 @@ test('exercise created at an eta-redex is not marked normal', () => {
     unmount();
   }
 });
+
+test('submitting an open macro definition shows the core error', () => {
+  // TEST := x y would capture x under a lambda at the use site; core
+  // rejects the definition with OpenMacroDefinition (name + free vars)
+  // and the box surfaces that message instead of a generic hint.
+  const initial = createNewUntypedLambdaExpression(defaultSettings);
+  initial.editor.content = 'TEST := x y ; (λ x y . x y) TEST';
+
+  const { container, unmount } = render(<Harness initial={ initial } />);
+  try {
+    fireEvent.click(container.querySelector('.open-as-debug') as HTMLElement);
+    const error = lastState().editor.syntaxError;
+    expect(error).not.toBeNull();
+    expect(error?.message).toContain('"TEST"');
+    expect(error?.message).toContain('x, y');
+    expect(container.querySelector('.editorError')).not.toBeNull();
+  }
+  finally {
+    unmount();
+  }
+});
+
+test('submitting closed macros still works, aliases included', () => {
+  const initial = createNewUntypedLambdaExpression(defaultSettings);
+  initial.editor.content = 'ID := (λ x . x) ; ALSO := ID ; ALSO 5';
+
+  const { container, unmount } = render(<Harness initial={ initial } />);
+  try {
+    fireEvent.click(container.querySelector('.open-as-debug') as HTMLElement);
+    expect(lastState().editor.syntaxError).toBeNull();
+    expect(lastState().subtype).toBe(UntypedLambdaType.ORDINARY);
+  }
+  finally {
+    unmount();
+  }
+});
