@@ -278,6 +278,9 @@ test('deleting the markdown box on the delete step loops back at once', async ()
   expect(frame).not.toBeNull();
   fireEvent.click(frame.querySelector('[title="Delete this Box from the Notebook"]') as HTMLElement);
 
+  // Trash asks first; confirming deletes and the watcher loops back.
+  fireEvent.click(container.querySelector('.box-delete-confirm-delete') as HTMLElement);
+
   await waitFor(() => expect(container.querySelector('.tour--title')?.textContent).toBe('Add a box'));
   expect(container.querySelectorAll('.box-frame').length).toBe(0);
 });
@@ -295,6 +298,7 @@ test('deleting early on the explainer loops back through next', async () => {
 
   const frame = container.querySelector('.box-frame:has(.markDownBox)') as HTMLElement;
   fireEvent.click(frame.querySelector('[title="Delete this Box from the Notebook"]') as HTMLElement);
+  fireEvent.click(container.querySelector('.box-delete-confirm-delete') as HTMLElement);
   fireEvent.click(nextBtn());
 
   await waitFor(() => expect(title()).toBe('Add a box'));

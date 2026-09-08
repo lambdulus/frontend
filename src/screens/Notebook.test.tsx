@@ -1321,3 +1321,101 @@ test('scrollable history sits back slightly, focused step comes forward', () => 
   const block = css.match(/\.box-history-scroll \.inactiveStep\s*\{[^}]*\}/)?.[0] ?? '';
   expect(block).toMatch(/opacity\s*:\s*0\.8/);
 });
+
+function deleteNotebook (onPatch : (patch : Partial<NotebookState>) => void, confirmBoxDelete : boolean = true, onConfirm : (confirm : boolean) => void = () => void 0) {
+  const state : NotebookState = {
+    name : 'Test',
+    boxList : [ noteBox('first', 'a'), noteBox('second', 'b') ],
+    activeBoxIndex : 0,
+    focusedBoxIndex : 0,
+    menuOpen : false,
+    settings : {},
+    __key : 'nb',
+  };
+  return render(
+    <Notebook
+      state={ state }
+      updateNotebook={ onPatch }
+      confirmBoxDelete={ confirmBoxDelete }
+      onConfirmBoxDeleteChange={ onConfirm }
+    />
+  );
+}
+
+const TRASH = '[title="Delete this Box from the Notebook"]';
+
+function clickFirstTrash (container : HTMLElement) : void {
+  fireEvent.click(container.querySelectorAll(TRASH)[0] as HTMLElement);
+}
+
+test('trash with asking on parks a dialog and deletes nothing', () => {
+  const patches : Array<Partial<NotebookState>> = [];
+  const { container, unmount } = deleteNotebook((patch) => { patches.push(patch); });
+  try {
+    clickFirstTrash(container);
+    expect(patches.length).toBe(0);
+    expect(container.querySelector('.box-delete-confirm')).not.toBeNull();
+  }
+  finally {
+    unmount();
+  }
+});
+
+test('dialog delete removes the box, cancel keeps it', () => {
+  const patches : Array<Partial<NotebookState>> = [];
+  const { container, unmount } = deleteNotebook((patch) => { patches.push(patch); });
+  try {
+    clickFirstTrash(container);
+    fireEvent.click(container.querySelector('.box-delete-confirm-cancel') as HTMLElement);
+    expect(patches.length).toBe(0);
+    expect(container.querySelector('.box-delete-confirm')).toBeNull();
+
+    clickFirstTrash(container);
+    fireEvent.click(container.querySelector('.box-delete-confirm-delete') as HTMLElement);
+    expect(patches.length).toBe(1);
+    expect(patches[0].boxList?.length).toBe(1);
+    expect(container.querySelector('.box-delete-confirm')).toBeNull();
+  }
+  finally {
+    unmount();
+  }
+});
+
+test('dont-ask-again applies on either button', () => {
+  const seen : Array<boolean> = [];
+  const patches : Array<Partial<NotebookState>> = [];
+  const { container, unmount } = deleteNotebook((patch) => { patches.push(patch); }, true, (confirm) => { seen.push(confirm); });
+  try {
+    // Cancel with the box checked: kept, but asking turns off.
+    clickFirstTrash(container);
+    fireEvent.click(container.querySelector('.box-delete-confirm-again input') as HTMLElement);
+    fireEvent.click(container.querySelector('.box-delete-confirm-cancel') as HTMLElement);
+    expect(patches.length).toBe(0);
+    expect(seen).toEqual([ false ]);
+
+    // Delete with the box checked: removed, asking turns off.
+    clickFirstTrash(container);
+    fireEvent.click(container.querySelector('.box-delete-confirm-again input') as HTMLElement);
+    fireEvent.click(container.querySelector('.box-delete-confirm-delete') as HTMLElement);
+    expect(patches.length).toBe(1);
+    expect(patches[0].boxList?.length).toBe(1);
+    expect(seen).toEqual([ false, false ]);
+  }
+  finally {
+    unmount();
+  }
+});
+
+test('trash with asking off deletes outright', () => {
+  const patches : Array<Partial<NotebookState>> = [];
+  const { container, unmount } = deleteNotebook((patch) => { patches.push(patch); }, false);
+  try {
+    clickFirstTrash(container);
+    expect(container.querySelector('.box-delete-confirm')).toBeNull();
+    expect(patches.length).toBe(1);
+    expect(patches[0].boxList?.length).toBe(1);
+  }
+  finally {
+    unmount();
+  }
+});

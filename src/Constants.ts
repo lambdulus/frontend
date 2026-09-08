@@ -106,6 +106,7 @@ export function createDefaultAppState () : AppState {
     theme : preferredTheme(),
     accent : 'emerald',
     boxStyle : 'cards',
+    confirmBoxDelete : true,
   }
 }
 
@@ -204,6 +205,7 @@ export function decode (state : AppState) : AppState | never {
       theme : state.theme ?? Theme.Dark,
       accent : 'emerald',
       boxStyle : 'cards',
+      confirmBoxDelete : true,
     }
   }
 
@@ -236,6 +238,8 @@ export function decode (state : AppState) : AppState | never {
     activeNotebookIndex,
     accent,
     boxStyle,
+    // Asking defaults to on: only an explicit false opts out.
+    confirmBoxDelete : legacy.confirmBoxDelete !== false,
   }
 }
 

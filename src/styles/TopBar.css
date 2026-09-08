@@ -526,3 +526,11 @@
   position: absolute;
   z-index: -1;
 }
+
+/* Deletion confirmation toggle: plain checkbox row under its title. */
+.top-bar--delete-confirm {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+}

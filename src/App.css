@@ -451,3 +451,68 @@ body.zen {
   margin-top: 0.5em;
 }
 
+
+/* Box delete confirmation: fixed overlay, card on a dimmed backdrop. */
+.box-delete-confirm {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.box-delete-confirm-backdrop {
+  position: absolute;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.35);
+}
+
+.box-delete-confirm-card {
+  position: relative;
+  width: 300px;
+  background-color: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  box-shadow: var(--shadow);
+  padding: 16px 18px;
+}
+
+.box-delete-confirm-title {
+  margin: 0 0 10px;
+  font-weight: 600;
+}
+
+.box-delete-confirm-again {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.9em;
+  color: var(--muted);
+  cursor: pointer;
+}
+
+.box-delete-confirm-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.box-delete-confirm-cancel {
+  background-color: transparent;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 3px 14px;
+  cursor: pointer;
+}
+
+.box-delete-confirm-delete {
+  background-color: var(--accent);
+  color: var(--accent-ink);
+  border: none;
+  border-radius: 999px;
+  padding: 4px 14px;
+  font-weight: 600;
+  cursor: pointer;
+}

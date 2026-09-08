@@ -11,6 +11,10 @@ interface Props {
   state : NotebookState
 
   updateNotebook (notebook : Partial<NotebookState>) : void
+
+  // App-wide delete confirmation (absent call sites keep asking).
+  confirmBoxDelete? : boolean
+  onConfirmBoxDeleteChange? : (confirm : boolean) => void
 }
 
 // The prime line sits in the upper third of the view: the box owning
@@ -174,9 +178,11 @@ export function mapBoxLabel (box : BoxState) : string {
 interface State {
   mapAtTop : boolean
   mapAtBottom : boolean
+  confirmDeleteIndex : number | null
 }
 
 export default class Notebook extends PureComponent<Props, State> {
+  private dontAskRef : React.RefObject<HTMLInputElement>
   private boxRefs : Array<HTMLLIElement | null>
   private mapListRef : React.RefObject<HTMLDivElement>
   private seatRequested : number | null
@@ -204,6 +210,7 @@ export default class Notebook extends PureComponent<Props, State> {
   constructor (props : Props) {
     super(props)
 
+    this.dontAskRef = React.createRef<HTMLInputElement>()
     this.boxRefs = []
     this.mapListRef = React.createRef<HTMLDivElement>()
     this.seatRequested = null
@@ -227,11 +234,14 @@ export default class Notebook extends PureComponent<Props, State> {
     this.zenWheelCapTimer = null
     this.zenTouchY = null
     this.zenTouchListTop = null
-    this.state = { mapAtTop : true, mapAtBottom : true }
+    this.state = { mapAtTop : true, mapAtBottom : true, confirmDeleteIndex : null }
 
     this.insertBefore = this.insertBefore.bind(this)
     this.insertAfter = this.insertAfter.bind(this)
     this.removeBox = this.removeBox.bind(this)
+    this.requestRemoveBox = this.requestRemoveBox.bind(this)
+    this.confirmDeleteBox = this.confirmDeleteBox.bind(this)
+    this.cancelDeleteBox = this.cancelDeleteBox.bind(this)
     this.updateBoxState = this.updateBoxState.bind(this)
     this.makeActive = this.makeActive.bind(this)
     this.onBlur = this.onBlur.bind(this)
@@ -689,7 +699,7 @@ export default class Notebook extends PureComponent<Props, State> {
                 addBoxBefore={ (box : BoxState) => this.insertBefore(i, box) }
                 addBoxAfter={ (box : BoxState) => this.insertAfter(i, box) }
                 makeActive={ () => this.makeActive(i) }
-                removeBox={ () => this.removeBox(i) }
+                removeBox={ () => this.requestRemoveBox(i) }
                 updateBoxState={ (box : BoxState) => this.updateBoxState(i, box) }
                 onBlur={ () => this.onBlur(i) }
               />
@@ -834,6 +844,39 @@ export default class Notebook extends PureComponent<Props, State> {
           :
             null
         }
+        {
+          // Delete confirmation for the trash icon. A stale parked index
+          // (the list changed under the open dialog) dismisses itself.
+          this.state.confirmDeleteIndex !== null && boxList[this.state.confirmDeleteIndex] !== undefined ?
+            <div className='box-delete-confirm'>
+              <div className='box-delete-confirm-backdrop' onClick={ () => this.cancelDeleteBox() } />
+              <div className='box-delete-confirm-card' role='alertdialog' aria-label='Delete this box?'>
+                <p className='box-delete-confirm-title'>
+                  Delete this box?
+                </p>
+                <label className='box-delete-confirm-again'>
+                  <input type='checkbox' ref={ this.dontAskRef } />
+                  Don&apos;t ask me this again
+                </label>
+                <div className='box-delete-confirm-actions'>
+                  <button
+                    className='box-delete-confirm-cancel'
+                    onClick={ () => this.cancelDeleteBox() }
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    className='box-delete-confirm-delete'
+                    onClick={ () => this.confirmDeleteBox() }
+                  >
+                    Delete
+                  </button>
+                </div>
+              </div>
+            </div>
+          :
+            null
+        }
       </div>
     )
   }
@@ -856,6 +899,38 @@ export default class Notebook extends PureComponent<Props, State> {
     boxList.splice(index + 1, 0, box)
     this.props.updateNotebook({ boxList : syncDocksToFocus(boxList, index + 1, this.props.state.zenMode), activeBoxIndex : index + 1, focusedBoxIndex : index + 1})
     this.seatRequested = index + 1
+  }
+
+  // The trash icon lands here: with asking on, the index parks in the
+  // confirm dialog instead of deleting outright.
+  requestRemoveBox (index : number) : void {
+    if ((this.props.confirmBoxDelete ?? true) === true) {
+      this.setState({ confirmDeleteIndex : index })
+    }
+    else {
+      this.removeBox(index)
+    }
+  }
+
+  // "Don't ask me again" applies on either button; only Delete removes.
+  applyDontAskAgain () : void {
+    if (this.dontAskRef.current !== null && this.dontAskRef.current.checked) {
+      this.props.onConfirmBoxDeleteChange?.(false)
+    }
+  }
+
+  confirmDeleteBox () : void {
+    const index : number | null = this.state.confirmDeleteIndex
+    this.applyDontAskAgain()
+    this.setState({ confirmDeleteIndex : null })
+    if (index !== null) {
+      this.removeBox(index)
+    }
+  }
+
+  cancelDeleteBox () : void {
+    this.applyDontAskAgain()
+    this.setState({ confirmDeleteIndex : null })
   }
 
   removeBox (index : number) : void {
