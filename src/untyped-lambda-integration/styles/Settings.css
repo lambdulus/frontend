@@ -104,6 +104,30 @@
   border: 1px solid var(--border);
 }
 
+/* Restart offer: right-aligned stack, short label over an accent button. */
+.untyped-lambda-settings-restart {
+  margin-left: auto;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+}
+
+.untyped-lambda-settings-restart-label {
+  font-size: 0.85em;
+  color: var(--muted);
+}
+
+.untyped-lambda-settings-restart-button {
+  background-color: var(--accent);
+  color: var(--accent-ink);
+  border: none;
+  border-radius: 999px;
+  padding: 3px 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
 .untyped-lambda-settings--strategy-radio-wrapper {
   margin-left: 0;
   padding: 0;

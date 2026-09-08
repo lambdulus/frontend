@@ -50,6 +50,17 @@ export enum EvaluationStrategy {
   ABSTRACTION = 'Abstraction / Simplified Evaluation'
 }
 
+// The evaluation settings a session was submitted with. A submitted box
+// whose current strategy/SLI/SDE differ was stepped under different
+// rules, so the panel offers a restart. ETA is recorded but never
+// dirties: it has its own at-normal-form behavior.
+export interface SubmittedSettings {
+  strategy : EvaluationStrategy
+  SLI : boolean
+  SDE : boolean
+  ETA : boolean
+}
+
 export interface UntypedLambdaState extends AbstractBoxState {
   __key : string
   type : BoxType
@@ -69,6 +80,7 @@ export interface UntypedLambdaState extends AbstractBoxState {
   SLI : boolean
   expandStandalones : boolean
   collapseOldSteps : boolean
+  submittedWith? : SubmittedSettings
 
   macrolistOpen : boolean
   // The dock the user asked for: set by the dock head and the tour, never

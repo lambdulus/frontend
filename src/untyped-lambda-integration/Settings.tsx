@@ -7,12 +7,14 @@ import './styles/Settings.css'
 interface Props {
   settings : UntypedLambdaSettings
   settingsEnabled : SettingsEnabled
+  restartNeeded? : boolean
 
   change : (settings : UntypedLambdaSettings) => void
+  onRestart? : () => void
 }
 
 export default function Settings (props : Props) : JSX.Element {
-  const { settings, change, settingsEnabled } : Props = props
+  const { settings, change, settingsEnabled, restartNeeded, onRestart } : Props = props
   const { SLI, expandStandalones, strategy, SDE, ETA, collapseOldSteps } : UntypedLambdaSettings = settings
   const { SLI : SLI_E, expandStandalones : expSt_E, strategy : strat_E } : SettingsEnabled = settingsEnabled
 
@@ -187,6 +189,24 @@ export default function Settings (props : Props) : JSX.Element {
               </label>
             </span>
             </span>
+            {
+              // The session was stepped under different settings: offer
+              // to reparse and resubmit from scratch with the current ones.
+              restartNeeded === true && onRestart !== undefined ?
+                <span className='untyped-lambda-settings-restart'>
+                  <span className='untyped-lambda-settings-restart-label'>
+                    Settings changed
+                  </span>
+                  <button
+                    className='untyped-lambda-settings-restart-button'
+                    onClick={ onRestart }
+                  >
+                    Restart?
+                  </button>
+                </span>
+              :
+                null
+            }
           </div>
         :
           null
