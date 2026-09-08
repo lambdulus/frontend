@@ -1,7 +1,7 @@
 import { readFileSync } from 'fs';
 import { test, expect, vi, afterEach, beforeEach } from 'vitest';
 import { render, fireEvent, cleanup, waitFor } from '@testing-library/react';
-import Tour, { TOUR_STEPS } from './Tour';
+import Tour, { TOUR_STEPS, BACK, NEXT_MAIN } from './Tour';
 import { loadTourState } from '../Constants';
 
 afterEach(() => cleanup());
@@ -293,6 +293,15 @@ test('the tour ids stay addressable', () => {
   ]);
 });
 
+test('every step is reachable by Next and Back through the settings walk', () => {
+  // The walk does not follow array order, so an added step must also be
+  // linked into both chains or Next sails right past it.
+  expect(NEXT_MAIN['set-sde']).toBe('set-eta');
+  expect(NEXT_MAIN['set-eta']).toBe('set-collapse');
+  expect(BACK['set-eta']).toBe('set-sde');
+  expect(BACK['set-collapse']).toBe('set-eta');
+});
+
 test('zen next enables zen mode through state and dwells before the finale', () => {
   const onSetZenMode = vi.fn();
   const { container } = render(<Tour { ...props({ initialStep : 'zen', onSetZenMode }) } />);
@@ -391,7 +400,7 @@ test('settings next opens the panel through state and walks each switch', async 
   expect(onSetBoxSettings).toHaveBeenCalledWith('k-lambda', true);
   expect(titleOf(container)).toBe('Single Letter Names');
 
-  for (const title of [ 'Simplified Evaluation', 'Collapse Old Steps', 'Evaluation Strategies' ]) {
+  for (const title of [ 'Simplified Evaluation', 'Eta Conversion', 'Collapse Old Steps', 'Evaluation Strategies' ]) {
     fireEvent.click(nextBtn(container));
     expect(titleOf(container)).toBe(title);
   }

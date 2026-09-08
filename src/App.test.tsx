@@ -156,6 +156,9 @@ test('the tour conducts a lambda box from + to evaluated', async () => {
   expect(title()).toBe('Simplified Evaluation');
   expect(container.querySelector('.untyped-lambda-settings-SDE')).not.toBeNull();
   fireEvent.click(nextBtn());
+  expect(title()).toBe('Eta Conversion');
+  expect(container.querySelector('.untyped-lambda-settings-ETA')).not.toBeNull();
+  fireEvent.click(nextBtn());
   expect(title()).toBe('Collapse Old Steps');
   expect(container.querySelector('.untyped-lambda-settings-collapse')).not.toBeNull();
   fireEvent.click(nextBtn());

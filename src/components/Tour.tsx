@@ -280,7 +280,7 @@ export const TOUR_STEPS : Array<TourStep> = [
 
 const MAIN_DOTS = [ 'welcome', 'add', 'pick', 'type', 'stepping', 'boxmap', 'settings', 'macros', 'share', 'zen', 'cleaning', 'yours', 'transfer', 'report', 'recap' ]
 
-const BACK : Record<string, string | null> = {
+export const BACK : Record<string, string | null> = {
   welcome : null,
   add : 'welcome',
   pick : 'add',
@@ -290,7 +290,8 @@ const BACK : Record<string, string | null> = {
   settings : 'boxmap',
   'set-sli' : 'settings',
   'set-sde' : 'set-sli',
-  'set-collapse' : 'set-sde',
+  'set-eta' : 'set-sde',
+  'set-collapse' : 'set-eta',
   'set-strategy' : 'set-collapse',
   macros : 'set-strategy',
   share : 'macros',
@@ -309,14 +310,15 @@ const BACK : Record<string, string | null> = {
   'md-delete' : 'md-explain',
 }
 
-const NEXT_MAIN : Record<string, string> = {
+export const NEXT_MAIN : Record<string, string> = {
   welcome : 'add',
   add : 'pick',
   stepping : 'boxmap',
   boxmap : 'settings',
   settings : 'set-sli',
   'set-sli' : 'set-sde',
-  'set-sde' : 'set-collapse',
+  'set-sde' : 'set-eta',
+  'set-eta' : 'set-collapse',
   'set-collapse' : 'set-strategy',
   'set-strategy' : 'macros',
   macros : 'share',
