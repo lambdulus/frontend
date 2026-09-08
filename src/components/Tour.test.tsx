@@ -286,7 +286,7 @@ test('the tour card rides low instead of covering centered dialogs', () => {
 test('the tour ids stay addressable', () => {
   expect(TOUR_STEPS.map((s) => s.id)).toEqual([
     'welcome', 'add', 'pick', 'type', 'stepping', 'boxmap',
-    'settings', 'set-sli', 'set-sde', 'set-collapse', 'set-strategy',
+    'settings', 'set-sli', 'set-sde', 'set-eta', 'set-collapse', 'set-strategy',
     'macros', 'share', 'zen', 'zen-dwell', 'cleaning', 'clean-notebook', 'clean-workspace',
     'yours', 'theme-accent', 'theme-style', 'transfer', 'report', 'recap',
     'md-explain', 'md-delete',
