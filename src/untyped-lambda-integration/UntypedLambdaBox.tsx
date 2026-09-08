@@ -137,7 +137,15 @@ export default class UntypedLambdaBox extends PureComponent<Props, State> {
 
   render () {
     const { state, isActive, isFocused, isAnchorBox, setBoxState, addBox, titleActionsHost } : Props = this.props
-    const { settingsOpen, subtype, macrolistOpen, SLI, expandStandalones, strategy, SDE, ETA, collapseOldSteps, editor, minimized } : UntypedLambdaState = state
+    const { settingsOpen, subtype, macrolistOpen, SLI, expandStandalones, strategy, SDE, ETA, collapseOldSteps, editor, minimized, history, submittedWith } : UntypedLambdaState = state
+
+    // A submitted session stepped under different strategy/SLI/SDE can
+    // restart from scratch with the current ones. ETA never dirties:
+    // it reopens stepping at normal form on its own.
+    const restartNeeded : boolean =
+      (history ?? []).length > 0
+      && submittedWith !== undefined
+      && (submittedWith.strategy !== strategy || submittedWith.SLI !== SLI || submittedWith.SDE !== SDE)
 
 
     const renderBoxContent = () => {
@@ -201,8 +209,32 @@ export default class UntypedLambdaBox extends PureComponent<Props, State> {
               <Settings
                 settings={ { type : BoxType.UNTYPED_LAMBDA, SLI, expandStandalones, strategy, SDE, ETA : ETA ?? false, collapseOldSteps : collapseOldSteps ?? true } }
                 settingsEnabled={ GLOBAL_SETTINGS_ENABLER }
+                restartNeeded={ restartNeeded }
+                onRestart={ () => this.onSubmitExpression(subtype) }
 
                 change={ (settings : UntypedLambdaSettings) => {
+                  // Enabling ETA at normal form reopens stepping when an
+                  // eta step is possible -- without performing it; the
+                  // user decides. Every other toggle just applies (pre
+                  // normal form the live setting takes effect on its own,
+                  // and disabling at normal form undoes nothing).
+                  if (settings.ETA === true && state.ETA !== true) {
+                    const last = state.history[state.history.length - 1]
+                    if (last !== undefined && last.ast !== null && last.isNormalForm === true) {
+                      const etaEvaluator : Evaluator = new OptimizeEvaluator(last.ast)
+                      if (! (etaEvaluator.nextReduction instanceof None)) {
+                        setBoxState({
+                          ...state,
+                          ...settings,
+                          history : [
+                            ...state.history.slice(0, -1),
+                            { ...last, isNormalForm : false, message : { ...last.message, message : '' } },
+                          ],
+                        })
+                        return
+                      }
+                    }
+                  }
                   setBoxState({
                     ...state,
                     ...settings
@@ -297,6 +329,7 @@ export default class UntypedLambdaBox extends PureComponent<Props, State> {
         subtype,
         expression : content,
         macrotable : macromap,
+        submittedWith : { strategy, SDE, ETA, SLI },
         history : [ {
           ast : ast.clone(),
           lastReduction : new None(),
