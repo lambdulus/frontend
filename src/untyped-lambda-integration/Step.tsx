@@ -1,5 +1,5 @@
 import React, { memo } from 'react'
-import { ASTReduction, AST, MacroMap, None } from '@lambdulus/core'
+import { ASTReduction, AST, MacroMap, None, Beta } from '@lambdulus/core'
 
 import './styles/Step.css'
 
@@ -61,9 +61,15 @@ function Step (props : StepProperties) : JSX.Element | null {
     }
   })()
 
-  if ( ! (nextReduction instanceof MacroBeta) && !(nextReduction instanceof None)) {
+  // #61: a Beta found by findSimplifiedReduction is the true next simplified
+  // step (the STEP button performs exactly this), so highlight it directly.
+  // Its redex identifier resolves in the printed tree: clone() preserves
+  // identifiers and plain-beta redexes survive the finder's in-place macro
+  // expansions untouched. Anything else (Alpha, Expansion, Gama) still falls
+  // back to a fresh evaluator on the pristine tree.
+  if ( ! (nextReduction instanceof MacroBeta) && !(nextReduction instanceof None) && !(nextReduction instanceof Beta)) {
     // TODO: read carefully
-    // this means -- next reduction is gonna be normal stuff (Beta, Alpha, Expansion)
+    // this means -- next reduction is gonna be normal stuff (Alpha, Expansion)
     // because of some decision to structure the findSimplifiedReduction the way it works
     // mainly := first clone the tree and then mutate it with each recursive call
     // if it's the normal stuff --> then the tree I used to identify the redex is not the same tree as I am giving to the ReactPrinter

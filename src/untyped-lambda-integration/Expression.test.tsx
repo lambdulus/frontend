@@ -5,6 +5,7 @@ import { render, fireEvent, cleanup } from '@testing-library/react';
 import Expression from './Expression';
 import { EvaluationStrategy, StepValidity, UntypedLambdaState } from './Types';
 import { tokenize, parse, None } from '@lambdulus/core';
+import { createNewUntypedLambdaExpression, defaultSettings, toMacroMap } from './Constants';
 
 afterEach(() => cleanup());
 
@@ -345,4 +346,48 @@ test('macros dock as a pill unfolding into an animated panel', () => {
   expect(css).toMatch(/\.macro-dock--open \.macro-dock--panel\s*\{[^}]*grid-template-rows\s*:\s*1fr/);
   const scroll = css.match(/\.macro-dock--scroll\s*\{[^}]*\}/)?.[0] ?? '';
   expect(scroll).toMatch(/overflow-y\s*:\s*auto/);
+});
+
+test('simplified highlight shows the inner beta, not just the outer macro', () => {
+  // Regression for frontend issue #61: submitting
+  // `+ (* 3 ((λ x . R (x x)) (λ x . R (x x)) (- 2 2))) 2` in simplified mode
+  // highlighted only the outer `+`, while the STEP button performs the inner
+  // beta `((λx.R (x x)) (λx.R (x x)))`. Highlight and step must agree.
+  const box = createNewUntypedLambdaExpression(defaultSettings);
+  const macromap = toMacroMap([], box.SLI);
+  const tok = (source : string) => tokenize(source, { lambdaLetters : [ 'λ' ], singleLetterVars : box.SLI, macromap });
+  const ast = parse(tok('+ (* 3 ((λ x . R (x x)) (λ x . R (x x)) (- 2 2))) 2'), box.macrotable);
+  const message = { validity : StepValidity.CORRECT, userInput : '', message : '' };
+  const state = {
+    strategy : EvaluationStrategy.NORMAL,
+    SDE : true,
+    macrotable : box.macrotable,
+    collapseOldSteps : true,
+    isRunning : false,
+  } as unknown as UntypedLambdaState;
+
+  const { container } = render(
+    <Expression
+      className='box boxEval'
+      state={ state }
+      breakpoints={ [] }
+      history={ [{ ast, lastReduction : new None(), step : 0, message, isNormalForm : false, exerciseStep : false }] }
+      editor={ { placeholder : '', content : '', syntaxError : null } }
+      isNormalForm={ false }
+      isExercise={ false }
+      createBoxFrom={ () => state }
+      setBoxState={ () => void 0 }
+      onContent={ () => void 0 }
+      onEnter={ () => void 0 }
+      onExecute={ () => void 0 }
+      addBox={ () => void 0 }
+      shouldShowDebugControls={ false }
+    />
+  );
+
+  const redexes = Array.from(container.querySelectorAll('.box-current-step .redex'));
+  expect(redexes.length).toBeGreaterThan(0);
+  // the highlighted redex covers the inner self-application, not the macro
+  expect(redexes.some((el) => (el.textContent ?? '').includes('R'))).toBe(true);
+  expect(container.querySelectorAll('.box-current-step .extended-redex').length).toBe(0);
 });
