@@ -97,3 +97,18 @@ test('resize pinning glues the box across plain resizes but steps aside across z
     window.scrollBy = originalScrollBy;
   }
 });
+
+test('markdown box hides its title like lambda boxes', () => {
+  // Parity with UNTYPED_LAMBDA: the editable title is gone from the bar
+  // (the spacer keeps the controls right-aligned instead).
+  const { container, unmount } = render(<BoxContainer { ...props(false) } />);
+  try {
+    expect(container.querySelector('.boxTopBar .topBarTitle')).toBeNull();
+    expect(container.querySelector('.boxTopBar .boxTopBar-spacer')).not.toBeNull();
+    // The markdown Edit/Preview toggle stays on the right.
+    expect(container.querySelector('.box-top-bar-custom')).not.toBeNull();
+  }
+  finally {
+    unmount();
+  }
+});

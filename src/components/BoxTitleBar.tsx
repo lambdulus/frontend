@@ -77,9 +77,10 @@ export default class BoxTitleBar extends Component<Props, State> {
                     suppressContentEditableWarning={true}
                     onClick={ (e) => {
                       // NOTE: this is really ugly and dangerous quick fix
-                      // I am trying to fix a bug where for some reason markdown boxes, when clicked into title
+                      // I am trying to fix a bug where for some reason boxes, when clicked into title
                       // it causes focus, then immidiately it loses focus
                       // so now, when I click in the title, I won't make it active at all
+                      // (markdown and lambda titles are hidden now, so this guards the remaining ones)
                       e.stopPropagation()
                     } }
                     onBlur={ (e) => updateBoxState({ ...state, title : e.target.textContent || "" })  }
