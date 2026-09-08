@@ -5,7 +5,7 @@ import { BoxType } from '../Types'
 import { UntypedLambdaState, UntypedLambdaType, UntypedLambdaSettings, PromptPlaceholder, StepMessage, StepValidity } from './Types'
 import ExpressionBox from './ExpressionBox'
 import MacroList from './MacroList'
-import { GLOBAL_SETTINGS_ENABLER, strategyToEvaluator, findSimplifiedReduction, toMacroMap } from './Constants'
+import { GLOBAL_SETTINGS_ENABLER, strategyToEvaluator, findSimplifiedReduction, toMacroMap, SETTINGS_OPENED_EVENT } from './Constants'
 import ExerciseBox from './ExerciseBox'
 import Settings from './Settings'
 import EmptyExpression from './EmptyExpression'
@@ -42,20 +42,24 @@ interface State {
 
 export default class UntypedLambdaBox extends PureComponent<Props, State> {
   private dockShutTimer : number | null = null
+  private boxRef = React.createRef<HTMLDivElement>()
 
   constructor (props : Props) {
     super(props)
 
     this.state = { dockShutting : false }
     this.onOutsideSettings = this.onOutsideSettings.bind(this)
+    this.onOtherSettingsOpened = this.onOtherSettingsOpened.bind(this)
   }
 
   componentDidMount () : void {
     document.addEventListener('mousedown', this.onOutsideSettings)
+    document.addEventListener(SETTINGS_OPENED_EVENT, this.onOtherSettingsOpened as EventListener)
   }
 
   componentWillUnmount () : void {
     document.removeEventListener('mousedown', this.onOutsideSettings)
+    document.removeEventListener(SETTINGS_OPENED_EVENT, this.onOtherSettingsOpened as EventListener)
 
     if (this.dockShutTimer !== null) {
       window.clearTimeout(this.dockShutTimer)
@@ -86,9 +90,11 @@ export default class UntypedLambdaBox extends PureComponent<Props, State> {
   }
 
   // An open settings panel closes on mousedown outside it — the same
-  // beat the + rows open on. Exempt: the panel itself (any box's — panels
-  // coexist), the gear (its toggle owns the click), and the tour (which
-  // conducts panels deliberately step by step).
+  // beat the + rows open on. Exempt: my own panel, the gear (its toggle
+  // owns the click), and the tour (which conducts panels deliberately
+  // step by step). Another box's panel is "anywhere beside" mine, so it
+  // dismisses me; a box opening its settings broadcasts, which buries me
+  // even before any click lands (see onOtherSettingsOpened).
   onOutsideSettings (event : MouseEvent) : void {
     const { state, setBoxState } : Props = this.props
 
@@ -102,7 +108,9 @@ export default class UntypedLambdaBox extends PureComponent<Props, State> {
       return
     }
 
-    if (target.closest('.box-settings') !== null) {
+    const panel : Element | null = target.closest('.box-settings')
+
+    if (panel !== null && this.boxRef.current !== null && this.boxRef.current.contains(panel)) {
       return
     }
 
@@ -115,6 +123,16 @@ export default class UntypedLambdaBox extends PureComponent<Props, State> {
     }
 
     setBoxState({ ...state, settingsOpen : false })
+  }
+
+  // Another box opened its settings — stand mine down so panels never overlap.
+  onOtherSettingsOpened (event : Event) : void {
+    const { state, setBoxState } : Props = this.props
+    const key : unknown = (event as CustomEvent<{ key : string }>).detail?.key
+
+    if (state.settingsOpen === true && typeof key === 'string' && key !== state.__key) {
+      setBoxState({ ...state, settingsOpen : false })
+    }
   }
 
   render () {
@@ -175,7 +193,7 @@ export default class UntypedLambdaBox extends PureComponent<Props, State> {
     }
 
     return (
-      <div className='untypedLambdaBox'>
+      <div className='untypedLambdaBox' ref={ this.boxRef }>
         {
           settingsOpen ?
             <div className='box-settings'>

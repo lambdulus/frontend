@@ -17,7 +17,7 @@ import TopBar from './components/TopBar'
 import Tour from './components/Tour'
 import Notebook, { syncDocksToFocus } from './screens/Notebook'
 import { Accent, BoxStyle, AppState, NotebookState, GlobalSettings, BoxType, BoxState } from './Types'
-import { CODE_NAME as UNTYPED_LAMBDA_CODE_NAME, createNewUntypedLambdaBoxFromSource, createNewUntypedLambdaExpression, defaultSettings } from './untyped-lambda-integration/Constants'
+import { CODE_NAME as UNTYPED_LAMBDA_CODE_NAME, createNewUntypedLambdaBoxFromSource, createNewUntypedLambdaExpression, defaultSettings, SETTINGS_OPENED_EVENT } from './untyped-lambda-integration/Constants'
 import { UntypedLambdaState, UntypedLambdaSettings, EvaluationStrategy, UntypedLambdaType } from './untyped-lambda-integration/Types'
 import { MacroTable } from '@lambdulus/core'
 import { Theme, ThemeContext } from './contexts/Theme'
@@ -130,6 +130,11 @@ export default class App extends Component<{}, AppState> {
         box
     )
     this.updateNotebook({ boxList })
+
+    if (open) {
+      // Conducted opens dismiss other boxes' panels like gear opens do.
+      document.dispatchEvent(new CustomEvent<{ key : string }>(SETTINGS_OPENED_EVENT, { detail : { key : boxKey } }))
+    }
   }
 
   // The macros step demonstrates the dock, then steps out of the way:

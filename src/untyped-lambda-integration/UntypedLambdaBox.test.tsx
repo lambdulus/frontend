@@ -3,7 +3,7 @@ import { test, expect, afterEach, vi } from 'vitest';
 import { act, render, fireEvent, cleanup } from '@testing-library/react';
 import { tokenize, parse, None } from '@lambdulus/core';
 import UntypedLambdaBox from './UntypedLambdaBox';
-import { createNewUntypedLambdaExpression, defaultSettings, CODE_NAME as UNTYPED_CODE_NAME } from './Constants';
+import { createNewUntypedLambdaExpression, defaultSettings, CODE_NAME as UNTYPED_CODE_NAME, SETTINGS_OPENED_EVENT } from './Constants';
 import { UntypedLambdaState, UntypedLambdaType, StepValidity } from './Types';
 
 afterEach(() => cleanup());
@@ -197,6 +197,67 @@ test('RUN performs the trailing eta conversion instead of stopping', () => {
   }
   finally {
     vi.useRealTimers();
+  }
+});
+
+test('a second box panel dismisses the first', () => {
+  // Panels must never overlap: clicking in another box's settings is
+  // "anywhere beside" mine, so only my own panel keeps me open.
+  const states : Array<UntypedLambdaState> = [];
+  function Twin ({ initial, slot } : { initial : UntypedLambdaState, slot : number }) {
+    const [ state, setState ] = useState(initial);
+    states[slot] = state;
+    return (
+      <UntypedLambdaBox
+        state={ state }
+        isActive={ false }
+        isFocused={ false }
+        isAnchorBox={ false }
+        setBoxState={ setState }
+        addBox={ () => void 0 }
+      />
+    );
+  }
+  const openBox = () => {
+    const initial = createNewUntypedLambdaExpression(defaultSettings);
+    initial.settingsOpen = true;
+    return initial;
+  };
+  const { container, unmount } = render(<><Twin initial={ openBox() } slot={ 0 } /><Twin initial={ openBox() } slot={ 1 } /></>);
+  try {
+    const panels = container.querySelectorAll('.box-settings');
+    expect(panels.length).toBe(2);
+    fireEvent.mouseDown(panels[1]);
+    expect(states[0].settingsOpen).toBe(false);
+    expect(states[1].settingsOpen).toBe(true);
+  }
+  finally {
+    unmount();
+  }
+});
+
+test('another box opening settings dismisses mine, my own leaves me open', () => {
+  const { unmount } = openSettingsHarness();
+  try {
+    act(() => {
+      document.dispatchEvent(new CustomEvent(SETTINGS_OPENED_EVENT, { detail : { key : 'some-other-box' } }));
+    });
+    expect(lastState().settingsOpen).toBe(false);
+  }
+  finally {
+    unmount();
+  }
+
+  const second = openSettingsHarness();
+  try {
+    const mine = lastState().__key;
+    act(() => {
+      document.dispatchEvent(new CustomEvent(SETTINGS_OPENED_EVENT, { detail : { key : mine } }));
+    });
+    expect(lastState().settingsOpen).toBe(true);
+  }
+  finally {
+    second.unmount();
   }
 });
 
