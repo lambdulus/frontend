@@ -43,9 +43,12 @@ test('/ 4 2 simplified run terminates with 2', () => {
     const probe = ast.clone();
     const [ reduction, perform ] = findSimplifiedReduction(probe, box.strategy, box.macrotable);
     if (reduction instanceof None) {
+      // Either the expanded Church numeral (old core) or the contracted
+      // `2` macro (fixed core groups both arguments and contracts the
+      // result) -- both mean the division evaluated to 2.
       const expected = parse(tok('(λ a b . a (a b))'), box.macrotable);
       const equals = new TreeComparator([ast, expected], [box.macrotable, box.macrotable]).equals;
-      expect(equals).toBe(true);
+      expect(equals || ast.toString() === '2').toBe(true);
       return;
     }
     ast = perform(probe);
