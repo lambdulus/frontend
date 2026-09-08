@@ -149,6 +149,7 @@ export default class ExpressionBox extends PureComponent<EvaluationProperties> {
       strategy,
       SLI,
       SDE,
+      ETA,
       expandStandalones,
       collapseOldSteps,
       macrotable,
@@ -172,6 +173,7 @@ export default class ExpressionBox extends PureComponent<EvaluationProperties> {
       timeout : 10,
       strategy,
       SDE,
+      ETA,
       SLI,
       expandStandalones,
       collapseOldSteps,
@@ -201,7 +203,7 @@ export default class ExpressionBox extends PureComponent<EvaluationProperties> {
   onSimplifiedStep () : void {
 
     const { state, setBoxState } = this.props
-    const { strategy, history, macrotable } = state
+    const { strategy, history, macrotable, ETA } = state
     const stepRecord = history[history.length - 1]
     const { isNormalForm, step } = stepRecord
     const ast = stepRecord.ast.clone()
@@ -250,7 +252,7 @@ export default class ExpressionBox extends PureComponent<EvaluationProperties> {
     else if (nextReduction instanceof None) {
       const etaEvaluator : Evaluator = new OptimizeEvaluator(ast)
 
-      if (etaEvaluator.nextReduction instanceof None) {
+      if (etaEvaluator.nextReduction instanceof None || ! ETA) {
 
         stepRecord.isNormalForm = true
         stepRecord.message.message = 'Expression is in normal form.'
@@ -276,7 +278,7 @@ export default class ExpressionBox extends PureComponent<EvaluationProperties> {
       
       if (nextReduction instanceof None) {
         const etaEvaluator : Evaluator = new OptimizeEvaluator(astCopy)
-        if (etaEvaluator.nextReduction instanceof None) {
+        if (etaEvaluator.nextReduction instanceof None || ! ETA) {
           isNowNormalForm = true
           message.message = 'Expression is in normal form.'
         }
@@ -355,7 +357,7 @@ export default class ExpressionBox extends PureComponent<EvaluationProperties> {
 
   onStep () : void {
     const { state, setBoxState } = this.props
-    const { strategy, SDE, history } = state
+    const { strategy, SDE, ETA, history } = state
 
     // this is gonna change - Simplified Evaluation won't be strategy - but Strategy Modifier
     if (SDE) {
@@ -379,7 +381,7 @@ export default class ExpressionBox extends PureComponent<EvaluationProperties> {
     if (evaluator.nextReduction instanceof None) {
       const etaEvaluator : Evaluator = new OptimizeEvaluator(ast)
 
-      if (etaEvaluator.nextReduction instanceof None) {
+      if (etaEvaluator.nextReduction instanceof None || ! ETA) {
         stepRecord.isNormalForm = true
         stepRecord.message.message = 'Expression is in normal form.'
         
@@ -406,7 +408,7 @@ export default class ExpressionBox extends PureComponent<EvaluationProperties> {
       if (evaluator.nextReduction instanceof None) {
         const etaEvaluator : Evaluator = new OptimizeEvaluator(astCopy)
 
-        if (etaEvaluator.nextReduction instanceof None) {
+        if (etaEvaluator.nextReduction instanceof None || ! ETA) {
           isNormal = true
           message.message = 'Expression is in normal form.'
         }
@@ -473,7 +475,7 @@ export default class ExpressionBox extends PureComponent<EvaluationProperties> {
 
   onSimplifiedRun () : void {
     const { state, setBoxState } = this.props
-    const { strategy, macrotable } = state
+    const { strategy, macrotable, ETA } = state
     let { history, isRunning, breakpoints, timeoutID, timeout } = state
     const stepRecord : StepRecord = history[history.length - 1]
     const { isNormalForm, step } = stepRecord
@@ -507,7 +509,7 @@ export default class ExpressionBox extends PureComponent<EvaluationProperties> {
       // applies, perform it as a regular running step and continue.
       const etaEvaluator : Evaluator = new OptimizeEvaluator(newast)
 
-      if ( ! (etaEvaluator.nextReduction instanceof None)) {
+      if (ETA && ! (etaEvaluator.nextReduction instanceof None)) {
         lastReduction = etaEvaluator.nextReduction
         ast = etaEvaluator.perform()
 
@@ -605,7 +607,7 @@ export default class ExpressionBox extends PureComponent<EvaluationProperties> {
 
   onRun () : void {
     const { state, setBoxState } = this.props
-    const { strategy } = state
+    const { strategy, ETA } = state
     let { history, isRunning, breakpoints, timeoutID, timeout } = state
     const stepRecord : StepRecord = history[history.length - 1]
     const { isNormalForm, step } = stepRecord
@@ -634,7 +636,7 @@ export default class ExpressionBox extends PureComponent<EvaluationProperties> {
       // with a pending eta conversion instead of stopping.
       const etaEvaluator : Evaluator = new OptimizeEvaluator(ast)
 
-      if (etaEvaluator.nextReduction instanceof None) {
+      if (etaEvaluator.nextReduction instanceof None || ! ETA) {
         // TODO: consider immutability
         history.pop()
         history.push({

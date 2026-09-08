@@ -119,7 +119,7 @@ export default class UntypedLambdaBox extends PureComponent<Props, State> {
 
   render () {
     const { state, isActive, isFocused, isAnchorBox, setBoxState, addBox, titleActionsHost } : Props = this.props
-    const { settingsOpen, subtype, macrolistOpen, SLI, expandStandalones, strategy, SDE, collapseOldSteps, editor, minimized } : UntypedLambdaState = state
+    const { settingsOpen, subtype, macrolistOpen, SLI, expandStandalones, strategy, SDE, ETA, collapseOldSteps, editor, minimized } : UntypedLambdaState = state
 
 
     const renderBoxContent = () => {
@@ -181,7 +181,7 @@ export default class UntypedLambdaBox extends PureComponent<Props, State> {
             <div className='box-settings'>
               Settings:
               <Settings
-                settings={ { type : BoxType.UNTYPED_LAMBDA, SLI, expandStandalones, strategy, SDE, collapseOldSteps : collapseOldSteps ?? true } }
+                settings={ { type : BoxType.UNTYPED_LAMBDA, SLI, expandStandalones, strategy, SDE, ETA : ETA ?? false, collapseOldSteps : collapseOldSteps ?? true } }
                 settingsEnabled={ GLOBAL_SETTINGS_ENABLER }
 
                 change={ (settings : UntypedLambdaSettings) => {
@@ -236,6 +236,7 @@ export default class UntypedLambdaBox extends PureComponent<Props, State> {
       editor : { content },
       strategy,
       SDE,
+      ETA,
       SLI,
     } = state
 
@@ -265,7 +266,7 @@ export default class UntypedLambdaBox extends PureComponent<Props, State> {
       if (nextReduction instanceof None) {
         const etaEvaluator : Evaluator = new OptimizeEvaluator(ast)
 
-        if (etaEvaluator.nextReduction instanceof None) {
+        if (etaEvaluator.nextReduction instanceof None || ! ETA) {
           isNormal = true
           message.message = 'Expression is in normal form.'
         }

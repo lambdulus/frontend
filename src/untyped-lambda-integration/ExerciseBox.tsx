@@ -121,6 +121,7 @@ export default class ExerciseBox extends PureComponent<EvaluationProperties> {
       strategy,
       SLI,
       SDE,
+      ETA,
       expandStandalones,
       collapseOldSteps,
       macrotable,
@@ -144,6 +145,7 @@ export default class ExerciseBox extends PureComponent<EvaluationProperties> {
       timeout : 10,
       strategy,
       SDE,
+      ETA,
       SLI,
       expandStandalones,
       collapseOldSteps,
@@ -252,7 +254,7 @@ export default class ExerciseBox extends PureComponent<EvaluationProperties> {
 
   onSimplifiedExerciseStep () {
     const { state, setBoxState } = this.props
-    const { strategy, history, editor : { content }, macrotable, SLI } = state
+    const { strategy, history, editor : { content }, macrotable, SLI, ETA } = state
 
     try {
       const definitions : Array<string> = content.split(';')
@@ -288,7 +290,7 @@ export default class ExerciseBox extends PureComponent<EvaluationProperties> {
       if (nextReduction instanceof None) {
         const etaEvaluator : Evaluator = new OptimizeEvaluator(newast)
 
-        if (etaEvaluator.nextReduction instanceof None) {
+        if (etaEvaluator.nextReduction instanceof None || ! ETA) {
           // TODO: refactor PLS - update history
           // TODO: say user it is in normal form and they are mistaken
           stepRecord.isNormalForm = true
@@ -320,7 +322,7 @@ export default class ExerciseBox extends PureComponent<EvaluationProperties> {
         if (nextReduction instanceof None) {
           const etaEvaluator : Evaluator = new OptimizeEvaluator(astCopy)
 
-          if (etaEvaluator.nextReduction instanceof None) {
+          if (etaEvaluator.nextReduction instanceof None || ! ETA) {
             isNormal = true
           }
         }
@@ -368,7 +370,7 @@ export default class ExerciseBox extends PureComponent<EvaluationProperties> {
 
   onExerciseStep () {
     const { state, setBoxState } = this.props
-    const { strategy, history, editor : { content }, SDE, macrotable, SLI } = state
+    const { strategy, history, editor : { content }, SDE, macrotable, SLI, ETA } = state
     
     if (SDE === true) {
       this.onSimplifiedExerciseStep()
@@ -409,7 +411,7 @@ export default class ExerciseBox extends PureComponent<EvaluationProperties> {
       if (evaluator.nextReduction instanceof None) {
         const etaEvaluator : Evaluator = new OptimizeEvaluator(ast)
 
-        if (etaEvaluator.nextReduction instanceof None) {
+        if (etaEvaluator.nextReduction instanceof None || ! ETA) {
           // TODO: refactor PLS - update history
           // TODO: say user it is in normal form and they are mistaken
           stepRecord.isNormalForm = true
@@ -438,7 +440,7 @@ export default class ExerciseBox extends PureComponent<EvaluationProperties> {
         if (evaluator.nextReduction instanceof None) {
           const etaEvaluator : Evaluator = new OptimizeEvaluator(astCopy)
 
-          if (etaEvaluator.nextReduction instanceof None) {
+          if (etaEvaluator.nextReduction instanceof None || ! ETA) {
             isNormal = true
           }
         }
@@ -485,7 +487,7 @@ export default class ExerciseBox extends PureComponent<EvaluationProperties> {
 
 
     const { state, setBoxState } = this.props
-    const { strategy, history, editor : { content }, macrotable } = state
+    const { strategy, history, editor : { content }, macrotable, ETA } = state
     const stepRecord = history[history.length - 1]
     const { isNormalForm, step } = stepRecord
     const ast = stepRecord.ast.clone()
@@ -534,7 +536,7 @@ export default class ExerciseBox extends PureComponent<EvaluationProperties> {
     else if (nextReduction instanceof None) {
       const etaEvaluator : Evaluator = new OptimizeEvaluator(ast)
 
-      if (etaEvaluator.nextReduction instanceof None) {
+      if (etaEvaluator.nextReduction instanceof None || ! ETA) {
         stepRecord.isNormalForm = true
         stepRecord.message.message = 'Expression is in normal form.'
         setBoxState({
@@ -559,7 +561,7 @@ export default class ExerciseBox extends PureComponent<EvaluationProperties> {
       if (nextReduction instanceof None) {
         const etaEvaluator : Evaluator = new OptimizeEvaluator(astCopy)
 
-        if (etaEvaluator.nextReduction instanceof None) {
+        if (etaEvaluator.nextReduction instanceof None || ! ETA) {
           isNowNormalForm = true
           message.message = 'Expression is in normal form.'
         }
@@ -580,7 +582,7 @@ export default class ExerciseBox extends PureComponent<EvaluationProperties> {
 
   onStep () : void {
     const { state, setBoxState } = this.props
-    const { strategy, history, SDE } = state
+    const { strategy, history, SDE, ETA } = state
     const stepRecord = history[history.length - 1]
     const { isNormalForm, step } = stepRecord
     let { ast, lastReduction } = stepRecord
@@ -603,7 +605,7 @@ export default class ExerciseBox extends PureComponent<EvaluationProperties> {
     if (evaluator.nextReduction instanceof None) {
       const etaEvaluator : Evaluator = new OptimizeEvaluator(ast)
 
-      if (etaEvaluator.nextReduction instanceof None) {
+      if (etaEvaluator.nextReduction instanceof None || ! ETA) {
         stepRecord.isNormalForm = true
         stepRecord.message.message = 'Expression is in normal form.'
         
@@ -630,7 +632,7 @@ export default class ExerciseBox extends PureComponent<EvaluationProperties> {
       if (evaluator.nextReduction instanceof None) {
         const etaEvaluator : Evaluator = new OptimizeEvaluator(ast)
 
-        if (etaEvaluator.nextReduction instanceof None) {
+        if (etaEvaluator.nextReduction instanceof None || ! ETA) {
           isNormal = true
           message.message = 'Expression is in normal form.'
         }

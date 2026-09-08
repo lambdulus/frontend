@@ -58,13 +58,14 @@ export const defaultSettings : UntypedLambdaSettings = {
   expandStandalones : false,
   strategy : EvaluationStrategy.NORMAL,
   SDE : true,
+  ETA : false, // no trailing eta conversion by default: evaluation ends at beta-normal form
   collapseOldSteps : true,
 }
 
 export function createNewUntypedLambdaExpression (settings : UntypedLambdaSettings) : UntypedLambdaState {
   return {
     // Module defaults first: a partial caller (e.g. notebook settings from
-    // years-old storage, missing strategy/SLI/SDE) can never leave the box
+    // years-old storage, missing strategy/SLI/SDE/ETA) can never leave the box
     // unevaluatable. The shadowing parameter name hid this until now.
     ...defaultSettings,
     ...settings,

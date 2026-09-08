@@ -11,6 +11,7 @@ const baseSettings : UntypedLambdaSettings = {
   expandStandalones : false,
   strategy : EvaluationStrategy.NORMAL,
   SDE : true,
+  ETA : false,
   collapseOldSteps : true,
 };
 
@@ -57,4 +58,17 @@ test('collapse toggle renders unchecked when the setting is off', () => {
 
   const checkbox = getByLabelText('Collapse Old Steps') as HTMLInputElement;
   expect(checkbox.checked).toBe(false);
+});
+
+test('eta toggle reflects the setting and reports turning it on', () => {
+  const change = vi.fn();
+  const { getByLabelText } = render(
+    <Settings settings={ baseSettings } settingsEnabled={ enabler } change={ change } />
+  );
+
+  const checkbox = getByLabelText('Eta Conversion') as HTMLInputElement;
+  expect(checkbox.checked).toBe(false);
+
+  fireEvent.click(checkbox);
+  expect(change).toHaveBeenCalledWith({ ...baseSettings, ETA : true });
 });

@@ -65,6 +65,7 @@ export interface UntypedLambdaState extends AbstractBoxState {
   
   strategy : EvaluationStrategy
   SDE : boolean // Semantics Drive Evaluation (Strategy) -- formerly called Simplified Strategy
+  ETA : boolean // Eta conversion as the final evaluation step (opt-in, off by default)
   SLI : boolean
   expandStandalones : boolean
   collapseOldSteps : boolean
@@ -89,6 +90,7 @@ export interface UntypedLambdaSettings extends AbstractSettings {
   expandStandalones : boolean
   strategy : EvaluationStrategy
   SDE : boolean
+  ETA : boolean
   collapseOldSteps : boolean
 }
 

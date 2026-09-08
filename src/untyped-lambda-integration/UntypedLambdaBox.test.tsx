@@ -166,6 +166,7 @@ test('RUN performs the trailing eta conversion instead of stopping', () => {
     const initial = createNewUntypedLambdaExpression(defaultSettings);
     const ast = parse(tokenize('(λ s z . s z)', { lambdaLetters : [ 'λ' ], singleLetterVars : true, macromap : {} }), {});
     initial.subtype = UntypedLambdaType.ORDINARY;
+    initial.ETA = true; // trailing eta conversion is opt-in
     initial.macrotable = {};
     initial.ast = ast;
     initial.history = [ {
@@ -199,10 +200,53 @@ test('RUN performs the trailing eta conversion instead of stopping', () => {
   }
 });
 
+test('plain RUN without ETA stops at beta-normal form', () => {
+  // Trailing eta conversion is opt-in: + 1 0 with simplified disabled must
+  // end readable, not eta-collapsed to (λ s . s).
+  vi.useFakeTimers();
+  try {
+    const initial = createNewUntypedLambdaExpression(defaultSettings);
+    const ast = parse(tokenize('+ 1 0', { lambdaLetters : [ 'λ' ], singleLetterVars : true, macromap : {} }), {});
+    initial.subtype = UntypedLambdaType.ORDINARY;
+    initial.SDE = false;
+    initial.macrotable = {};
+    initial.ast = ast;
+    initial.history = [ {
+      ast : ast.clone(),
+      lastReduction : new None(),
+      step : 0,
+      message : { validity : StepValidity.CORRECT, userInput : '', message : '' },
+      isNormalForm : false,
+      exerciseStep : false,
+    } ];
+    const host = document.createElement('span');
+    document.body.appendChild(host);
+    const { unmount } = render(<Harness initial={ initial } host={ host } />);
+    try {
+      fireEvent.click(host.querySelector('.debug-controls--run') as HTMLElement);
+      for (let i = 0; i < 300 && lastState().isRunning; i++) {
+        act(() => { vi.advanceTimersByTime(50); });
+      }
+      const last = lastState();
+      expect(last.isRunning).toBe(false);
+      expect(last.history.map((record) => record.ast.toString())).not.toContain('(λ s . s)');
+      expect(last.history[last.history.length - 1].isNormalForm).toBe(true);
+    }
+    finally {
+      unmount();
+      host.remove();
+    }
+  }
+  finally {
+    vi.useRealTimers();
+  }
+});
+
 test('exercise created at an eta-redex is not marked normal', () => {
   // The #18 exercise leg: starting an exercise at (λ s z . s z) must leave
   // room for the trailing eta conversion instead of blocking stepping.
   const initial = createNewUntypedLambdaExpression(defaultSettings);
+  initial.ETA = true; // trailing eta conversion is opt-in
   initial.editor.content = '(λ s z . s z)';
 
   const { container, unmount } = render(<Harness initial={ initial } />);
