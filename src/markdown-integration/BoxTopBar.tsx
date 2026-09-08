@@ -1,6 +1,6 @@
 import React, { MouseEvent } from 'react'
 
-import { NoteState } from './AppTypes'
+import { NoteState, onMarkDownBlur } from './AppTypes'
 
 import './styles/EditingSwitch.css'
 import { BoxState } from '../Types'
@@ -45,7 +45,9 @@ export default function BoxTopBar (props : Props) : JSX.Element {
             onClick={ (e) => {
               e.stopPropagation()
               if (isEditing === true) {
-                updateBoxState({ ...state, isEditing : false})
+                // Same submit path as deactivation: a top `#` heading
+                // becomes the box title.
+                updateBoxState(onMarkDownBlur(state))
               }
             } }
           >
