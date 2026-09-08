@@ -502,6 +502,25 @@ export default class ExpressionBox extends PureComponent<EvaluationProperties> {
     lastReduction = nextReduction
     
     if (nextReduction instanceof None) {
+      // #18: the simplified search is eta-blind -- before declaring normal
+      // form, ask OptimizeEvaluator, mirroring onSimplifiedStep. If eta
+      // applies, perform it as a regular running step and continue.
+      const etaEvaluator : Evaluator = new OptimizeEvaluator(newast)
+
+      if ( ! (etaEvaluator.nextReduction instanceof None)) {
+        lastReduction = etaEvaluator.nextReduction
+        ast = etaEvaluator.perform()
+
+        history[history.length - 1] = { ast, lastReduction, step : step + 1, message : { validity : StepValidity.CORRECT, userInput : '', message : '' }, isNormalForm, exerciseStep : false }
+
+        setBoxState({
+          ...state,
+          timeoutID : window.setTimeout(this.onSimplifiedRun, timeout)
+        })
+
+        return
+      }
+
       // TODO: consider immutability
       history.pop()
       history.push({
@@ -607,28 +626,37 @@ export default class ExpressionBox extends PureComponent<EvaluationProperties> {
     }
   
     let { ast } = stepRecord
-    const normal : Evaluator = new (strategyToEvaluator(strategy) as any)(ast)
+    let normal : Evaluator = new (strategyToEvaluator(strategy) as any)(ast)
     lastReduction = normal.nextReduction
     
     if (normal.nextReduction instanceof None) {
-      // TODO: consider immutability
-      history.pop()
-      history.push({
-        ast,
-        lastReduction : stepRecord.lastReduction,
-        step,
-        message : { validity : StepValidity.CORRECT, userInput : '', message : 'Expression is in normal form.' }, 
-        isNormalForm : true,
-        exerciseStep : false,
-      })
-  
-      setBoxState({
-        ...state,
-        isRunning : false,
-        timeoutID : undefined,
-      })
-  
-      return
+      // #18: the strategy search is eta-blind -- mirror onStep: continue
+      // with a pending eta conversion instead of stopping.
+      const etaEvaluator : Evaluator = new OptimizeEvaluator(ast)
+
+      if (etaEvaluator.nextReduction instanceof None) {
+        // TODO: consider immutability
+        history.pop()
+        history.push({
+          ast,
+          lastReduction : stepRecord.lastReduction,
+          step,
+          message : { validity : StepValidity.CORRECT, userInput : '', message : 'Expression is in normal form.' },
+          isNormalForm : true,
+          exerciseStep : false,
+        })
+
+        setBoxState({
+          ...state,
+          isRunning : false,
+          timeoutID : undefined,
+        })
+
+        return
+      }
+
+      normal = etaEvaluator
+      lastReduction = etaEvaluator.nextReduction
     }
   
     // TODO: maybe refactor a little

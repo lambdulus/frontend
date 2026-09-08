@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { test, expect, afterEach } from 'vitest';
-import { render, fireEvent, cleanup } from '@testing-library/react';
+import { test, expect, afterEach, vi } from 'vitest';
+import { act, render, fireEvent, cleanup } from '@testing-library/react';
 import { tokenize, parse, None } from '@lambdulus/core';
 import UntypedLambdaBox from './UntypedLambdaBox';
 import { createNewUntypedLambdaExpression, defaultSettings, CODE_NAME as UNTYPED_CODE_NAME } from './Constants';
@@ -8,7 +8,7 @@ import { UntypedLambdaState, UntypedLambdaType, StepValidity } from './Types';
 
 afterEach(() => cleanup());
 
-function Harness ({ initial } : { initial : UntypedLambdaState }) {
+function Harness ({ initial, host } : { initial : UntypedLambdaState, host? : HTMLSpanElement }) {
   const [ state, setState ] = useState(initial);
   (globalThis as { __lastState ?: UntypedLambdaState }).__lastState = state;
   return (
@@ -19,6 +19,7 @@ function Harness ({ initial } : { initial : UntypedLambdaState }) {
       isAnchorBox={ true }
       setBoxState={ setState }
       addBox={ () => void 0 }
+      titleActionsHost={ host ? { current : host } : undefined }
     />
   );
 }
@@ -151,6 +152,66 @@ test('exercise Enter on empty input steps for you, error-free', () => {
     pressEnter(container);
     expect(lastState().history.length).toBe(2);
     expect(lastState().editor.syntaxError).toBeNull();
+  }
+  finally {
+    unmount();
+  }
+});
+
+test('RUN performs the trailing eta conversion instead of stopping', () => {
+  // Regression for #18: (λ s z . s z) is eta-reducible, so RUN must convert
+  // it like STEP does instead of declaring a normal form up front.
+  vi.useFakeTimers();
+  try {
+    const initial = createNewUntypedLambdaExpression(defaultSettings);
+    const ast = parse(tokenize('(λ s z . s z)', { lambdaLetters : [ 'λ' ], singleLetterVars : true, macromap : {} }), {});
+    initial.subtype = UntypedLambdaType.ORDINARY;
+    initial.macrotable = {};
+    initial.ast = ast;
+    initial.history = [ {
+      ast : ast.clone(),
+      lastReduction : new None(),
+      step : 0,
+      message : { validity : StepValidity.CORRECT, userInput : '', message : '' },
+      isNormalForm : false,
+      exerciseStep : false,
+    } ];
+    const host = document.createElement('span');
+    document.body.appendChild(host);
+    const { unmount } = render(<Harness initial={ initial } host={ host } />);
+    try {
+      fireEvent.click(host.querySelector('.debug-controls--run') as HTMLElement);
+      for (let i = 0; i < 10 && lastState().isRunning; i++) {
+        act(() => { vi.advanceTimersByTime(50); });
+      }
+      const last = lastState();
+      expect(last.isRunning).toBe(false);
+      expect(last.history.map((record) => record.ast.toString())).toContain('(λ s . s)');
+      expect(last.history[last.history.length - 1].isNormalForm).toBe(true);
+    }
+    finally {
+      unmount();
+      host.remove();
+    }
+  }
+  finally {
+    vi.useRealTimers();
+  }
+});
+
+test('exercise created at an eta-redex is not marked normal', () => {
+  // The #18 exercise leg: starting an exercise at (λ s z . s z) must leave
+  // room for the trailing eta conversion instead of blocking stepping.
+  const initial = createNewUntypedLambdaExpression(defaultSettings);
+  initial.editor.content = '(λ s z . s z)';
+
+  const { container, unmount } = render(<Harness initial={ initial } />);
+  try {
+    fireEvent.click(container.querySelector('.open-as-exercise') as HTMLElement);
+    const last = lastState();
+    expect(last.editor.syntaxError).toBeNull();
+    expect(last.subtype).toBe(UntypedLambdaType.EXERCISE);
+    expect(last.history[0].isNormalForm).toBe(false);
   }
   finally {
     unmount();
