@@ -10,6 +10,7 @@ import {
   parse,
   OptimizeEvaluator,
   MacroMap,
+  OpenMacroDefinition,
 } from "@lambdulus/core"
 
 import './styles/EvaluatorBox.css'
@@ -34,7 +35,13 @@ export interface EvaluationProperties {
 
 // The exercise-step submitter reports parse failures locally, through
 // the editor error — same shape as the expression submitter above.
-function exerciseSyntaxError (content : string) : Error {
+function exerciseSyntaxError (content : string, exception : unknown = null) : Error {
+  // Core reports open macro definitions as a typed error carrying
+  // the macro name and its free variables -- show it as is.
+  if (exception instanceof OpenMacroDefinition) {
+    return Error(exception.message)
+  }
+
   let errorMessage : string = "Something is wrong with your expression. Please inspect it closely."
 
   if (content.match(/:=/g)?.length !== content.match(/;/g)?.length) {
@@ -232,7 +239,9 @@ export default class ExerciseBox extends PureComponent<EvaluationProperties> {
         }
       })
     } catch (exception) {
-      let errorMessage : string = "Something is wrong with your expression. Please inspect it closely."
+      let errorMessage : string = exception instanceof OpenMacroDefinition
+        ? exception.message
+        : "Something is wrong with your expression. Please inspect it closely."
       console.error((exception as Error).toString())
 
       if (content.match(/:=/g)?.length !== content.match(/;/g)?.length) {
@@ -359,7 +368,7 @@ export default class ExerciseBox extends PureComponent<EvaluationProperties> {
         ...state,
         editor : {
           ...state.editor,
-          syntaxError : exerciseSyntaxError(content),
+          syntaxError : exerciseSyntaxError(content, exception),
         }
       })
     }
@@ -477,7 +486,7 @@ export default class ExerciseBox extends PureComponent<EvaluationProperties> {
         ...state,
         editor : {
           ...state.editor,
-          syntaxError : exerciseSyntaxError(content),
+          syntaxError : exerciseSyntaxError(content, exception),
         }
       })
     }

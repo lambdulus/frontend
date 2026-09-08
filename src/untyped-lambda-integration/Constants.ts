@@ -31,6 +31,7 @@ import  { ASTReduction
         , Token
         , tokenize
         , parse
+        , parseMacroDefinition
         , ApplicativeEvaluator
         , OptimizeEvaluator
         , NormalAbstractionEvaluator
@@ -131,7 +132,10 @@ export function toMacroMap (definitions : Array<string>, SLI : boolean) : MacroM
       throw Error("Invalid Macro definition. Possibly empty Macro definition?")
     }
 
-    return { ...acc, [name] : '' }
+    // NOTE: the key must be trimmed -- the lexer matches macro names
+    // exactly, and untrimmed keys silently lex body references as free
+    // variables (chained definitions never resolved at validation time).
+    return { ...acc, [name.trim()] : '' }
   }, {})
   
   return definitions.reduce((acc : MacroMap, def) => {
@@ -146,7 +150,9 @@ export function toMacroMap (definitions : Array<string>, SLI : boolean) : MacroM
     // I just need it to parse and then serialize the body of the macro
     // that's it!
     const tokens : Array<Token> = tokenize(body.trim(), { lambdaLetters : ['λ'], singleLetterVars : SLI, macromap : mNames })
-    const ast : AST = parse(tokens, mNames) // macroTable
+    // Core parses the body and rejects open definitions with
+    // OpenMacroDefinition (macro name + free variables).
+    const ast : AST = parseMacroDefinition(name.trim(), tokens, mNames)
 
     return { ...acc, [name.trim()] : ast.toString() }
   }, {})

@@ -9,7 +9,7 @@ import { GLOBAL_SETTINGS_ENABLER, strategyToEvaluator, findSimplifiedReduction, 
 import ExerciseBox from './ExerciseBox'
 import Settings from './Settings'
 import EmptyExpression from './EmptyExpression'
-import { None, Evaluator, Token, tokenize, parse, AST, OptimizeEvaluator, MacroMap } from '@lambdulus/core'
+import { None, Evaluator, Token, tokenize, parse, AST, OptimizeEvaluator, MacroMap, OpenMacroDefinition } from '@lambdulus/core'
 
 
 interface Props {
@@ -312,7 +312,11 @@ export default class UntypedLambdaBox extends PureComponent<Props, State> {
         }
       })
     } catch (exception) {
-      let errorMessage : string = "Something is wrong with your expression. Please inspect it closely."
+      // Core reports open macro definitions as a typed error carrying
+      // the macro name and its free variables -- show it as is.
+      let errorMessage : string = exception instanceof OpenMacroDefinition
+        ? exception.message
+        : "Something is wrong with your expression. Please inspect it closely."
       console.error((exception as Error).toString())
 
       // if (errorMessage === "Error") {
