@@ -1,4 +1,5 @@
 import React, { PureComponent } from 'react'
+import { uniqueKey } from '../uniqueKey'
 
 import {
   AST,
@@ -19,6 +20,8 @@ import './styles/EvaluatorBox.css'
 import { BoxType } from '../Types'
 
 import InactiveEvaluator from './InactiveExpression'
+import DebugControls from '../components/DebugControls'
+import { createPortal } from 'react-dom'
 import Expression from './Expression'
 import { PromptPlaceholder, UntypedLambdaState, Evaluator, StepRecord, Breakpoint, UntypedLambdaType, StepMessage, StepValidity } from './Types'
 import { findSimplifiedReduction, MacroBeta, tryMacroContraction, strategyToEvaluator } from './Constants'
@@ -28,9 +31,11 @@ export interface EvaluationProperties {
   state : UntypedLambdaState
   isActive : boolean
   isFocused : boolean
+  isAnchorBox : boolean
 
   setBoxState (state : UntypedLambdaState) : void
   addBox (box : UntypedLambdaState) : void
+  titleActionsHost? : React.RefObject<HTMLSpanElement>
 }
 
 export default class ExpressionBox extends PureComponent<EvaluationProperties> {
@@ -80,23 +85,61 @@ export default class ExpressionBox extends PureComponent<EvaluationProperties> {
     }
 
     return (
-      <Expression
-        className={ className }
-        isExercise={ false }
-        state={ state }
-        breakpoints={ breakpoints }
-        history={ history }
-        editor={ editor }
-        isNormalForm={ isNormalForm }
-        shouldShowDebugControls={ isActive }
+      <>
+        { this.renderTitleActions(isNormalForm) }
+        <Expression
+          className={ className }
+          isExercise={ false }
+          state={ state }
+          breakpoints={ breakpoints }
+          history={ history }
+          editor={ editor }
+          isNormalForm={ isNormalForm }
+          shouldShowDebugControls={ isActive }
 
-        createBoxFrom={ this.createBoxFrom }
-        setBoxState={ this.props.setBoxState }
-        onContent={ this.onContent }
-        onEnter={ this.onStep }
-        onExecute={ this.onExecute }
-        addBox={ addBox }
-      />
+          createBoxFrom={ this.createBoxFrom }
+          setBoxState={ this.props.setBoxState }
+          onContent={ this.onContent }
+          onEnter={ this.onStep }
+          onExecute={ this.onExecute }
+          addBox={ addBox }
+        />
+      </>
+    )
+  }
+
+  componentDidMount () : void {
+    // The title-bar slot attaches in the same commit, after the first
+    // render read it as empty; one sync re-render lands the portal
+    // before paint, with no visible flash.
+    this.forceUpdate()
+  }
+
+  // Run/Step live in the box title bar now, portaled into its slot so
+  // this component keeps owning the evaluation callbacks. Same mount
+  // conditions as the old controls row below the editor. The slot
+  // stays mounted off-anchor, merely unseeing: popping the buttons in
+  // on arrival would grow the title bar and shove the box content down
+  // a few pixels after every first click. Visibility follows the map
+  // anchor, not the click, so a top-bar focus shows the buttons too.
+  renderTitleActions (isNormalForm : boolean) : JSX.Element | null {
+    const { state, isAnchorBox, titleActionsHost } = this.props
+    const host : HTMLSpanElement | null = titleActionsHost?.current ?? null
+
+    if (host === null || isNormalForm) {
+      return null
+    }
+
+    return createPortal(
+      <span className={ isAnchorBox ? undefined : 'box-top-bar-actions--standby' } aria-hidden={ isAnchorBox ? undefined : true }>
+        <DebugControls
+          isRunning={ state.isRunning }
+          shortcutsEnabled={ isAnchorBox }
+          onStep={ this.onStep }
+          onRun={ this.onExecute }
+        />
+      </span>,
+      host
     )
   }
 
@@ -106,19 +149,21 @@ export default class ExpressionBox extends PureComponent<EvaluationProperties> {
       strategy,
       SLI,
       SDE,
+      ETA,
       expandStandalones,
+      collapseOldSteps,
       macrotable,
     } : UntypedLambdaState = state
     const { ast } = stepRecord
     const content = ast.toString()
 
     return {
-      __key : Date.now().toString(),
+      __key : uniqueKey(),
       type : BoxType.UNTYPED_LAMBDA,
       subtype : UntypedLambdaType.EMPTY,
       title : `Copy of ${state.title}`,
       minimized : false,
-      settingsOpen : true,
+      settingsOpen : false,
       expression : "",
       ast : null,
       history : [],
@@ -128,8 +173,10 @@ export default class ExpressionBox extends PureComponent<EvaluationProperties> {
       timeout : 10,
       strategy,
       SDE,
+      ETA,
       SLI,
       expandStandalones,
+      collapseOldSteps,
       macrolistOpen : false,
       macrotable : { },
       editor : {
@@ -156,7 +203,7 @@ export default class ExpressionBox extends PureComponent<EvaluationProperties> {
   onSimplifiedStep () : void {
 
     const { state, setBoxState } = this.props
-    const { strategy, history, macrotable } = state
+    const { strategy, history, macrotable, ETA } = state
     const stepRecord = history[history.length - 1]
     const { isNormalForm, step } = stepRecord
     const ast = stepRecord.ast.clone()
@@ -205,7 +252,7 @@ export default class ExpressionBox extends PureComponent<EvaluationProperties> {
     else if (nextReduction instanceof None) {
       const etaEvaluator : Evaluator = new OptimizeEvaluator(ast)
 
-      if (etaEvaluator.nextReduction instanceof None) {
+      if (etaEvaluator.nextReduction instanceof None || ! ETA) {
 
         stepRecord.isNormalForm = true
         stepRecord.message.message = 'Expression is in normal form.'
@@ -231,7 +278,7 @@ export default class ExpressionBox extends PureComponent<EvaluationProperties> {
       
       if (nextReduction instanceof None) {
         const etaEvaluator : Evaluator = new OptimizeEvaluator(astCopy)
-        if (etaEvaluator.nextReduction instanceof None) {
+        if (etaEvaluator.nextReduction instanceof None || ! ETA) {
           isNowNormalForm = true
           message.message = 'Expression is in normal form.'
         }
@@ -310,7 +357,7 @@ export default class ExpressionBox extends PureComponent<EvaluationProperties> {
 
   onStep () : void {
     const { state, setBoxState } = this.props
-    const { strategy, SDE, history } = state
+    const { strategy, SDE, ETA, history } = state
 
     // this is gonna change - Simplified Evaluation won't be strategy - but Strategy Modifier
     if (SDE) {
@@ -334,7 +381,7 @@ export default class ExpressionBox extends PureComponent<EvaluationProperties> {
     if (evaluator.nextReduction instanceof None) {
       const etaEvaluator : Evaluator = new OptimizeEvaluator(ast)
 
-      if (etaEvaluator.nextReduction instanceof None) {
+      if (etaEvaluator.nextReduction instanceof None || ! ETA) {
         stepRecord.isNormalForm = true
         stepRecord.message.message = 'Expression is in normal form.'
         
@@ -361,7 +408,7 @@ export default class ExpressionBox extends PureComponent<EvaluationProperties> {
       if (evaluator.nextReduction instanceof None) {
         const etaEvaluator : Evaluator = new OptimizeEvaluator(astCopy)
 
-        if (etaEvaluator.nextReduction instanceof None) {
+        if (etaEvaluator.nextReduction instanceof None || ! ETA) {
           isNormal = true
           message.message = 'Expression is in normal form.'
         }
@@ -428,7 +475,7 @@ export default class ExpressionBox extends PureComponent<EvaluationProperties> {
 
   onSimplifiedRun () : void {
     const { state, setBoxState } = this.props
-    const { strategy, macrotable } = state
+    const { strategy, macrotable, ETA } = state
     let { history, isRunning, breakpoints, timeoutID, timeout } = state
     const stepRecord : StepRecord = history[history.length - 1]
     const { isNormalForm, step } = stepRecord
@@ -457,6 +504,25 @@ export default class ExpressionBox extends PureComponent<EvaluationProperties> {
     lastReduction = nextReduction
     
     if (nextReduction instanceof None) {
+      // #18: the simplified search is eta-blind -- before declaring normal
+      // form, ask OptimizeEvaluator, mirroring onSimplifiedStep. If eta
+      // applies, perform it as a regular running step and continue.
+      const etaEvaluator : Evaluator = new OptimizeEvaluator(newast)
+
+      if (ETA && ! (etaEvaluator.nextReduction instanceof None)) {
+        lastReduction = etaEvaluator.nextReduction
+        ast = etaEvaluator.perform()
+
+        history[history.length - 1] = { ast, lastReduction, step : step + 1, message : { validity : StepValidity.CORRECT, userInput : '', message : '' }, isNormalForm, exerciseStep : false }
+
+        setBoxState({
+          ...state,
+          timeoutID : window.setTimeout(this.onSimplifiedRun, timeout)
+        })
+
+        return
+      }
+
       // TODO: consider immutability
       history.pop()
       history.push({
@@ -541,7 +607,7 @@ export default class ExpressionBox extends PureComponent<EvaluationProperties> {
 
   onRun () : void {
     const { state, setBoxState } = this.props
-    const { strategy } = state
+    const { strategy, ETA } = state
     let { history, isRunning, breakpoints, timeoutID, timeout } = state
     const stepRecord : StepRecord = history[history.length - 1]
     const { isNormalForm, step } = stepRecord
@@ -562,28 +628,37 @@ export default class ExpressionBox extends PureComponent<EvaluationProperties> {
     }
   
     let { ast } = stepRecord
-    const normal : Evaluator = new (strategyToEvaluator(strategy) as any)(ast)
+    let normal : Evaluator = new (strategyToEvaluator(strategy) as any)(ast)
     lastReduction = normal.nextReduction
     
     if (normal.nextReduction instanceof None) {
-      // TODO: consider immutability
-      history.pop()
-      history.push({
-        ast,
-        lastReduction : stepRecord.lastReduction,
-        step,
-        message : { validity : StepValidity.CORRECT, userInput : '', message : 'Expression is in normal form.' }, 
-        isNormalForm : true,
-        exerciseStep : false,
-      })
-  
-      setBoxState({
-        ...state,
-        isRunning : false,
-        timeoutID : undefined,
-      })
-  
-      return
+      // #18: the strategy search is eta-blind -- mirror onStep: continue
+      // with a pending eta conversion instead of stopping.
+      const etaEvaluator : Evaluator = new OptimizeEvaluator(ast)
+
+      if (etaEvaluator.nextReduction instanceof None || ! ETA) {
+        // TODO: consider immutability
+        history.pop()
+        history.push({
+          ast,
+          lastReduction : stepRecord.lastReduction,
+          step,
+          message : { validity : StepValidity.CORRECT, userInput : '', message : 'Expression is in normal form.' },
+          isNormalForm : true,
+          exerciseStep : false,
+        })
+
+        setBoxState({
+          ...state,
+          isRunning : false,
+          timeoutID : undefined,
+        })
+
+        return
+      }
+
+      normal = etaEvaluator
+      lastReduction = etaEvaluator.nextReduction
     }
   
     // TODO: maybe refactor a little

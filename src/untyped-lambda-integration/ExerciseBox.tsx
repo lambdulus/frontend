@@ -1,4 +1,5 @@
 import React, { PureComponent } from 'react'
+import { uniqueKey } from '../uniqueKey'
 
 import {
   AST,
@@ -29,6 +30,21 @@ export interface EvaluationProperties {
 
   setBoxState (state : UntypedLambdaState) : void
   addBox (box : UntypedLambdaState) : void
+}
+
+// The exercise-step submitter reports parse failures locally, through
+// the editor error — same shape as the expression submitter above.
+function exerciseSyntaxError (content : string) : Error {
+  let errorMessage : string = "Something is wrong with your expression. Please inspect it closely."
+
+  if (content.match(/:=/g)?.length !== content.match(/;/g)?.length) {
+    errorMessage = "Did you forget to write a semicolon after the Macro definition?"
+  }
+  if (content.match(/\s*;\s*$/g)) {
+    errorMessage = "There's a semicolon at the end."
+  }
+
+  return Error(errorMessage)
 }
 
 export default class ExerciseBox extends PureComponent<EvaluationProperties> {
@@ -105,14 +121,16 @@ export default class ExerciseBox extends PureComponent<EvaluationProperties> {
       strategy,
       SLI,
       SDE,
+      ETA,
       expandStandalones,
+      collapseOldSteps,
       macrotable,
     } : UntypedLambdaState = state
     const { ast } = stepRecord
     const content = ast.toString()
 
     return {
-      __key : Date.now().toString(),
+      __key : uniqueKey(),
       type : BoxType.UNTYPED_LAMBDA,
       subtype : UntypedLambdaType.EMPTY,
       title : `Copy of ${state.title}`,
@@ -127,8 +145,10 @@ export default class ExerciseBox extends PureComponent<EvaluationProperties> {
       timeout : 10,
       strategy,
       SDE,
+      ETA,
       SLI,
       expandStandalones,
+      collapseOldSteps,
       macrolistOpen : false,
       macrotable : { }, // ...macrotable, ...this.props.macroContext.macrotable
       editor : {
@@ -155,8 +175,12 @@ export default class ExerciseBox extends PureComponent<EvaluationProperties> {
   onEnter () : void {
     const { editor : { content } } = this.props.state
 
+    // Empty input steps for the user; anything else validates as their
+    // step. No fall-through: validating '' would flag a step that was
+    // just taken for them.
     if (content === '') {
       this.onStep()
+      return
     }
 
     this.onExerciseStep()
@@ -230,7 +254,7 @@ export default class ExerciseBox extends PureComponent<EvaluationProperties> {
 
   onSimplifiedExerciseStep () {
     const { state, setBoxState } = this.props
-    const { strategy, history, editor : { content }, macrotable, SLI } = state
+    const { strategy, history, editor : { content }, macrotable, SLI, ETA } = state
 
     try {
       const definitions : Array<string> = content.split(';')
@@ -266,7 +290,7 @@ export default class ExerciseBox extends PureComponent<EvaluationProperties> {
       if (nextReduction instanceof None) {
         const etaEvaluator : Evaluator = new OptimizeEvaluator(newast)
 
-        if (etaEvaluator.nextReduction instanceof None) {
+        if (etaEvaluator.nextReduction instanceof None || ! ETA) {
           // TODO: refactor PLS - update history
           // TODO: say user it is in normal form and they are mistaken
           stepRecord.isNormalForm = true
@@ -298,7 +322,7 @@ export default class ExerciseBox extends PureComponent<EvaluationProperties> {
         if (nextReduction instanceof None) {
           const etaEvaluator : Evaluator = new OptimizeEvaluator(astCopy)
 
-          if (etaEvaluator.nextReduction instanceof None) {
+          if (etaEvaluator.nextReduction instanceof None || ! ETA) {
             isNormal = true
           }
         }
@@ -329,10 +353,15 @@ export default class ExerciseBox extends PureComponent<EvaluationProperties> {
         }
       })
     } catch (exception) {
-      // TODO: print syntax error
-      // TODO: do it localy - no missuse of onSubmit
+      console.error((exception as Error).toString())
 
-      // TODO: print syntax error
+      setBoxState({
+        ...state,
+        editor : {
+          ...state.editor,
+          syntaxError : exerciseSyntaxError(content),
+        }
+      })
     }
 
 
@@ -341,7 +370,7 @@ export default class ExerciseBox extends PureComponent<EvaluationProperties> {
 
   onExerciseStep () {
     const { state, setBoxState } = this.props
-    const { strategy, history, editor : { content }, SDE, macrotable, SLI } = state
+    const { strategy, history, editor : { content }, SDE, macrotable, SLI, ETA } = state
     
     if (SDE === true) {
       this.onSimplifiedExerciseStep()
@@ -382,7 +411,7 @@ export default class ExerciseBox extends PureComponent<EvaluationProperties> {
       if (evaluator.nextReduction instanceof None) {
         const etaEvaluator : Evaluator = new OptimizeEvaluator(ast)
 
-        if (etaEvaluator.nextReduction instanceof None) {
+        if (etaEvaluator.nextReduction instanceof None || ! ETA) {
           // TODO: refactor PLS - update history
           // TODO: say user it is in normal form and they are mistaken
           stepRecord.isNormalForm = true
@@ -411,7 +440,7 @@ export default class ExerciseBox extends PureComponent<EvaluationProperties> {
         if (evaluator.nextReduction instanceof None) {
           const etaEvaluator : Evaluator = new OptimizeEvaluator(astCopy)
 
-          if (etaEvaluator.nextReduction instanceof None) {
+          if (etaEvaluator.nextReduction instanceof None || ! ETA) {
             isNormal = true
           }
         }
@@ -442,10 +471,15 @@ export default class ExerciseBox extends PureComponent<EvaluationProperties> {
         }
       })
     } catch (exception) {
-      // TODO: print syntax error
-      // TODO: do it localy - no missuse of onSubmit
+      console.error((exception as Error).toString())
 
-      // TODO: print syntax error
+      setBoxState({
+        ...state,
+        editor : {
+          ...state.editor,
+          syntaxError : exerciseSyntaxError(content),
+        }
+      })
     }
   }
 
@@ -453,7 +487,7 @@ export default class ExerciseBox extends PureComponent<EvaluationProperties> {
 
 
     const { state, setBoxState } = this.props
-    const { strategy, history, editor : { content }, macrotable } = state
+    const { strategy, history, editor : { content }, macrotable, ETA } = state
     const stepRecord = history[history.length - 1]
     const { isNormalForm, step } = stepRecord
     const ast = stepRecord.ast.clone()
@@ -502,7 +536,7 @@ export default class ExerciseBox extends PureComponent<EvaluationProperties> {
     else if (nextReduction instanceof None) {
       const etaEvaluator : Evaluator = new OptimizeEvaluator(ast)
 
-      if (etaEvaluator.nextReduction instanceof None) {
+      if (etaEvaluator.nextReduction instanceof None || ! ETA) {
         stepRecord.isNormalForm = true
         stepRecord.message.message = 'Expression is in normal form.'
         setBoxState({
@@ -527,7 +561,7 @@ export default class ExerciseBox extends PureComponent<EvaluationProperties> {
       if (nextReduction instanceof None) {
         const etaEvaluator : Evaluator = new OptimizeEvaluator(astCopy)
 
-        if (etaEvaluator.nextReduction instanceof None) {
+        if (etaEvaluator.nextReduction instanceof None || ! ETA) {
           isNowNormalForm = true
           message.message = 'Expression is in normal form.'
         }
@@ -548,7 +582,7 @@ export default class ExerciseBox extends PureComponent<EvaluationProperties> {
 
   onStep () : void {
     const { state, setBoxState } = this.props
-    const { strategy, history, SDE } = state
+    const { strategy, history, SDE, ETA } = state
     const stepRecord = history[history.length - 1]
     const { isNormalForm, step } = stepRecord
     let { ast, lastReduction } = stepRecord
@@ -571,7 +605,7 @@ export default class ExerciseBox extends PureComponent<EvaluationProperties> {
     if (evaluator.nextReduction instanceof None) {
       const etaEvaluator : Evaluator = new OptimizeEvaluator(ast)
 
-      if (etaEvaluator.nextReduction instanceof None) {
+      if (etaEvaluator.nextReduction instanceof None || ! ETA) {
         stepRecord.isNormalForm = true
         stepRecord.message.message = 'Expression is in normal form.'
         
@@ -598,7 +632,7 @@ export default class ExerciseBox extends PureComponent<EvaluationProperties> {
       if (evaluator.nextReduction instanceof None) {
         const etaEvaluator : Evaluator = new OptimizeEvaluator(ast)
 
-        if (etaEvaluator.nextReduction instanceof None) {
+        if (etaEvaluator.nextReduction instanceof None || ! ETA) {
           isNormal = true
           message.message = 'Expression is in normal form.'
         }

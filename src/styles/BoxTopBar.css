@@ -1,12 +1,40 @@
 .boxTopBar {
   width: 100%;
   min-height: 1em;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 4px;
 }
 
 .topBarTitle {
-  width: 40%;
-  
-  /* float: left; */
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+/* Slot for box-type controls portaled from below (Run/Step). Contents
+   layout keeps the slot itself footprint-free, even while empty. */
+.boxTopBar-actions {
+  display: contents;
+}
+
+/* Standby title actions: fully laid out but unseeing, so activating
+   the box never grows the title bar and shoves content. Unlike
+   opacity:0 the hidden buttons catch neither clicks nor keyboards. */
+.box-top-bar-actions--standby {
+  visibility: hidden;
+}
+
+.boxTopBar-spacer {
+  flex: 1 1 auto;
+}
+
+.boxTopBar-actions .debug-controls {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0;
+  margin: 0;
 }
 
 .box-top-bar--title-text {
@@ -15,198 +43,99 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  padding: 7px;
-  /* padding-left: 12px; */
-  /* padding-right: 12px; */
-  /* border-radius: 0.25em; */
-  border-bottom: rgb(223, 223, 223) solid 2px;
+  padding: 2px;
+  font-size: 0.82em;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  color: var(--muted);
+  border-bottom: 1px solid transparent;
+}
+
+.box-top-bar--title-text:hover {
+  border-bottom-color: var(--border);
 }
 
 .box-top-bar--title-text:focus {
   display: inline;
+  outline: none;
+  border-bottom-color: var(--accent);
 }
-
-.box-top-bar--title-text {
-  /* background-color: rgb(230, 230, 230); */
-}
-
-.inactive .box-top-bar--title-text {
-  /* background-color: rgb(240, 240, 240); */
-}
-
 
 .box-top-bar-custom {
-  position: absolute;
-  top: 0;
-  right: 10em;
-  padding-right: 20px;
-  border-right: 2px solid gray;
+  flex: 0 0 auto;
+  padding-right: 12px;
+  border-right: 1px solid var(--border);
+  color: var(--muted);
+  font-size: 0.85em;
+  display: inline-flex;
+  align-items: center;
+  opacity: 0;
+  transition: opacity .15s ease-in-out;
+}
+
+.boxContainer:hover .box-top-bar-custom,
+.boxContainer.active .box-top-bar-custom,
+.boxContainer:focus-within .box-top-bar-custom {
+  opacity: 1;
+}
+
+@media (hover: none) {
+  .box-top-bar-custom {
+    opacity: 1;
+  }
 }
 
 .box-top-bar-controls {
-  position: absolute;
-  right: 0;
-  top: 0px;
-  width: 10em;
-  /* width: 7%; */
-  /* margin-left: 80%; */
+  flex: 0 0 auto;
+  display: flex;
+  gap: 2px;
+  opacity: 0;
+  transition: opacity .15s ease-in-out;
+}
+
+.boxContainer:hover .box-top-bar-controls,
+.boxContainer.active .box-top-bar-controls,
+.boxContainer:focus-within .box-top-bar-controls {
+  opacity: 1;
+}
+
+@media (hover: none) {
+  .box-top-bar-controls {
+    opacity: 1;
+  }
 }
 
 .box-top-bar--controls-item {
-  padding-top: 5px;
-  padding-bottom: 5px;
-  text-align: center;
-  margin-left: 10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 6px;
   cursor: pointer;
-  float: left;
-  width: 15%;
+  color: var(--muted);
 }
 
 .box-top-bar--controls-item:hover {
-  background-color: rgb(221, 221, 221);
-  border-radius: 5px;
+  background-color: var(--raised);
+  color: var(--text);
 }
-
-.dark .box-top-bar--controls-item:hover {
-  background-color: rgb(100, 100, 100);
-  border-radius: 5px;
-}
-
-
-/* .box-top-bar--controls--imize {
-  padding-top: 5px;
-  padding-bottom: 5px;
-  text-align: center;
-  cursor: pointer;
-  float: left;
-  width: 25%;
-  margin-right: 10px;
-}
-
-.box-top-bar--controls--imize:hover {
-  background-color: rgb(221, 221, 221);
-  border-radius: 5px;
-} */
-
-/* .box-top-bar--delete {
-  padding-top: 5px;
-  padding-bottom: 5px;
-  text-align: center;
-  cursor: pointer;
-  float: left;
-  width: 25%;
-  margin-right: 10px;
-}
-
-.box-top-bar--delete:hover {
-  background-color: rgb(221, 221, 221);
-  border-radius: 5px;
-} */
-
-/* .box-top-bar--share {
-  padding-top: 5px;
-  padding-bottom: 5px;
-  text-align: center;
-  cursor: pointer;
-  float: left;
-  width: 25%;
-  margin-right: 10px;
-}
-
-.box-top-bar--share:hover {
-  background-color: rgb(221, 221, 221);
-  border-radius: 5px;
-} */
-
-/* .box-top-bar--controls--settings {
-  padding-top: 5px;
-  padding-bottom: 5px;
-  text-align: center;
-  cursor: pointer;
-  float: left;
-  width: 33%;
-} */
-
-.box-top-bar--controls--settings:hover {
-  background-color: rgb(221, 221, 221);
-  border-radius: 5px;
-}
-
-/* .box-top-bar--controls--menu {
-  padding-top: 5px;
-  padding-bottom: 5px;
-  text-align: center;
-  cursor: pointer;
-  float: left;
-  width: 25%;
-  position: absolute;
-  right: 0;
-  border-radius: 5px;
-  margin-right: 10px;
-} */
-
-/* .box-top-bar--controls--menu.menu-pressed-open {
-  background-color: rgb(240, 240, 240);
-}
-
-.box-top-bar--controls--menu:hover {
-  background-color: rgb(221, 221, 221);
-} */
-
-/* .box-top-bar--controls--remove {
-  padding-top: 5px;
-  padding-bottom: 5px;
-  text-align: center;
-  cursor: pointer;
-  float: left;
-  width: 33%;
-} */
-
-/* .box-top-bar--controls--remove:hover {
-  background-color: rgb(221, 221, 221);
-  border-radius: 5px;
-} */
-
-/* .imizeBox {
-  color: grey;
-  cursor: pointer;
-}
-
-.imizeBox:hover {
-
-  color: black;
-} */
-
-.box-top-bar-controls .icon {
-  color: black;
-  font-size: 1em;
-}
-
-
-.mini-icon {
-  cursor: pointer; /* "hand" cursor */
-  font-size: 1em; 
-}
-
 
 .box-top-bar--menu {
   position: absolute;
   top: 40px;
   right: 5px;
-  border-radius: 0.25rem;
+  border-radius: 8px;
   z-index: 777;
-  background-color: white;
+  background-color: var(--surface);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow);
   padding-top: 5px;
   padding-bottom: 5px;
-
-  -webkit-box-shadow: 0px 0px 15px -1px rgba(102,102,102,0.5);
-  -moz-box-shadow: 0px 0px 15px -1px rgba(102,102,102,0.5);
-  box-shadow: 0px 0px 15px -1px rgba(102,102,102,0.5);
 }
 
 .box-top-bar--menu-item {
   font-size: 0.9em;
-  /* font-weight: 300; */
   padding: 8px;
   padding-left: 1em;
   padding-right: 2em;
@@ -214,50 +143,44 @@
 }
 
 .box-top-bar--menu-item:hover {
-  background-color: rgb(230, 230, 230);
+  background-color: var(--raised);
 }
 
 .box-top-bar--menu-item--notif {
-  color: white;
-  font-size: 0.8em;
-  text-align: center;
-  font-weight: 500;
-
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  padding: 6px 14px;
   position: absolute;
-  right: -6em;
-  margin: 20px;
-  margin-top: -5px;
-  margin-bottom: 0;
-  
-  padding: 5px;
-  padding-left: 1em;
-  padding-right: 2em;
-  background-color: rgb(64, 147, 224);
-  border-radius: 0.25rem;
-
-  float:left;
-
-  z-index: 9999;
+  top: 36px;
+  right: 4px;
+  z-index: 777;
+  font-size: 0.8em;
+  font-weight: 500;
+  color: var(--text);
+  background-color: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  box-shadow: var(--shadow);
+  white-space: nowrap;
 }
 
+.box-top-bar--menu-item--notif svg {
+  color: var(--accent);
+}
 
 .box-top-bar--menu-item--share-link {
   position: absolute;
-  top: 0px;
+  top: 0;
   left: 45%;
   font-size: 1.1em;
-
   padding: 5px;
   max-width: 100%;
   display: inline-block;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-
-  border-radius: 0.1rem;
-  -webkit-box-shadow: 0px 0px 15px -1px rgba(102,102,102,0.5);
-  -moz-box-shadow: 0px 0px 15px -1px rgba(102,102,102,0.5);
-  box-shadow: 0px 0px 15px -1px rgba(102,102,102,0.5);
-
-  /* background-color: gray; */
+  border-radius: 6px;
+  box-shadow: var(--shadow);
 }

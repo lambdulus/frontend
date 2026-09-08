@@ -1,4 +1,5 @@
 import React, { PureComponent } from 'react'
+import { Play, SkipForward, Square } from 'lucide-react'
 
 import '../styles/DebugControls.css'
 
@@ -7,35 +8,49 @@ interface Props {
   isRunning : boolean
   // disableRun : boolean /* TODO: this is just for now -- because I am not sure students will know how to exercise with simplified */
 
+  // Only the anchor box answers the shortcuts: every box mounts its
+  // own listener (the slot stays mounted off-anchor), so a shared
+  // singleton slot would fire the last-mounted box instead of the
+  // focused one, and one unmount would silence them all.
+  shortcutsEnabled : boolean
+
   onStep : () => void
   onRun : () => void
 }
 
-// TODO: Consider separating the `keydown` event handler into different file
-// it would be singleton module, which would make sure ONLY ONE `DebugControls` component
-// is subscribed to the `keydown` event
 export default class DebugControls extends PureComponent<Props> {
+  constructor (props : Props) {
+    super(props)
+
+    this.onKeyDown = this.onKeyDown.bind(this)
+  }
+
   componentDidMount () : void {
-    document.onkeydown = (event) => {
-      if ( ( ! event.shiftKey)
-        && ( ! event.ctrlKey)
-        && ( ! event.altKey)
-        && ( ! event.metaKey)
-        && (event.key === 'F8' || event.key === 'F9')) {
-          if (event.key === 'F8') {
-            event.preventDefault()
-            this.props.onStep()
-          }
-          if (event.key === 'F9') { /* TODO: this is just for now -- because I am not sure students will know how to exercise with simplified */
-            event.preventDefault()
-            this.props.onRun()
-          }
-        }
-    }
+    document.addEventListener('keydown', this.onKeyDown)
   }
 
   componentWillUnmount () : void {
-    document.onkeydown = () => void 0
+    document.removeEventListener('keydown', this.onKeyDown)
+  }
+
+  onKeyDown (event : KeyboardEvent) : void {
+    if ( ! this.props.shortcutsEnabled) {
+      return
+    }
+    if ( ( ! event.shiftKey)
+      && ( ! event.ctrlKey)
+      && ( ! event.altKey)
+      && ( ! event.metaKey)
+      && (event.key === 'F8' || event.key === 'F9')) {
+        if (event.key === 'F8') {
+          event.preventDefault()
+          this.props.onStep()
+        }
+        if (event.key === 'F9') { /* TODO: this is just for now -- because I am not sure students will know how to exercise with simplified */
+          event.preventDefault()
+          this.props.onRun()
+        }
+      }
   }
 
   render () {
@@ -58,7 +73,7 @@ export default class DebugControls extends PureComponent<Props> {
             onClick={ onRun }
           >
             <span className='debug-controls--btn-label'>{ isRunning ? 'Stop' : 'Run' }</span>
-            <i className="mini-icon fas fa-play"></i>
+            { isRunning ? <Square size={ 13 } strokeWidth={ 1.75 } /> : <Play size={ 13 } strokeWidth={ 1.75 } /> }
           </button>
         }
         
@@ -71,7 +86,7 @@ export default class DebugControls extends PureComponent<Props> {
           disabled={ isRunning }
         >
           <span className='debug-controls--btn-label'>Step</span>
-          <i className="mini-icon fas fa-step-forward"></i>
+          <SkipForward size={ 13 } strokeWidth={ 1.75 } />
         </button>
       </div>
     )

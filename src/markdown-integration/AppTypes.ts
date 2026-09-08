@@ -1,4 +1,5 @@
 import { BoxType, AbstractBoxState } from "../Types"
+import { uniqueKey } from "../uniqueKey"
 
 
 export interface NoteState extends AbstractBoxState {
@@ -16,7 +17,7 @@ export interface NoteState extends AbstractBoxState {
 
 export function createNewMarkdown () : NoteState {
   return {
-    __key : Date.now().toString(),
+    __key : uniqueKey(),
     type : BoxType.MARKDOWN,
     title : 'Markdown Box',
     minimized : false,
@@ -49,10 +50,25 @@ export function resetMarkdownBox (state : NoteState) : NoteState {
 
 export const PromptPlaceholder : string = 'Note in MarkDown'
 
+export function topHeadingTitle (content : string) : string | null {
+  // A level-1 heading (`#`, exactly one) on the very first line lends its
+  // text to the box title. Anything else (H2+, heading further down,
+  // `#nospace`, empty) leaves the title alone.
+  const firstLine : string = content.split(/\r?\n/)[0] ?? '';
+  const match : RegExpMatchArray | null = firstLine.match(/^\s{0,3}#\s+(.+?)\s*$/);
+  if (match === null) {
+    return null;
+  }
+  const title : string = match[1].replace(/\s+#+$/, '').trim();
+  return title === '' ? null : title;
+}
+
 export function onMarkDownBlur (state : NoteState) : NoteState {
+  const heading : string | null = topHeadingTitle(state.editor.content);
   return {
     ...state,
     isEditing: false,
+    title : heading ?? state.title,
   }
 }
 

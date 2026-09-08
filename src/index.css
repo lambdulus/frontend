@@ -1,3 +1,81 @@
+/* Design tokens for Lambdulus. Dark is the default theme;
+   #app.light overrides below keep the light mode working. */
+
+:root,
+#app.dark {
+  color-scheme: dark;
+  --bg: #0e1316;
+  --surface: #151c20;
+  --raised: #1c242a;
+  --border: #2b353d;
+  --text: #e7edeb;
+  --muted: #8fa0a8;
+  --accent: #34d399;
+  --accent-strong: #10b981;
+  --accent-ink: #06281c;
+  --danger: #f87171;
+  --warning: #fbbf24;
+  --info: #7dd3fc;
+  --shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --shadow-lift: 0 12px 32px rgba(0, 0, 0, 0.5);
+}
+
+#app.light {
+  color-scheme: light;
+  --bg: #f2f5f4;
+  --surface: #ffffff;
+  --raised: #eef2f1;
+  --border: #d9e1de;
+  --text: #17211d;
+  --muted: #5c6f67;
+  --accent: #047857;
+  --accent-strong: #065f46;
+  --accent-ink: #ecfdf5;
+  --danger: #b91c1c;
+  --warning: #b45309;
+  --info: #0369a1;
+  --shadow: 0 1px 2px rgba(23, 33, 29, 0.08);
+  --shadow-lift: 0 12px 32px rgba(23, 33, 29, 0.16);
+}
+
+/* Hue variants: mode tokens above stay, only the accent is swapped. */
+
+#app.dark[data-accent='blue'] {
+  --accent: #4da3ff;
+  --accent-strong: #0b83fb;
+  --accent-ink: #061e33;
+}
+
+#app.light[data-accent='blue'] {
+  --accent: #1976d2;
+  --accent-strong: #016ad2;
+  --accent-ink: #ffffff;
+}
+
+#app.dark[data-accent='amber'] {
+  --accent: #fbbf24;
+  --accent-strong: #f59e0b;
+  --accent-ink: #451a03;
+}
+
+#app.light[data-accent='amber'] {
+  --accent: #b45309;
+  --accent-strong: #92400e;
+  --accent-ink: #fffbeb;
+}
+
+#app.dark[data-accent='indigo'] {
+  --accent: #818cf8;
+  --accent-strong: #6366f1;
+  --accent-ink: #ffffff;
+}
+
+#app.light[data-accent='indigo'] {
+  --accent: #4338ca;
+  --accent-strong: #3730a3;
+  --accent-ink: #ffffff;
+}
+
 body {
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
@@ -5,9 +83,15 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  background-color: var(--bg);
+  color: var(--text);
 }
 
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
+}
+
+a {
+  color: var(--accent);
 }

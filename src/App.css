@@ -1,11 +1,11 @@
 /* CSS RESET */
 .UL {
-  padding: 0px;
+  padding: 0;
 }
 
 .LI {
   list-style: none;
-  margin-bottom: 20px;
+  margin-bottom: 16px;
 }
 /* CSS RESET */
 
@@ -15,20 +15,18 @@
 
 body {
   overflow-x: hidden;
-  spellcheck: false;
 }
 
-#root {
-  /* height: 100%; */
-}
-
-#app.dark {
-  background-color: black;
+#app {
+  background-color: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
 }
 
 #bad-screen-message {
   display: none;
-  background-color: rgb(195, 195, 195);
+  background-color: var(--surface);
+  color: var(--text);
   height: 100vh;
   width: 100vw;
   position: fixed;
@@ -45,193 +43,411 @@ body {
   }
 }
 
-.app {
-  background-color: #f4f6f6;
-}
-
 .boxContainer {
   position: relative;
-  padding-left: 10px;
-  padding-top: 5px; /* NOTE: just trying more minimal design - less white space around boxes */
-  /* padding-bottom: 10px; */ /* To save space below each container */
-  /* padding-bottom: 5px; */ /* NOTE: just trying more minimal design - less white space around boxes */
-  font-size: 1.3em; /* NOTE: It may be better with smaller font-size */
-
-  /* -webkit-box-shadow: 6px 7px 16px -7px rgba(64,64,64,0.87);
-  -moz-box-shadow: 6px 7px 16px -7px rgba(64,64,64,0.87);
-  box-shadow: 6px 7px 16px -7px rgba(64,64,64,0.87); */
-  background-color: white;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  box-shadow: var(--shadow);
+  padding: 20px 20px 24px;
+  font-size: 1.1em;
 }
 
-.dark .boxContainer {
-  background-color: black;
-  color: white;
+/* The lift follows the map anchor, not the click: one source of
+   truth for what is in focus, whether it got there by click, keys
+   or plain scrolling. */
+.box-frame--anchor .boxContainer {
+  box-shadow: var(--shadow-lift);
 }
 
-/* .boxContainer.inactive {
-  border-left: 3px solid rgb(160, 186, 238);
+/* Classic boxes: flat and divided by a hairline, with the full-height
+   grab rail lighting the anchor in accent (see BoxContainer.css).
+   Cards stay the default; everything below only runs opted in. */
+#app[data-box-style='classic'] .boxContainer {
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid var(--border);
+  border-radius: 0;
+  box-shadow: none;
+  padding: 20px 4px 24px;
 }
 
-.boxContainer.inactive:hover {
-  border-left-color: rgb(124, 166, 250);
-  /* border-left: 5px solid rgb(124, 166, 250);
-} */
+#app[data-box-style='classic'] .box-frame--anchor .boxContainer {
+  box-shadow: none;
+}
 
-.mainSpace, .helpSpace, .settingsSpace {
-  width: 65%; /* TODO: consider */
+.boxContainer.active .box-top-bar--title-text {
+  color: var(--text);
+}
+
+.mainSpace {
+  max-width: 900px;
   margin: auto;
-  /* margin-left: 6em; */
-  padding-top: 6em;
-  min-height: 100vh; /* Stupid hack to fix the gap at the bottom visible in dark mode. */
-  padding-bottom: 10px; /* Stupid hack to fix the gap at the bottom visible in dark mode. */
+  padding: 76px 20px 40px;
+  min-height: 100vh;
 }
 
-.helpSpace {
-  padding-top: 5em;
-  padding-bottom: 5em;
-}
-
-/* .notebooks-tabs {
-  width: 100%;
-  height: 3em;
-  margin-bottom: 3em;
-  overflow-x: scroll;
-} */
-
-.notebook-tab {
-  padding: 10px;
-  padding-left: 15px;
-  padding-right: 5px;
-  white-space: nowrap;
-  background-color: #0b83fb;
-  margin-bottom: 0;
-  /* border-bottom: 1px solid #3399ff; */
-}
-
-.edit-name {
+/* Fixed box-to-box navigator: a pair of large arrows riding the right
+   viewport edge, jumping to the previous/next box with full focus and
+   seating. Retired from view in favor of the map paging arrows; the
+   markup stays for an easy revert. */
+.box-nav {
+  position: fixed;
+  right: 20px;
+  top: 50%;
+  transform: translateY(-50%);
   display: none;
-  margin-left: 10px;
+  flex-direction: column;
+  gap: 10px;
+  z-index: 60;
 }
 
-.notebook-tab:hover .edit-name {
-  display: inline;
-  color: white;
-}
-
-.current {
-  background-color: #4aa4ff;
-}
-
-.notebook-tab:first-of-type {
-  padding-top: 15px;
-}
-
-.notebook-tab:last-of-type {
-  padding-bottom: 15px;
-}
-
-.notebook-tab:hover {
+.box-nav--btn {
+  width: 44px;
+  height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background-color: var(--surface);
+  color: var(--muted);
   cursor: pointer;
-  background-color: #2592ff;
+  box-shadow: var(--shadow);
+  transition: color .15s ease-in-out, border-color .15s ease-in-out, opacity .15s ease-in-out;
 }
 
-.notebook-tab:hover.current {
-  background-color: #4aa4ff;
+.box-nav--btn:hover:not(:disabled) {
+  color: var(--accent);
+  border-color: var(--accent);
 }
 
-.removeNtb {
+.box-nav--btn:disabled {
+  opacity: 0.3;
+  cursor: default;
+}
+
+/* Zen mode: a single box owns the viewport. Only the anchor box
+   renders; the title, the add-box affordances and the seating spacer
+   step out, and the box stretches to at least the full view height so
+   nothing else can peek in below it. The arrows stay on (they are the
+   way around) and the history grows into the freed real estate. */
+.mainSpace.zen .notebook-title {
+  display: none;
+}
+
+/* The list's own margins would add page scroll on top of the fitted
+   box, so they go to zero: in zen the page must not move at all. */
+.mainSpace.zen .boxList {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+.mainSpace.zen .boxList > .LI {
+  display: none;
+  margin-bottom: 0;
+}
+
+.mainSpace.zen .boxList > .LI.zen-current {
+  display: block;
+}
+
+/* The arrival slides the box frame, never the row: the row top is
+   what seating measures, so animating it would plant every zen
+   switch a few pixels off and the next click would visibly correct
+   the leftover. */
+.mainSpace.zen .boxList > .LI.zen-current .box-frame {
+  animation: zen-arrive .18s ease-out;
+}
+
+@keyframes zen-arrive {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mainSpace.zen .boxList > .LI.zen-current .box-frame {
+    animation: none;
+  }
+}
+
+.mainSpace.zen .add_box_after {
+  display: none;
+}
+
+/* The grab rail separates and focuses boxes; zen shows a single box
+   that always owns the focus, so there is nothing to grab onto.
+   (It also cannot size to content here: the zen box is clamped to
+   the viewport, and the stretched rail would overshoot short
+   histories into the leftover space.) */
+.mainSpace.zen .box-rail {
+  display: none;
+}
+
+/* Collapsing the single zen box would only strand an empty clamped
+   frame, so the toggle steps out with the other box furniture. */
+.mainSpace.zen .box-top-bar--collapse-toggle {
+  display: none;
+}
+
+.mainSpace.zen .notebook-bottom-spacer {
+  display: none;
+}
+
+/* Hard-clamp the zen box to exactly the viewport: a fixed height (page
+   padding 116 plus the box's own content-box padding 44) over a flex
+   column whose only shrinker is the history pane. Plain nested flex on
+   the real wrappers, no display:contents; every level carries
+   min-height:0, or content would pry the box open again. No clipping
+   backstop: title-bar popups are absolute and must stay paintable, and
+   the settings panels below keep their own capped scroll instead. */
+.mainSpace.zen .boxContainer {
+  height: calc(100vh - 160px);
+  display: flex;
+  flex-direction: column;
+}
+
+.mainSpace.zen .untypedLambdaBox {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+.mainSpace.zen .untypedLambdaBoxContent {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+.mainSpace.zen .box.boxEval {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+/* The wrap hugs its content (never stretches): short histories end
+   where they end and the leftover viewport stays below the current
+   step. Only when squeezed does it yield, and then the scroller
+   inside takes over. */
+.mainSpace.zen .box-history-wrap {
+  flex: 0 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.mainSpace.zen .box-history-scroll {
+  flex: 1 1 auto;
+  min-height: 0;
+  max-height: none;
+}
+
+.mainSpace.zen .box.boxNote,
+.mainSpace.zen .box.boxNoteEditor {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+/* No side arrows in zen: the map and the arrow keys own navigation. */
+.mainSpace.zen .box-nav {
+  display: none;
+}
+
+/* Box map: one line per box, riding the right viewport edge in both
+   modes and centered on the view. Grows with the notebook up to 70%
+   of the viewport, then scrolls under top/bottom fades. The anchor
+   carries the accent bar; the rest sit muted until hovered. */
+/* No panel: bare lines over the notebook background, no fill and no
+   border. The list itself lets clicks fall through to the box below;
+   only the lines and arrows catch them. */
+.box-map {
+  position: fixed;
+  right: 76px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 370px;
+  z-index: 55;
+}
+
+.box-map-list {
+  max-height: 70vh;
+  overflow-y: auto;
+  overflow-x: hidden;
+  width: 100%;
+  padding: 6px;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
+  pointer-events: none;
+}
+
+/* Paging hitbox: an invisible backstop behind the lines, reaching a
+   good way past the short map small notebooks draw, so wheel and
+   swipe gestures find it without hunting for a two-line strip. It
+   sits behind the list content (negative z), so lines and arrows
+   keep their clicks; it only catches the empty strip around them.
+   Always present but harmless outside zen: clicks land on empty
+   margin, and wheel chains on to the page exactly as before. */
+.box-map-hitbox {
   position: absolute;
-  top: -1.2em;
-  right: 0.5em;
+  left: 0;
+  right: 0;
+  top: -18vh;
+  bottom: -18vh;
+  z-index: -1;
+}
+
+.box-map-list.mask-top {
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 24px);
+  mask-image: linear-gradient(to bottom, transparent 0, #000 24px);
+}
+
+.box-map-list.mask-bottom {
+  -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - 24px), transparent 100%);
+  mask-image: linear-gradient(to bottom, #000 calc(100% - 24px), transparent 100%);
+}
+
+.box-map-list.mask-top.mask-bottom {
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 24px, #000 calc(100% - 24px), transparent 100%);
+  mask-image: linear-gradient(to bottom, transparent 0, #000 24px, #000 calc(100% - 24px), transparent 100%);
+}
+
+.box-map-item {
+  display: block;
+  width: 100%;
+  text-align: left;
+  font: inherit;
+  background: none;
+  border: none;
+  border-left: 2px solid transparent;
+  border-radius: 0 4px 4px 0;
+  padding: 5px 8px 5px 10px;
+  color: var(--muted);
   cursor: pointer;
-  color: white;
+  pointer-events: auto;
 }
 
-.addNtb {
-  position: absolute;
-  top: -1em;
-  right: 0.5em;
+.box-map-item:hover {
+  color: var(--text);
+}
+
+.box-map-item--current {
+  border-left-color: var(--accent);
+  color: var(--text);
+}
+
+.box-map-label {
+  display: block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: 0.9em;
+}
+
+/* Zen add-box: the per-box + rows step out with the other box
+   furniture and the page never scrolls to them, so a floating New-box
+   button rides the bottom-right corner under the map. Bottom-anchored,
+   the type picker opens upward in place; inserting after the anchor
+   focuses the new box at once. */
+.zen-add {
+  position: fixed;
+  right: 76px;
+  bottom: 24px;
+  width: 320px;
+  max-width: calc(100vw - 48px);
+  z-index: 60;
+}
+
+/* Paging arrows flanking the anchor line: the same move as the arrow
+   keys, sitting between the anchor and its neighbors, centered on
+   the map lines. */
+.box-map-arrow {
+  display: block;
+  width: 100%;
+  background: none;
+  border: none;
+  padding: 3px 0;
+  text-align: center;
+  color: var(--muted);
   cursor: pointer;
-  color: white;
+  pointer-events: auto;
 }
 
-.notebook-tab:hover .addNtb {
-  color: rgb(89, 255, 89);
+.box-map-arrow:hover {
+  color: var(--accent);
 }
 
-.notebookIconWrapper:hover .removeNtb {
-  color: rgb(255, 8, 8);
+/* Narrower screens leave the side-riding map no room: below the
+   width where the full 940px column and the 370px map still clear
+   each other (1832px), the column slims by 10% and the map halves,
+   so the two never overlap. (The half map at right:76 clears the
+   850px column exactly at 1372px, comfortably above.) The macro
+   popup's dock offset follows the slimmer column in the same block. */
+@media (max-width: 1831px) {
+  .mainSpace {
+    max-width: 810px;
+  }
+
+  .box-map {
+    width: 185px;
+  }
+
+  .macro-dock {
+    left: calc(-1 * max(22px, (100vw - 850px) / 2 + 22px));
+  }
+}
+
+/* The page itself never moves in zen: with the box hard-clamped this
+   only bars the last stray pixel (and the rubber-band), leaving the
+   history pane as the single thing that scrolls. */
+body.zen {
+  overflow: hidden;
+}
+
+.notebook-title {
+  font-size: 1.35em;
+  font-weight: 600;
+  margin: 0 0 20px;
+}
+
+.notebook-title span {
+  outline: none;
+  border-bottom: 2px solid transparent;
+  padding-bottom: 2px;
+}
+
+.notebook-title span[contenteditable='true']:hover {
+  border-bottom-color: var(--border);
+}
+
+.notebook-title span[contenteditable='true']:focus {
+  border-bottom-color: var(--accent);
 }
 
 .boxList, .UL {
-  margin-right: 40px;
+  margin: 0;
+}
+
+/* Permanent invisible scroll potential below the last box: a full
+   view minus the 60px seating offset, so every box (however small
+   the trailing ones are) can be seated at the top from first paint,
+   with no on-focus growing. Hidden in zen, where the single box
+   already owns the viewport. */
+.notebook-bottom-spacer {
+  height: calc(100vh - 60px);
 }
 
 .box {
   position: relative;
   margin-top: 0.5em;
-  padding-top: 10px;
 }
 
-/*  nejradsi bych tyhle 3 dal do toho Box menu - |...| menu  */
-
-/* .removeBox {
-  position: absolute;
-  right: 65px;
-  top: 5px;
-  cursor: pointer;
-}
-
-.inactive .removeBox {
-  /* display: none; */
-  /* color: grey; */
-/* } */
-
-/* .removeBox:hover { */
-  /* color: black; */
-  /* background-color: rgb(143, 143, 143); */
-/* } */
-
-/*  */
-
-.notebookIcon {
-  padding-top: 0.6em;
-  padding-bottom: 0.6em;
-  /* height: 2em; */
-  background-color: #016ad2;
-  font-size: 1.6em;
-  /* margin: auto; */
-  border-radius: 0.25em;
-  cursor: pointer;
-}
-
-.notebooks.UL {
-  margin-right: 0;
-}
-
-.notebooks .LI {
-  width: 80%;
-
-  margin: auto;
-  margin-bottom: 20px;
-}
-
-.addNotebook {
-  width: 80%;
-  font-size: 1.6em;
-  margin: auto;
-  padding-top: 0.6em;
-  padding-bottom: 0.6em;
-  background-color: #016ad2;
-  border-radius: 0.25em;
-  cursor: pointer;
-}
-
-.separator {
-  width: 85%;
-  margin: auto;
-  border-bottom: 3px solid white;
-  border-radius: 0.5em;
-  margin-top: 0.5em;
-  margin-bottom: 0.5em;
-}

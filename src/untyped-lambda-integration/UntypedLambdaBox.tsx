@@ -1,10 +1,11 @@
 import React, { PureComponent } from 'react'
+import { ChevronDown, ChevronUp } from 'lucide-react'
 
 import { BoxType } from '../Types'
 import { UntypedLambdaState, UntypedLambdaType, UntypedLambdaSettings, PromptPlaceholder, StepMessage, StepValidity } from './Types'
 import ExpressionBox from './ExpressionBox'
 import MacroList from './MacroList'
-import { GLOBAL_SETTINGS_ENABLER, strategyToEvaluator, findSimplifiedReduction, toMacroMap } from './Constants'
+import { GLOBAL_SETTINGS_ENABLER, strategyToEvaluator, findSimplifiedReduction, toMacroMap, SETTINGS_OPENED_EVENT } from './Constants'
 import ExerciseBox from './ExerciseBox'
 import Settings from './Settings'
 import EmptyExpression from './EmptyExpression'
@@ -15,15 +16,128 @@ interface Props {
   state : UntypedLambdaState
   isActive : boolean
   isFocused : boolean
+  isAnchorBox : boolean
 
   setBoxState (state : UntypedLambdaState) : void
   addBox (box : UntypedLambdaState) : void
+  titleActionsHost? : React.RefObject<HTMLSpanElement>
 }
 
-export default class UntypedLambdaBox extends PureComponent<Props> {
+// How long a closing dock keeps its contained shut state before the
+// pill stands alone: past the close beat with room to spare.
+const DOCK_SHUT_MS : number = 160
+
+// The dock keeps its open containment through a close (open + shut)
+// so the fade plays inside the capped card instead of flashing the
+// full-height content; reopening mid-shut drops the bridge at once.
+export function dockClassName (macrolistOpen : boolean, shutting : boolean) : string {
+  const contain : boolean = macrolistOpen || shutting
+  const bridge : boolean = shutting && !macrolistOpen
+  return `macro-dock${contain ? ' macro-dock--open' : ''}${bridge ? ' macro-dock--shut' : ''}`
+}
+
+interface State {
+  dockShutting : boolean
+}
+
+export default class UntypedLambdaBox extends PureComponent<Props, State> {
+  private dockShutTimer : number | null = null
+  private boxRef = React.createRef<HTMLDivElement>()
+
+  constructor (props : Props) {
+    super(props)
+
+    this.state = { dockShutting : false }
+    this.onOutsideSettings = this.onOutsideSettings.bind(this)
+    this.onOtherSettingsOpened = this.onOtherSettingsOpened.bind(this)
+  }
+
+  componentDidMount () : void {
+    document.addEventListener('mousedown', this.onOutsideSettings)
+    document.addEventListener(SETTINGS_OPENED_EVENT, this.onOtherSettingsOpened as EventListener)
+  }
+
+  componentWillUnmount () : void {
+    document.removeEventListener('mousedown', this.onOutsideSettings)
+    document.removeEventListener(SETTINGS_OPENED_EVENT, this.onOtherSettingsOpened as EventListener)
+
+    if (this.dockShutTimer !== null) {
+      window.clearTimeout(this.dockShutTimer)
+      this.dockShutTimer = null
+    }
+  }
+
+  componentDidUpdate (prevProps : Props) : void {
+    if (prevProps.state.macrolistOpen && !this.props.state.macrolistOpen) {
+      // Bridging the close: hold containment for the fade, then stand down.
+      if (this.dockShutTimer !== null) {
+        window.clearTimeout(this.dockShutTimer)
+      }
+
+      this.setState({ dockShutting : true })
+      this.dockShutTimer = window.setTimeout(() => {
+        this.dockShutTimer = null
+        this.setState({ dockShutting : false })
+      }, DOCK_SHUT_MS)
+    }
+
+    if (!prevProps.state.macrolistOpen && this.props.state.macrolistOpen && this.dockShutTimer !== null) {
+      // Reopened mid-shut: the open state owns containment again.
+      window.clearTimeout(this.dockShutTimer)
+      this.dockShutTimer = null
+      this.setState({ dockShutting : false })
+    }
+  }
+
+  // An open settings panel closes on mousedown outside it — the same
+  // beat the + rows open on. Exempt: my own panel, the gear (its toggle
+  // owns the click), and the tour (which conducts panels deliberately
+  // step by step). Another box's panel is "anywhere beside" mine, so it
+  // dismisses me; a box opening its settings broadcasts, which buries me
+  // even before any click lands (see onOtherSettingsOpened).
+  onOutsideSettings (event : MouseEvent) : void {
+    const { state, setBoxState } : Props = this.props
+
+    if (state.settingsOpen !== true) {
+      return
+    }
+
+    const target : Element | null = event.target as Element | null
+
+    if (target === null || target.closest === undefined) {
+      return
+    }
+
+    const panel : Element | null = target.closest('.box-settings')
+
+    if (panel !== null && this.boxRef.current !== null && this.boxRef.current.contains(panel)) {
+      return
+    }
+
+    if (target.closest('[title="Open this Boxs\' settings"]') !== null) {
+      return
+    }
+
+    if (target.closest('.tour') !== null) {
+      return
+    }
+
+    setBoxState({ ...state, settingsOpen : false })
+  }
+
+  // Another box opened its settings — stand mine down so panels never overlap.
+  onOtherSettingsOpened (event : Event) : void {
+    const { state, setBoxState } : Props = this.props
+    const key : unknown = (event as CustomEvent<{ key : string }>).detail?.key
+
+    if (state.settingsOpen === true && typeof key === 'string' && key !== state.__key) {
+      setBoxState({ ...state, settingsOpen : false })
+    }
+  }
+
   render () {
-    const { state, isActive, isFocused, setBoxState, addBox } : Props = this.props
-    const { settingsOpen, subtype, macrolistOpen, SLI, expandStandalones, strategy, SDE, editor, minimized } : UntypedLambdaState = state
+    const { state, isActive, isFocused, isAnchorBox, setBoxState, addBox, titleActionsHost } : Props = this.props
+    const { settingsOpen, subtype, macrolistOpen, SLI, expandStandalones, strategy, SDE, ETA, collapseOldSteps, editor, minimized } : UntypedLambdaState = state
 
 
     const renderBoxContent = () => {
@@ -58,8 +172,10 @@ export default class UntypedLambdaBox extends PureComponent<Props> {
               state={ state }
               isActive={ isActive }
               isFocused={ isFocused }
+              isAnchorBox={ isAnchorBox }
               setBoxState={ setBoxState }
               addBox={ addBox }
+              titleActionsHost={ titleActionsHost }
             />
           )
         
@@ -77,28 +193,13 @@ export default class UntypedLambdaBox extends PureComponent<Props> {
     }
 
     return (
-      <div
-        ref={ (elem : any) => {
-          // This is just temporary
-          // should be replaced with much finer logic
-          // like: store ref to the state and then scroll to the part of the Box which should be visible
-          // depending on the action user just did
-          // for now - it will do
-          if (elem !== null && isActive) {
-            const boundingRect = elem.getBoundingClientRect()
-            const viewportHeight : number = window.innerHeight
-            if (boundingRect.bottom > viewportHeight) {
-              elem.scrollIntoView(false)
-            }
-          }
-        } }
-      >
+      <div className='untypedLambdaBox' ref={ this.boxRef }>
         {
           settingsOpen ?
             <div className='box-settings'>
               Settings:
               <Settings
-                settings={ { type : BoxType.UNTYPED_LAMBDA, SLI, expandStandalones, strategy, SDE } }
+                settings={ { type : BoxType.UNTYPED_LAMBDA, SLI, expandStandalones, strategy, SDE, ETA : ETA ?? false, collapseOldSteps : collapseOldSteps ?? true } }
                 settingsEnabled={ GLOBAL_SETTINGS_ENABLER }
 
                 change={ (settings : UntypedLambdaSettings) => {
@@ -113,15 +214,33 @@ export default class UntypedLambdaBox extends PureComponent<Props> {
             null
         }
         {
-          macrolistOpen ?
-            <div className='untyped-lambda-box--macrolist'>
-              <MacroList macroTable={ state.macrotable }  />
+          // Macro dock: a persistent pill in the empty space left of the
+          // box that unfolds into header plus scrolling middle. The
+          // panel stays mounted and collapses through CSS, so opening
+          // and closing animate instead of popping.
+          <div className={ dockClassName(macrolistOpen, this.state.dockShutting && !macrolistOpen) }>
+            <button
+              className='macro-dock--head'
+              // The head remembers, not just toggles: focus syncs restore
+              // this wish on refocus and never invent one of their own.
+              onClick={ () => setBoxState({ ...state, macrolistOpen : ! macrolistOpen, macrolistWanted : ! macrolistOpen }) }
+              title={ macrolistOpen ? 'Hide macros for this box' : 'Show macros for this box' }
+              aria-expanded={ macrolistOpen }
+            >
+              <span className='macro-dock--title'>Macros</span>
+              { macrolistOpen ? <ChevronUp size={ 14 } strokeWidth={ 2 } /> : <ChevronDown size={ 14 } strokeWidth={ 2 } /> }
+            </button>
+            <div className='macro-dock--panel'>
+              <div className='macro-dock--body'>
+                <div className='macro-dock--scroll'>
+                  <MacroList macroTable={ state.macrotable }  />
+                </div>
+              </div>
             </div>
-          :
-            null
+          </div>
         }
 
-        <div>
+        <div className='untypedLambdaBoxContent'>
           { renderBoxContent() }
         </div>
 
@@ -135,6 +254,7 @@ export default class UntypedLambdaBox extends PureComponent<Props> {
       editor : { content },
       strategy,
       SDE,
+      ETA,
       SLI,
     } = state
 
@@ -164,7 +284,7 @@ export default class UntypedLambdaBox extends PureComponent<Props> {
       if (nextReduction instanceof None) {
         const etaEvaluator : Evaluator = new OptimizeEvaluator(ast)
 
-        if (etaEvaluator.nextReduction instanceof None) {
+        if (etaEvaluator.nextReduction instanceof None || ! ETA) {
           isNormal = true
           message.message = 'Expression is in normal form.'
         }

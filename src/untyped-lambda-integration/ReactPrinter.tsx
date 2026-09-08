@@ -185,9 +185,10 @@ export default class ReactPrinter extends ASTVisitor {
 
     if (redex !== null
           &&
-        redex.identifier === application.identifier // tohle je asi trosku useles
-          &&
-        redex === application
+        // #61: match by identifier only -- the redex may come from
+        // findSimplifiedReduction, which works on a clone, so it is never
+        // reference-equal to the printed node (clone() preserves identifiers)
+        redex.identifier === application.identifier
       ) {
         leftClassName += ' redex'
         rightClassName += ' redex'

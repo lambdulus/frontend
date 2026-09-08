@@ -1,4 +1,5 @@
 import { BoxType } from '../Types'
+import { uniqueKey } from '../uniqueKey'
 import  { EvaluationStrategy
         , UntypedLambdaState
         , UntypedLambdaSettings
@@ -42,23 +43,42 @@ export const ADD_BOX_LABEL = '+ Untyped λ Expression'
 
 export const CODE_NAME = 'UNTYPED_LAMBDA_CALCULUS'
 
+// Broadcast when a box opens its settings so every other box can stand
+// its own panel down -- panels must never overlap.
+export const SETTINGS_OPENED_EVENT = 'lambdulus:settings-opened'
+
+// #60: bound for the number of micro-steps a single-step macro perform may
+// grind while normalizing its application before returning to the caller.
+// A recursive macro applied to too few arguments (e.g. the function part of
+// `/ 4 2` without its pending divisor) has no normal form on its own, so an
+// unbounded loop never returns and freezes the page. Capping the loop turns
+// the freeze into partial progress: the caller reattaches the pending
+// context and evaluation continues from there.
+export const SINGLE_STEP_NORMALIZATION_CAP = 100
+
 export const defaultSettings : UntypedLambdaSettings = {
   type : BoxType.UNTYPED_LAMBDA,
   SLI : true,
   expandStandalones : false,
   strategy : EvaluationStrategy.NORMAL,
   SDE : true,
+  ETA : false, // no trailing eta conversion by default: evaluation ends at beta-normal form
+  collapseOldSteps : true,
 }
 
-export function createNewUntypedLambdaExpression (defaultSettings : UntypedLambdaSettings) : UntypedLambdaState {
+export function createNewUntypedLambdaExpression (settings : UntypedLambdaSettings) : UntypedLambdaState {
   return {
+    // Module defaults first: a partial caller (e.g. notebook settings from
+    // years-old storage, missing strategy/SLI/SDE/ETA) can never leave the box
+    // unevaluatable. The shadowing parameter name hid this until now.
     ...defaultSettings,
-    __key : Date.now().toString(),
+    ...settings,
+    __key : uniqueKey(),
     type : BoxType.UNTYPED_LAMBDA,
     subtype : UntypedLambdaType.EMPTY,
     title : "Untyped λ Expression",
     minimized : false,
-    settingsOpen : true,
+    settingsOpen : false,
     expression : "",
     ast : null,
     history : [],
@@ -141,7 +161,7 @@ export function createNewUntypedLambdaBoxFromSource (source : string, defaultSet
   if (subtype === UntypedLambdaType.EMPTY) {
     return {
       ...defaultSettings,
-      __key : Date.now().toString(),
+      __key : uniqueKey(),
       type : BoxType.UNTYPED_LAMBDA,
       subtype,
       title : "Untyped λ Expression",
@@ -213,7 +233,7 @@ function createNewUntypedLambdaBoxFromSource2 (source : string, defaultSettings 
 
     return {
       ...defaultSettings,
-      __key : Date.now().toString(),
+      __key : uniqueKey(),
       type : BoxType.UNTYPED_LAMBDA,
       subtype,
       title : "Untyped λ Expression",
@@ -614,6 +634,7 @@ export function findSimplifiedReduction (ast : AST, strategy : EvaluationStrateg
             // normalize the whole tree
             // top-most APP or ABS a result of the Macro-Beta
   
+            let wholeTreeIterations : number = 0
             while (true) {
               const [nextReduction, evaluateReduction] : [ASTReduction, any] =
                 findSimplifiedReduction(ast, strategy, macrotable)
@@ -623,6 +644,13 @@ export function findSimplifiedReduction (ast : AST, strategy : EvaluationStrateg
               }
               else {
                 ast = evaluateReduction(ast)
+                wholeTreeIterations++
+                if (wholeTreeIterations >= SINGLE_STEP_NORMALIZATION_CAP) {
+                  // #60: not converging (no normal form reachable from this
+                  // subtree alone) -- return partial progress instead of
+                  // hanging; the caller continues with the full context.
+                  break
+                }
               }
             }
           }
@@ -630,6 +658,7 @@ export function findSimplifiedReduction (ast : AST, strategy : EvaluationStrateg
             const treeSide : Child = lastparent.left.identifier === lastapp.identifier ? Child.Left : Child.Right
   
             // debugger
+            let subTreeIterations : number = 0
             while (true) {
               const [nextReduction, evaluateReduction] : [ASTReduction, any] =
                 findSimplifiedReduction(lastapp as AST, strategy, macrotable)
@@ -640,6 +669,15 @@ export function findSimplifiedReduction (ast : AST, strategy : EvaluationStrateg
               }
               else {
                 lastapp = evaluateReduction(lastapp)
+                subTreeIterations++
+                if (subTreeIterations >= SINGLE_STEP_NORMALIZATION_CAP) {
+                  // #60: not converging (no normal form reachable from this
+                  // subtree alone, e.g. recursive `/` without its pending
+                  // divisor) -- reattach partial progress and return instead
+                  // of hanging; the caller continues with the full context.
+                  lastparent[treeSide] = lastapp as AST
+                  return ast
+                }
               }
             }
           }
@@ -993,5 +1031,11 @@ export function strategyToEvaluator (strategy : EvaluationStrategy) : Evaluator 
 
     case EvaluationStrategy.ABSTRACTION: // this will be removed
       return NormalAbstractionEvaluator as any // this will be removed
+
+    default:
+      // Unknown strategy (e.g. a corrupt or future value from old storage):
+      // fall back to normal evaluation instead of handing undefined back
+      // to `new`, which reads as a syntax error on a healthy expression.
+      return NormalEvaluator as any
   }
 }

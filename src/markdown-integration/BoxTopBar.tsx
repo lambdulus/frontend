@@ -1,8 +1,7 @@
 import React, { MouseEvent } from 'react'
 
-import { NoteState } from './AppTypes'
+import { NoteState, onMarkDownBlur } from './AppTypes'
 
-import 'pretty-checkbox'
 import './styles/EditingSwitch.css'
 import { BoxState } from '../Types'
 
@@ -16,7 +15,13 @@ interface Props {
 
 export default function BoxTopBar (props : Props) : JSX.Element {
   const { state, updateBoxState } = props
-  const { isEditing } = state
+  const { isEditing, readOnly } = state
+
+  if (readOnly) {
+    return (
+      <div className='' />
+    )
+  }
 
   return (
     <div className=''>
@@ -40,7 +45,9 @@ export default function BoxTopBar (props : Props) : JSX.Element {
             onClick={ (e) => {
               e.stopPropagation()
               if (isEditing === true) {
-                updateBoxState({ ...state, isEditing : false})
+                // Same submit path as deactivation: a top `#` heading
+                // becomes the box title.
+                updateBoxState(onMarkDownBlur(state))
               }
             } }
           >

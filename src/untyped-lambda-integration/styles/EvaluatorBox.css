@@ -1,9 +1,160 @@
-.boxContainer.inactive:hover .inactiveMessage {
-  color: rgb(59, 59, 59);
+.box-exercise-input {
+  margin-top: 12px;
 }
 
+.box-history-scroll {
+  max-height: calc(40vh + 4lh);
+  overflow-y: auto;
+  /* Chaining stays on: pushing past either end scrolls the notebook.
+     The sticky ends are enforced in Expression.tsx, which swallows
+     the first bit of outward wheel travel before letting go. */
+  padding: 6px 10px 6px 0;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
+}
+
+.box-history-scroll::-webkit-scrollbar {
+  width: 8px;
+}
+
+.box-history-scroll::-webkit-scrollbar-thumb {
+  background-color: var(--border);
+  border-radius: 4px;
+}
+
+.box-history-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.boxContainer.inactive:hover .inactiveMessage {
+  color: var(--muted);
+}
+
+/* Past steps stay fully readable; the active step is distinguished by its
+   highlight colors, not by dimming everything else. */
 .inactiveStep {
-  color: gray;
+  color: var(--text);
+}
+
+/* The scrollable history sits back a little against the wall of
+   terms; the step opened for reading comes back forward. */
+.box-history-scroll .inactiveStep {
+  opacity: 0.8;
+}
+
+.box-history-scroll .inactiveStep:focus-within {
+  opacity: 1;
+}
+
+/* The endpoint steps get air plus an accent bar, so "start", history
+   and "now" read apart without shifting text size while stepping.
+   The pinned initial expression above the scroll and the pinned
+   current form below it share the treatment. */
+li.activeStep,
+.box-current-step,
+.box-initial-step {
+  margin-top: 12px;
+  padding: 2px 0 2px 16px;
+  border-left: 2px solid var(--accent);
+}
+
+.box-initial-step {
+  margin-bottom: 12px;
+}
+
+/* Omission marks float over the history scroll, so appearing never
+   reflows the box: only opacity fades, geometry stays put. */
+.box-history-wrap {
+  position: relative;
+}
+
+/* Steps dissolve under each floating mark instead of clipping hard
+   against it; each edge fades only while its mark is shown. */
+.box-history-scroll.mask-top {
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 30px);
+  mask-image: linear-gradient(to bottom, transparent 0, #000 30px);
+}
+
+.box-history-scroll.mask-bottom {
+  -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - 30px), transparent 100%);
+  mask-image: linear-gradient(to bottom, #000 calc(100% - 30px), transparent 100%);
+}
+
+.box-history-scroll.mask-top.mask-bottom {
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 30px, #000 calc(100% - 30px), transparent 100%);
+  mask-image: linear-gradient(to bottom, transparent 0, #000 30px, #000 calc(100% - 30px), transparent 100%);
+}
+
+.history-gap-indicator {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  /* Tall enough that the hover chevrons never cram against the rim. */
+  padding: 8px 12px;
+  border-radius: 999px;
+  background-color: var(--surface);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow);
+  color: var(--muted);
+  cursor: pointer;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity .2s ease-in-out, visibility 0s linear .2s;
+  z-index: 5;
+}
+
+.history-gap-indicator--top {
+  top: -14px;
+}
+
+.history-gap-indicator--bottom {
+  bottom: -12px;
+}
+
+.history-gap-indicator.visible {
+  opacity: 1;
+  visibility: visible;
+  transition: opacity .2s ease-in-out;
+}
+
+.history-gap-indicator:hover {
+  color: var(--accent);
+  border-color: var(--accent);
+}
+
+.history-gap-indicator:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.history-gap-indicator > svg {
+  display: block;
+}
+
+/* Hovering (or keyboard-focusing) swaps the wave for chevrons
+   pointing at that end, inviting the jump. */
+.history-gap-indicator .gap-arrows {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  opacity: 0;
+  transition: opacity .15s ease-in-out;
+}
+
+.history-gap-indicator:hover .gap-arrows,
+.history-gap-indicator:focus-visible .gap-arrows {
+  opacity: 1;
+}
+
+.history-gap-indicator:hover .gap-saw,
+.history-gap-indicator:focus-visible .gap-saw {
+  opacity: 0;
+}
+
+.history-gap-indicator .gap-saw {
+  transition: opacity .15s ease-in-out;
 }
 
 .hiddenIcon, .hiddenMacroIcon {
@@ -11,60 +162,35 @@
   display: none;
 }
 
-li:hover > .step > .inlineblock > .hiddenIcon {
+.hiddenIcon > svg {
+  vertical-align: -1px;
+}
+
+/* The pinned 0th and current steps sit outside any li, so the row
+   rule above never fires for them: they reveal on their own hover. */
+li:hover > .step > .inlineblock > .hiddenIcon,
+.box-initial-step:hover > .step > .inlineblock > .hiddenIcon,
+.box-current-step:hover > .step > .inlineblock > .hiddenIcon {
   display: inline;
-  color: black;
+  color: var(--text);
   cursor: pointer;
 }
 
 li:hover .hiddenMacroIcon {
-  color: black;
+  color: var(--text);
   display: inline;
 }
 
-.controlBtn {
-  --mdc-theme-primary: #1976d2;
-  display: inline-block;
-  font-size: 0.5em;
-  margin-right: 1em;
-
-}
-
-.badge {
-  padding: 5px;
-  padding-left: 10px;
-  padding-right: 10px;
-  border: 2px solid black;
-  border-radius: 1rem;
-  display: inline-block;
-  font-size: 0.6em;
-  margin-right: 1em;
-}
-
-.makeBadge {
-  cursor: pointer;
-}
-
-.makeBadge:hover {
-  background-color: #BDBDBD;
-}
-
 .inactiveMessage {
-  color: gray;
+  color: var(--muted);
   font-size: 0.6em;
   margin-left: 0;
-}
-
-.emptyStep {
-  margin-top: 0;
-  /* margin-bottom: -20px; */
-  /* font-size: 0.7em; */
 }
 
 .boxExercise .activeStep .substitutedArg,
 .boxExercise .activeStep .redex,
 .boxExercise .churchnumeral.redex.argument.abstraction {
   border: none;
-  background-color: white;
+  background-color: var(--surface);
   padding: 0;
 }

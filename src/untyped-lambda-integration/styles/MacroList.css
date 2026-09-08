@@ -1,63 +1,251 @@
-.untyped-lambda-box--macrolist {
-  padding: 5px;
-
-  border-bottom: 2px solid gray;
+/* Macro dock: a persistent pill in the empty space left of the box
+   that unfolds into a three-part panel - header, scrolling middle,
+   footer collapse. Positioned from the box container (the nearest
+   positioned ancestor) but docked to the viewport's left margin, not
+   to the box: the offset reaches past the 940px column, the 14px rail
+   and the 20px page padding, stopping 12px short of the viewport edge
+   (floored at the 22px of a full-width column). Out of flow, so it
+   never reflows the box; on a wide screen it hugs the left edge with
+   room to spare, on narrower screens it slides over the box as far as
+   it must. (Below the slim-column breakpoint the offset follows the
+   850px column from the narrow-screen block in App.css.) */
+/* Collapsed, the dock is just its pill, sitting below every open table:
+   Same z-index on all docks would let DOM order decide, floating a
+   later box's pill over an earlier box's unfolding table. The card
+   chrome fades with the panel (never snaps): on close the white card
+   lingers around the fading content instead of flashing it naked, and
+   on focus the table blooms out of the pill instead of popping. */
+.macro-dock {
+  position: absolute;
+  top: 0;
+  left: calc(-1 * max(22px, (100vw - 940px) / 2 + 22px));
+  z-index: 40;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  width: 420px;
+  max-width: calc(100vw - 24px);
+  min-height: 0;
+  background-color: transparent;
+  border: 1px solid transparent;
+  /* Closing beat: snappy, so the outgoing card is gone before the
+     incoming one can read as the same table morphing. */
+  transition:
+    min-height .12s ease-out,
+    background-color .12s ease-out,
+    border-color .12s ease-out,
+    border-radius .12s ease-out,
+    box-shadow .12s ease-out;
 }
 
-.builtinMacros, .userMacros {
-  /* flex: 50%; */
+/* Open, the dock is a card hanging from the box top: at least 320px
+   down (past the bottom of small boxes), at most 70vh — tall boxes no
+   longer snap a screen-filling card in one frame, the inner scroll
+   takes over past the cap instead. Closed, only the pill shows. */
+.macro-dock--open {
+  bottom: 0;
+  align-items: stretch;
+  z-index: 50;
+  min-height: 320px;
+  max-height: 70vh;
+  background-color: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  box-shadow: var(--shadow);
+  /* Opening beat: a gentle bloom, slower than the closing fade. */
+  transition:
+    min-height .2s ease-out,
+    background-color .2s ease-out,
+    border-color .2s ease-out,
+    border-radius .2s ease-out,
+    box-shadow .2s ease-out;
 }
 
-.macroSpace {
-  /* display: inline-flex; */
+/* Squared pill echoing the popup card, with room to breathe. */
+.macro-dock--head {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background-color: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  box-shadow: var(--shadow);
+  padding: 6px 12px;
+  color: var(--muted);
+  font-size: 0.85em;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  cursor: pointer;
 }
 
-.macro-definition {
-  /* display: inline; */
-  padding: 10px;
-  /* padding-top: 5px; */
-  /* padding-bottom: 5px; */
-  /* padding-left: 20px; */
-  /* background-color: #c2e9ff; */
-  /* border-radius: 0.2rem; */
-  border-bottom: 1px solid gray;
+.macro-dock--head:hover {
+  color: var(--accent);
+  border-color: var(--accent);
+}
+
+/* Open, the head is the panel title row, chromeless. */
+.macro-dock--open .macro-dock--head {
+  width: 100%;
+  background: none;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+  padding: 10px 14px 8px;
+  color: var(--text);
+  cursor: pointer;
+}
+
+.macro-dock--open .macro-dock--head:hover {
+  color: var(--accent);
+}
+
+.macro-dock--title {
+  flex: 1 1 auto;
+  text-align: left;
+}
+
+/* The unfolding panel: always mounted, collapsing to nothing through
+   grid rows plus a quick fade, so opening and closing animate. The
+   card chrome lives here permanently (invisible while collapsed), so
+   it never pops. The list scrolls in its own inner box; the panel
+   itself only ever grows and shrinks. */
+.macro-dock--panel {
+  display: grid;
+  grid-template-rows: 0fr;
+  width: 100%;
+  opacity: 0;
+  visibility: hidden;
+  transition: grid-template-rows .18s ease-out, opacity .15s ease-out, visibility 0s linear .18s;
+  overflow: hidden;
+}
+
+.macro-dock--open .macro-dock--panel {
+  flex: 1 1 auto;
+  min-height: 0;
+  grid-template-rows: 1fr;
+  opacity: 1;
+  visibility: visible;
+  transition: grid-template-rows .18s ease-out, opacity .15s ease-out, visibility 0s;
+}
+
+/* Closing bridge (open + shut): keeps every bit of the open
+   containment — bottom, cap, flex panel — while the content collapses
+   and fades inside it, so a close never flashes full-height naked
+   content. A timer drops the bridge once the fade lands; reopening
+   mid-shut drops it at once. Later than the open rules at equal
+   specificity, so every conflict resolves toward shutting. */
+.macro-dock--shut {
+  min-height: 0;
+  background-color: transparent;
+  border-color: transparent;
+  box-shadow: none;
+  transition:
+    min-height .12s ease-out,
+    background-color .12s ease-out,
+    border-color .12s ease-out,
+    border-radius .12s ease-out,
+    box-shadow .12s ease-out;
+}
+
+.macro-dock--shut .macro-dock--panel {
+  grid-template-rows: 0fr;
+  opacity: 0;
+  visibility: hidden;
+  transition:
+    grid-template-rows .12s ease-out,
+    opacity .1s ease-out,
+    visibility 0s linear .1s;
+}
+
+.macro-dock--body {
+  min-height: 0;
+  overflow: hidden;
+}
+
+.macro-dock--scroll {
+  height: 100%;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
+  padding: 0 14px 12px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .macro-dock--panel {
+    transition: none;
+  }
+  .macro-dock {
+    transition: none;
+  }
+  .macro-dock--open {
+    transition: none;
+  }
+  .macro-dock--shut {
+    transition: none;
+  }
+  .macro-dock--shut .macro-dock--panel {
+    transition: none;
+  }
+}
+
+/* Macro table: a clean definition list. One row per macro, with the
+   name and := pinned in place and the body wrapping beside them at
+   roomy leading, so long definitions never touch. No row rules at
+   all; spacing and a hover wash separate the lines. */
+.macro-group-title {
+  margin: 0 0 6px;
+  font-size: 0.78em;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--muted);
+}
+
+.macroSpace .macro-list {
+  list-style: none;
+  margin: 0 0 14px;
+  padding: 0;
+}
+
+.macroSpace .macro-list:last-child {
+  margin-bottom: 0;
+}
+
+.macro-row {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  padding: 5px 8px;
+  border-radius: 6px;
+  line-height: 1.5;
+}
+
+.macro-row:hover {
+  background-color: var(--raised);
 }
 
 .macro-name {
-  color: blue;
-  padding-right: 5px;
-  /* background-color:  */
-}
-
-.dark .macro-name {
-  color: rgb(150, 150, 255);
-  padding-right: 5px;
+  flex: 0 0 auto;
+  min-width: 72px;
+  text-align: right;
   font-weight: 700;
-  /* background-color:  */
+  color: var(--accent);
+  overflow-wrap: anywhere;
 }
 
-
-.dense-LI {
-  /* margin-bottom: 2px; */
-  margin: 10px;
-  display: inline-block;
-  margin-bottom: 15px;
-
+.macro-assign {
+  flex: 0 0 auto;
+  color: var(--muted);
 }
 
-
-.boxMacro {
-  /* border-left: 5px solid rgb(11, 92, 184); */
+.macro-body {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow-wrap: break-word;
 }
 
-.builtinMacros .boxMacro {
-  /* border-left: 5px solid darkgoldenrod; */
-  /* padding-top: 3px; */
-  /* padding-bottom: 3px; */
-}
-
-.userMacros .boxMacro {
-  /* border-left: 5px solid rgb(11, 92, 184);
-  padding-top: 3px;
-  padding-bottom: 3px; */
+.macro-empty {
+  margin: 0 0 14px;
+  color: var(--muted);
+  font-size: 0.9em;
 }

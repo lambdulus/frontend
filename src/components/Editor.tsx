@@ -7,6 +7,17 @@ import { Theme, ThemeContext } from '../contexts/Theme'
 // Bundle monaco locally instead of loading it from a CDN.
 loader.config({ monaco })
 
+// Match the box surface so the editor does not stand out as a lighter patch.
+// Keep in sync with --surface in index.css.
+monaco.editor.defineTheme('lambdulus-dark', {
+  base : 'vs-dark',
+  inherit : true,
+  rules : [],
+  colors : {
+    'editor.background' : '#151c20',
+  },
+})
+
 import '../styles/Editor.css'
 
 // import { EvaluationStrategy } from '../App'
@@ -157,7 +168,7 @@ function InputField (props : InputProps) : JSX.Element {
             <MonacoEditor
               height={ Math.max(5 * 19 ,Math.min(40 * 19, (lines + 1) * 19)) } // 10 lines by default
               language="markdown"
-              theme= { theme === Theme.Dark ? 'vs-dark' : 'vs-light' }
+              theme= { theme === Theme.Dark ? 'lambdulus-dark' : 'vs-light' }
               value={ content }
               options={ {
                 formatOnPaste : true,

@@ -1,17 +1,23 @@
 .step {
   /* font-size: 2em; */
-  word-wrap: anywhere;
+  /* break-word (not anywhere): prefer wrapping between tokens, and only
+     snap a token itself when it alone overflows the line. */
+  overflow-wrap: break-word;
+  /* Room for the inline highlight boxes: with the default tight leading
+     their padding and borders paint into the neighboring wrapped lines.
+     1.75 clears the tallest of them on any system font, with air. */
+  line-height: 1.75;
 }
 
 .left.redex {
-  border-bottom: 2px solid #81c784;
+  border-bottom: 1px solid #81c784;
+  padding-bottom: 2px;
 }
 
 .substitutedArg {
   background-color: #81c784;
-  padding-left: 1px;
-  padding-right: 1px;
-  border-radius: 2px;
+  padding: 1px 4px;
+  border-radius: 4px;
 }
 
 .variable.alpha.substitutedArg {
@@ -24,10 +30,10 @@
 
 .right.redex {
 /*  background-color: #ffa4a2; /* #ec407a */
-  border: 2px solid #81c784;
-  border-radius: 5px;
+  border: 1px solid #81c784;
+  border-radius: 4px;
+  padding: 1px 4px;
   /* color: white; */
-  /* padding: 1px; */
 }
 
 .argument.substitutedArg {
@@ -35,7 +41,7 @@
 }
 
 .argument.substitutedArg.breakpoint {
-  border: 2px solid #ff6090;
+  border: 1px solid #ff6090;
 }
 
 .activeStep .macro, .activeStep .argument, .activeStep .churchnumeral {
@@ -44,51 +50,52 @@
 
 .macro.redex {
   background-color: #80d8ff;
-  border-radius: 5px;
+  border-radius: 4px;
+  padding: 1px 4px;
 }
 
 .macro.redex.abstraction {
   background-color: #1decff;
-  border-radius: 5px;
+  border-radius: 4px;
+  padding: 1px 4px;
 }
 
 .churchnumeral.redex {
   background-color: #82b1ff;
-  border-radius: 5px;
-  /* padding: 1px; */
+  border-radius: 4px;
+  padding: 1px 4px;
 }
 
 .application.redex.abstraction.argument,
 .churchnumeral.redex.abstraction.argument,
 .macro.redex.abstraction.argument {
   background-color: #97fff1;
-  border-radius: 5px;
-  /* padding: 1px; */
+  border-radius: 4px;
+  padding: 1px 4px;
 }
 
 .left.extended-redex {
-  padding: 1px;
-  padding-left: 4px;
-  padding-right: 4px;
+  padding: 1px 4px;
 
   background-color: #64ecf8;
-  border-radius: 5px;
+  border-radius: 4px;
 }
 
 .right.extended-redex {
-  padding: 1px;
-  border: 2px solid #64ecf8;
-  border-radius: 5px;
+  padding: 1px 4px;
+  border: 1px solid #64ecf8;
+  border-radius: 4px;
 }
 
 .breakpoint {
   /* border-bottom: 3px solid black; */
   background-color: #ff6090;
-  border-radius: 5px;
+  border-radius: 4px;
+  padding: 1px 4px;
 }
 
 .breakpoint.churchnumeral.redex, .breakpoint.macro.redex {
-  border: 2px solid #ff6090;
+  border: 1px solid #ff6090;
 }
 
 /* .breakpoint::after {
@@ -109,7 +116,7 @@
 } */
 
 .lastReduction {
-  color: gray;
+  color: var(--muted);
   font-size: 0.7em;
   margin: 0;
   margin-bottom: 4px;
@@ -118,10 +125,10 @@
 
 .stepNumber {
   /* display: none; */
-  color: gray;
+  color: var(--muted);
   display: inline-block;
   margin: 0;
-  font-size: 0.5em;
+  font-size: 0.75em;
   margin-right: 1em;
 }
 
@@ -135,20 +142,63 @@
 }
 
 .stepMessage.correct {
-  color: rgb(23, 131, 23);
+  color: var(--accent);
 }
 
 .stepMessage.incorrect {
-  color: rgb(218, 2, 2);
+  color: var(--danger);
 }
 
 .incorrect .userInput {
-  color: gray;
+  color: var(--muted);
   font-size: 1.3em;
 }
 
 .inlineblock {
   display: inline-block;
+  /* hanging indent: wrapped continuation lines tuck under the first,
+     so a long expression still reads as one step. */
+  padding-left: 1.25em;
+  text-indent: -1.25em;
+}
+
+/* text-indent inherits: without this reset the shrink-wrapped step
+   number collapses to zero width and every number disappears. */
+.inlineblock > .stepNumber {
+  text-indent: 0;
+}
+
+/* Older steps collapse to a visibly cut-off line; clicking one
+   (focus) expands it back to the full wrapped form until you click
+   elsewhere. The latest step (never .inactiveStep) stays expanded.
+   All of this only applies under .collapse-history, toggled by the
+   "Collapse Old Steps" setting (global default, per-box override). */
+.collapse-history .inactiveStep .inlineblock {
+  display: block;
+  max-width: 75%;
+  white-space: nowrap;
+  overflow: clip;
+  /* Let redex borders paint above and below the line: clip (unlike
+     hidden) honors a clip margin, so the green argument border
+     survives collapsing while the row keeps its exact height. The
+     right padding absorbs the margin so the ellipsis edge stays
+     clean; the negative margin keeps the box itself unchanged. */
+  overflow-clip-margin: 4px;
+  padding-right: 4px;
+  margin-right: -4px;
+  text-overflow: ellipsis;
+  cursor: pointer;
+}
+
+.collapse-history li.inactiveStep {
+  outline: none;
+}
+
+.collapse-history li.inactiveStep:focus .inlineblock,
+.collapse-history li.inactiveStep:focus-within .inlineblock {
+  max-width: none;
+  white-space: normal;
+  overflow: visible;
 }
 
 .boxExercise .activeStep .substitutedArg,
@@ -157,16 +207,49 @@
 .boxExercise .left.extended-redex,
 .boxExercise .right.extended-redex {
   border: none;
-  background-color: white;
+  background-color: var(--surface);
   padding: 0;
 }
 
-.dark .boxExercise .activeStep .substitutedArg,
-.dark .boxExercise .activeStep .redex,
-.dark .boxExercise .churchnumeral.redex.argument.abstraction,
-.dark .boxExercise .left.extended-redex,
-.dark .boxExercise .right.extended-redex {
-  border: none;
-  background-color: black;
-  padding: 0;
+/* Dark mode: the pastel fills above were mixed for dark text on light
+   backgrounds. These deep tints of the same hues keep every category
+   distinct while carrying light text. Border colors are left untouched. */
+
+.dark .substitutedArg {
+  background-color: #1e4d2b;
+}
+
+.dark .argument.substitutedArg {
+  background-color: #2e7d46;
+}
+
+.dark .variable.alpha.substitutedArg,
+.dark .argument.alpha.substitutedArg {
+  background-color: #4a2a63;
+}
+
+.dark .macro.redex {
+  background-color: #174a6e;
+}
+
+.dark .macro.redex.abstraction {
+  background-color: #0e5a6b;
+}
+
+.dark .churchnumeral.redex {
+  background-color: #1e3f7a;
+}
+
+.dark .application.redex.abstraction.argument,
+.dark .churchnumeral.redex.abstraction.argument,
+.dark .macro.redex.abstraction.argument {
+  background-color: #0f4f4a;
+}
+
+.dark .left.extended-redex {
+  background-color: #0e5561;
+}
+
+.dark .breakpoint {
+  background-color: #b01e5a;
 }

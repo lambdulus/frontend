@@ -1,47 +1,48 @@
 # Audit — `@lambdulus/frontend`
 
-Date: 2026-09-04. Audited from local `develop` HEAD (`8b8129e`, Oct 2022; working tree has uncommitted edits to `src/App.css` and `src/untyped-lambda-integration/Constants.ts`). Verified by reading `package.json`, `tsconfig.json`, `src/`, `public/`, `.github/workflows/`, git log/branches/status.
+Date: 2026-09-07. Audited from `experiment/dark-ui` HEAD (`6876152`). Verified by reading `package.json`, `package-lock.json`, `tsconfig.json`, `vite.config.ts`, `src/`, `.github/workflows/`, `README.md`, git log/branches/status, plus `npm outdated`, `npm audit`, `npx vitest run` (94 passed), `npx tsc --noEmit` (clean).
+
+Supersedes the 2026-09-04 audit, which described the CRA 4 / Node 16 era. Nearly all of its P0–P1 items have since landed (Vite migration, real test suite wired into CI, Node 22, `@monaco-editor/react`, `dist`-free repo, refreshed README, `purge-pr-deployment.yml` filename fixed).
 
 ## 1. What it is
 
-Create-React-App 4 notebook UI for playing with lambda calculus (teaching at FIT CTU). Box system (`components/Box*.tsx`, `CreateBox`, `PickBoxTypeModal`) hosts pluggable integrations: `untyped-lambda-integration/` (expression/exercise boxes, step debugger, macros, settings), `markdown-integration/` (notes), `empty-integration/`, plus `screens/` (Notebook, Settings, Help), `contexts/` (Settings, Theme), `misc/UserGuide.ts`. ~45 TS/TSX files, `react-monaco-editor` editing, `react-markdown` notes. Private package (`"private": true`, v0.1.0).
+Vite 6 + React 18 + TypeScript 5 notebook UI for playing with lambda calculus (teaching at FIT CTU). Box system hosts pluggable integrations: `untyped-lambda-integration/` (expression/exercise boxes, step debugger, macros, settings), `markdown-integration/`, `empty-integration/`, plus `screens/`, `components/`, `contexts/`, `styles/`. Private package (`"private": true`, v0.1.0). The compute engine is `@lambdulus/core`, consumed via git tag (`git+https://github.com/lambdulus/core.git#v0.0.9`) — no npm registry, so Dependabot does not cover it; bumps are manual tag moves. `vite.config.ts` uses relative `base: './'` so one build serves `/`, `/staging`, and `/staging/pr/<branch>`; `outDir` stays `build` for the downstream deploy scripts.
 
-## 2. CI/CD — your recollection is mostly right, with one correction
+## 2. CI/CD
 
-There are 4 workflows, all **dispatch-based** (this repo never publishes to GitHub Pages itself; it builds, then `curl`s a `repository_dispatch` to a *downstream* repo that does the actual deploy):
+Four workflows, all **dispatch-based** (this repo builds, then `curl`s a `repository_dispatch` to a downstream repo that does the actual deploy):
 
-- `deploy.yml` — on `push` to `master`: build, then `POST /repos/lambdulus/lambdulus.github.io/dispatches` with `event_type: deploy`. This is the **production** path (production site repo).
-- `deploy-staging.yml` — on `push` to `develop`: build, then dispatch `deploy-staging` to `lambdulus/staging`. This is the **staging** path.
-- `dispatch-pr.yml` — on `pull_request` to `develop`: posts a comment ("will soon be deployed to `https://lambdulus.github.io/staging/pr/<branch>`…") and dispatches `pr-deploy-staging` (with branch name) to `lambdulus/staging`. Per-PR staging previews.
-- `purge-pr-deployement.yml` (sic, typo in filename) — on PR `closed`: posts a "will shortly be purged" comment and dispatches `pr-purge-staging` to `lambdulus/staging`.
+- `deploy-staging.yml` — push to `develop` → dispatch `deploy-staging` to `lambdulus/staging`.
+- `deploy.yml` — push to `master` → dispatch `deploy` to `lambdulus/lambdulus.github.io` (production site repo; any manual gate lives downstream).
+- `dispatch-pr.yml` — PR to `develop` → comment + dispatch `pr-deploy-staging` (per-PR staging previews).
+- `purge-pr-deployment.yml` — PR `closed` → comment + dispatch `pr-purge-staging`.
 
-So: staging deploys are automatic (push to `develop`, PR open/close); production deploys fire automatically on push to `master` **from this repo's side**. The manual step you remember ("run the production deploy manually from GH website") is not in this repo — it must live in the downstream `lambdulus.github.io` repo (e.g. a manual `workflow_dispatch`/approval gate there). Worth confirming there before touching `deploy.yml`.
+All four run `npm ci` + `npm test` + `npm run build` (which typechecks first) on `actions/checkout@v5` + `actions/setup-node@v5`, Node 22.x, with npm cache — and `deploy` is gated on `build` success. Verified live: the run for the v5/Node-22 modernization itself went green end to end with no deprecation annotations.
 
-Common CI weaknesses across all four: `actions/checkout@v2` + `actions/setup-node@v2` (both EOL), Node `16.x` (EOL since 2023), `npm ci` + `npm run build` with **`npm test` commented out**, deprecated `Accept: application/vnd.github.everest-preview+json` header, auth via `secrets.ACCESS_TOKEN` (a long-lived PAT — check expiry/owner), no verification that the downstream dispatch succeeded beyond curl's exit code.
+Remaining CI wrinkles (all P2 or lower): the `Accept: application/vnd.github.everest-preview+json` header is long obsolete (API is GA — harmless but remove it); auth via long-lived `secrets.ACCESS_TOKEN` PAT (expiry/owner not verifiable from here); no verification of the downstream dispatch beyond curl's exit code.
 
 ## 3. Dependencies / build
 
-- `react-scripts 4.0.3` (CRA 4), `react`/`react-dom 17`, `typescript ^4.4.4`, `@lambdulus/core ^0.0.8` (npm registry — i.e. frontend does **not** consume the sibling `core/` checkout), `react-monaco-editor ^0.45.0`, `react-markdown ^7.1.0`, `pretty-checkbox[-react]`, testing-library stack, `@types/react 17`, `@types/node 16`. `package-lock.json` is 1.5 MB; `npm ls` health not verified here.
-- Everything material is EOL/unmaintained: CRA 4 (no updates since 2021; CRA itself deprecated), React 17 (current is 19; 18+ changes `createRoot`, strict effects), Node 16 types, `react-monaco-editor` (abandoned; monaco + React 18 needs `@monaco-editor/react`), TS 4.4 (`tsconfig` still targets `es5` with `isolatedModules`, `noFallthroughCasesInSwitch` — fine but dated).
-- Scripts inject build metadata via shell interpolation (`REACT_APP_VERSION_INFO=$(date …) REACT_APP_COMMIT=$(git rev-parse HEAD)`) — Unix-only, breaks on Windows, and `git rev-parse` fails on shallow/tagless CI checkouts. `test` is bare `react-scripts test` (watch mode; needs `CI=true` in automation — currently moot since tests are disabled in CI). No `homepage` field and no `gh-pages` dependency, consistent with the dispatch-to-downstream deploy model (§2).
-- Dependabot bump PRs exist on remote (`async`, `eventsource`, `follow-redirects`, `minimist`, `nanoid`, `terser`, `url-parse` — several are **security** fixes) but were never merged; the `update-deps` branch is stale too.
+- `npm audit`: **0 vulnerabilities.** `npm outdated`: every package is at the newest version its pinned range allows. The `dompurify ^3.4.14` override is still load-bearing (`monaco-editor@0.56.0` → `dompurify@3.4.14`) — keep it.
+- Available majors are opt-in migrations, not warnings: React 18→19 (`createRoot`, strict effects — touches the box lifecycle), Vite 6→8, TypeScript 5→7, `react-markdown` 7→10, testing-library 14→16, jsdom 24→29, `@vitejs/plugin-react` 4→6. Each wants a dedicated upgrade pass with the suite green before/after.
+- `package-lock.json` is 174 KB and healthy. Build metadata still injected via shell interpolation (`VITE_COMMIT=$(git rev-parse HEAD)`) — Unix-only, but proven working on CI checkouts, so cosmetic at most.
+- Watch item: `@lambdulus/core` moves only when someone bumps the git tag. Current pin `v0.0.9` matches the sibling `core/` checkout — no drift today.
 
-## 4. Tests — effectively none
+## 4. Tests — real now
 
-- The only test file is `src/App.test.tsx`, still the CRA template: it renders `<App />` and asserts on `/learn react/i`, which does not exist in the real app — i.e. it fails (or would, if it ran). All workflows have `# - run: npm test` commented out, so nothing runs it.
-- 73 `console.log` calls across `src/`, ~40 `TODO/FIXME` comments (dead-code markers, "just for now" F9 shortcuts, Czech notes like `tohle bude chtít přepsat`), commented-out `github-token` in `dispatch-pr.yml`, and uncommitted local edits (`App.css`, `Constants.ts`) sitting in the working tree.
-- No lint gate in CI (only CRA's in-dev eslint), no Prettier/format config, no coverage.
+94 vitest tests across 10 files, all passing; `tsc --noEmit` clean; both enforced in CI (`npm test`, plus typecheck inside `npm run build`). Coverage centers on the areas that actually regress: focus/zen/macro/theme/box-style behaviors, accent preview contract, App shell. No coverage gate and no lint gate — the suite is the gate.
 
 ## 5. Code/structure health
 
-- Clean separation of integrations is a strength; the Box/context refactor series (#52, #55) landed, so state flows through contexts rather than prop-drilling. But many stale remote branches (`tiny-lisp`, `remove-*`, `refactor-*`, `export-types`, …) suggest half-finished migrations still floating around — check whether `develop` vs `master` have diverged meaningfully before deleting.
-- `serviceWorker.ts` is present (CRA default) — confirm whether offline support is actually wanted; an unmaintained SW + teaching tool is a stale-cache footgun.
-- `public/` icons/manifest look fine; `README.md` is the CRA stub plus two deploy sentences (the "open a merge request into master" line predates the current dispatch setup — update it).
+- 3 `console.log` calls left in `src/` (down from ~70), `TODO`/`FIXME` markers in 15 files — background noise, not rot.
+- No `serviceWorker.ts`, no lint/format config (still just the editor defaults) — Prettier/eslint with a committed config remains the cheapest hygiene win.
+- README is current (stack, scripts, git-tag core consumption, branch model). It says "Requires Node 20+"; CI pins 22 — no contradiction, no `engines` field either way.
+- 52 local+remote branches; the `remove-*`/`refactor-*`/`tiny-lisp`/`export-types` series is still floating around. Prune what's merged before the list grows teeth.
 
 ## 6. Prioritized cleanup
 
-1. **Triage deploy config before any upgrade:** confirm the downstream `lambdulus.github.io` / `staging` repos' expected events and the manual production gate; rotate/verify `ACCESS_TOKEN`; fix the `purge-pr-deployement.yml` typo by renaming (keep a compat shim if the downstream matches on filenames — it shouldn't, events matter, but check). (P0 — deploy is the one thing that must keep working.)
-2. **Decide the frontend's future stack, then patch security in the meantime:** merge or re-issue the Dependabot security bumps; then choose stay-on-CRA (upgrade to latest `react-scripts` 5 + React 18, minimal churn) vs. migrate to Vite/Next (bigger win, bigger diff). Either way, replace `react-monaco-editor` with `@monaco-editor/react` and lift Node to 20/22 in CI. (P0 security, P1 stack.)
-3. **Make `npm test` real and run it in CI:** delete or rewrite `App.test.tsx` into a smoke test of the actual App, add integration tests for at least parse→render→step in the untyped-lambda boxes, uncomment/enable `npm test -- --watchAll=false` in all workflows. (P1 — teaching tool with zero tests.)
-4. **Modernize workflows:** `checkout@v4` + `setup-node@v4`, `node-version: [20.x]` (or 22.x), cache `npm`, `CI=true`, fail loudly on dispatch errors (`curl --fail`), replace `everest-preview` header, make build-metadata injection cross-platform (e.g. `REACT_APP_COMMIT=$GITHUB_SHA`). (P1.)
-5. **Hygiene:** commit or stash the two dirty files; remove `serviceWorker.ts` if unused; run Prettier/eslint with a committed config; refresh README (branch model `develop`→staging auto / `master`→production dispatch + downstream manual gate, scripts, Node version); prune merged/stale branches. (P2.)
+1. **PAT hygiene:** confirm `ACCESS_TOKEN` owner/expiry/rotation for both downstream dispatches. (P1 — the one thing that can silently break deploys.)
+2. **Opt-in major upgrades** when there's appetite: React 19 first (biggest API surface), then Vite/TS/testing stack. One migration per pass, suite green throughout. (P1, scheduled — not urgent.)
+3. **Drop the `everest-preview` header** from all four dispatch curls. (P2, trivial.)
+4. **Add Prettier/eslint with committed config** (and keep it out of CI until the tree is clean, or add it — tree is small enough now that day one could be green). (P2.)
+5. **Prune stale branches** after confirming `develop` vs `master` divergence is intentional. (P2.)

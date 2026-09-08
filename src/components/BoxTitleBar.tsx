@@ -1,6 +1,6 @@
 import React, { Component, MouseEvent } from 'react'
+import { Check, Link2, Maximize2, Minimize2, Pencil, Settings, Trash2 } from 'lucide-react'
 import { BoxType, BoxState } from '../Types'
-import UntypedLambdaBTB from '../untyped-lambda-integration/BoxTopBar'
 import { UntypedLambdaState } from '../untyped-lambda-integration/Types'
 
 import MarkdownBTB from '../markdown-integration/BoxTopBar'
@@ -9,7 +9,7 @@ import { NoteState } from '../markdown-integration/AppTypes'
 import EmptyBTB from '../empty-integration/BoxTopBar'
 
 import '../styles/BoxTopBar.css'
-import { resetUntypedLambdaBox } from '../untyped-lambda-integration/Constants'
+import { resetUntypedLambdaBox, SETTINGS_OPENED_EVENT } from '../untyped-lambda-integration/Constants'
 
 
 type BoxPlace = 'before' | 'after'
@@ -18,10 +18,14 @@ interface Props {
   state : BoxState
   isActive : boolean
   isFocused : boolean
+  seatBox : () => void
+  makeActive : () => void
   removeBox : (e : MouseEvent) => void
   updateBoxState : (box : BoxState) => void
   addBoxBefore : (box : BoxState) => void
   addBoxAfter : (box : BoxState) => void
+  hideTitle? : boolean
+  titleActionsHost? : React.RefObject<HTMLSpanElement>
 }
 
 interface State {
@@ -44,73 +48,104 @@ export default class BoxTitleBar extends Component<Props, State> {
   }
 
   render () : JSX.Element {
-    const { state, isActive, updateBoxState, removeBox } : Props = this.props
+    const { state, isActive, updateBoxState, removeBox, seatBox, makeActive, hideTitle, titleActionsHost } : Props = this.props
     const { type, title, minimized } = state
 
     const { shareLinkOpen } : State = this.state
 
     return (
       <div className='boxTopBar'
-        onClick={ (e) => e.stopPropagation() }
+        onClick={ (e) => {
+          e.stopPropagation()
+          // Seating scrolls; activating moves focus (scroll map, shadow)
+          // with it. Every control in the bar stops propagation for
+          // itself, so only bare-bar clicks land here.
+          seatBox()
+          makeActive()
+        } }
       >
-        <div
-          className='topBarTitle'
-        >
-          <span
-                className='box-top-bar--title-text'
-                contentEditable={ true }
-                suppressContentEditableWarning={true}
-                onClick={ (e) => {
-                  // NOTE: this is really ugly and dangerous quick fix
-                  // I am trying to fix a bug where for some reason markdown boxes, when clicked into title
-                  // it causes focus, then immidiately it loses focus
-                  // so now, when I click in the title, I won't make it active at all
-                  e.stopPropagation()
-                } }
-                onBlur={ (e) => updateBoxState({ ...state, title : e.target.textContent || "" })  }
-              >
-              { title }
-          </span>
-        </div>
-
-        <div className='box-top-bar-custom'>
-          {
-            (type === BoxType.UNTYPED_LAMBDA) ? 
-              (
-                <UntypedLambdaBTB
-                  state={ state as UntypedLambdaState }
-                  isActive={ isActive }
-                  removeBox={ removeBox }
-                  updateBoxState={ updateBoxState }
-                />
-              )
-            :
-            (type === BoxType.MARKDOWN) ?
-              (
-                <MarkdownBTB
-                  state={ state as NoteState }
-                  isActive={ isActive }
-                  removeBox={ removeBox }
-                  updateBoxState={ updateBoxState }
-                />
-              )
-            :
-              (
-                <EmptyBTB />
-              )
-          }
-
-        </div>
-        <div className='box-top-bar-controls'>
-          <div
-              className='box-top-bar--controls-item'
-              onClick={ removeBox }
-              title='Delete this Box from the Notebook'
+        {
+          hideTitle ?
+            null
+          :
+            <div
+              className='topBarTitle'
             >
-              <i
-                className='mini-icon far fa-trash-alt'
-              />
+              <span
+                    className='box-top-bar--title-text'
+                    contentEditable={ ! state.readOnly }
+                    suppressContentEditableWarning={true}
+                    onClick={ (e) => {
+                      // NOTE: this is really ugly and dangerous quick fix
+                      // I am trying to fix a bug where for some reason boxes, when clicked into title
+                      // it causes focus, then immidiately it loses focus
+                      // so now, when I click in the title, I won't make it active at all
+                      // (markdown and lambda titles are hidden now, so this guards the remaining ones)
+                      e.stopPropagation()
+                    } }
+                    onBlur={ (e) => updateBoxState({ ...state, title : e.target.textContent || "" })  }
+                  >
+                  { title }
+              </span>
             </div>
+        }
+        {
+          // The macro dock owns its toggle now; the title bar keeps
+          // only the portaled Run/Step slot and the right-side box
+          // furniture.
+          titleActionsHost ?
+            <span className='boxTopBar-actions' ref={ titleActionsHost } />
+          :
+            null
+        }
+        {
+          // With the title gone something else must push the icons
+          // right; the portaled actions stay left where the title was.
+          hideTitle ?
+            <div className='boxTopBar-spacer' />
+          :
+            null
+        }
+
+        {
+          // The lambda toggle moved left; only the remaining types
+          // keep a right-side custom group (and never an empty one,
+          // whose padding and border would leave a footprint).
+          type === BoxType.UNTYPED_LAMBDA ?
+            null
+          :
+            <div className='box-top-bar-custom'>
+              {
+                (type === BoxType.MARKDOWN) ?
+                  (
+                    <MarkdownBTB
+                      state={ state as NoteState }
+                      isActive={ isActive }
+                      removeBox={ removeBox }
+                      updateBoxState={ updateBoxState }
+                    />
+                  )
+                :
+                  (
+                    <EmptyBTB />
+                  )
+              }
+
+            </div>
+        }
+        <div className='box-top-bar-controls'>
+          {
+            state.readOnly ?
+              null
+            :
+              <div
+                className='box-top-bar--controls-item'
+                onClick={ removeBox }
+                title='Delete this Box from the Notebook'
+              >
+                <Trash2 size={ 15 } strokeWidth={ 1.75 } />
+              </div>
+          }
           
           {
             type !== BoxType.MARKDOWN ?
@@ -119,14 +154,14 @@ export default class BoxTitleBar extends Component<Props, State> {
                 e.stopPropagation()
                 updateBoxState({ ...state, minimized : ! minimized })
               } }
-              className='box-top-bar--controls-item'
+              className='box-top-bar--controls-item box-top-bar--collapse-toggle'
               title={ minimized ? 'Expand this Box' : 'Collapse this Box' }
             >
               {
                 minimized ?
-                  <i className="mini-icon fas fa-expand" />
+                  <Maximize2 size={ 15 } strokeWidth={ 1.75 } />
                 :
-                  <i className="mini-icon fas fa-compress" />
+                  <Minimize2 size={ 15 } strokeWidth={ 1.75 } />
               }
             </div>
             :
@@ -140,10 +175,20 @@ export default class BoxTitleBar extends Component<Props, State> {
                 title="Open this Boxs' settings"
                 onClick={ (e) => {
                   e.stopPropagation()
+                  const opening : boolean = ! state.settingsOpen
                   updateBoxState({ ...state, settingsOpen : ! state.settingsOpen })
+                  if (opening) {
+                    // Other boxes' panels stand down so they never overlap.
+                    // Document, not window: box listeners hang off document
+                    // (bubble phase), which a window dispatch never reaches.
+                    document.dispatchEvent(new CustomEvent<{ key : string }>(SETTINGS_OPENED_EVENT, { detail : { key : state.__key } }))
+                  }
+                  // The panel opens (or closes) below the title; re-seat
+                  // once it has rendered so it stays in view either way.
+                  requestAnimationFrame(() => seatBox())
                 }}
               >
-                <i className="mini-icon fas fa-cogs"/>
+                <Settings size={ 15 } strokeWidth={ 1.75 } />
               </div>
             :
             null
@@ -183,56 +228,62 @@ export default class BoxTitleBar extends Component<Props, State> {
             } }
             title='Copy the link to this Expression.'
           >
-            <i className="mini-icon fas fa-share-alt-square"></i>
+            <Link2 size={ 15 } strokeWidth={ 1.75 } />
           </div>
 
-          <div
-            className='box-top-bar--controls-item'
-            onMouseDownCapture={ e => {
-              e.preventDefault()
-              e.stopPropagation()
-            } }
-            // ^^^ this function is just a dirty quick bug fix
-            // when you are editing and click on the edit button again
-            // on the mouse down - the box loses focus and then on mouse up
-            // the onClick is finished and it is then again focused
-            // so the result looks awkward
-            // the previous line is a black hole for the mousedown event
-            // that way it can't cause losing focus for the box, because it is stoped
-            onClick={ (e) => {
-              e.stopPropagation()
+          {
+            state.readOnly ?
+              null
+            :
+              <div
+                className='box-top-bar--controls-item'
+                onMouseDownCapture={ e => {
+                  e.preventDefault()
+                  e.stopPropagation()
+                } }
+                // ^^^ this function is just a dirty quick bug fix
+                // when you are editing and click on the edit button again
+                // on the mouse down - the box loses focus and then on mouse up
+                // the onClick is finished and it is then again focused
+                // so the result looks awkward
+                // the previous line is a black hole for the mousedown event
+                // that way it can't cause losing focus for the box, because it is stoped
+                onClick={ (e) => {
+                  e.stopPropagation()
 
-              switch (type) {
-                case BoxType.UNTYPED_LAMBDA: {
-                  const resetState : UntypedLambdaState = resetUntypedLambdaBox(state as UntypedLambdaState)
-                  const content : string = (state as UntypedLambdaState).expression || (state as UntypedLambdaState).editor.content
+                  switch (type) {
+                    case BoxType.UNTYPED_LAMBDA: {
+                      const resetState : UntypedLambdaState = resetUntypedLambdaBox(state as UntypedLambdaState)
+                      const content : string = (state as UntypedLambdaState).expression || (state as UntypedLambdaState).editor.content
 
-                  updateBoxState({
-                    ...resetState,
-                    editor : {
-                      ...resetState.editor,
-                      content, 
+                      updateBoxState({
+                        ...resetState,
+                        editor : {
+                          ...resetState.editor,
+                          content,
+                        }
+                      })
+                      break
                     }
-                  })
-                  break
-                }
-                case BoxType.MARKDOWN: {
-                  updateBoxState({ ...state, isEditing : true })
-                  break
-                }
-              }
-              this.setState({ menuOpen : false })
-            } }
-            title='Edit this Expression.'
-          >
-            <i className="mini-icon far fa-edit"></i>
-          </div>
+                    case BoxType.MARKDOWN: {
+                      updateBoxState({ ...state, isEditing : true })
+                      break
+                    }
+                  }
+                  this.setState({ menuOpen : false })
+                } }
+                title='Edit this Expression.'
+              >
+                <Pencil size={ 15 } strokeWidth={ 1.75 } />
+              </div>
+          }
         </div>
 
         {
           shareLinkOpen ?
             <p className='box-top-bar--menu-item--notif'>
-              Link Copied!
+              <Check size={ 14 } strokeWidth={ 2 } />
+              Link copied!
             </p>
             :
             null

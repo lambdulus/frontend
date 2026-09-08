@@ -65,10 +65,17 @@ export interface UntypedLambdaState extends AbstractBoxState {
   
   strategy : EvaluationStrategy
   SDE : boolean // Semantics Drive Evaluation (Strategy) -- formerly called Simplified Strategy
+  ETA : boolean // Eta conversion as the final evaluation step (opt-in, off by default)
   SLI : boolean
   expandStandalones : boolean
+  collapseOldSteps : boolean
 
   macrolistOpen : boolean
+  // The dock the user asked for: set by the dock head and the tour, never
+  // by focus syncs. Focus opens the dock only when this remembers an open,
+  // so a fresh box stays a pill until opened, a hand-closed dock stays
+  // shut across refocus, and old notebooks (field absent) stay shut too.
+  macrolistWanted? : boolean
   macrotable : MacroMap
   
   editor : {
@@ -83,6 +90,8 @@ export interface UntypedLambdaSettings extends AbstractSettings {
   expandStandalones : boolean
   strategy : EvaluationStrategy
   SDE : boolean
+  ETA : boolean
+  collapseOldSteps : boolean
 }
 
 export type SettingsEnabled = {

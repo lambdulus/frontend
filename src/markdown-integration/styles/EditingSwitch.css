@@ -1,25 +1,30 @@
 .markdown-write {
-  margin-right: 15px;
+  margin-right: 0;
 }
 
 .markdown-write, .markdown-preview {
-  padding: 5px;
+  padding: 4px 14px;
+  border-radius: 999px;
   cursor: pointer;
   margin: auto;
+  font-size: 0.85em;
+  color: var(--muted);
+  transition: color .15s ease-in-out, background-color .15s ease-in-out;
 }
 
 .markdown-selected {
-  background-color: #1976d2;
-  border-radius: 5px;
-  color: white;
+  background-color: var(--accent);
+  color: var(--accent-ink);
+  font-weight: 600;
 }
 
 .markdown-editing {
-  margin-right: 30px;
-  padding-top: 3px;
-  padding-bottom: 3px;
-  border: 2px solid #1976d2;
-  border-radius: 5px;;
+  display: inline-flex;
+  gap: 2px;
+  padding: 3px;
+  border-radius: 999px;
+  background-color: var(--raised);
+  border: 1px solid var(--border);
 }
 
 /* this shoudl go else where */

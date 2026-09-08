@@ -1,4 +1,4 @@
-import React, { ChangeEvent } from 'react'
+import React, { ChangeEvent, useRef } from 'react'
 import { UntypedLambdaSettings, EvaluationStrategy, SettingsEnabled } from './Types'
 
 import './styles/Settings.css'
@@ -13,14 +13,20 @@ interface Props {
 
 export default function Settings (props : Props) : JSX.Element {
   const { settings, change, settingsEnabled } : Props = props
-  const { SLI, expandStandalones, strategy, SDE } : UntypedLambdaSettings = settings
+  const { SLI, expandStandalones, strategy, SDE, ETA, collapseOldSteps } : UntypedLambdaSettings = settings
   const { SLI : SLI_E, expandStandalones : expSt_E, strategy : strat_E } : SettingsEnabled = settingsEnabled
 
 
-  // this is just a dirty-quick implementation to get an unique identifier
-  const array = new Uint32Array(2)
-  window.crypto.getRandomValues(array)
-  const uniq : string = `${Date.now()}-${Math.random()}-${array[0]}-${array[1]}`
+  // Stable per panel instance: regenerating ids every render remounts
+  // the inputs in effect, steals focus, and makes the browser scroll
+  // the toggled control into view on every change.
+  const uniqRef = useRef<string | null>(null)
+  if (uniqRef.current === null) {
+    const array = new Uint32Array(2)
+    window.crypto.getRandomValues(array)
+    uniqRef.current = `${Date.now()}-${Math.random()}-${array[0]}-${array[1]}`
+  }
+  const uniq : string = uniqRef.current
 
   return (
     <div className='untyped-lambda-box--settings'>
@@ -72,6 +78,48 @@ export default function Settings (props : Props) : JSX.Element {
       }
 
       {
+        <span
+          className='untyped-lambda-settings-ETA'
+          title='Convert trailing eta-redexes at the end of evaluation'>
+          <input
+            id={ `untyped-lambda-settings--ETA-${uniq}` }
+            type='checkbox'
+            checked={ ETA ?? false }
+            disabled={ false }
+
+            onChange={
+              (e : ChangeEvent<HTMLInputElement>) =>
+                change({ ...settings, ETA : e.target.checked })
+            }
+          />
+          <label className='untyped-lambda-settings-label' htmlFor={ `untyped-lambda-settings--ETA-${uniq}` }>
+            Eta Conversion
+          </label>
+        </span>
+      }
+
+      {
+        <span
+          className='untyped-lambda-settings-collapse'
+          title='Shorten older reduction steps, click one to expand it'>
+          <input
+            id={ `untyped-lambda-settings--collapse-${uniq}` }
+            type='checkbox'
+            checked={ collapseOldSteps ?? true }
+            disabled={ false }
+
+            onChange={
+              (e : ChangeEvent<HTMLInputElement>) =>
+                change({ ...settings, collapseOldSteps : e.target.checked })
+            }
+          />
+          <label className='untyped-lambda-settings-label' htmlFor={ `untyped-lambda-settings--collapse-${uniq}` }>
+            Collapse Old Steps
+          </label>
+        </span>
+      }
+
+      {
         expSt_E && false ? // hiding this out - I am not sure what this should be in the first place
           <span
             className='untyped-lambda-settings-expand'
@@ -99,9 +147,10 @@ export default function Settings (props : Props) : JSX.Element {
 
       {
         strat_E ?
-          <div className='untyped-lambda-settings-strategies inlineblock'>
-            <p className='stratsLabel inlineblock'>Evaluation Strategies:</p>
+          <div className='untyped-lambda-settings-strategies'>
+            <p className='stratsLabel'>Evaluation Strategies:</p>
 
+            <span className='untyped-lambda-settings--strategy-seg'>
             <span className='untyped-lambda-settings--strategy-radio-wrapper'>
               <input
                 id={ `untyped-lambda-settings--normal-strategy-${uniq}` }
@@ -136,6 +185,7 @@ export default function Settings (props : Props) : JSX.Element {
               <label className='untyped-lambda-settings-label' htmlFor={ `untyped-lambda-settings--applicative-strategy-${uniq}` }>
                 Applicative
               </label>
+            </span>
             </span>
           </div>
         :
