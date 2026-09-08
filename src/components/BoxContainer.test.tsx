@@ -1,5 +1,5 @@
 import { test, expect, vi, afterEach } from 'vitest';
-import { render, cleanup } from '@testing-library/react';
+import { render, fireEvent, cleanup } from '@testing-library/react';
 import { BoxContainer } from './BoxContainer';
 import { BoxType } from '../Types';
 import { NoteState } from '../markdown-integration/AppTypes';
@@ -35,6 +35,23 @@ function props (zen : boolean) {
     addBoxAfter : () => void 0,
   };
 }
+
+test('bare top-bar click seats and focuses the box', () => {
+  // The bar used to scroll without moving focus (no map highlight, no
+  // shadow); every control in it stops propagation for itself, so only
+  // bare-bar clicks reach this handler.
+  const seatBox = vi.fn();
+  const makeActive = vi.fn();
+  const { container, unmount } = render(<BoxContainer { ...props(false) } seatBox={ seatBox } makeActive={ makeActive } />);
+  try {
+    fireEvent.click(container.querySelector('.boxTopBar') as HTMLElement);
+    expect(seatBox).toHaveBeenCalledTimes(1);
+    expect(makeActive).toHaveBeenCalledTimes(1);
+  }
+  finally {
+    unmount();
+  }
+});
 
 function rect (top : number) : DOMRect {
   return {

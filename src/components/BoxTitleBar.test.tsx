@@ -13,6 +13,7 @@ function props (state : BoxState) {
     isActive : true,
     isFocused : true,
     seatBox : () => void 0,
+    makeActive : () => void 0,
     removeBox : () => void 0,
     updateBoxState : () => void 0,
     addBoxBefore : () => void 0,
@@ -49,6 +50,7 @@ function bar (settingsOpen : boolean, updateBoxState : (box : BoxState) => void)
       isActive={ true }
       isFocused={ true }
       seatBox={ () => void 0 }
+      makeActive={ () => void 0 }
       removeBox={ () => void 0 }
       updateBoxState={ updateBoxState }
       addBoxBefore={ () => void 0 }
