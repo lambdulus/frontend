@@ -43,6 +43,7 @@ export default class App extends Component<{}, AppState> {
     this.previewAccent = this.previewAccent.bind(this)
     this.previewBoxStyle = this.previewBoxStyle.bind(this)
     this.updateBoxStyle = this.updateBoxStyle.bind(this)
+    this.updateConfirmBoxDelete = this.updateConfirmBoxDelete.bind(this)
     this.toggleTheme = this.toggleTheme.bind(this)
     this.selectNotebook = this.selectNotebook.bind(this)
     this.addNotebook = this.addNotebook.bind(this)
@@ -319,7 +320,7 @@ export default class App extends Component<{}, AppState> {
 
   // NOTE: render is OK
   render () {
-    const { notebooks, activeNotebookIndex, theme, accent, boxStyle } = this.state
+    const { notebooks, activeNotebookIndex, theme, accent, boxStyle, confirmBoxDelete } = this.state
     const notebook : NotebookState = notebooks[activeNotebookIndex]
     const { settings } = notebook
 
@@ -339,6 +340,8 @@ export default class App extends Component<{}, AppState> {
               theme={ theme }
               accent={ accent }
               boxStyle={ boxStyle }
+              confirmBoxDelete={ confirmBoxDelete ?? true }
+              onConfirmBoxDeleteChange={ this.updateConfirmBoxDelete }
               settings={ settings }
               onAccentChange={ this.updateAccent }
               onAccentPreview={ this.previewAccent }
@@ -356,7 +359,12 @@ export default class App extends Component<{}, AppState> {
               onTourOpen={ this.openTour }
             />
 
-            <Notebook state={ notebook } updateNotebook={ this.updateNotebook } />
+            <Notebook
+              state={ notebook }
+              updateNotebook={ this.updateNotebook }
+              confirmBoxDelete={ confirmBoxDelete ?? true }
+              onConfirmBoxDeleteChange={ this.updateConfirmBoxDelete }
+            />
 
             {
               this.tourOpen ?
@@ -545,6 +553,11 @@ export default class App extends Component<{}, AppState> {
     this.boxStylePreview = null
     this.setState({ boxStyle })
     updateAppStateToStorage({ ...this.state, boxStyle })
+  }
+
+  updateConfirmBoxDelete (confirmBoxDelete : boolean) : void {
+    this.setState({ confirmBoxDelete })
+    updateAppStateToStorage({ ...this.state, confirmBoxDelete })
   }
 
 }

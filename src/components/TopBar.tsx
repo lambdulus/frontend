@@ -21,11 +21,13 @@ interface Props {
   theme : Theme
   accent : Accent
   boxStyle : BoxStyle
+  confirmBoxDelete : boolean
   settings : GlobalSettings
   onAccentChange (accent : Accent) : void
   onAccentPreview (accent : Accent | null) : void
   onBoxStyleChange (boxStyle : BoxStyle) : void
   onBoxStylePreview (boxStyle : BoxStyle | null) : void
+  onConfirmBoxDeleteChange (confirm : boolean) : void
   onNotebookSelect (index : number) : void
   onNotebookAdd () : void
   onNotebookRemove (index : number) : void
@@ -45,11 +47,13 @@ export default function TopBar (props : Props) : JSX.Element {
     theme,
     accent,
     boxStyle,
+    confirmBoxDelete,
     settings,
     onAccentChange,
     onAccentPreview,
     onBoxStyleChange,
     onBoxStylePreview,
+    onConfirmBoxDeleteChange,
     onNotebookSelect,
     onNotebookAdd,
     onNotebookRemove,
@@ -354,6 +358,18 @@ export default function TopBar (props : Props) : JSX.Element {
                     )
                   }
                 </div>
+                <p className='top-bar--settings-title'>Deletion</p>
+                <span className='top-bar--delete-confirm'>
+                  <input
+                    id='top-bar--confirm-delete'
+                    type='checkbox'
+                    checked={ confirmBoxDelete }
+                    onChange={ (e) => onConfirmBoxDeleteChange(e.target.checked) }
+                  />
+                  <label htmlFor='top-bar--confirm-delete'>
+                    Ask before deleting a box
+                  </label>
+                </span>
               </div>
             </React.Fragment>
           :

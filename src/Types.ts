@@ -64,5 +64,6 @@ export interface AppState {
   activeNotebookIndex : number,
   theme : Theme,
   accent : Accent,
-  boxStyle : BoxStyle
+  boxStyle : BoxStyle,
+  confirmBoxDelete : boolean
 }
