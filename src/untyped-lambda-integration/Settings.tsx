@@ -13,7 +13,7 @@ interface Props {
 
 export default function Settings (props : Props) : JSX.Element {
   const { settings, change, settingsEnabled } : Props = props
-  const { SLI, expandStandalones, strategy, SDE, collapseOldSteps } : UntypedLambdaSettings = settings
+  const { SLI, expandStandalones, strategy, SDE, ETA, collapseOldSteps } : UntypedLambdaSettings = settings
   const { SLI : SLI_E, expandStandalones : expSt_E, strategy : strat_E } : SettingsEnabled = settingsEnabled
 
 
@@ -73,6 +73,27 @@ export default function Settings (props : Props) : JSX.Element {
           />
           <label className='untyped-lambda-settings-label' htmlFor={ `untyped-lambda-settings--SDE-${uniq}` }>
             Simplified Evaluation
+          </label>
+        </span>
+      }
+
+      {
+        <span
+          className='untyped-lambda-settings-ETA'
+          title='Convert trailing eta-redexes at the end of evaluation'>
+          <input
+            id={ `untyped-lambda-settings--ETA-${uniq}` }
+            type='checkbox'
+            checked={ ETA ?? false }
+            disabled={ false }
+
+            onChange={
+              (e : ChangeEvent<HTMLInputElement>) =>
+                change({ ...settings, ETA : e.target.checked })
+            }
+          />
+          <label className='untyped-lambda-settings-label' htmlFor={ `untyped-lambda-settings--ETA-${uniq}` }>
+            Eta Conversion
           </label>
         </span>
       }
