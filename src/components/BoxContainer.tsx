@@ -128,7 +128,7 @@ export class BoxContainer extends Component<Props, State> {
               state={ box }
               isActive={ isActiveBox }
               isFocused={ isFocusedBox }
-              hideTitle={ box.type === BoxType.UNTYPED_LAMBDA }
+              hideTitle={ box.type === BoxType.UNTYPED_LAMBDA || box.type === BoxType.MARKDOWN }
               titleActionsHost={ box.type === BoxType.UNTYPED_LAMBDA ? this.titleActionsRef : undefined }
               seatBox={ seatBox }
               makeActive={ makeActive }
