@@ -19,6 +19,7 @@ interface Props {
   isActive : boolean
   isFocused : boolean
   seatBox : () => void
+  makeActive : () => void
   removeBox : (e : MouseEvent) => void
   updateBoxState : (box : BoxState) => void
   addBoxBefore : (box : BoxState) => void
@@ -47,7 +48,7 @@ export default class BoxTitleBar extends Component<Props, State> {
   }
 
   render () : JSX.Element {
-    const { state, isActive, updateBoxState, removeBox, seatBox, hideTitle, titleActionsHost } : Props = this.props
+    const { state, isActive, updateBoxState, removeBox, seatBox, makeActive, hideTitle, titleActionsHost } : Props = this.props
     const { type, title, minimized } = state
 
     const { shareLinkOpen } : State = this.state
@@ -56,7 +57,11 @@ export default class BoxTitleBar extends Component<Props, State> {
       <div className='boxTopBar'
         onClick={ (e) => {
           e.stopPropagation()
+          // Seating scrolls; activating moves focus (scroll map, shadow)
+          // with it. Every control in the bar stops propagation for
+          // itself, so only bare-bar clicks land here.
           seatBox()
+          makeActive()
         } }
       >
         {

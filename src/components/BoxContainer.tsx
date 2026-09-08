@@ -131,6 +131,7 @@ export class BoxContainer extends Component<Props, State> {
               hideTitle={ box.type === BoxType.UNTYPED_LAMBDA }
               titleActionsHost={ box.type === BoxType.UNTYPED_LAMBDA ? this.titleActionsRef : undefined }
               seatBox={ seatBox }
+              makeActive={ makeActive }
               removeBox={ (e : MouseEvent) => {
                 e.stopPropagation()
                 removeBox()
