@@ -61,6 +61,7 @@ const DELETE_SELECTOR = '[title="Delete this Box from the Notebook"]'
 const MACRO_DOCK = '.macro-dock'
 const SLI_ROW = '.untyped-lambda-settings-SLI'
 const SDE_ROW = '.untyped-lambda-settings-SDE'
+const ETA_ROW = '.untyped-lambda-settings-ETA'
 const COLLAPSE_ROW = '.untyped-lambda-settings-collapse'
 const STRATEGY_ROW = '.untyped-lambda-settings-strategies'
 
@@ -149,6 +150,13 @@ export const TOUR_STEPS : Array<TourStep> = [
     title : 'Simplified Evaluation',
     body : 'This steers stepping by a different strategy — try the same expression with it on and off.',
     targetInTracked : SDE_ROW,
+    dot : 'settings',
+  },
+  {
+    id : 'set-eta',
+    title : 'Eta Conversion',
+    body : 'Trailing eta-redexes convert at the end when this is on — compare + 1 0 with it off and on.',
+    targetInTracked : ETA_ROW,
     dot : 'settings',
   },
   {
