@@ -9,7 +9,7 @@ import { NoteState } from '../markdown-integration/AppTypes'
 import EmptyBTB from '../empty-integration/BoxTopBar'
 
 import '../styles/BoxTopBar.css'
-import { resetUntypedLambdaBox } from '../untyped-lambda-integration/Constants'
+import { resetUntypedLambdaBox, SETTINGS_OPENED_EVENT } from '../untyped-lambda-integration/Constants'
 
 
 type BoxPlace = 'before' | 'after'
@@ -169,7 +169,14 @@ export default class BoxTitleBar extends Component<Props, State> {
                 title="Open this Boxs' settings"
                 onClick={ (e) => {
                   e.stopPropagation()
+                  const opening : boolean = ! state.settingsOpen
                   updateBoxState({ ...state, settingsOpen : ! state.settingsOpen })
+                  if (opening) {
+                    // Other boxes' panels stand down so they never overlap.
+                    // Document, not window: box listeners hang off document
+                    // (bubble phase), which a window dispatch never reaches.
+                    document.dispatchEvent(new CustomEvent<{ key : string }>(SETTINGS_OPENED_EVENT, { detail : { key : state.__key } }))
+                  }
                   // The panel opens (or closes) below the title; re-seat
                   // once it has rendered so it stays in view either way.
                   requestAnimationFrame(() => seatBox())

@@ -43,6 +43,10 @@ export const ADD_BOX_LABEL = '+ Untyped λ Expression'
 
 export const CODE_NAME = 'UNTYPED_LAMBDA_CALCULUS'
 
+// Broadcast when a box opens its settings so every other box can stand
+// its own panel down -- panels must never overlap.
+export const SETTINGS_OPENED_EVENT = 'lambdulus:settings-opened'
+
 // #60: bound for the number of micro-steps a single-step macro perform may
 // grind while normalizing its application before returning to the caller.
 // A recursive macro applied to too few arguments (e.g. the function part of
