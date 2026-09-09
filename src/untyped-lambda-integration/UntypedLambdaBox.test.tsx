@@ -491,3 +491,31 @@ test('eta toggle before normal form just applies', () => {
     unmount();
   }
 });
+
+test('unbalanced input surfaces core paren messages', () => {
+  const missing = createNewUntypedLambdaExpression(defaultSettings);
+  missing.editor.content = '((x)';
+  const first = render(<Harness initial={ missing } />);
+  try {
+    fireEvent.click(first.container.querySelector('.open-as-debug') as HTMLElement);
+    expect(lastState().editor.syntaxError?.message).toBe(
+      'It seems like you forgot to write one or more closing parentheses.'
+    );
+  }
+  finally {
+    first.unmount();
+  }
+
+  const stray = createNewUntypedLambdaExpression(defaultSettings);
+  stray.editor.content = 'x )';
+  const second = render(<Harness initial={ stray } />);
+  try {
+    fireEvent.click(second.container.querySelector('.open-as-debug') as HTMLElement);
+    expect(lastState().editor.syntaxError?.message).toBe(
+      'It seems you have one or more closing parenthesis not matching.'
+    );
+  }
+  finally {
+    second.unmount();
+  }
+});

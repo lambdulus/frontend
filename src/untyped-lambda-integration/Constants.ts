@@ -112,6 +112,12 @@ export function createNewUntypedLambdaExpression (settings : UntypedLambdaSettin
 //   }, {})
 // }
 
+// Core throws typed errors; extract the human message either way
+// (strings answer .toString natively, Error objects carry .message).
+export function coreErrorMessage (exception : unknown) : string {
+  return exception instanceof Error ? exception.message : String(exception)
+}
+
 export function toMacroMap (definitions : Array<string>, SLI : boolean) : MacroMap {
   /**
    * This might seem like something really wrong

@@ -5,7 +5,7 @@ import { BoxType } from '../Types'
 import { UntypedLambdaState, UntypedLambdaType, UntypedLambdaSettings, PromptPlaceholder, StepMessage, StepValidity } from './Types'
 import ExpressionBox from './ExpressionBox'
 import MacroList from './MacroList'
-import { GLOBAL_SETTINGS_ENABLER, strategyToEvaluator, findSimplifiedReduction, toMacroMap, SETTINGS_OPENED_EVENT } from './Constants'
+import { GLOBAL_SETTINGS_ENABLER, strategyToEvaluator, findSimplifiedReduction, toMacroMap, SETTINGS_OPENED_EVENT, coreErrorMessage } from './Constants'
 import ExerciseBox from './ExerciseBox'
 import Settings from './Settings'
 import EmptyExpression from './EmptyExpression'
@@ -347,10 +347,11 @@ export default class UntypedLambdaBox extends PureComponent<Props, State> {
     } catch (exception) {
       // Core reports open macro definitions as a typed error carrying
       // the macro name and its free variables -- show it as is.
+      // Anything else falls back to core's own message.
       let errorMessage : string = exception instanceof OpenMacroDefinition
         ? exception.message
-        : "Something is wrong with your expression. Please inspect it closely."
-      console.error((exception as Error).toString())
+        : coreErrorMessage(exception)
+      console.error(coreErrorMessage(exception))
 
       // if (errorMessage === "Error") {
         if (content.match(/:=/g)?.length !== content.match(/;/g)?.length) {

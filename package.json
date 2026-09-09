@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "dependencies": {
-    "@lambdulus/core": "git+https://github.com/lambdulus/core.git#v0.0.12",
+    "@lambdulus/core": "git+https://github.com/lambdulus/core.git#v0.0.13",
     "@monaco-editor/react": "^4.7.0",
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^14.0.0",

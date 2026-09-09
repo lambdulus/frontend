@@ -21,7 +21,7 @@ import { TreeComparator } from './TreeComparator'
 import InactiveEvaluator from './InactiveExpression'
 import Expression from './Expression'
 import { PromptPlaceholder, UntypedLambdaState, Evaluator, StepRecord, Breakpoint, UntypedLambdaType, StepMessage, StepValidity } from './Types'
-import { strategyToEvaluator, findSimplifiedReduction, MacroBeta, toMacroMap, tryMacroContraction } from './Constants'
+import { strategyToEvaluator, findSimplifiedReduction, MacroBeta, toMacroMap, tryMacroContraction, coreErrorMessage } from './Constants'
 
 
 export interface EvaluationProperties {
@@ -42,7 +42,10 @@ function exerciseSyntaxError (content : string, exception : unknown = null) : Er
     return Error(exception.message)
   }
 
-  let errorMessage : string = "Something is wrong with your expression. Please inspect it closely."
+  // Anything else falls back to core's own message.
+  let errorMessage : string = exception !== null && exception !== undefined
+    ? coreErrorMessage(exception)
+    : "Something is wrong with your expression. Please inspect it closely."
 
   if (content.match(/:=/g)?.length !== content.match(/;/g)?.length) {
     errorMessage = "Did you forget to write a semicolon after the Macro definition?"
@@ -241,8 +244,8 @@ export default class ExerciseBox extends PureComponent<EvaluationProperties> {
     } catch (exception) {
       let errorMessage : string = exception instanceof OpenMacroDefinition
         ? exception.message
-        : "Something is wrong with your expression. Please inspect it closely."
-      console.error((exception as Error).toString())
+        : coreErrorMessage(exception)
+      console.error(coreErrorMessage(exception))
 
       if (content.match(/:=/g)?.length !== content.match(/;/g)?.length) {
         errorMessage = "Did you forget to write a semicolon after the Macro definition?"
@@ -362,7 +365,7 @@ export default class ExerciseBox extends PureComponent<EvaluationProperties> {
         }
       })
     } catch (exception) {
-      console.error((exception as Error).toString())
+      console.error(coreErrorMessage(exception))
 
       setBoxState({
         ...state,
@@ -480,7 +483,7 @@ export default class ExerciseBox extends PureComponent<EvaluationProperties> {
         }
       })
     } catch (exception) {
-      console.error((exception as Error).toString())
+      console.error(coreErrorMessage(exception))
 
       setBoxState({
         ...state,
