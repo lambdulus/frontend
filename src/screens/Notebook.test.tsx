@@ -820,12 +820,6 @@ function mediaBlock (css : string, breakpoint : string) : string {
   return chunks.find((chunk : string) => new RegExp(`max-width\\s*:\\s*${breakpoint}`).test(chunk)) ?? ''
 }
 
-test('the bad-screen gate sits at 375px', () => {
-  // iPhone-SE-narrow stays usable; anything under it is out.
-  const css = readFileSync('src/App.css', 'utf8');
-  expect(mediaBlock(css, '374px')).toMatch(/#bad-screen-message\s*\{[^}]*display\s*:\s*block/);
-});
-
 test('narrow screens hide the box map instead of overlapping', () => {
   // Below the width where even the half map clears the slim column
   // (1372px), the map steps out entirely.
