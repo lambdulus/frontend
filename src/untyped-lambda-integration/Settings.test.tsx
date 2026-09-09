@@ -113,3 +113,11 @@ test('toggle labels nudge up to the track center', () => {
   const label = css.match(/\.untyped-lambda-settings-label\s*\{[^}]*\}/)?.[0] ?? '';
   expect(label).toMatch(/transform\s*:\s*translateY\(-1px\)/);
 });
+
+test('strategy pills ignore the label nudge', () => {
+  // The shared label lift would unseat the active pill inside its
+  // segment; symmetric pills opt back out of it.
+  const css = readFileSync('src/untyped-lambda-integration/styles/Settings.css', 'utf8');
+  const pill = css.match(/\.untyped-lambda-settings--strategy-radio-wrapper \.untyped-lambda-settings-label\s*\{[^}]*\}/)?.[0] ?? '';
+  expect(pill).toMatch(/transform\s*:\s*none/);
+});
