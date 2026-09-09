@@ -296,19 +296,22 @@ test('deletion toggle reflects the setting and reports unchecking', () => {
   );
 
   fireEvent.click(container.querySelector('[title="Notebook settings"]') as HTMLElement);
-  const checkbox = container.querySelector('#top-bar--confirm-delete') as HTMLInputElement;
-  expect(checkbox.checked).toBe(true);
+  const toggle = container.querySelector('#top-bar--confirm-delete') as HTMLElement;
+  expect(toggle.getAttribute('aria-pressed')).toBe('true');
+  expect(toggle.className).toMatch(/untyped-lambda-settings--toggle-on/);
   expect(container.querySelector('.top-bar--delete-confirm label')?.textContent).toBe('Confirm before deleting a box');
 
-  fireEvent.click(checkbox);
+  fireEvent.click(toggle);
   expect(onConfirmBoxDeleteChange).toHaveBeenCalledWith(false);
 });
 
-test('deletion toggle renders unchecked when asking is off', () => {
+test('deletion toggle renders off when asking is off', () => {
   const { container } = render(
     <TopBar { ...baseProps(() => void 0) } confirmBoxDelete={ false } onConfirmBoxDeleteChange={ () => void 0 } />
   );
 
   fireEvent.click(container.querySelector('[title="Notebook settings"]') as HTMLElement);
-  expect((container.querySelector('#top-bar--confirm-delete') as HTMLInputElement).checked).toBe(false);
+  const toggle = container.querySelector('#top-bar--confirm-delete') as HTMLElement;
+  expect(toggle.getAttribute('aria-pressed')).toBe('false');
+  expect(toggle.className).toMatch(/untyped-lambda-settings--toggle-off/);
 });

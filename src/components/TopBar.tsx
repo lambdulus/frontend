@@ -259,12 +259,14 @@ export default function TopBar (props : Props) : JSX.Element {
                 />
                 <p className='top-bar--settings-title'>Deletion</p>
                 <span className='top-bar--delete-confirm'>
-                  <input
+                  <button
                     id='top-bar--confirm-delete'
-                    type='checkbox'
-                    checked={ confirmBoxDelete }
-                    onChange={ (e) => onConfirmBoxDeleteChange(e.target.checked) }
-                  />
+                    className={ `untyped-lambda-settings--toggle ${confirmBoxDelete ? 'untyped-lambda-settings--toggle-on' : 'untyped-lambda-settings--toggle-off'}` }
+                    aria-pressed={ confirmBoxDelete }
+                    onClick={ () => onConfirmBoxDeleteChange(! confirmBoxDelete) }
+                  >
+                    <span className='untyped-lambda-settings--toggle-thumb' />
+                  </button>
                   <label htmlFor='top-bar--confirm-delete'>
                     Confirm before deleting a box
                   </label>

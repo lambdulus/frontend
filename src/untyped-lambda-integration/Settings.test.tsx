@@ -74,17 +74,15 @@ test('eta toggle reflects the setting and reports turning it on', () => {
   expect(change).toHaveBeenCalledWith({ ...baseSettings, ETA : true });
 });
 
-test('restart offer sits inline in the panel type scale', () => {
-  // One row with the strategy radios: muted label beside an outlined
-  // button, everything at the 0.9em label size, no filled accent.
+test('restart offer stands alone with breathing room', () => {
+  // One wide outlined button on its own right-aligned row below the
+  // strategies: headroom above, air from the panel edge, no fill.
   const css = readFileSync('src/untyped-lambda-integration/styles/Settings.css', 'utf8');
-  const row = css.match(/\.untyped-lambda-settings-restart\s*\{[^}]*\}/)?.[0] ?? '';
-  expect(row).not.toMatch(/flex-direction\s*:\s*column/);
-  expect(row).toMatch(/align-items\s*:\s*center/);
-  const label = css.match(/\.untyped-lambda-settings-restart-label\s*\{[^}]*\}/)?.[0] ?? '';
-  expect(label).toMatch(/font-size\s*:\s*0\.9em/);
+  const row = css.match(/\.untyped-lambda-settings-restart-row\s*\{[^}]*\}/)?.[0] ?? '';
+  expect(row).toMatch(/justify-content\s*:\s*flex-end/);
+  expect(row).toMatch(/margin\s*:\s*12px 8px 0 0/);
   const button = css.match(/\.untyped-lambda-settings-restart-button\s*\{[^}]*\}/)?.[0] ?? '';
-  expect(button).toMatch(/font-size\s*:\s*0\.8em/);
+  expect(button).toMatch(/font-size\s*:\s*0\.9em/);
   expect(button).toMatch(/border\s*:[^;]*var\(--accent\)/);
   expect(button).not.toMatch(/background-color\s*:\s*var\(--accent\)/);
 });

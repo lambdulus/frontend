@@ -149,6 +149,7 @@ export default function Settings (props : Props) : JSX.Element {
 
       {
         strat_E ?
+          <React.Fragment>
           <div className='untyped-lambda-settings-strategies'>
             <p className='stratsLabel'>Evaluation Strategies:</p>
 
@@ -189,25 +190,24 @@ export default function Settings (props : Props) : JSX.Element {
               </label>
             </span>
             </span>
-            {
-              // The session was stepped under different settings: offer
-              // to reparse and resubmit from scratch with the current ones.
-              restartNeeded === true && onRestart !== undefined ?
-                <span className='untyped-lambda-settings-restart'>
-                  <span className='untyped-lambda-settings-restart-label'>
-                    Settings changed
-                  </span>
-                  <button
-                    className='untyped-lambda-settings-restart-button'
-                    onClick={ onRestart }
-                  >
-                    Restart?
-                  </button>
-                </span>
-              :
-                null
-            }
           </div>
+          {
+            // The session was stepped under different settings: one wide
+            // button on its own breathing-room row to reparse and
+            // resubmit from scratch with the current ones.
+            restartNeeded === true && onRestart !== undefined ?
+              <div className='untyped-lambda-settings-restart-row'>
+                <button
+                  className='untyped-lambda-settings-restart-button'
+                  onClick={ onRestart }
+                >
+                  Settings changed, restart?
+                </button>
+              </div>
+            :
+              null
+          }
+          </React.Fragment>
         :
           null
     }
