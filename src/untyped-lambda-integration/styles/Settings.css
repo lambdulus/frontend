@@ -24,6 +24,9 @@
 .untyped-lambda-settings-label {
   margin-left: 0;
   font-size: 0.9em;
+  /* Optical centering against the 20px switch tracks: the font metrics
+     sit the glyphs a hair below the line-box center flex gives them. */
+  transform: translateY(-1px);
 }
 
 .stratsLabel {
