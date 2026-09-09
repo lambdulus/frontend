@@ -104,18 +104,13 @@
   border: 1px solid var(--border);
 }
 
-/* Restart offer: right-aligned with the strategy row, short muted label
-   beside an outlined button, all in the panel's label type size. */
-.untyped-lambda-settings-restart {
-  margin-left: auto;
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.untyped-lambda-settings-restart-label {
-  font-size: 0.9em;
-  color: var(--muted);
+/* Restart offer: one wide outlined button on its own row below the
+   strategies, right-aligned with headroom above and air from the
+   panel edge so the appearing control reads as its own thing. */
+.untyped-lambda-settings-restart-row {
+  display: flex;
+  justify-content: flex-end;
+  margin: 12px 8px 0 0;
 }
 
 .untyped-lambda-settings-restart-button {
@@ -123,8 +118,8 @@
   color: var(--text);
   border: 1px solid var(--accent);
   border-radius: 999px;
-  padding: 2px 12px;
-  font-size: 0.8em;
+  padding: 6px 18px;
+  font-size: 0.9em;
   cursor: pointer;
 }
 
