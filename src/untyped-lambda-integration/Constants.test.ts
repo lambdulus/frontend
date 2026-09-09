@@ -1,6 +1,6 @@
 import { test, expect } from 'vitest';
 import { tokenize, parse, None, NormalEvaluator } from '@lambdulus/core';
-import { createNewUntypedLambdaExpression, defaultSettings, findSimplifiedReduction, strategyToEvaluator, toMacroMap } from './Constants';
+import { createNewUntypedLambdaExpression, defaultSettings, findSimplifiedReduction, strategyToEvaluator, toMacroMap, coreErrorMessage } from './Constants';
 import { TreeComparator } from './TreeComparator';
 import { EvaluationStrategy, UntypedLambdaSettings } from './Types';
 
@@ -54,4 +54,9 @@ test('/ 4 2 simplified run terminates with 2', () => {
     ast = perform(probe);
   }
   expect.unreachable('simplified evaluation did not terminate');
+});
+
+test('coreErrorMessage unwraps objects and passes strings through', () => {
+  expect(coreErrorMessage(new Error('typed boom'))).toBe('typed boom');
+  expect(coreErrorMessage('legacy string boom')).toBe('legacy string boom');
 });
