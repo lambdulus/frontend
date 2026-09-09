@@ -51,6 +51,7 @@ jobs:
 
           for BRANCH in develop master; do
             git checkout -B "$BRANCH" "origin/$BRANCH"
+            export SYNC_BRANCH="$BRANCH"
 
             python3 - <<'EOF'
           import os
@@ -74,11 +75,23 @@ jobs:
           before, sep, rest = readme.partition(start)
           _, sep2, after = rest.partition(end)
           if not sep or not sep2:
-              raise SystemExit('sync markers missing from README.md')
+              # No markers on this branch yet (the table hasn't arrived
+              # here): leave it alone. The upcoming merge delivers the
+              # markers, and inventing structure now would only buy a
+              # merge conflict later.
+              print(f'::warning::sync markers missing on {os.environ["SYNC_BRANCH"]}, skipping')
+              raise SystemExit(7)
 
           with open('README.md', 'w') as f:
               f.write(f'{before}{start}\n{line}\n{end}{after}')
           EOF
+          STATUS=$?
+          if [ $STATUS -eq 7 ]; then
+            continue
+          fi
+          if [ $STATUS -ne 0 ]; then
+            exit $STATUS
+          fi
 
             if git diff --quiet; then
               echo "README already fresh on $BRANCH"
