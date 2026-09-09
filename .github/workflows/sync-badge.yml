@@ -53,7 +53,8 @@ jobs:
             git checkout -B "$BRANCH" "origin/$BRANCH"
             export SYNC_BRANCH="$BRANCH"
 
-            python3 - <<'EOF'
+            SYNC_STATUS=0
+            python3 - <<'EOF' || SYNC_STATUS=$?
           import os
 
           synced = os.environ['STATUS_SYNCED'] == 'true'
@@ -85,12 +86,10 @@ jobs:
           with open('README.md', 'w') as f:
               f.write(f'{before}{start}\n{line}\n{end}{after}')
           EOF
-          STATUS=$?
-          if [ $STATUS -eq 7 ]; then
+          if [ "$SYNC_STATUS" -eq 7 ]; then
             continue
-          fi
-          if [ $STATUS -ne 0 ]; then
-            exit $STATUS
+          elif [ "$SYNC_STATUS" -ne 0 ]; then
+            exit "$SYNC_STATUS"
           fi
 
             if git diff --quiet; then
