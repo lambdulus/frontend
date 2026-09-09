@@ -389,19 +389,18 @@ test('strategy flip after submit offers restart, flip-back retracts it', () => {
   try {
     fireEvent.click(container.querySelector('.open-as-debug') as HTMLElement);
     expect(lastState().editor.syntaxError).toBeNull();
-    expect(container.querySelector('.untyped-lambda-settings-restart')).toBeNull();
+    expect(container.querySelector('.untyped-lambda-settings-restart-row')).toBeNull();
 
     setState((s) => ({ ...s, settingsOpen : true }));
-    expect(container.querySelector('.untyped-lambda-settings-restart')).toBeNull();
+    expect(container.querySelector('.untyped-lambda-settings-restart-row')).toBeNull();
 
     fireEvent.click(getByLabelText('Applicative'));
-    const offer = container.querySelector('.untyped-lambda-settings-restart');
+    const offer = container.querySelector('.untyped-lambda-settings-restart-row');
     expect(offer).not.toBeNull();
-    expect(offer?.querySelector('.untyped-lambda-settings-restart-label')?.textContent).toBe('Settings changed');
-    expect(offer?.querySelector('.untyped-lambda-settings-restart-button')?.textContent).toBe('Restart?');
+    expect(offer?.querySelector('.untyped-lambda-settings-restart-button')?.textContent).toBe('Settings changed, restart?');
 
     fireEvent.click(getByLabelText('Normal'));
-    expect(container.querySelector('.untyped-lambda-settings-restart')).toBeNull();
+    expect(container.querySelector('.untyped-lambda-settings-restart-row')).toBeNull();
   }
   finally {
     unmount();
@@ -423,7 +422,7 @@ test('restart resubmits from step zero with the current settings', () => {
     expect(restarted.history.length).toBe(1);
     expect(restarted.history[0].step).toBe(0);
     expect(restarted.submittedWith?.strategy).toBe(EvaluationStrategy.APPLICATIVE);
-    expect(container.querySelector('.untyped-lambda-settings-restart')).toBeNull();
+    expect(container.querySelector('.untyped-lambda-settings-restart-row')).toBeNull();
   }
   finally {
     unmount();
