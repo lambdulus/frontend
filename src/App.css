@@ -23,25 +23,7 @@ body {
   min-height: 100vh;
 }
 
-#bad-screen-message {
-  display: none;
-  background-color: var(--surface);
-  color: var(--text);
-  height: 100vh;
-  width: 100vw;
-  position: fixed;
-  text-align: center;
-  font-size: 2em;
-  padding-top: 40vh;
-  z-index: 99999;
-}
 
-/* Maximum aspect ratio */
-@media screen and (max-width: 374px) {
-  #bad-screen-message {
-    display: block;
-  }
-}
 
 .boxContainer {
   position: relative;

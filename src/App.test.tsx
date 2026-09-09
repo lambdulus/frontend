@@ -1,3 +1,4 @@
+import { readFileSync } from 'fs';
 import React from 'react';
 import { test, expect, afterEach, vi } from 'vitest';
 import { render, fireEvent, waitFor, cleanup } from '@testing-library/react';
@@ -13,10 +14,54 @@ import { buildBoxShareURL } from './components/BoxTitleBar';
 import { Theme } from './contexts/Theme';
 
 test('renders the app shell (top-level smoke test)', () => {
-  const { getByText } = render(<App />);
-  // #bad-screen-message is always rendered by App, independent of screen state
-  const message = getByText(/Lambdulus only runs on screens at least 375 pixels wide\./i);
-  expect(message).toBeInTheDocument();
+  const { container } = render(<App />);
+  // No screen gate anymore: narrow screens get the stripped mini mode.
+  expect(container.querySelector('#bad-screen-message')).toBeNull();
+  expect(container.querySelector('.top-bar')).not.toBeNull();
+});
+
+test('sub-375px screens get the stripped mini mode', () => {
+  // One box, no top bar, no way to add boxes — the experiment owns
+  // anything narrower than MINI_MODE_WIDTH.
+  const original = window.matchMedia;
+  window.matchMedia = (() => ({ matches : true })) as unknown as typeof window.matchMedia;
+  try {
+    window.localStorage.clear();
+    const { container } = render(<App />);
+    expect(container.querySelector('.mini-mode .mainSpace.zen')).not.toBeNull();
+    expect(container.querySelector('.top-bar')).toBeNull();
+
+    // First run down here: the walkme never opens, and the empty
+    // notebook grows its one box with the editor open.
+    expect(container.querySelector('.tour')).toBeNull();
+    expect(container.querySelectorAll('.mini-mode .box-frame').length).toBe(1);
+
+    // The add-box button stays mounted but stepped out by the mini CSS.
+    const css = readFileSync('src/styles/MiniMode.css', 'utf8');
+    expect(css).toMatch(/\.mini-mode \.zen-add\s*\{[^}]*display\s*:\s*none/);
+    expect(css).toMatch(/\.mini-mode \.mainSpace\s*\{[^}]*padding-top\s*:\s*20px/);
+
+    // No macro table down here: the whole dock steps out, and no
+    // icon replaces it anywhere.
+    expect(css).toMatch(/\.mini-mode \.macro-dock\s*\{[^}]*display\s*:\s*none/);
+    expect(css).not.toMatch(/macros-toggle/);
+
+    // Fluid smaller type, em-riding paddings, and Run-only: no
+    // stepping, no exercise boxes.
+    expect(css).toMatch(/\.mini-mode\s*\{[^}]*font-size\s*:\s*max\(10px, 3\.733vw\)/);
+    expect(css).toMatch(/\.mini-mode \.boxContainer\s*\{[^}]*padding\s*:\s*1em 0\.8em 1\.2em/);
+    expect(css).toMatch(/\.mini-mode \.mainSpace\.zen \.boxContainer\s*\{[^}]*height\s*:\s*calc\(100vh - 40px - 2\.2em - 2px\)/);
+    expect(css).toMatch(/padding-bottom\s*:\s*20px/);
+    expect(css).toMatch(/\.mini-mode \.debug-controls--step[\s\S]*?display\s*:\s*none/);
+    expect(css).toMatch(/\.mini-mode \.open-as-exercise[\s\S]*?display\s*:\s*none/);
+
+    // Three-line editor: the monaco wrapper section is pinned down,
+    // hammer included since the height prop rides inline.
+    expect(css).toMatch(/\.mini-mode \.editorContainer \.editor > div > section\s*\{[^}]*height\s*:\s*57px !important/);
+  }
+  finally {
+    window.matchMedia = original;
+  }
 });
 
 function mockMatchMedia (matches : boolean) {
