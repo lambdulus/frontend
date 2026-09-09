@@ -1,0 +1,98 @@
+name: Production sync status
+
+# Keeps the "Production status" line in README.md truthful on both
+# branches: whether production (master) serves the latest build
+# (develop's tip, i.e. what staging runs). "Latest" means the develop
+# tip is contained in master -- promotions land as merge commits that
+# develop itself lacks, so a raw ahead/behind count would cry
+# "diverged" forever; containment is the honest check. Runs on every
+# push to either branch plus hourly to heal outside moves. Bot commits
+# carry [skip ci] so they never trigger deploys themselves.
+
+on:
+  push:
+    branches: [ develop, master ]
+  schedule:
+    - cron: '17 * * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: production-sync
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          token: ${{ secrets.ACCESS_TOKEN }}
+          fetch-depth: 0
+
+      - name: Compute and publish sync status
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          git fetch origin develop master
+
+          export STATUS_SHA STATUS_COUNT STATUS_SYNCED
+          STATUS_SHA=$(git rev-parse --short origin/develop)
+          STATUS_COUNT=$(git rev-list --count origin/master..origin/develop)
+          if git merge-base --is-ancestor origin/develop origin/master; then
+            STATUS_SYNCED=true
+          else
+            STATUS_SYNCED=false
+          fi
+
+          for BRANCH in develop master; do
+            git checkout -B "$BRANCH" "origin/$BRANCH"
+
+            python3 - <<'EOF'
+          import os
+
+          synced = os.environ['STATUS_SYNCED'] == 'true'
+          sha = os.environ['STATUS_SHA']
+          count = int(os.environ['STATUS_COUNT'])
+          compare_url = 'https://github.com/lambdulus/frontend/compare/master...develop'
+
+          if synced:
+              line = f'**Production status:** on the latest build ✅ (`{sha}`)'
+          else:
+              n = 'build' if count == 1 else 'builds'
+              line = f'**Production status:** {count} {n} behind staging ⚠️ — [compare]({compare_url})'
+
+          with open('README.md') as f:
+              readme = f.read()
+
+          start = '<!-- production-sync:start -->'
+          end = '<!-- production-sync:end -->'
+          before, sep, rest = readme.partition(start)
+          _, sep2, after = rest.partition(end)
+          if not sep or not sep2:
+              raise SystemExit('sync markers missing from README.md')
+
+          with open('README.md', 'w') as f:
+              f.write(f'{before}{start}\n{line}\n{end}{after}')
+          EOF
+
+            if git diff --quiet; then
+              echo "README already fresh on $BRANCH"
+              continue
+            fi
+
+            git add README.md
+            git commit -m "[skip ci] production sync status on $BRANCH"
+
+            for i in 1 2 3; do
+              if git push origin "$BRANCH"; then
+                break
+              fi
+              git fetch origin "$BRANCH"
+              git rebase "origin/$BRANCH"
+            done
+          done
