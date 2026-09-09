@@ -105,12 +105,13 @@
 }
 
 /* Restart offer: one wide outlined button on its own row below the
-   strategies, right-aligned with headroom above and air from the
-   panel edge so the appearing control reads as its own thing. */
+   strategies, right-aligned with more than two line heights of air
+   above and room from the panel edge, so the appearing control reads
+   as its own thing instead of crowding the radios. */
 .untyped-lambda-settings-restart-row {
   display: flex;
   justify-content: flex-end;
-  margin: 12px 8px 0 0;
+  margin: 40px 8px 0 0;
 }
 
 .untyped-lambda-settings-restart-button {
@@ -121,6 +122,42 @@
   padding: 6px 18px;
   font-size: 0.9em;
   cursor: pointer;
+}
+
+/* Switch toggles (Simplified here, delete confirmation in the global
+   panel): track with a sliding thumb, accent when on. Until now these
+   classes had no paint at all and rendered as bare browser buttons. */
+.untyped-lambda-settings--toggle {
+  position: relative;
+  flex: 0 0 auto;
+  width: 34px;
+  height: 20px;
+  padding: 0;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background-color: var(--raised);
+  cursor: pointer;
+}
+
+.untyped-lambda-settings--toggle-on {
+  background-color: var(--accent);
+  border-color: var(--accent);
+}
+
+.untyped-lambda-settings--toggle-thumb {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background-color: var(--muted);
+  transition: left .15s ease-in-out, background-color .15s ease-in-out;
+}
+
+.untyped-lambda-settings--toggle-on .untyped-lambda-settings--toggle-thumb {
+  left: 16px;
+  background-color: var(--accent-ink);
 }
 
 .untyped-lambda-settings--strategy-radio-wrapper {
