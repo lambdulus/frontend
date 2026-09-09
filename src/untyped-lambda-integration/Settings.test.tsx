@@ -80,9 +80,25 @@ test('restart offer stands alone with breathing room', () => {
   const css = readFileSync('src/untyped-lambda-integration/styles/Settings.css', 'utf8');
   const row = css.match(/\.untyped-lambda-settings-restart-row\s*\{[^}]*\}/)?.[0] ?? '';
   expect(row).toMatch(/justify-content\s*:\s*flex-end/);
-  expect(row).toMatch(/margin\s*:\s*12px 8px 0 0/);
+  expect(row).toMatch(/margin\s*:\s*40px 8px 0 0/);
   const button = css.match(/\.untyped-lambda-settings-restart-button\s*\{[^}]*\}/)?.[0] ?? '';
   expect(button).toMatch(/font-size\s*:\s*0\.9em/);
   expect(button).toMatch(/border\s*:[^;]*var\(--accent\)/);
   expect(button).not.toMatch(/background-color\s*:\s*var\(--accent\)/);
+});
+
+test('switch toggles have track, thumb, and on paint', () => {
+  // The button toggles (Simplified, global delete confirmation) share
+  // these classes; without paint they render as bare browser buttons.
+  // Geometry matches the painted checkbox switches (34x20 track).
+  const css = readFileSync('src/untyped-lambda-integration/styles/Settings.css', 'utf8');
+  const track = css.match(/\.untyped-lambda-settings--toggle\s*\{[^}]*\}/)?.[0] ?? '';
+  expect(track).toMatch(/width\s*:\s*34px/);
+  expect(track).toMatch(/height\s*:\s*20px/);
+  expect(track).toMatch(/border-radius\s*:\s*999px/);
+  const on = css.match(/\.untyped-lambda-settings--toggle-on\s*\{[^}]*\}/)?.[0] ?? '';
+  expect(on).toMatch(/background-color\s*:\s*var\(--accent\)/);
+  const thumb = css.match(/\.untyped-lambda-settings--toggle-thumb\s*\{[^}]*\}/)?.[0] ?? '';
+  expect(thumb).toMatch(/border-radius\s*:\s*50%/);
+  expect(thumb).toMatch(/background-color\s*:\s*var\(--muted\)/);
 });
