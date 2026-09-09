@@ -5,6 +5,10 @@
 | Staging | [![Staging deploy](https://github.com/lambdulus/frontend/actions/workflows/deploy-staging.yml/badge.svg?branch=develop)](https://github.com/lambdulus/frontend/actions/workflows/deploy-staging.yml) | [![Staging site](https://github.com/lambdulus/staging/actions/workflows/deploy.yml/badge.svg)](https://github.com/lambdulus/staging/actions/workflows/deploy.yml) |
 | Production | [![Production deploy](https://github.com/lambdulus/frontend/actions/workflows/deploy.yml/badge.svg?branch=master)](https://github.com/lambdulus/frontend/actions/workflows/deploy.yml) | [![Production site](https://github.com/lambdulus/lambdulus.github.io/actions/workflows/handle-deploy.yml/badge.svg)](https://github.com/lambdulus/lambdulus.github.io/actions/workflows/handle-deploy.yml) |
 
+<!-- production-sync:start -->
+**Production status:** 15 builds behind staging ⚠️ — [compare](https://github.com/lambdulus/frontend/compare/master...develop)
+<!-- production-sync:end -->
+
 The web notebook for playing with lambda calculus (teaching at FIT CTU).
 Vite + React 18 + TypeScript. The compute engine is `@lambdulus/core`,
 consumed straight from its git tag (see `package.json`, no npm registry).
@@ -28,6 +32,10 @@ Requires Node 20+.
 - `master` is production: merging `develop` builds, tests, and dispatches
   to `lambdulus/lambdulus.github.io`, which publishes to
   https://lambdulus.github.io/
+- The "Production status" line under the badge table tells at a glance whether
+  production serves the latest build (develop's tip, i.e. what staging
+  runs). A bot (`sync-badge.yml`, on every push plus hourly) keeps it
+  truthful on both branches; its commits carry `[skip ci]`.
 
 Builds bake in `VITE_VERSION_INFO`/`VITE_COMMIT` stamps (shown in Help and
 the dev console). Assets use relative URLs, so one build serves every
