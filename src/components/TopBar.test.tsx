@@ -299,7 +299,9 @@ test('deletion toggle reflects the setting and reports unchecking', () => {
   const toggle = container.querySelector('#top-bar--confirm-delete') as HTMLElement;
   expect(toggle.getAttribute('aria-pressed')).toBe('true');
   expect(toggle.className).toMatch(/untyped-lambda-settings--toggle-on/);
-  expect(container.querySelector('.top-bar--delete-confirm label')?.textContent).toBe('Confirm before deleting a box');
+  const rowLabel = container.querySelector('.top-bar--delete-confirm label');
+  expect(rowLabel?.textContent).toBe('Confirm before deleting a box');
+  expect(rowLabel?.className).toMatch(/untyped-lambda-settings-label/);
 
   fireEvent.click(toggle);
   expect(onConfirmBoxDeleteChange).toHaveBeenCalledWith(false);
