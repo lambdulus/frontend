@@ -1,4 +1,5 @@
 import React from 'react';
+import { readFileSync } from 'fs';
 import { test, expect, vi, afterEach } from 'vitest';
 import { render, fireEvent, cleanup } from '@testing-library/react';
 import Settings from './Settings';
@@ -71,4 +72,19 @@ test('eta toggle reflects the setting and reports turning it on', () => {
 
   fireEvent.click(checkbox);
   expect(change).toHaveBeenCalledWith({ ...baseSettings, ETA : true });
+});
+
+test('restart offer sits inline in the panel type scale', () => {
+  // One row with the strategy radios: muted label beside an outlined
+  // button, everything at the 0.9em label size, no filled accent.
+  const css = readFileSync('src/untyped-lambda-integration/styles/Settings.css', 'utf8');
+  const row = css.match(/\.untyped-lambda-settings-restart\s*\{[^}]*\}/)?.[0] ?? '';
+  expect(row).not.toMatch(/flex-direction\s*:\s*column/);
+  expect(row).toMatch(/align-items\s*:\s*center/);
+  const label = css.match(/\.untyped-lambda-settings-restart-label\s*\{[^}]*\}/)?.[0] ?? '';
+  expect(label).toMatch(/font-size\s*:\s*0\.9em/);
+  const button = css.match(/\.untyped-lambda-settings-restart-button\s*\{[^}]*\}/)?.[0] ?? '';
+  expect(button).toMatch(/font-size\s*:\s*0\.9em/);
+  expect(button).toMatch(/border\s*:[^;]*var\(--accent\)/);
+  expect(button).not.toMatch(/background-color\s*:\s*var\(--accent\)/);
 });
