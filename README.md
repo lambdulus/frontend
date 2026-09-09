@@ -6,7 +6,7 @@
 | Production | [![Production deploy](https://github.com/lambdulus/frontend/actions/workflows/deploy.yml/badge.svg?branch=master)](https://github.com/lambdulus/frontend/actions/workflows/deploy.yml) | [![Production site](https://github.com/lambdulus/lambdulus.github.io/actions/workflows/handle-deploy.yml/badge.svg)](https://github.com/lambdulus/lambdulus.github.io/actions/workflows/handle-deploy.yml) |
 
 <!-- production-sync:start -->
-**Production status:** 18 builds behind staging ⚠️ — [compare](https://github.com/lambdulus/frontend/compare/master...develop)
+**Production status:** 20 builds behind staging ⚠️ — [compare](https://github.com/lambdulus/frontend/compare/master...develop)
 <!-- production-sync:end -->
 
 The web notebook for playing with lambda calculus (teaching at FIT CTU).
