@@ -4,7 +4,8 @@ import { render, fireEvent, waitFor, cleanup } from '@testing-library/react';
 import App from './App';
 
 afterEach(() => cleanup());
-import { createDefaultAppState, preferredTheme, saveTourState, loadTourState } from './Constants';
+import { createDefaultAppState, preferredTheme, saveTourState, loadTourState, updateAppStateToStorage } from './Constants';
+import { createNewMarkdown } from './markdown-integration/AppTypes';
 import { TOUR_STEPS } from './components/Tour';
 import { defaultSettings, createNewUntypedLambdaExpression } from './untyped-lambda-integration/Constants';
 import { UntypedLambdaType } from './untyped-lambda-integration/Types';
@@ -14,7 +15,7 @@ import { Theme } from './contexts/Theme';
 test('renders the app shell (top-level smoke test)', () => {
   const { getByText } = render(<App />);
   // #bad-screen-message is always rendered by App, independent of screen state
-  const message = getByText(/Lambdulus only runs on screens at least 900 pixels wide\./i);
+  const message = getByText(/Lambdulus only runs on screens at least 375 pixels wide\./i);
   expect(message).toBeInTheDocument();
 });
 
@@ -195,14 +196,15 @@ test('the tour conducts a lambda box from + to evaluated', async () => {
   // plays out — remembered but never obstructing the clean box.
   await waitFor(() => expect(container.querySelector('.macro-dock--open')).toBeNull());
 
-  // The middle finale only shows: the clearing options open with both
-  // exits, and nothing is pressed behind the user's back.
-  await waitFor(() => expect(container.querySelector('[title="Erase all notebooks and start over with the defaults"]')).not.toBeNull());
+  // Step 11 shows just the button: no panel yet.
+  expect(container.querySelector('[title="Erase all notebooks except the Manual and start over with the defaults"]')).toBeNull();
   expect(container.querySelectorAll('.box-frame').length).toBe(1);
 
-  // The exits walk one by one, settings-cluster style — shown, never pressed.
+  // The exits walk one by one, settings-cluster style — the panel
+  // opens on arrival, shown, never pressed.
   fireEvent.click(nextBtn());
   expect(title()).toBe('Clear notebook');
+  await waitFor(() => expect(container.querySelector('[title="Erase all notebooks except the Manual and start over with the defaults"]')).not.toBeNull());
   expect(container.querySelector('.top-bar--clear-btn:not(.btn-danger)')).not.toBeNull();
   fireEvent.click(nextBtn());
   expect(title()).toBe('Clean entire workspace');
@@ -373,6 +375,37 @@ test('creating a notebook parks the page at the top', () => {
   }
   finally {
     window.scrollTo = originalScrollTo;
+  }
+});
+
+test('cleaning the workspace spares the protected Manual', () => {
+  // The Manual keeps every box the user made; all other notebooks
+  // start over with a fresh empty one.
+  window.localStorage.clear();
+  const fresh = createDefaultAppState();
+  const kept = createNewMarkdown();
+  kept.note = 'do not lose me';
+  kept.editor.content = 'do not lose me';
+  kept.isEditing = false;
+  const manual = { ...fresh.notebooks[0], boxList : [ ...fresh.notebooks[0].boxList, kept ] };
+  updateAppStateToStorage({ ...fresh, notebooks : [ manual, fresh.notebooks[1] ] });
+
+  const confirm = vi.spyOn(window, 'confirm').mockReturnValue(true);
+  try {
+    const { container } = render(<App />);
+    fireEvent.click(container.querySelector('[title="Clearing options"]') as HTMLElement);
+    fireEvent.click(container.querySelector('[title="Erase all notebooks except the Manual and start over with the defaults"]') as HTMLElement);
+
+    const stored = JSON.parse(window.localStorage.getItem('AppState') ?? '{}');
+    expect(stored.notebooks.length).toBe(2);
+    expect(stored.notebooks[0].locked).toBe(true);
+    expect(stored.notebooks[0].boxList.length).toBe(manual.boxList.length);
+    expect(stored.notebooks[0].boxList.some((box : { note?: unknown }) => box.note === 'do not lose me')).toBe(true);
+    expect(stored.notebooks[1].boxList).toEqual([]);
+    expect(stored.activeNotebookIndex).toBe(1);
+  }
+  finally {
+    confirm.mockRestore();
   }
 });
 

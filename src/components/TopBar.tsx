@@ -69,7 +69,12 @@ export default function TopBar (props : Props) : JSX.Element {
   // A single open panel: switching icons swaps popovers in one click
   // instead of closing first and forgetting the click.
   const [ openPanel, setOpenPanel ] = useState<'settings' | 'clear' | 'themes' | null>(null)
+  // Narrow screens fold the whole action cluster under a menu toggle:
+  // tabs (and the + beside them) stay put, everything else rides in
+  // the dropdown. Any action taken closes it again.
+  const [ menuOpen, setMenuOpen ] = useState(false)
   const togglePanel = (panel : 'settings' | 'clear' | 'themes') => {
+    setMenuOpen(false)
     if (openPanel === panel) {
       setOpenPanel(null)
       // Closing panels drops any stuck hover preview with them.
@@ -159,21 +164,24 @@ export default function TopBar (props : Props) : JSX.Element {
           <Plus size={ 17 } strokeWidth={ 1.75 } />
         </button>
 
-        <div className='top-bar--actions'>
+        <div className={ menuOpen ? 'top-bar--actions top-bar--actions--open' : 'top-bar--actions' }>
           <a
             className='top-bar--action'
             href={ link }
             download={ fileName }
             title='Download this Notebook'
+            onClick={ () => setMenuOpen(false) }
           >
             <Download size={ 17 } strokeWidth={ 1.75 } />
+            <span className='top-bar--action-label'>Download</span>
           </a>
 
           <input type="file" accept=".lus" id="input"
             onChange={ (e) => onFiles(e, onImport) }
           />
-          <label htmlFor="input" className='top-bar--action' title='Import a Notebook from your computer'>
+          <label htmlFor="input" className='top-bar--action' title='Import a Notebook from your computer' onClick={ () => setMenuOpen(false) }>
             <Upload size={ 17 } strokeWidth={ 1.75 } />
+            <span className='top-bar--action-label'>Import</span>
           </label>
 
           <button
@@ -182,14 +190,19 @@ export default function TopBar (props : Props) : JSX.Element {
             onClick={ () => togglePanel('clear') }
           >
             <Eraser size={ 17 } strokeWidth={ 1.75 } />
+            <span className='top-bar--action-label'>Clearing options</span>
           </button>
 
           <button
             className='top-bar--action top-bar--theme-toggle'
             title='Toggle the theme'
-            onClick={ onDarkModeChange }
+            onClick={ () => {
+              setMenuOpen(false)
+              onDarkModeChange()
+            } }
           >
             { darkmode ? <Sun size={ 17 } strokeWidth={ 1.75 } /> : <Moon size={ 17 } strokeWidth={ 1.75 } /> }
+            <span className='top-bar--action-label'>Toggle theme</span>
           </button>
 
           <button
@@ -197,11 +210,15 @@ export default function TopBar (props : Props) : JSX.Element {
             aria-checked={ notebook.zenMode === true }
             className={ notebook.zenMode === true ? 'top-bar--zen top-bar--zen--on' : 'top-bar--zen' }
             title={ notebook.zenMode === true ? 'Exit zen mode: show all boxes' : 'Zen mode: one box at a time' }
-            onClick={ () => onZenModeChange(notebook.zenMode !== true) }
+            onClick={ () => {
+              setMenuOpen(false)
+              onZenModeChange(notebook.zenMode !== true)
+            } }
           >
             <span className='top-bar--zen-knob'>
               <Focus size={ 13 } strokeWidth={ 2 } />
             </span>
+            <span className='top-bar--action-label'>Zen mode</span>
           </button>
 
           <button
@@ -210,6 +227,7 @@ export default function TopBar (props : Props) : JSX.Element {
             onClick={ () => togglePanel('settings') }
           >
             <SettingsIcon size={ 17 } strokeWidth={ 1.75 } />
+            <span className='top-bar--action-label'>Notebook settings</span>
           </button>
 
           <button
@@ -218,6 +236,7 @@ export default function TopBar (props : Props) : JSX.Element {
             onClick={ () => togglePanel('themes') }
           >
             <Palette size={ 17 } strokeWidth={ 1.75 } />
+            <span className='top-bar--action-label'>Accent theme</span>
           </button>
 
           <button
@@ -225,10 +244,12 @@ export default function TopBar (props : Props) : JSX.Element {
             title='Guided tour'
             onClick={ () => {
               setOpenPanel(null)
+              setMenuOpen(false)
               onTourOpen()
             } }
           >
             <Footprints size={ 17 } strokeWidth={ 1.75 } />
+            <span className='top-bar--action-label'>Guided tour</span>
           </button>
 
           <a
@@ -237,10 +258,41 @@ export default function TopBar (props : Props) : JSX.Element {
             target="_blank"
             rel="noopener noreferrer"
             href='https://github.com/lambdulus/frontend/issues'
+            onClick={ () => setMenuOpen(false) }
           >
             <Bug size={ 17 } strokeWidth={ 1.75 } />
+            <span className='top-bar--action-label'>Report a bug</span>
           </a>
         </div>
+
+        {
+          // Narrow-screen menu: the same action cluster above, folded
+          // under a hamburger (see the media query in TopBar.css). Tabs
+          // and the + beside them stay in the bar either way.
+          menuOpen ?
+            <div className='top-bar--backdrop' onClick={ () => setMenuOpen(false) } />
+          :
+            null
+        }
+        <button
+          className={ menuOpen ? 'top-bar--action top-bar--menu-toggle top-bar--menu-toggle--open' : 'top-bar--action top-bar--menu-toggle' }
+          title={ menuOpen ? 'Close the menu' : 'Open the menu' }
+          aria-expanded={ menuOpen }
+          aria-label='Menu'
+          onClick={ () => {
+            // Re-opening the menu dismisses any open panel with it:
+            // the two dropdowns share the corner and would only
+            // overlap. Closing an already-shut panel is a no-op.
+            setOpenPanel(null)
+            onAccentPreview(null)
+            onBoxStylePreview(null)
+            setMenuOpen(! menuOpen)
+          } }
+        >
+          <span className='top-bar--menu-bar' aria-hidden='true' />
+          <span className='top-bar--menu-bar' aria-hidden='true' />
+          <span className='top-bar--menu-bar' aria-hidden='true' />
+        </button>
 
         {
           openPanel === 'settings' ?
@@ -398,7 +450,7 @@ export default function TopBar (props : Props) : JSX.Element {
                 <div className='top-bar--clear-divider' />
                 <button
                   className='btn btn-danger top-bar--clear-btn'
-                  title='Erase all notebooks and start over with the defaults'
+                  title='Erase all notebooks except the Manual and start over with the defaults'
                   onClick={ () => {
                     setOpenPanel(null)
                     onResetWorkspace()

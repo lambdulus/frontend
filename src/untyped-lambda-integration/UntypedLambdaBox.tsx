@@ -20,6 +20,7 @@ interface Props {
 
   setBoxState (state : UntypedLambdaState) : void
   addBox (box : UntypedLambdaState) : void
+  makeActive () : void
   titleActionsHost? : React.RefObject<HTMLSpanElement>
 }
 
@@ -136,7 +137,7 @@ export default class UntypedLambdaBox extends PureComponent<Props, State> {
   }
 
   render () {
-    const { state, isActive, isFocused, isAnchorBox, setBoxState, addBox, titleActionsHost } : Props = this.props
+    const { state, isActive, isFocused, isAnchorBox, setBoxState, addBox, makeActive, titleActionsHost } : Props = this.props
     const { settingsOpen, subtype, macrolistOpen, SLI, expandStandalones, strategy, SDE, ETA, collapseOldSteps, editor, minimized, history, submittedWith } : UntypedLambdaState = state
 
     // A submitted session stepped under different strategy/SLI/SDE can
@@ -253,7 +254,17 @@ export default class UntypedLambdaBox extends PureComponent<Props, State> {
               className='macro-dock--head'
               // The head remembers, not just toggles: focus syncs restore
               // this wish on refocus and never invent one of their own.
-              onClick={ () => setBoxState({ ...state, macrolistOpen : ! macrolistOpen, macrolistWanted : ! macrolistOpen }) }
+              onClick={ (e) => {
+                // Focus first, toggle second, never bubble: the bubbled
+                // focus sync recomputes docks from pre-toggle props and
+                // swallows the toggle on an unfocused box — always, in
+                // zen, which restores nothing. Ordered by hand, the
+                // toggle commits last and wins, and the box owns the
+                // focus afterwards like every other control click.
+                e.stopPropagation()
+                makeActive()
+                setBoxState({ ...state, macrolistOpen : ! macrolistOpen, macrolistWanted : ! macrolistOpen })
+              } }
               title={ macrolistOpen ? 'Hide macros for this box' : 'Show macros for this box' }
               aria-expanded={ macrolistOpen }
             >

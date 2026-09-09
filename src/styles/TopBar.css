@@ -534,3 +534,120 @@
   gap: 8px;
   margin-top: 8px;
 }
+
+/* Dropdown labels: hidden in the bar, naming each row in the open
+   menu so the icons never stand alone in empty room. */
+.top-bar--action-label {
+  display: none;
+}
+
+/* Narrow-screen menu toggle: a hamburger folding to an X, riding the
+   far right end. Hidden on wide screens; the media query below shows
+   it and folds the action cluster into its dropdown. */
+.top-bar--menu-toggle {
+  display: none;
+  position: relative;
+  flex-shrink: 0;
+}
+
+.top-bar--menu-bar {
+  position: absolute;
+  left: 7px;
+  width: 18px;
+  height: 2px;
+  border-radius: 1px;
+  background-color: currentColor;
+  transition: transform .18s ease-in-out, opacity .15s ease-in-out, top .18s ease-in-out;
+}
+
+.top-bar--menu-bar:nth-child(1) {
+  top: 9px;
+}
+
+.top-bar--menu-bar:nth-child(2) {
+  top: 15px;
+}
+
+.top-bar--menu-bar:nth-child(3) {
+  top: 21px;
+}
+
+.top-bar--menu-toggle--open .top-bar--menu-bar:nth-child(1) {
+  top: 15px;
+  transform: rotate(45deg);
+}
+
+.top-bar--menu-toggle--open .top-bar--menu-bar:nth-child(2) {
+  opacity: 0;
+}
+
+.top-bar--menu-toggle--open .top-bar--menu-bar:nth-child(3) {
+  top: 15px;
+  transform: rotate(-45deg);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .top-bar--menu-bar {
+    transition: none;
+  }
+}
+
+/* Below 700px the right-hand cluster leaves the tabs no room, so it
+   folds under the toggle: closed it is gone entirely, open the very
+   same node drops down as a full-width-row panel — no duplicated
+   controls, no dead IDs. Tabs and the + beside them stay in the bar,
+   and the settings panels cap to the viewport. */
+@media (max-width: 700px) {
+  .top-bar--inner {
+    gap: 12px;
+    padding: 0 12px;
+  }
+
+  .top-bar--menu-toggle {
+    display: inline-flex;
+  }
+
+  .top-bar--actions {
+    display: none;
+  }
+
+  .top-bar--actions--open {
+    display: flex;
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 12px;
+    z-index: 3;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 2px;
+    min-width: 200px;
+    margin-left: 0;
+    background-color: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    box-shadow: var(--shadow);
+    padding: 8px;
+  }
+
+  /* Roomy phone rows, icons untouched: easier to hit, nothing smaller. */
+  .top-bar--actions--open .top-bar--action,
+  .top-bar--actions--open .top-bar--zen {
+    width: 100%;
+    min-height: 40px;
+    justify-content: flex-start;
+    padding: 0 12px;
+  }
+
+  .top-bar--actions--open .top-bar--action-label {
+    display: inline;
+    margin-left: 10px;
+    font-size: 0.95em;
+    color: var(--text);
+    white-space: nowrap;
+  }
+
+  .top-bar--settings-panel {
+    right: 12px;
+    width: min(320px, calc(100vw - 24px));
+  }
+}

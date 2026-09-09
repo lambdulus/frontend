@@ -73,7 +73,7 @@ const THEMES_PANEL = '.top-bar--accent-pick'
 // button that marks its open panel.
 const ZEN_SELECTOR = '.top-bar--zen'
 const CLEAR_SELECTOR = '[title="Clearing options"]'
-const CLEAN_WORKSPACE_TITLE = 'Erase all notebooks and start over with the defaults'
+const CLEAN_WORKSPACE_TITLE = 'Erase all notebooks except the Manual and start over with the defaults'
 
 // The take-with-you and meta controls closing the tour: notebook
 // export, the per-box share-link control, the bug reporter, and the
@@ -82,6 +82,51 @@ const EXPORT_SELECTOR = '[title="Download this Notebook"]'
 const SHARE_SELECTOR = '[title="Copy the link to this Expression."]'
 const BUG_SELECTOR = '[title="Submit a bug or a feature request"]'
 const TOUR_SELECTOR = '[title="Guided tour"]'
+
+// The viewport width at or below which the box map steps out (see
+// the matching media query in App.css): the map step says so instead
+// of pointing at a strip the user cannot see.
+export const BOX_MAP_HIDE_WIDTH : number = 1371
+
+export function boxMapHidden () : boolean {
+  if (typeof window.matchMedia !== 'function') {
+    return false
+  }
+  return window.matchMedia(`(max-width: ${BOX_MAP_HIDE_WIDTH}px)`).matches
+}
+
+// The viewport width at or below which the top bar folds its action
+// cluster under the hamburger (see the media query in TopBar.css).
+export const TOP_BAR_MENU_WIDTH : number = 700
+
+export function topBarMenuFolded () : boolean {
+  if (typeof window.matchMedia !== 'function') {
+    return false
+  }
+  return window.matchMedia(`(max-width: ${TOP_BAR_MENU_WIDTH}px)`).matches
+}
+
+// The viewport width at or below which a box folds its title-bar
+// icons under its own hamburger (see the media query in BoxTopBar.css).
+export const BOX_BAR_MENU_WIDTH : number = 419
+
+export function boxBarMenuFolded () : boolean {
+  if (typeof window.matchMedia !== 'function') {
+    return false
+  }
+  return window.matchMedia(`(max-width: ${BOX_BAR_MENU_WIDTH}px)`).matches
+}
+
+// Steps explaining box settings: below 420px the bar icons fold
+// under the box hamburger (see BoxTopBar.css), so these steps keep
+// it open on arrival even when their own subject lives in the
+// already-open settings panel.
+const BOX_SETTINGS_STEPS : Array<string> = [ 'settings', 'set-sli', 'set-sde', 'set-eta', 'set-collapse', 'set-strategy' ]
+
+// Steps opening a top-bar panel on arrival (see the show-don't-tell
+// effect): the panel has priority, so the folded menu stays shut and
+// never overlaps it.
+const TOP_BAR_PANEL_STEPS : Array<string> = [ 'yours', 'theme-accent', 'theme-style', 'clean-notebook', 'clean-workspace' ]
 
 // The clearing panel's two exits: Clear notebook is the plain button
 // (its title carries the live notebook name), Clean workspace the
@@ -216,7 +261,7 @@ export const TOUR_STEPS : Array<TourStep> = [
   {
     id : 'clean-workspace',
     title : 'Clean entire workspace',
-    body : 'Clean entire workspace restarts everything from the defaults — every notebook, back to a clean slate. Showing only: the box we built stays put, yours to keep.',
+    body : 'Clean entire workspace restarts everything from the defaults — every notebook except the protected Manual, back to a clean slate. Showing only: the box we built stays put, yours to keep.',
     target : CLEAN_WORKSPACE_SELECTOR,
     needsPanel : true,
     dot : 'cleaning',
@@ -375,9 +420,39 @@ interface Ring {
   height : number
 }
 
+// The map step's body, with a narrow-screen rider when the map is
+// stepped out: no pointing at a strip the user cannot see.
+function stepBody (step : TourStep, mapHidden : boolean) : string {
+  if (step.id === 'boxmap' && mapHidden) {
+    return `${step.body} Your screen is too narrow to show it, though — the map only rides along on wider screens. Widen past 1372 pixels to see it; in normal mode scrolling between boxes works just fine without it.`
+  }
+  return step.body
+}
+
+// The element the current step rings: the tracked box's control, or
+// the document target — null when the step points at nothing alive.
+function ringSubject (step : TourStep, tracked : Element | null) : Element | null {
+  if (step.targetInTracked !== undefined) {
+    return tracked !== null && tracked.isConnected ? tracked.querySelector(step.targetInTracked) : null
+  }
+  if (step.target !== undefined) {
+    return document.querySelector(step.target)
+  }
+  return null
+}
+
 export default function Tour (props : Props) : JSX.Element {
   const { initialStep, onClose, onAddLambdaBox, onFillBoxEditor, onSetBoxSettings, onShowBoxMacros, onHideBoxMacros, onDeleteBox, onSetZenMode } : Props = props
   const [ id, setId ] = useState(() => stepById(initialStep).id)
+  // Narrow screens hide the box map (see App.css): tracked live so
+  // the map step's rider follows resizes mid-step.
+  const [ mapHidden, setMapHidden ] = useState<boolean>(() => boxMapHidden())
+  // Narrow screens fold the top-bar actions under the hamburger (see
+  // TopBar.css): tracked live with the map above.
+  const [ barFolded, setBarFolded ] = useState<boolean>(() => topBarMenuFolded())
+  // Narrow boxes fold their title-bar icons the same way (see
+  // BoxTopBar.css): tracked live with the rest.
+  const [ boxFolded, setBoxFolded ] = useState<boolean>(() => boxBarMenuFolded())
   // The box frame this tour run is working with. Session-only: a reload
   // forgets it, and the wait steps below loop back to 'add' instead of
   // ever touching a stranger's box.
@@ -558,6 +633,62 @@ export default function Tour (props : Props) : JSX.Element {
     return undefined
   }, [ id ])
 
+  // Narrow-mode visibility follows the viewport, not the step:
+  // re-read all of it on every resize so the boxmap rider and the
+  // menu syncs below never go stale mid-step.
+  useEffect(() => {
+    const onResize = () => {
+      setMapHidden(boxMapHidden())
+      setBarFolded(topBarMenuFolded())
+      setBoxFolded(boxBarMenuFolded())
+    }
+    window.addEventListener('resize', onResize)
+    return () => window.removeEventListener('resize', onResize)
+  }, [])
+
+  // Folded top bar (see TopBar.css): steps pointing at its action
+  // cluster open the hamburger on arrival, so the ring lands on
+  // living UI; steps pointing elsewhere close it, so its backdrop
+  // never blocks the page behind the card. Steps opening a panel
+  // keep it shut throughout: the panel has priority and the two
+  // dropdowns would only overlap.
+  useEffect(() => {
+    if (!barFolded) {
+      return
+    }
+    const subject : Element | null = ringSubject(current, tracked)
+    const needOpen : boolean =
+      subject !== null &&
+      subject.closest('.top-bar--actions') !== null &&
+      ! TOP_BAR_PANEL_STEPS.includes(id)
+    const open : boolean = document.querySelector('.top-bar--actions--open') !== null
+    if (needOpen !== open) {
+      (document.querySelector('[aria-label="Menu"]') as HTMLElement | null)?.click()
+    }
+  }, [ id, tracked, barFolded ])
+
+  // Folded box bar (see BoxTopBar.css): the gear hides under the box
+  // hamburger, and every Next tap shuts it again through its
+  // outside-tap listener — so every step explaining box settings
+  // re-opens it on arrival, whether its own subject is the gear or a
+  // row in the already-open panel. Steps pointing at other bar icons
+  // open it through the same subject check; steps pointing elsewhere
+  // close it.
+  useEffect(() => {
+    if (!boxFolded) {
+      return
+    }
+    const scope : Element | Document = tracked !== null && tracked.isConnected ? tracked : document
+    const subject : Element | null = ringSubject(current, tracked)
+    const needOpen : boolean =
+      (subject !== null && subject.closest('.box-top-bar-controls') !== null) ||
+      BOX_SETTINGS_STEPS.includes(id)
+    const open : boolean = scope.querySelector('.box-top-bar-controls--open') !== null
+    if (needOpen !== open) {
+      (scope.querySelector('.box-top-bar--compact-toggle') as HTMLElement | null)?.click()
+    }
+  }, [ id, tracked, boxFolded ])
+
   // Show, don't tell: the macros and themes steps open the real panels on
   // arrival, so the tour points at living UI instead of describing it.
   // The macros arrival is one atomic handoff — settings closed, dock
@@ -586,10 +717,16 @@ export default function Tour (props : Props) : JSX.Element {
       (document.querySelector('.top-bar--backdrop') as HTMLElement | null)?.click()
     }
 
-    // The finale only shows: open the clearing options so both exits
-    // read live, but press neither — the boxes stay put. Same re-open
-    // for the exit sub-steps, for the same backing-in reason as themes.
-    if ((id === 'cleaning' || id === 'clean-notebook' || id === 'clean-workspace') && document.querySelector(`[title="${CLEAN_WORKSPACE_TITLE}"]`) === null) {
+    // The finale only shows, one step at a time: the cleaning step
+    // shows just the button, and only the exit sub-steps open the
+    // clearing options so both exits read live — pressing neither, the
+    // boxes stay put. Same re-open for the sub-steps, for the same
+    // backing-in reason as themes; arriving back at the cleaning step
+    // closes the panel again, so the button always reads alone.
+    if (id === 'cleaning' && document.querySelector(`[title="${CLEAN_WORKSPACE_TITLE}"]`) !== null) {
+      (document.querySelector('.top-bar--backdrop') as HTMLElement | null)?.click()
+    }
+    if ((id === 'clean-notebook' || id === 'clean-workspace') && document.querySelector(`[title="${CLEAN_WORKSPACE_TITLE}"]`) === null) {
       (document.querySelector(CLEAR_SELECTOR) as HTMLElement | null)?.click()
     }
 
@@ -771,27 +908,39 @@ export default function Tour (props : Props) : JSX.Element {
   useEffect(() => {
     setRing(null)
 
-    const element : Element | null =
-      current.targetInTracked !== undefined ?
-        (tracked !== null && tracked.isConnected ? tracked.querySelector(current.targetInTracked) : null)
-      : current.target !== undefined ?
-        document.querySelector(current.target)
-      :
-        null
-
-    if (element === null) {
-      return
-    }
-
-    // The ring re-seats on resize, scroll, the element's own growth — a
-    // stepping box grows under it — and any DOM arrival: panels the tour
-    // itself opens (macros dock, clearing and theme options) land after
-    // this effect runs, so without the observer their rings would never
-    // appear. The rect guard keeps the observer from re-rendering on
-    // unrelated mutations.
+    // Late arrivals: panels, pickers and folded menus land after this
+    // runs — their state commits separately — so the subject re-resolves
+    // on every placement. The ring heals onto controls that were absent
+    // on arrival instead of missing them outright. Class toggles count
+    // as arrivals too: the folded menus open without touching the tree,
+    // and only an attribute watch catches the subject turning visible.
+    // The rect guard keeps the observers from re-rendering on unrelated
+    // mutations.
     let lastKey : string | null = null
+    let ro : ResizeObserver | null = null
+    let roEl : Element | null = null
 
     const place = () => {
+      const element : Element | null = ringSubject(current, tracked)
+
+      if (element !== roEl) {
+        ro?.disconnect()
+        roEl = element
+        ro = element !== null && typeof ResizeObserver !== 'undefined' ? new ResizeObserver(place) : null
+
+        if (element !== null && ro !== null) {
+          ro.observe(element)
+        }
+      }
+
+      if (element === null) {
+        if (lastKey !== 'null') {
+          lastKey = 'null'
+          setRing(null)
+        }
+        return
+      }
+
       const rect : DOMRect = element.getBoundingClientRect()
       const key : string =
         rect.width === 0 && rect.height === 0 ?
@@ -809,14 +958,10 @@ export default function Tour (props : Props) : JSX.Element {
 
     place()
 
-    const ro : ResizeObserver | null =
-      typeof ResizeObserver === 'undefined' ? null : new ResizeObserver(place)
-
-    ro?.observe(element)
     window.addEventListener('resize', place)
     document.addEventListener('scroll', place, true)
     const mo : MutationObserver = new MutationObserver(place)
-    mo.observe(document.body, { childList : true, subtree : true })
+    mo.observe(document.body, { childList : true, subtree : true, attributes : true })
 
     return () => {
       ro?.disconnect()
@@ -853,7 +998,7 @@ export default function Tour (props : Props) : JSX.Element {
           }
         </p>
         <p className='tour--title'>{ current.title }</p>
-        <p className='tour--body'>{ renderBody(current.body) }</p>
+        <p className='tour--body'>{ renderBody(stepBody(current, mapHidden)) }</p>
         <div className='tour--dots' aria-hidden='true'>
           {
             MAIN_DOTS.map((dot : string) =>

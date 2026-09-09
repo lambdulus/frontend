@@ -339,7 +339,8 @@ test('zen arrival steps open panels out of the way', () => {
   unmount();
 });
 
-test('cleaning arrival opens the clearing options but presses nothing', () => {
+test('cleaning arrival shows the button without opening', () => {
+  // Step 11 shows the eraser; only the exit sub-steps open the panel.
   const onEraser = vi.fn();
   const { container, unmount } = render(
     <div>
@@ -347,20 +348,50 @@ test('cleaning arrival opens the clearing options but presses nothing', () => {
       <Tour { ...props({ initialStep : 'cleaning' }) } />
     </div>
   );
-  // Shown, not done: the panel opens, and the step carries no clear
-  // callback to fire through.
-  expect(onEraser).toHaveBeenCalledTimes(1);
+  expect(onEraser).not.toHaveBeenCalled();
   expect(titleOf(container)).toBe('A clean slate');
   unmount();
 });
 
-test('cleaning arrival leaves an open clearing panel alone', () => {
+test('cleaning arrival closes an open clearing panel', () => {
+  // Backing in from an exit step: the button reads alone again.
+  const onEraser = vi.fn();
+  const onBackdrop = vi.fn();
+  const { unmount } = render(
+    <div>
+      <button title='Clearing options' onClick={ onEraser } />
+      <div className='top-bar--backdrop' onClick={ onBackdrop } />
+      <button title='Erase all notebooks except the Manual and start over with the defaults' />
+      <Tour { ...props({ initialStep : 'cleaning' }) } />
+    </div>
+  );
+  expect(onEraser).not.toHaveBeenCalled();
+  expect(onBackdrop).toHaveBeenCalledTimes(1);
+  unmount();
+});
+
+test('exit-step arrival opens the clearing options but presses nothing', () => {
+  const onEraser = vi.fn();
+  const { container, unmount } = render(
+    <div>
+      <button title='Clearing options' onClick={ onEraser } />
+      <Tour { ...props({ initialStep : 'clean-notebook' }) } />
+    </div>
+  );
+  // Shown, not done: the panel opens, and the step carries no clear
+  // callback to fire through.
+  expect(onEraser).toHaveBeenCalledTimes(1);
+  expect(titleOf(container)).toBe('Clear notebook');
+  unmount();
+});
+
+test('exit-step arrival leaves an open clearing panel alone', () => {
   const onEraser = vi.fn();
   const { unmount } = render(
     <div>
       <button title='Clearing options' onClick={ onEraser } />
-      <button title='Erase all notebooks and start over with the defaults' />
-      <Tour { ...props({ initialStep : 'cleaning' }) } />
+      <button title='Erase all notebooks except the Manual and start over with the defaults' />
+      <Tour { ...props({ initialStep : 'clean-workspace' }) } />
     </div>
   );
   expect(onEraser).not.toHaveBeenCalled();
@@ -475,5 +506,245 @@ test('a visible subject stays exactly where the user put it', () => {
     tabs.remove();
   } finally {
     window.scrollTo = original;
+  }
+});
+
+function mockMatchMedia (matches : boolean) {
+  return (() => ({ matches })) as unknown as typeof window.matchMedia;
+}
+
+test('the map step warns when the map is stepped out', () => {
+  // Narrow viewport: no pointing at a strip the user cannot see.
+  const original = window.matchMedia;
+  window.matchMedia = mockMatchMedia(true);
+  try {
+    const { container } = render(<Tour { ...props({ initialStep : 'boxmap' }) } />);
+    expect(titleOf(container)).toBe('The box map');
+    expect(container.querySelector('.tour--body')?.textContent).toMatch(/too narrow/);
+  }
+  finally {
+    window.matchMedia = original;
+  }
+});
+
+test('the map step stays plain on wide screens', () => {
+  const original = window.matchMedia;
+  window.matchMedia = mockMatchMedia(false);
+  try {
+    const { container } = render(<Tour { ...props({ initialStep : 'boxmap' }) } />);
+    expect(container.querySelector('.tour--body')?.textContent).not.toMatch(/too narrow/);
+  }
+  finally {
+    window.matchMedia = original;
+  }
+});
+
+// A folded top bar: closed action cluster holding the switch, plus a
+// working hamburger that really opens and closes it.
+function plantFoldedBar () : { actions : HTMLElement, cleanup : () => void } {
+  const actions = document.createElement('div');
+  actions.className = 'top-bar--actions';
+  const zen = document.createElement('button');
+  zen.className = 'top-bar--zen';
+  actions.appendChild(zen);
+  const toggle = document.createElement('button');
+  toggle.setAttribute('aria-label', 'Menu');
+  toggle.addEventListener('click', () => actions.classList.toggle('top-bar--actions--open'));
+  document.body.appendChild(actions);
+  document.body.appendChild(toggle);
+  return { actions, cleanup : () => { actions.remove(); toggle.remove(); } };
+}
+
+test('steps pointing into the folded bar open the menu', () => {
+  const original = window.matchMedia;
+  window.matchMedia = mockMatchMedia(true);
+  const bar = plantFoldedBar();
+  try {
+    render(<Tour { ...props({ initialStep : 'zen' }) } />);
+    expect(bar.actions.classList.contains('top-bar--actions--open')).toBe(true);
+  }
+  finally {
+    bar.cleanup();
+    window.matchMedia = original;
+  }
+});
+
+test('steps pointing elsewhere close the open menu', () => {
+  const original = window.matchMedia;
+  window.matchMedia = mockMatchMedia(true);
+  const bar = plantFoldedBar();
+  bar.actions.classList.add('top-bar--actions--open');
+  try {
+    render(<Tour { ...props({ initialStep : 'welcome' }) } />);
+    expect(bar.actions.classList.contains('top-bar--actions--open')).toBe(false);
+  }
+  finally {
+    bar.cleanup();
+    window.matchMedia = original;
+  }
+});
+
+test('the menu stays untouched on wide screens', () => {
+  const original = window.matchMedia;
+  window.matchMedia = mockMatchMedia(false);
+  const bar = plantFoldedBar();
+  try {
+    render(<Tour { ...props({ initialStep : 'zen' }) } />);
+    expect(bar.actions.classList.contains('top-bar--actions--open')).toBe(false);
+  }
+  finally {
+    bar.cleanup();
+    window.matchMedia = original;
+  }
+});
+
+// A folded box bar: closed icon row holding the gear, plus a working
+// hamburger that really opens and closes it.
+function plantBoxBar () : { controls : HTMLElement, cleanup : () => void } {
+  const bar = document.createElement('div');
+  bar.className = 'boxTopBar';
+  const controls = document.createElement('div');
+  controls.className = 'box-top-bar-controls';
+  const gear = document.createElement('div');
+  gear.setAttribute('title', "Open this Boxs' settings");
+  controls.appendChild(gear);
+  const toggle = document.createElement('div');
+  toggle.className = 'box-top-bar--compact-toggle';
+  toggle.addEventListener('click', () => controls.classList.toggle('box-top-bar-controls--open'));
+  bar.appendChild(controls);
+  bar.appendChild(toggle);
+  document.body.appendChild(bar);
+  return { controls, cleanup : () => bar.remove() };
+}
+
+test('settings steps open the folded box menu', () => {
+  // The gear hides under the hamburger, and every Next tap shuts it
+  // again — so each step explaining box settings re-opens it, whether
+  // its own subject is the gear or a panel row.
+  const original = window.matchMedia;
+  window.matchMedia = mockMatchMedia(true);
+  for (const step of [ 'settings', 'set-sli', 'set-strategy' ]) {
+    const bar = plantBoxBar();
+    try {
+      render(<Tour { ...props({ initialStep : step }) } />);
+      expect(bar.controls.classList.contains('box-top-bar-controls--open')).toBe(true);
+    }
+    finally {
+      bar.cleanup();
+    }
+  }
+  window.matchMedia = original;
+});
+
+test('other steps close the folded box menu', () => {
+  const original = window.matchMedia;
+  window.matchMedia = mockMatchMedia(true);
+  const bar = plantBoxBar();
+  bar.controls.classList.add('box-top-bar-controls--open');
+  try {
+    render(<Tour { ...props({ initialStep : 'macros' }) } />);
+    expect(bar.controls.classList.contains('box-top-bar-controls--open')).toBe(false);
+  }
+  finally {
+    bar.cleanup();
+    window.matchMedia = original;
+  }
+});
+
+test('panel steps keep the folded menu shut', () => {
+  // The panel has priority: opening the menu under it would only
+  // overlap, so steps opening a panel never unfold it — while the
+  // panel still opens through the hidden icon.
+  const original = window.matchMedia;
+  window.matchMedia = mockMatchMedia(true);
+  const onThemes = vi.fn();
+  const actions = document.createElement('div');
+  actions.className = 'top-bar--actions';
+  const themes = document.createElement('button');
+  themes.setAttribute('title', 'Accent theme');
+  themes.addEventListener('click', onThemes);
+  actions.appendChild(themes);
+  const toggle = document.createElement('button');
+  toggle.setAttribute('aria-label', 'Menu');
+  toggle.addEventListener('click', () => actions.classList.toggle('top-bar--actions--open'));
+  document.body.appendChild(actions);
+  document.body.appendChild(toggle);
+  try {
+    render(<Tour { ...props({ initialStep : 'yours' }) } />);
+    expect(onThemes).toHaveBeenCalledTimes(1);
+    expect(actions.classList.contains('top-bar--actions--open')).toBe(false);
+  }
+  finally {
+    actions.remove();
+    toggle.remove();
+    window.matchMedia = original;
+  }
+});
+
+test('the cleaning step unfolds the menu without a panel', () => {
+  // Step 11 shows just the button: the menu opens on the eraser and
+  // no panel opens under it.
+  const original = window.matchMedia;
+  window.matchMedia = mockMatchMedia(true);
+  const onEraser = vi.fn();
+  const actions = document.createElement('div');
+  actions.className = 'top-bar--actions';
+  const eraser = document.createElement('button');
+  eraser.setAttribute('title', 'Clearing options');
+  eraser.addEventListener('click', onEraser);
+  actions.appendChild(eraser);
+  const toggle = document.createElement('button');
+  toggle.setAttribute('aria-label', 'Menu');
+  toggle.addEventListener('click', () => actions.classList.toggle('top-bar--actions--open'));
+  document.body.appendChild(actions);
+  document.body.appendChild(toggle);
+  try {
+    const { container } = render(<Tour { ...props({ initialStep : 'cleaning' }) } />);
+    expect(titleOf(container)).toBe('A clean slate');
+    expect(onEraser).not.toHaveBeenCalled();
+    expect(actions.classList.contains('top-bar--actions--open')).toBe(true);
+  }
+  finally {
+    actions.remove();
+    toggle.remove();
+    window.matchMedia = original;
+  }
+});
+
+test('the box menu stays untouched on wide screens', () => {
+  const original = window.matchMedia;
+  window.matchMedia = mockMatchMedia(false);
+  const bar = plantBoxBar();
+  try {
+    render(<Tour { ...props({ initialStep : 'settings' }) } />);
+    expect(bar.controls.classList.contains('box-top-bar-controls--open')).toBe(false);
+  }
+  finally {
+    bar.cleanup();
+    window.matchMedia = original;
+  }
+});
+
+test('the ring heals onto controls landing after arrival', async () => {
+  // The exit button lands a beat after the step (its panel commits
+  // separately): the ring follows it instead of missing it outright.
+  const eraser = document.createElement('button');
+  eraser.setAttribute('title', 'Clearing options');
+  eraser.addEventListener('click', () => {
+    const exit = document.createElement('button');
+    exit.className = 'btn top-bar--clear-btn';
+    exit.setAttribute('title', 'Erase all boxes in Test');
+    exit.getBoundingClientRect = () => ({ top : 60, left : 0, bottom : 90, right : 10, width : 10, height : 30, x : 0, y : 60, toJSON : () => ({}) }) as unknown as DOMRect;
+    document.body.appendChild(exit);
+  });
+  document.body.appendChild(eraser);
+  const { container, unmount } = render(<Tour { ...props({ initialStep : 'clean-notebook' }) } />);
+  try {
+    await waitFor(() => expect(container.querySelector('.tour--ring')).not.toBeNull());
+  }
+  finally {
+    unmount();
+    eraser.remove();
+    document.querySelectorAll('.top-bar--clear-btn').forEach((el) => el.remove());
   }
 });

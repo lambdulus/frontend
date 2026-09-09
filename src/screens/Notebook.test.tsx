@@ -813,6 +813,64 @@ test('narrow screens slim the column and halve the map', () => {
   expect(media).toMatch(/\.macro-dock\s*\{[^}]*\(100vw - 850px\)/);
 });
 
+// One breakpoint's own block: the chunk from its @media up to the
+// next @media (or the end), so wider blocks above never leak in.
+function mediaBlock (css : string, breakpoint : string) : string {
+  const chunks : Array<string> = css.split('@media')
+  return chunks.find((chunk : string) => new RegExp(`max-width\\s*:\\s*${breakpoint}`).test(chunk)) ?? ''
+}
+
+test('the bad-screen gate sits at 375px', () => {
+  // iPhone-SE-narrow stays usable; anything under it is out.
+  const css = readFileSync('src/App.css', 'utf8');
+  expect(mediaBlock(css, '374px')).toMatch(/#bad-screen-message\s*\{[^}]*display\s*:\s*block/);
+});
+
+test('narrow screens hide the box map instead of overlapping', () => {
+  // Below the width where even the half map clears the slim column
+  // (1372px), the map steps out entirely.
+  const css = readFileSync('src/App.css', 'utf8');
+  expect(mediaBlock(css, '1371px')).toMatch(/\.box-map\s*\{[^}]*display\s*:\s*none/);
+});
+
+test('below the slim column width the page goes fluid', () => {
+  // A fixed 810px column would overflow viewports under 850px, so
+  // the page padding owns the gutters instead.
+  const css = readFileSync('src/App.css', 'utf8');
+  expect(mediaBlock(css, '849px')).toMatch(/\.mainSpace\s*\{[^}]*max-width\s*:\s*none/);
+});
+
+test('below 480px the zen add-box docks to the page padding', () => {
+  // The fixed right offset would push the capped button past the
+  // left edge, so it rides the gutter instead.
+  const css = readFileSync('src/App.css', 'utf8');
+  expect(mediaBlock(css, '480px')).toMatch(/\.zen-add\s*\{[^}]*right\s*:\s*12px/);
+});
+
+test('below 580px the macro names give up their wide column', () => {
+  // Every builtin fits in 52px and longer user macros wrap — the :=
+  // column stays aligned, just further left.
+  const css = readFileSync('src/untyped-lambda-integration/styles/MacroList.css', 'utf8');
+  expect(mediaBlock(css, '579px')).toMatch(/\.macro-name\s*\{[^}]*min-width\s*:\s*52px/);
+});
+
+test('the zen picker options carry the card fill', () => {
+  // The picker floats over box content; transparent rows would let
+  // the box show through.
+  const css = readFileSync('src/App.css', 'utf8');
+  const options = css.match(/\.zen-add \.add-box--group\s*\{[^}]*\}/)?.[0] ?? '';
+  expect(options).toMatch(/background-color\s*:\s*var\(--surface\)/);
+});
+
+test('the macro pill joins the flow once the gutter runs out', () => {
+  // Below ~1080px the left gutter no longer fits the pill, so the
+  // dock rides the top of its own box and grows it when open.
+  const css = readFileSync('src/untyped-lambda-integration/styles/MacroList.css', 'utf8');
+  const media = mediaBlock(css, '1080px');
+  expect(media).toMatch(/\.macro-dock\s*\{[^}]*position\s*:\s*static/);
+  expect(media).toMatch(/\.macro-dock--open\s*\{[^}]*min-height\s*:\s*0/);
+});
+
 test('box map shows in normal mode too', () => {
   const state : NotebookState = {
     name : 'Test',
@@ -1108,6 +1166,94 @@ test('focusing a box collapses the old table and opens nothing unasked', () => {
     const patched = updateNotebook.mock.calls[0][0] as NotebookState;
     expect((patched.boxList[0] as UntypedLambdaState).macrolistOpen).toBe(false);
     expect((patched.boxList[1] as UntypedLambdaState).macrolistOpen).toBe(false);
+  }
+  finally {
+    unmount();
+  }
+});
+
+function TwoLambdaHarness () : JSX.Element {
+  const [ state, setState ] = useState<NotebookState>(() => ({
+    name : 'Test',
+    boxList : [ lambdaBox('a', false, false), lambdaBox('b', false, false) ],
+    activeBoxIndex : 0,
+    focusedBoxIndex : 0,
+    menuOpen : false,
+    settings : {},
+    __key : 'nb',
+  }));
+  return <Notebook state={ state } updateNotebook={ (patch : Partial<NotebookState>) => setState((prev) => ({ ...prev, ...patch })) } />;
+}
+
+test('pill toggles open on the first click, even unfocused', () => {
+  // The pill click bubbles into the container's focus sync, which
+  // recomputes the docks from pre-toggle props: the toggle must win
+  // anyway, not get swallowed into a focus move.
+  const { container, unmount } = render(<TwoLambdaHarness />);
+  try {
+    const heads = container.querySelectorAll('.macro-dock--head');
+    expect(heads.length).toBe(2);
+
+    fireEvent.click(heads[1]);
+
+    const frames = container.querySelectorAll('.box-frame');
+    expect(frames[1].querySelector('.macro-dock--open')).not.toBeNull();
+    expect(frames[0].querySelector('.macro-dock--open')).toBeNull();
+  }
+  finally {
+    unmount();
+  }
+});
+
+function ZenHarness () : JSX.Element {
+  const [ state, setState ] = useState<NotebookState>(() => ({
+    name : 'Test',
+    zenMode : true,
+    boxList : [ lambdaBox('a', false, false) ],
+    activeBoxIndex : 0,
+    // Fresh box after a refresh: focus never landed on it.
+    focusedBoxIndex : undefined,
+    menuOpen : false,
+    settings : {},
+    __key : 'nb',
+  }));
+  return <Notebook state={ state } updateNotebook={ (patch : Partial<NotebookState>) => setState((prev) => ({ ...prev, ...patch })) } />;
+}
+
+test('pill opens first try in zen on an unfocused box', () => {
+  // Zen restores nothing, so the bubbled focus sync recomputes the
+  // just-toggled dock closed: the toggle must win anyway, and the box
+  // must own the focus afterwards like every other control click.
+  const { container, unmount } = render(<ZenHarness />);
+  try {
+    fireEvent.click(container.querySelector('.macro-dock--head') as HTMLElement);
+
+    const frame = container.querySelector('.box-frame') as HTMLElement;
+    expect(frame.querySelector('.macro-dock--open')).not.toBeNull();
+    expect(frame.classList.contains('box-frame--focused')).toBe(true);
+  }
+  finally {
+    unmount();
+  }
+});
+
+test('pill survives a blur-first click from an editing box', () => {
+  // Live browsers blur the focused editor on mousedown, before the
+  // pill click lands: the blur collapse must not eat the toggle.
+  const { container, unmount } = render(<TwoLambdaHarness />);
+  try {
+    // Focus the first box, then blur it like a pill mousedown would.
+    fireEvent.click(container.querySelectorAll('.box-rail')[0]);
+    const editors = container.querySelectorAll('.box-frame')[0].querySelectorAll('textarea, input, [contenteditable="true"]');
+    if (editors.length > 0) {
+      (editors[0] as HTMLElement).focus();
+    }
+    fireEvent.focusOut(container.querySelectorAll('.boxContainer')[0]);
+
+    fireEvent.click(container.querySelectorAll('.macro-dock--head')[1]);
+
+    const frames = container.querySelectorAll('.box-frame');
+    expect(frames[1].querySelector('.macro-dock--open')).not.toBeNull();
   }
   finally {
     unmount();

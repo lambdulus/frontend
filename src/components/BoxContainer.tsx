@@ -156,6 +156,7 @@ export class BoxContainer extends Component<Props, State> {
               isAnchorBox={ isAnchorBox }
               updateBoxState={ updateBoxState }
               addBoxAfter={ addBoxAfter }
+              makeActive={ makeActive }
               titleActionsHost={ box.type === BoxType.UNTYPED_LAMBDA ? this.titleActionsRef : undefined }
             />
           </div>

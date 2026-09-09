@@ -170,6 +170,32 @@
   padding: 0 14px 12px;
 }
 
+/* Narrow screens leave no left gutter for the dock: below ~1080px
+   the pill would slide over its own box, so it joins the flow
+   instead — a compact chip riding the top of the box, unfolding
+   downward in place. Open, it drops the overlay containment (no
+   bottom pin, no minimum card height) and simply grows the box. */
+@media (max-width: 1080px) {
+  .macro-dock {
+    position: static;
+    width: auto;
+    margin-bottom: 12px;
+  }
+
+  .macro-dock--open {
+    min-height: 0;
+  }
+}
+
+@media (max-width: 579px) {
+  /* Below 580px the name column stops reserving room for long names:
+     every builtin fits in 52px and longer user macros wrap — the :=
+     column stays aligned, just further left. */
+  .macro-name {
+    min-width: 52px;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .macro-dock--panel {
     transition: none;
