@@ -28,7 +28,6 @@ export default function Note (props : NoteProperties) : JSX.Element {
     isActive,
     setBoxState,
   } = props
-  
   const onContent = (content : string) => {
     setBoxState({
       ...props.state,
@@ -51,7 +50,6 @@ export default function Note (props : NoteProperties) : JSX.Element {
           syntaxError={ syntaxError } // data
           submitOnEnter={ false } // data
           shouldReplaceLambda={ false }
-          
           onContent={ onContent } // fn
           onEnter={ () => void 0 } // fn
           onCtrlEnter={ () => void 0 }

@@ -78,7 +78,6 @@ export default class ExpressionBox extends PureComponent<EvaluationProperties> {
           strategy={ this.props.state.strategy }
           SDE={ SDE }
           macrotable={ macrotable }
-          
           createBoxFrom={ this.createBoxFrom }
         />
       )
@@ -216,7 +215,6 @@ export default class ExpressionBox extends PureComponent<EvaluationProperties> {
 
     //                                                    fix this part please
     let [nextReduction, evaluateReduction] : [ASTReduction, (ast : AST) => AST] = findSimplifiedReduction(ast, strategy, macrotable)
-    
     let message : StepMessage = { validity : StepValidity.CORRECT, userInput : '', message : '' }
     let isNowNormalForm = false
 
@@ -242,7 +240,6 @@ export default class ExpressionBox extends PureComponent<EvaluationProperties> {
         // this is what happens when ::single-step
         //
         newast = evaluateReduction(newast)
-        // debugger
 
         // if we are not ::single-step --> findSimplifiedReduction won't return MacroBeta -- instead
         // it will return the first redex --> first beta reduction in the list and then it's not macro reduction problem anymore
@@ -274,8 +271,7 @@ export default class ExpressionBox extends PureComponent<EvaluationProperties> {
     {
       const astCopy : AST = newast.clone()
       const [nextReduction] : [ASTReduction, (ast : AST) => AST] = findSimplifiedReduction(astCopy, strategy, macrotable)
-      // const evaluator : Evaluator = new (strategyToEvaluator(strategy) as any)(astCopy)
-      
+      // const evaluator : Evaluator = new (strategyToEvaluator(strategy))(astCopy)
       if (nextReduction instanceof None) {
         const etaEvaluator : Evaluator = new OptimizeEvaluator(astCopy)
         if (etaEvaluator.nextReduction instanceof None || ! ETA) {
@@ -291,68 +287,6 @@ export default class ExpressionBox extends PureComponent<EvaluationProperties> {
     })
 
     return
-    
-    // {
-    //   // None
-    //   // console.log("_________________________________ NONE")
-    //   // stepRecord.isNormalForm = true
-    //   // stepRecord.message = 'Expression is in normal form.'
-      
-    //   // setBoxState({
-    //   //   ...state,
-    //   // })
-      
-    //   // reportEvent('Evaluation Step', 'Step Normal Form Reached', ast.toString())
-
-    //   // return
-    // }
-    // {
-    //   // Expansion -> then None
-    //   // stepRecord.lastReduction = newreduction
-    //   // stepRecord.isNormalForm = true
-    //   // stepRecord.message = 'Expression is in normal form.'
-      
-    //   // setBoxState({
-    //   //   ...state,
-    //   // })
-      
-    //   // reportEvent('Evaluation Step', 'Step Normal Form Reached', ast.toString())
-
-    //   // return
-    // }
-    // {
-    //   // Expandion -> then Any ASTReduction inside the expanded Macro --> need to Expand first
-    //   // ast = newAst
-
-    //   // let message = ''
-    //   // let isNormal = false
-
-    //   // setBoxState({
-    //   //   ...state,
-    //   //   history : [ ...history, { ast, lastReduction, step : step + 1, message, isNormalForm : isNormal } ]
-    //   // })
-    //   // return
-    // }
-    // {
-    //   // Expansion -> then Any ASTReduction completely outside of Macro --> skip the Expansion and do the next thing instead
-    //   // ast = newevaluator.perform()
-    //   // const p = parent as AST
-    //   // const ts = treeSide as String
-    //   // (p as any)[ts as any] = M
-    //   // // parent should be not-null
-    //   // // because if there was a Macro which we were able to Expand
-    //   // // and then there has been found Redex which is not part of the newly expanded sub-tree
-    //   // // the new Redex simply has to be in different part of the tree --> which means - M (original Macro) is not the root
-
-    //   // let message = ''
-    //   // let isNormal = false
-
-    //   // setBoxState({
-    //   //   ...state,
-    //   //   history : [ ...history, { ast, lastReduction, step : step + 1, message, isNormalForm : isNormal } ]
-    //   // })
-    //   // return
-    // }
   }
 
   onStep () : void {
@@ -370,32 +304,27 @@ export default class ExpressionBox extends PureComponent<EvaluationProperties> {
     let { ast, lastReduction } = stepRecord
     ast = ast.clone()
 
-  
     if (isNormalForm) {
       return
     }
 
-    let evaluator : Evaluator = new (strategyToEvaluator(strategy) as any)(ast)
+    let evaluator : Evaluator = new (strategyToEvaluator(strategy))(ast)
     lastReduction = evaluator.nextReduction
-  
     if (evaluator.nextReduction instanceof None) {
       const etaEvaluator : Evaluator = new OptimizeEvaluator(ast)
 
       if (etaEvaluator.nextReduction instanceof None || ! ETA) {
         stepRecord.isNormalForm = true
         stepRecord.message.message = 'Expression is in normal form.'
-        
         setBoxState({
           ...state,
         })
-  
         return
       }
 
       evaluator = etaEvaluator
       lastReduction = etaEvaluator.nextReduction
     }
-  
     ast = evaluator.perform()
 
     let message : StepMessage = { validity : StepValidity.CORRECT, userInput : '', message : '' }
@@ -403,8 +332,7 @@ export default class ExpressionBox extends PureComponent<EvaluationProperties> {
 
     {
       const astCopy : AST = ast.clone()
-      const evaluator : Evaluator = new (strategyToEvaluator(strategy) as any)(astCopy)
-      
+      const evaluator : Evaluator = new (strategyToEvaluator(strategy))(astCopy)
       if (evaluator.nextReduction instanceof None) {
         const etaEvaluator : Evaluator = new OptimizeEvaluator(astCopy)
 
@@ -420,15 +348,6 @@ export default class ExpressionBox extends PureComponent<EvaluationProperties> {
     // TODO: Investigate more - and fix the functionality
     // it probably should check if the current AST Root is a Macro and next Reduction is Expansion of exactly this AST
     // then it can say - it is in the Normal Form - if some settings enables it - not by default though
-    //
-    // if (ast instanceof Macro || ast instanceof ChurchNumeral) {
-
-    //   stepRecord.isNormalForm = true
-    //   stepRecord.message = 'Expression is in normal form.'
-
-    //   reportEvent('Evaluation Step', 'Step Normal Form Reached with Number or Macro', ast.toString())
-    // }
-  
     setBoxState({
       ...state,
       history : [ ...history, { ast, lastReduction, step : step + 1, message, isNormalForm : isNormal, exerciseStep : false } ],
@@ -446,11 +365,9 @@ export default class ExpressionBox extends PureComponent<EvaluationProperties> {
     else {
       const { timeout, history } = state
       const stepRecord = history[history.length - 1]
-  
       if (stepRecord.isNormalForm) {
         return
       }
-      
       const { ast, step, lastReduction, isNormalForm } = stepRecord
       let msg : StepMessage = { validity : StepValidity.CORRECT, userInput : '', message : 'Skipping some steps...' }
       history.push(history[history.length - 1])
@@ -491,7 +408,6 @@ export default class ExpressionBox extends PureComponent<EvaluationProperties> {
         isRunning : false,
         timeoutID : undefined,
       })
-  
       return
     }
 
@@ -500,9 +416,8 @@ export default class ExpressionBox extends PureComponent<EvaluationProperties> {
     const [nextReduction, evaluateReduction] : [ASTReduction, (ast : AST) => AST] = findSimplifiedReduction(newast, strategy, macrotable)
 
 /////////////////////////////////////////////////////////////////////////////////////////
-    // const normal : Evaluator = new (strategyToEvaluator(strategy) as any)(ast)
+    // const normal : Evaluator = new (strategyToEvaluator(strategy))(ast)
     lastReduction = nextReduction
-    
     if (nextReduction instanceof None) {
       // #18: the simplified search is eta-blind -- before declaring normal
       // form, ask OptimizeEvaluator, mirroring onSimplifiedStep. If eta
@@ -533,20 +448,17 @@ export default class ExpressionBox extends PureComponent<EvaluationProperties> {
         isNormalForm : true,
         exerciseStep : false,
       })
-  
       setBoxState({
         ...state,
         isRunning : false,
         timeoutID : undefined,
       })
-  
       return
     }
 
     const arityBreakpoint : Breakpoint | undefined = breakpoints.find((brk : Breakpoint) => brk.type === ASTReductionType.GAMA && ! brk.broken.has((nextReduction as MacroBeta).applications[0]))
     if (nextReduction instanceof MacroBeta && nextReduction.arity !== nextReduction.applications.length && arityBreakpoint === undefined) {
       stepRecord.message.message = `Macro ${tryMacroContraction(nextReduction.applications[0].left, macrotable)} is given too few arguments.`
-    
       // completely same code as in breakpoint section -- TODO: refactor and unify pls
       window.clearTimeout(timeoutID)
 
@@ -561,7 +473,6 @@ export default class ExpressionBox extends PureComponent<EvaluationProperties> {
 
       return
     }
-  
     // TODO: maybe refactor a little
     const breakpoint : Breakpoint | undefined = breakpoints.find(
       (breakpoint : Breakpoint) =>
@@ -587,18 +498,10 @@ export default class ExpressionBox extends PureComponent<EvaluationProperties> {
 
       return
     }
-  
     ast = evaluateReduction(newast)
 
     history[history.length - 1] = { ast, lastReduction, step : step + 1, message : { validity : StepValidity.CORRECT, userInput : '', message : '' }, isNormalForm, exerciseStep : false }
 
-    // NOTE: Same thing as #0023
-    // if (ast instanceof Macro || ast instanceof ChurchNumeral) {
-    //   history[history.length - 1] = { ast, lastReduction, step : step + 1, message : 'Expression is in normal form.', isNormalForm : true }
-
-    //   reportEvent('Evaluation Run Ended', 'Step Normal Form Reached with Number or Macro', ast.toString())
-    // }
-    
     setBoxState({
       ...state,
       timeoutID : window.setTimeout(this.onSimplifiedRun, timeout)
@@ -616,21 +519,17 @@ export default class ExpressionBox extends PureComponent<EvaluationProperties> {
     if ( ! isRunning) {
       return
     }
-    
     if (isNormalForm) {
       setBoxState({
         ...state,
         isRunning : false,
         timeoutID : undefined,
       })
-  
       return
     }
-  
     let { ast } = stepRecord
-    let normal : Evaluator = new (strategyToEvaluator(strategy) as any)(ast)
+    let normal : Evaluator = new (strategyToEvaluator(strategy))(ast)
     lastReduction = normal.nextReduction
-    
     if (normal.nextReduction instanceof None) {
       // #18: the strategy search is eta-blind -- mirror onStep: continue
       // with a pending eta conversion instead of stopping.
@@ -660,7 +559,6 @@ export default class ExpressionBox extends PureComponent<EvaluationProperties> {
       normal = etaEvaluator
       lastReduction = etaEvaluator.nextReduction
     }
-  
     // TODO: maybe refactor a little
     const breakpoint : Breakpoint | undefined = breakpoints.find(
       (breakpoint : Breakpoint) =>
@@ -686,18 +584,10 @@ export default class ExpressionBox extends PureComponent<EvaluationProperties> {
 
       return
     }
-  
     ast = normal.perform()
 
     history[history.length - 1] = { ast, lastReduction, step : step + 1, message : { validity : StepValidity.CORRECT, userInput : '', message : '' }, isNormalForm, exerciseStep : false }
 
-    // NOTE: Same thing as #0023
-    // if (ast instanceof Macro || ast instanceof ChurchNumeral) {
-    //   history[history.length - 1] = { ast, lastReduction, step : step + 1, message : 'Expression is in normal form.', isNormalForm : true }
-
-    //   reportEvent('Evaluation Run Ended', 'Step Normal Form Reached with Number or Macro', ast.toString())
-    // }
-    
     setBoxState({
       ...state,
       timeoutID : window.setTimeout(this.onRun, timeout)
@@ -707,9 +597,7 @@ export default class ExpressionBox extends PureComponent<EvaluationProperties> {
   onStop () : void {
     const { state, setBoxState } = this.props
     const { timeoutID } = state
-  
     window.clearTimeout(timeoutID)
-  
     setBoxState({
       ...state,
       isRunning : false,
@@ -749,7 +637,6 @@ export default class ExpressionBox extends PureComponent<EvaluationProperties> {
     ) {
       return true
     }
-  
     return false
   }
 

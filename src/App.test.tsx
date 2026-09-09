@@ -1,5 +1,5 @@
 import React from 'react';
-import { test, expect, afterEach } from 'vitest';
+import { test, expect, afterEach, vi } from 'vitest';
 import { render, fireEvent, waitFor, cleanup } from '@testing-library/react';
 import App from './App';
 
@@ -7,6 +7,8 @@ afterEach(() => cleanup());
 import { createDefaultAppState, preferredTheme, saveTourState, loadTourState } from './Constants';
 import { TOUR_STEPS } from './components/Tour';
 import { defaultSettings, createNewUntypedLambdaExpression } from './untyped-lambda-integration/Constants';
+import { UntypedLambdaType } from './untyped-lambda-integration/Types';
+import { buildBoxShareURL } from './components/BoxTitleBar';
 import { Theme } from './contexts/Theme';
 
 test('renders the app shell (top-level smoke test)', () => {
@@ -353,6 +355,97 @@ test('accent hover previews site-wide, click commits, popup stays open', () => {
   expect(shellAccent()).toBe('amber');
   expect(storedAccent()).toBe('amber');
   expect(container.querySelector('.top-bar--accent-pick')).not.toBeNull();
+});
+
+test('creating a notebook parks the page at the top', () => {
+  window.localStorage.clear();
+  const { container } = render(<App />);
+  const originalScrollTo = window.scrollTo;
+  const spy = vi.fn();
+  window.scrollTo = spy;
+  try {
+    spy.mockClear();
+    fireEvent.click(container.querySelector('[title="New notebook"]') as HTMLElement);
+    // The old notebook's scroll would otherwise clamp into the short
+    // new content, hiding the title one line up.
+    expect(spy).toHaveBeenCalledWith({ top : 0, behavior : 'auto' });
+    expect(container.querySelector('.top-bar--tab--active .top-bar--tab-name')?.textContent).toBe('Notebook 2');
+  }
+  finally {
+    window.scrollTo = originalScrollTo;
+  }
+});
+
+test('creating a notebook in zen mode stays in zen mode', () => {
+  window.localStorage.clear();
+  const { container } = render(<App />);
+  fireEvent.click(container.querySelector('.top-bar--zen') as Element);
+  expect(container.querySelector('.mainSpace.zen')).not.toBeNull();
+  fireEvent.click(container.querySelector('[title="New notebook"]') as HTMLElement);
+  expect(container.querySelector('.top-bar--tab--active .top-bar--tab-name')?.textContent).toBe('Notebook 2');
+  expect(container.querySelector('.mainSpace.zen')).not.toBeNull();
+});
+
+test('creating a notebook outside zen mode stays outside it', () => {
+  window.localStorage.clear();
+  const { container } = render(<App />);
+  expect(container.querySelector('.mainSpace.zen')).toBeNull();
+  fireEvent.click(container.querySelector('[title="New notebook"]') as HTMLElement);
+  expect(container.querySelector('.top-bar--tab--active .top-bar--tab-name')?.textContent).toBe('Notebook 2');
+  expect(container.querySelector('.mainSpace.zen')).toBeNull();
+});
+
+test('share links carry every local setting', () => {
+  const fresh = createNewUntypedLambdaExpression(defaultSettings);
+  const url = buildBoxShareURL({
+    ...fresh,
+    subtype : UntypedLambdaType.ORDINARY,
+    editor : { ...fresh.editor, content : 'x' },
+    ETA : true,
+  });
+  for (const param of [ 'SDE=true', 'SLI=true', 'ETA=true', 'expandStandalones=false', 'collapseOldSteps=true' ]) {
+    expect(url, param).toContain(param);
+  }
+});
+
+function sharedBoxSettings () : any {
+  const stored = JSON.parse(window.localStorage.getItem('AppState') ?? '{}');
+  return stored.notebooks.find((nb : any) => nb.name === 'Shared').boxList[0];
+}
+
+test('years-old links without the new params fall back to defaults', () => {
+  window.localStorage.clear();
+  window.history.replaceState(null, '', '/?type=UNTYPED_LAMBDA&source=x&macros={}&subtype=ORDINARY&strategy=Normal%20Evaluation&SDE=false&SLI=false');
+  try {
+    render(<App />);
+    const box = sharedBoxSettings();
+    // Old params still parse.
+    expect(box.SDE).toBe(false);
+    expect(box.SLI).toBe(false);
+    expect(box.strategy).toBe('Normal Evaluation');
+    // New params absent: defaults, not failure.
+    expect(box.ETA).toBe(false);
+    expect(box.expandStandalones).toBe(false);
+    expect(box.collapseOldSteps).toBe(true);
+  }
+  finally {
+    window.history.replaceState(null, '', '/');
+  }
+});
+
+test('new links express every local setting', () => {
+  window.localStorage.clear();
+  window.history.replaceState(null, '', '/?type=UNTYPED_LAMBDA&source=x&macros={}&subtype=ORDINARY&strategy=Normal%20Evaluation&SDE=false&SLI=false&ETA=true&expandStandalones=true&collapseOldSteps=false');
+  try {
+    render(<App />);
+    const box = sharedBoxSettings();
+    expect(box.ETA).toBe(true);
+    expect(box.expandStandalones).toBe(true);
+    expect(box.collapseOldSteps).toBe(false);
+  }
+  finally {
+    window.history.replaceState(null, '', '/');
+  }
 });
 
 test('box style hover previews shell-wide, click commits, popup stays open', () => {

@@ -251,7 +251,6 @@ export function decodeNotebook (notebook : NotebookState) : NotebookState | neve
       }
 
       //TODO: implement for other Box Types
-    
       default:
         return box
     }

@@ -173,7 +173,6 @@ export default class UntypedLambdaBox extends PureComponent<Props, State> {
               setBoxState={ setBoxState }
             />
           )
-  
         case UntypedLambdaType.ORDINARY:
           return (
             <ExpressionBox
@@ -186,7 +185,6 @@ export default class UntypedLambdaBox extends PureComponent<Props, State> {
               titleActionsHost={ titleActionsHost }
             />
           )
-        
         case UntypedLambdaType.EXERCISE:
           return (
             <ExerciseBox
@@ -307,12 +305,11 @@ export default class UntypedLambdaBox extends PureComponent<Props, State> {
           return findSimplifiedReduction(astCopy, strategy, macromap)[0]
         }
         else {
-          const evaluator : Evaluator = new (strategyToEvaluator(strategy) as any)(astCopy)
+          const evaluator : Evaluator = new (strategyToEvaluator(strategy))(astCopy)
           return evaluator.nextReduction
         }
       })()
 
-      
       if (nextReduction instanceof None) {
         const etaEvaluator : Evaluator = new OptimizeEvaluator(ast)
 

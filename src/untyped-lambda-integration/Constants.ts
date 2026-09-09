@@ -87,7 +87,6 @@ export function createNewUntypedLambdaExpression (settings : UntypedLambdaSettin
     breakpoints : [],
     timeoutID : undefined,
     timeout : 5,
-    
     // strategy : EvaluationStrategy.NORMAL,
     // singleLetterNames : false,
     // standalones : false,
@@ -95,7 +94,6 @@ export function createNewUntypedLambdaExpression (settings : UntypedLambdaSettin
     macrolistOpen : false,
     macrotable : { },
 
-    
     editor : {
       placeholder : "placeholder",
       content : "",
@@ -143,7 +141,6 @@ export function toMacroMap (definitions : Array<string>, SLI : boolean) : MacroM
     // variables (chained definitions never resolved at validation time).
     return { ...acc, [name.trim()] : '' }
   }, {})
-  
   return definitions.reduce((acc : MacroMap, def) => {
     const [name, body] = def.split(':=')
 
@@ -186,15 +183,11 @@ export function createNewUntypedLambdaBoxFromSource (source : string, defaultSet
       breakpoints : [],
       timeoutID : undefined,
       timeout : 5,
-      
       // strategy : EvaluationStrategy.NORMAL,
       // singleLetterNames : false,
       // standalones : false,
-  
       macrolistOpen : false,
       macrotable, // ...UNTYPED_LAMBDA_INTEGRATION_STATE.macrotable
-  
-      
       editor : {
         placeholder : "placeholder",
         content : source,
@@ -215,12 +208,9 @@ function createNewUntypedLambdaBoxFromSource2 (source : string, defaultSettings 
   const expression = `${macros}${macros.length ? ';\n' : ''}${source}`
 
   const macromap : MacroMap = macrotable // toMacroMap(definitions, SLI)
-  
   try {
     const tokens : Array<Token> = tokenize(source, { lambdaLetters : ['λ'], singleLetterVars : SLI, macromap })
     const ast : AST = parse(tokens, macromap) // macroTable
-    
-    
     let message : StepMessage = { validity : StepValidity.CORRECT, userInput : expression, message : '' }
     let isNormal = false
 
@@ -231,12 +221,11 @@ function createNewUntypedLambdaBoxFromSource2 (source : string, defaultSettings 
         return findSimplifiedReduction(astCopy, strategy, macromap)[0]
       }
       else {
-        const evaluator : Evaluator = new (strategyToEvaluator(strategy) as any)(astCopy)
+        const evaluator : Evaluator = new (strategyToEvaluator(strategy))(astCopy)
         return evaluator.nextReduction
       }
     })()
 
-    
     if (nextReduction instanceof None) {
       isNormal = true
       message.message = 'Expression is in normal form.'
@@ -295,11 +284,9 @@ export function resetUntypedLambdaBox (state : UntypedLambdaState) : UntypedLamb
     breakpoints : [],
     timeoutID : undefined,
     timeout : 5,
-    
     macrolistOpen : false,
     macrotable : { },
 
-    
     editor : {
       placeholder : "placeholder",
       content : "",
@@ -318,7 +305,6 @@ function decodeUntypedLambdaExpression (box : UntypedLambdaState) : UntypedLambd
   if (untypedLambdaBox.expression === '') {
     return untypedLambdaBox
   }
-  
   const decodedFirst : AST | null = decodeUntypedLambdaFast(untypedLambdaBox.ast)
 
   if (decodedFirst === null) {
@@ -371,7 +357,12 @@ type PerformEvaluation = (ast : AST) => AST
 
 
 export function findSimplifiedReduction (ast : AST, strategy : EvaluationStrategy, macrotable : MacroTable) : [ASTReduction, PerformEvaluation] {
-  const evaluator : Evaluator =  new (strategyToEvaluator(strategy) as any)(ast) // new NormalEvaluator(ast) // TODO: get evaluator dipending on the strategy in the future
+  // NOTE (load-bearing assumptions -- do not refactor lightly):
+  // 1. Performer closures may consume shared reduction state (MacroBeta.parents is
+  //    shift()ed while performing) -- assume each returned performer runs at most once.
+  // 2. Rules III/IV match reductions to tree nodes by AST identifier -- the input AST
+  //    is mutated in place, so identifiers must stay stable across clone()/perform().
+  const evaluator : Evaluator = new (strategyToEvaluator(strategy))(ast)
   const nextReduction = evaluator.nextReduction
 
   // nothing to do
@@ -390,8 +381,6 @@ export function findSimplifiedReduction (ast : AST, strategy : EvaluationStrateg
     // uvnitr celeho stromu hledam dalsi REDEX
     //
     const [newreduction] = findSimplifiedReduction(newAst, strategy, macrotable)
-
-    // return [nextReduction, (ast) => newAst]
 
     if (newreduction instanceof None) {
       //
@@ -419,10 +408,7 @@ export function findSimplifiedReduction (ast : AST, strategy : EvaluationStrateg
   }
 
   if (nextReduction instanceof Expansion && nextReduction.target instanceof Macro) {
-    // debugger
-    
     const { parent, treeSide, target } : Expansion = nextReduction
-    
     const M : Macro = target.clone()
 
     {
@@ -432,11 +418,11 @@ export function findSimplifiedReduction (ast : AST, strategy : EvaluationStrateg
 
       {
         const evaluator : Evaluator =
-          new (strategyToEvaluator(strategy) as any)(clone) // new NormalEvaluator(ast) // TODO: get evaluator dipending on the strategy in the future
+          new (strategyToEvaluator(strategy))(clone)
         newAst = evaluator.perform()
       }
 
-      const _evaluator : Evaluator = new (strategyToEvaluator(strategy) as any)(newAst) // new NormalEvaluator(ast) // TODO: get evaluator dipending on the strategy in the future
+      const _evaluator : Evaluator = new (strategyToEvaluator(strategy))(newAst)
       const nextReduction = _evaluator.nextReduction
 
       if (nextReduction instanceof Expansion) {
@@ -473,9 +459,6 @@ export function findSimplifiedReduction (ast : AST, strategy : EvaluationStrateg
       ([newreduction, newperformevaluation] = findSimplifiedReduction(newAst, strategy, macrotable))
     }
 
-    // debugger
-    // node : AST = parent === null ? newAst
-    //                                                     (to co jsme expandovali)
     if (parent !== null && treeSide !== null && findRedexIn(expanded, newreduction)) {
       // REDEX is completely bounded by expanded M Macro expression
       return [nextReduction, (_) => evaluator.perform()]
@@ -491,22 +474,13 @@ export function findSimplifiedReduction (ast : AST, strategy : EvaluationStrateg
         && newreduction.type === ASTReductionType.BETA
         && parent.identifier === beta.redex.identifier) {
       // rule IV.
-
-      // if ( ! macroIsSingleStep(M)) {
-      //   return [newreduction, newperformevaluation]
-      // }
-
-
       const expanded : Lambda = parent[treeSide] as Lambda
-      // const [fnArgNames, fnBody] = splitLambdaFn(expanded)
-      // const fnBody : AST = getFnBody(expanded)
       const fnArgNames : Array<string> = getFnArgNames(expanded)
       let arity : number = fnArgNames.length
       const arit : number | null = getArityOfKnownMacro(M.name())
       if (arit !== null && arit <= arity) {
         arity = arit
       }
-      // const arity : number = getArity(expanded)
       // --> get arity of expression X which was expanded from macro M
       // it should be simple -- just go to the right for the lambda and as long as it's right side is also lambda count +1
 
@@ -521,21 +495,14 @@ export function findSimplifiedReduction (ast : AST, strategy : EvaluationStrateg
             continue
           }
           else {
-            // debugger
             // we previously expanded our M in the ast
             // recursive findSimplifiedReduction then works with that
             // so current app containes M as expanded Expression
             // we need to take that back
-            
             return [argreduction, (ast : AST) => {
-              // const newast : AST = argperformevaluation(ast) // original line
               app.right = argperformevaluation(app.right)
 
               parent[treeSide] = M
-              // if (newast.identifier !== app.identifier) {
-              //   app.right = newast
-              //   // this is ugly hack but just checking if it works -- it doesn't
-              // }
               return ast
             }]
           }
@@ -555,7 +522,6 @@ export function findSimplifiedReduction (ast : AST, strategy : EvaluationStrateg
       // also the TOP context needs to check the arity - not just me OK
       // the performer is just some foreach on the array of betas OK
 
-      
       // let fnBody : AST = expanded.right
       // let fn : AST = expanded
       // const getFnBody = () => (fn as Lambda).right
@@ -576,20 +542,15 @@ export function findSimplifiedReduction (ast : AST, strategy : EvaluationStrateg
         let lastapp : AST | null = null
         let lastparent : Binary | null = null
 
-        // debugger
-        
         // budu muset projit kazdou aplikaci v poli
         // vytvorit pro ni beta redukci pro vyraz ktery vznikl v predchozi iteraci - proto nejde udelat pole beta redukci dopredu
         // a provest je - na konci vratim vysledny AST
         for (const app of macroAppRedex.applications) {
           let appParent : Binary | undefined | null = macroAppRedex.parents.shift() as Binary
           let treeSide : Child | null = appParent === undefined ? null : appParent.left.identifier === app.identifier ? Child.Left : Child.Right
-          
-          
 
-          
 
-          const evaluator : Evaluator = new (strategyToEvaluator(strategy) as any)(app) // new NormalEvaluator(app)
+          const evaluator : Evaluator = new (strategyToEvaluator(strategy))(app) // new NormalEvaluator(app)
           evaluator.reducer.perform()
           const reduced : AST = evaluator.reducer.tree
 
@@ -608,32 +569,6 @@ export function findSimplifiedReduction (ast : AST, strategy : EvaluationStrateg
           }
 
           lastparent = appParent // because I am lazy and don't want to use ifs before the for loop
-
-
-          // let appParent : Binary | undefined | null = macroAppRedex.parents.shift() as Binary
-          // let treeSide : Child | null = appParent === undefined ? null : appParent.left.identifier === app.identifier ? Child.Left : Child.Right
-          
-          // if (appParent === undefined) {
-          //   appParent = null
-          //   treeSide = null
-          // }
-
-          // lastparent = appParent // because I am lazy and don't want to use ifs before the for loop
-          
-          // const argName : string = fnArgNames.shift() as string
-
-          // // if ((app.left as Binary).right === undefined) {
-          // //   debugger
-          // // }
-
-          // const beta : Beta = new Beta(app, appParent as Binary, treeSide, (app.left as Lambda).body , argName, app.right) // getFnBody()
-
-          // // fnBody = (fnBody as Application).right
-          // // setFn(getFnBody())
-
-          // const reducer : BetaReducer = new BetaReducer(beta, ast)
-          // reducer.perform()
-          // ast = reducer.tree
         }
 
         if (macroIsSingleStep(M)) {
@@ -641,16 +576,13 @@ export function findSimplifiedReduction (ast : AST, strategy : EvaluationStrateg
             throw Error("This is bad, real bad.")
             // NOTE LATER: not sure what does that mean?
           }
-  
           if (lastparent === null) {
             // normalize the whole tree
             // top-most APP or ABS a result of the Macro-Beta
-  
             let wholeTreeIterations : number = 0
             while (true) {
               const [nextReduction, evaluateReduction] : [ASTReduction, any] =
                 findSimplifiedReduction(ast, strategy, macrotable)
-              
               if (nextReduction instanceof None) {
                 return tryMacroContraction(ast, macrotable)
               }
@@ -668,13 +600,11 @@ export function findSimplifiedReduction (ast : AST, strategy : EvaluationStrateg
           }
           else {
             const treeSide : Child = lastparent.left.identifier === lastapp.identifier ? Child.Left : Child.Right
-  
             // debugger
             let subTreeIterations : number = 0
             while (true) {
               const [nextReduction, evaluateReduction] : [ASTReduction, any] =
                 findSimplifiedReduction(lastapp as AST, strategy, macrotable)
-  
               if (nextReduction instanceof None) {
                 lastparent[treeSide] = tryMacroContraction(lastapp as AST, macrotable)
                 return ast
@@ -694,56 +624,27 @@ export function findSimplifiedReduction (ast : AST, strategy : EvaluationStrateg
             }
           }
         }
-        
         return ast // it it's not single-step Macro --> then no contraction I guess
       }]
     }
 
-    // THIS IS WRONG --> IT'S NOT NEEDED -- INSTEAD I FIXED RULE III AND IT SHOULD BE ENOUGH
-    // if (newreduction instanceof Expansion) {
-    //   // Expansion inside Expansion
-    //   // this is for cases --> when one macro needs to expanded because what it expands to is expression ->
-    //   // which leads to another expansion --> because there is some Macro M2 which contains redex for example
-    //   // which means - I need to actually expand 
-    //   return [nextReduction, (_) => newAst]
-    // }
-
-    // if (parent !== null && treeSide !== null && ( ! findRedexIn(parent[treeSide], newreduction)))
     // this is fallbacking action
     // redex was found - but does not concern previously expanded macro - so the expansions is unnecessary
-    // eslint-disable-next-line
-    {
 
-      // REDEX is NOT inside expanded M -- NOT rule III.
-      // expanded Macro is also not part of the REDEX -- NOT rule IV
-      // --> not expanding M just perform the second reduction but on original tree
-      return [newreduction, (ast) => {
-        const resAST = newperformevaluation(newAst)
-        const p = parent as AST
-        const ts = treeSide as String
+    // REDEX is NOT inside expanded M -- NOT rule III.
+    // expanded Macro is also not part of the REDEX -- NOT rule IV
+    // --> not expanding M just perform the second reduction but on original tree
+    return [newreduction, (ast) => {
+      const resAST = newperformevaluation(newAst)
+      const p = parent as AST
+      const ts = treeSide as string
 
-        // if (p === null || ts === null) {
-        //   debugger
-        // }
+      if (p !== null && ts !== null) {
+        (p as any)[ts as any] = M
+      }
 
-        if (p !== null && ts !== null) {
-          (p as any)[ts as any] = M
-        }
-
-        // // parent should be not-null
-        // // because if there was a Macro which we were able to Expand
-        // // and then there has been found Redex which is not part of the newly expanded sub-tree
-        // // the new Redex simply has to be in different part of the tree --> which means - M (original Macro) is not the root
-        // //
-        // // this is aparenlty not true
-        // // A := + 1 2; B := A; B
-        // // probably because there are two levels of macro expansion and this leads to parent possibly being null
-        // // after the last change -- anchor #1
-        // // this should once again be true - but just to be sure - I will leave it inside the if
-
-        return resAST
-      }]
-    }
+      return resAST
+    }]
   }
   else {
     return [nextReduction, (ast) => evaluator.perform()]
@@ -767,7 +668,6 @@ export function tryMacroContraction (ast : AST, macrotable : MacroTable) : AST {
 
     return parse(tokenize(`${n}`, { lambdaLetters : ['λ'], singleLetterVars : false, macromap : macrotable }), macrotable)
   }
-  
   for (const [name, definition] of [ ...Object.entries(builtinMacros), ...Object.entries(macrotable) ]) {
     // parse the definition
     const tokens : Array<Token> = tokenize(definition, { lambdaLetters : ['λ'], singleLetterVars : false, macromap : macrotable })
@@ -778,8 +678,6 @@ export function tryMacroContraction (ast : AST, macrotable : MacroTable) : AST {
     if (comparator.equals) {
       const macroNameAst : AST = parse(tokenize(name, { lambdaLetters : ['λ'], singleLetterVars : false, macromap : macrotable }), macrotable)
 
-
-      // const virtualToken : Token = new Token((macroNameAst as Macro).token.type, name, BLANK_POSITION)
       return macroNameAst // this is dirty-fix -- because the following line somehow produces macro which
       // expand incorrectly to `undefined` value
       // return new Macro(virtualToken, macrotable)
@@ -787,8 +685,6 @@ export function tryMacroContraction (ast : AST, macrotable : MacroTable) : AST {
   }
 
   return ast
-
-  // for (const macro : )
 }
 
 function isChurchNumeral (ast : AST) : boolean {
@@ -836,12 +732,15 @@ function peanoToNumber (ast : AST, s : string, z : string) : number {
 }
 
 
+const BINARY_MACROS : Array<string> = [ "*", "+", "/", "-", "^", "DELTA", "=", ">", "<", ">=", "<=", "AND", "OR" ]
+const UNARY_MACROS : Array<string> = [ "ZERO", "NOT", "SUC", "PRED" ]
+
 function getArityOfKnownMacro (macroname : string) : number | null {
-  if ([ "*", "+", "/", "-", "^", "DELTA", "=", ">", "<", ">=", "<=", "AND", "OR" ].includes(macroname)) {
+  if (BINARY_MACROS.includes(macroname)) {
     return 2
   }
 
-  if ([ "ZERO", "NOT", "SUC", "PRED" ].includes(macroname)) {
+  if (UNARY_MACROS.includes(macroname)) {
     return 1
   }
 
@@ -852,7 +751,7 @@ function getArityOfKnownMacro (macroname : string) : number | null {
  * Decides if the result of the application of the macro M to its arguments should evaluate to the normal form
  */
 function macroIsSingleStep (macro : Macro) : boolean {
-  if ([ "*", "+", "/", "-", "^", "DELTA", "=", ">", "<", ">=", "<=", "ZERO", "NOT", "AND", "OR", "PRED", "SUC" ].includes(macro.name())) {
+  if ([ ...BINARY_MACROS, ...UNARY_MACROS ].includes(macro.name())) {
     return true
   }
 
@@ -886,7 +785,6 @@ function findRedexIn (tree : AST, reduction : ASTReduction) : boolean {
     }
   }
   else if (reduction.type === ASTReductionType.EXPANSION) {
-    // debugger
     const expansion : Expansion = reduction as Expansion
     if (tree.identifier === expansion.target.identifier) {
       return true
@@ -906,25 +804,6 @@ function findRedexIn (tree : AST, reduction : ASTReduction) : boolean {
     return false
   }
 }
-
-// function getArity (ast : AST) : number { 
-//   if (ast instanceof Lambda) {
-//     return 1 + getArity(ast.right)
-//   }
-//   else {
-//     return 0
-//   }
-// }
-
-// function splitLambdaFn (ast : AST) : [Array<string>, AST] {
-//   if (ast instanceof Lambda) {
-//     const [args, body] = splitLambdaFn(ast.right)
-//     return [[ast.left.name(), ...args], body]
-//   }
-//   else {
-//     return [[], ast]
-//   }
-// }
 
 function getFnArgNames (ast : AST) : Array<string> {
   if (ast instanceof Lambda) {
@@ -1023,31 +902,28 @@ export class NormalMacroRedexExtender extends ASTVisitor {
 
 function hasApplicativeOverride (macro : Macro) : boolean {
   // TODO: implement later
-  return ["*", "+", "/", "-", "^", "DELTA", "=", ">", "<", ">=", "<=", "ZERO", "NOT", "PRED", "SUC"].includes(macro.name())
-  
-  //  "T", "F"
-  // "AND", "OR"
-  // return false
+  // NOTE: AND and OR are intentionally excluded
+  return [ ...BINARY_MACROS.filter((name) => name !== "AND" && name !== "OR"), ...UNARY_MACROS ].includes(macro.name())
 }
 
-export function strategyToEvaluator (strategy : EvaluationStrategy) : Evaluator {
+export function strategyToEvaluator (strategy : EvaluationStrategy) : new (ast : AST) => Evaluator {
   switch (strategy) {
     case EvaluationStrategy.NORMAL:
-      return NormalEvaluator as any
- 
+      return NormalEvaluator
+
     case EvaluationStrategy.APPLICATIVE:
-      return ApplicativeEvaluator as any
+      return ApplicativeEvaluator
 
     case EvaluationStrategy.OPTIMISATION:
-      return OptimizeEvaluator as any
+      return OptimizeEvaluator
 
     case EvaluationStrategy.ABSTRACTION: // this will be removed
-      return NormalAbstractionEvaluator as any // this will be removed
+      return NormalAbstractionEvaluator // this will be removed
 
     default:
       // Unknown strategy (e.g. a corrupt or future value from old storage):
       // fall back to normal evaluation instead of handing undefined back
       // to `new`, which reads as a syntax error on a healthy expression.
-      return NormalEvaluator as any
+      return NormalEvaluator
   }
 }

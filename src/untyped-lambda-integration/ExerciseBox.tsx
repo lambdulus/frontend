@@ -98,7 +98,6 @@ export default class ExerciseBox extends PureComponent<EvaluationProperties> {
           strategy={ this.props.state.strategy }
           SDE={ SDE }
           macrotable={ macrotable }
-          
           createBoxFrom={ this.createBoxFrom }
         />
       )
@@ -209,15 +208,13 @@ export default class ExerciseBox extends PureComponent<EvaluationProperties> {
       // const expression : string = definitions.pop() || ""
       // const macromap : MacroMap = toMacroMap(definitions, SLI)
       // const newMacrotable : MacroMap = { ...macrotable, ...macromap } // the local macromap has a higher priority
-      
       const ast : AST = this.parseExpression(content, macrotable)
 
       let message : StepMessage = { validity : StepValidity.CORRECT, userInput : content, message : '' }
       let isNormal = false
 
       const astCopy : AST = ast.clone()
-      const evaluator : Evaluator = new (strategyToEvaluator(strategy) as any)(astCopy)
-      
+      const evaluator : Evaluator = new (strategyToEvaluator(strategy))(astCopy)
       if (evaluator.nextReduction instanceof None) {
         isNormal = true
         message.message = 'Expression is in normal form.'
@@ -253,7 +250,6 @@ export default class ExerciseBox extends PureComponent<EvaluationProperties> {
       if (content.match(/\s*;\s*$/g)) {
         errorMessage = "There's a semicolon at the end."
       }
-      
       setBoxState({
         ...state,
         editor : {
@@ -273,7 +269,6 @@ export default class ExerciseBox extends PureComponent<EvaluationProperties> {
       const expression : string = definitions.pop() || ""
       const macromap : MacroMap = toMacroMap(definitions, SLI)
       const newMacrotable : MacroMap = { ...macrotable, ...macromap } // the local macromap has a higher priority
-      
 
       const userAst : AST = this.parseExpression(expression, newMacrotable)
       const stepRecord : StepRecord = history[history.length - 1]
@@ -293,12 +288,8 @@ export default class ExerciseBox extends PureComponent<EvaluationProperties> {
 
         return
       }
-    
       const newast : AST = ast.clone()
       let [nextReduction, evaluateReduction] : [ASTReduction, (ast : AST) => AST] = findSimplifiedReduction(newast, strategy, macrotable)
-      // const normal : Evaluator = new (strategyToEvaluator(strategy) as any)(ast)
-      // lastReduction = normal.nextReduction
-    
       if (nextReduction instanceof None) {
         const etaEvaluator : Evaluator = new OptimizeEvaluator(newast)
 
@@ -307,7 +298,6 @@ export default class ExerciseBox extends PureComponent<EvaluationProperties> {
           // TODO: say user it is in normal form and they are mistaken
           stepRecord.isNormalForm = true
           stepRecord.message.message = 'Expression is already in normal form.'
-          
           setBoxState({
             ...state,
           })
@@ -328,9 +318,6 @@ export default class ExerciseBox extends PureComponent<EvaluationProperties> {
 
         const astCopy : AST = ast.clone()
         const [nextReduction] : [ASTReduction, (ast : AST) => AST] = findSimplifiedReduction(astCopy, strategy, macrotable)
-        // const astCopy : AST = ast.clone()
-        // const evaluator : Evaluator = new (strategyToEvaluator(strategy) as any)(astCopy)
-        
         if (nextReduction instanceof None) {
           const etaEvaluator : Evaluator = new OptimizeEvaluator(astCopy)
 
@@ -339,7 +326,6 @@ export default class ExerciseBox extends PureComponent<EvaluationProperties> {
           }
         }
       }
-    
       let message : StepMessage = { validity : StepValidity.CORRECT, userInput : content, message : '' }
       const comparator : TreeComparator = new TreeComparator([ userAst, ast ], [ newMacrotable, macrotable ])
 
@@ -383,7 +369,6 @@ export default class ExerciseBox extends PureComponent<EvaluationProperties> {
   onExerciseStep () {
     const { state, setBoxState } = this.props
     const { strategy, history, editor : { content }, SDE, macrotable, SLI, ETA } = state
-    
     if (SDE === true) {
       this.onSimplifiedExerciseStep()
       return
@@ -395,7 +380,6 @@ export default class ExerciseBox extends PureComponent<EvaluationProperties> {
       const expression : string = definitions.pop() || ""
       const macromap : MacroMap = toMacroMap(definitions, SLI)
       const newMacrotable : MacroMap = { ...macrotable, ...macromap } // the local macromap has a higher priority
-      
 
       const userAst : AST = this.parseExpression(expression, newMacrotable)
       // HERE
@@ -416,10 +400,8 @@ export default class ExerciseBox extends PureComponent<EvaluationProperties> {
 
         return
       }
-    
-      let evaluator : Evaluator = new (strategyToEvaluator(strategy) as any)(ast)
+      let evaluator : Evaluator = new (strategyToEvaluator(strategy))(ast)
       lastReduction = evaluator.nextReduction
-    
       if (evaluator.nextReduction instanceof None) {
         const etaEvaluator : Evaluator = new OptimizeEvaluator(ast)
 
@@ -428,11 +410,9 @@ export default class ExerciseBox extends PureComponent<EvaluationProperties> {
           // TODO: say user it is in normal form and they are mistaken
           stepRecord.isNormalForm = true
           stepRecord.message.message = 'Expression is already in normal form.'
-          
           setBoxState({
             ...state,
           })
-            
           return
         }
 
@@ -440,15 +420,13 @@ export default class ExerciseBox extends PureComponent<EvaluationProperties> {
         lastReduction = etaEvaluator.nextReduction
 
       }
-    
       ast = evaluator.perform()
 
       let isNormal = false
 
       {
         const astCopy : AST = ast.clone()
-        const evaluator : Evaluator = new (strategyToEvaluator(strategy) as any)(astCopy)
-        
+        const evaluator : Evaluator = new (strategyToEvaluator(strategy))(astCopy)
         if (evaluator.nextReduction instanceof None) {
           const etaEvaluator : Evaluator = new OptimizeEvaluator(astCopy)
 
@@ -457,7 +435,6 @@ export default class ExerciseBox extends PureComponent<EvaluationProperties> {
           }
         }
       }
-    
       let message : StepMessage = { validity : StepValidity.CORRECT, userInput : content, message : '' }
       const comparator : TreeComparator = new TreeComparator([ userAst, ast ], [ newMacrotable, macrotable ])
 
@@ -512,7 +489,6 @@ export default class ExerciseBox extends PureComponent<EvaluationProperties> {
 
     //                                                    fix this part please
     let [nextReduction, evaluateReduction] : [ASTReduction, (ast : AST) => AST] = findSimplifiedReduction(ast, strategy, macrotable)
-    
     let message : StepMessage = { validity : StepValidity.CORRECT, userInput : content, message : '' }
     let isNowNormalForm = false
 
@@ -538,7 +514,6 @@ export default class ExerciseBox extends PureComponent<EvaluationProperties> {
         // this is what happens when ::single-step
         //
         newast = evaluateReduction(newast)
-        // debugger
 
         // if we are not ::single-step --> findSimplifiedReduction won't return MacroBeta -- instead
         // it will return the first redex --> first beta reduction in the list and then it's not macro reduction problem anymore
@@ -568,8 +543,6 @@ export default class ExerciseBox extends PureComponent<EvaluationProperties> {
     {
       const astCopy : AST = newast.clone()
       const [nextReduction] : [ASTReduction, (ast : AST) => AST] = findSimplifiedReduction(astCopy, strategy, macrotable)
-      // const evaluator : Evaluator = new (strategyToEvaluator(strategy) as any)(astCopy)
-      
       if (nextReduction instanceof None) {
         const etaEvaluator : Evaluator = new OptimizeEvaluator(astCopy)
 
@@ -599,9 +572,7 @@ export default class ExerciseBox extends PureComponent<EvaluationProperties> {
     const { isNormalForm, step } = stepRecord
     let { ast, lastReduction } = stepRecord
     ast = ast.clone()
-  
     if (isNormalForm) {
-      
       return
     }
 
@@ -611,16 +582,14 @@ export default class ExerciseBox extends PureComponent<EvaluationProperties> {
     }
 
 
-    let evaluator : Evaluator = new (strategyToEvaluator(strategy) as any)(ast)
+    let evaluator : Evaluator = new (strategyToEvaluator(strategy))(ast)
     lastReduction = evaluator.nextReduction
-  
     if (evaluator.nextReduction instanceof None) {
       const etaEvaluator : Evaluator = new OptimizeEvaluator(ast)
 
       if (etaEvaluator.nextReduction instanceof None || ! ETA) {
         stepRecord.isNormalForm = true
         stepRecord.message.message = 'Expression is in normal form.'
-        
         setBoxState({
           ...state,
         })
@@ -631,7 +600,6 @@ export default class ExerciseBox extends PureComponent<EvaluationProperties> {
       evaluator = etaEvaluator
       lastReduction = etaEvaluator.nextReduction
     }
-  
     ast = evaluator.perform()
 
     let message : StepMessage = { message : 'Evaluating One Step for You', validity : StepValidity.CORRECT, userInput : '' }
@@ -639,8 +607,7 @@ export default class ExerciseBox extends PureComponent<EvaluationProperties> {
 
     {
       const astCopy : AST = ast.clone()
-      const evaluator : Evaluator = new (strategyToEvaluator(strategy) as any)(astCopy)
-      
+      const evaluator : Evaluator = new (strategyToEvaluator(strategy))(astCopy)
       if (evaluator.nextReduction instanceof None) {
         const etaEvaluator : Evaluator = new OptimizeEvaluator(ast)
 
@@ -664,7 +631,6 @@ export default class ExerciseBox extends PureComponent<EvaluationProperties> {
 
     //   reportEvent('Evaluation Step', 'Step Normal Form Reached with Number or Macro', ast.toString())
     // }
-  
     setBoxState({
       ...state,
       editor : {
@@ -707,7 +673,6 @@ export default class ExerciseBox extends PureComponent<EvaluationProperties> {
     // ) {
     //   return true
     // }
-  
     return false
   }
 

@@ -935,7 +935,6 @@ export default class Notebook extends PureComponent<Props, State> {
 
   removeBox (index : number) : void {
     const { boxList, activeBoxIndex } = this.props.state
-    
     const nearestValidIndex = (i : number) => {
       if (i < activeBoxIndex) return activeBoxIndex - 1
       if (i > activeBoxIndex) return activeBoxIndex
@@ -967,7 +966,6 @@ export default class Notebook extends PureComponent<Props, State> {
       case BoxType.UNTYPED_LAMBDA:
         // boxList[activeBoxIndex] = onUntypedLambdaBlur(boxList[activeBoxIndex])
         break
-      
       case BoxType.MARKDOWN: {
         boxList[activeBoxIndex] = onMarkDownBlur(boxList[activeBoxIndex] as NoteState)
         break
@@ -991,7 +989,6 @@ export default class Notebook extends PureComponent<Props, State> {
             ...patch,
           }
           break
-          
         default:
           boxList[index] = {
             ...boxList[index],
@@ -1094,7 +1091,6 @@ export default class Notebook extends PureComponent<Props, State> {
       case BoxType.UNTYPED_LAMBDA:
         // boxList[activeBoxIndex] = onUntypedLambdaBlur(boxList[activeBoxIndex])
         break
-      
       case BoxType.MARKDOWN:
         boxList[index] = onMarkDownBlur(boxList[index] as NoteState)
         // return // TODO: just for now

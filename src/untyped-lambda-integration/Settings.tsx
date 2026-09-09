@@ -43,7 +43,6 @@ export default function Settings (props : Props) : JSX.Element {
               checked={ SLI }
               disabled={ false } // TODO: tohle bude rozhodne chtit prepsat
               // shape="fill"
-              
               onChange={
                 (e : ChangeEvent<HTMLInputElement>) => // tady nejakej destructuring
                   change({ ...settings, SLI : e.target.checked })
@@ -67,7 +66,6 @@ export default function Settings (props : Props) : JSX.Element {
             checked={ SDE }
             disabled={ false }
             // shape="fill"
-            
             onChange={
               (e : ChangeEvent<HTMLInputElement>) => // tady nejakej destructuring
                 change({ ...settings, SDE : e.target.checked })
@@ -131,7 +129,6 @@ export default function Settings (props : Props) : JSX.Element {
               type='checkbox'
               checked={ expandStandalones }
               disabled={ false } // TODO: tohle bude rozhodne chtit prepsat
-              
               onChange={
                 (e : ChangeEvent<HTMLInputElement>) => {
                   // tady nejakej destructuring
@@ -180,7 +177,6 @@ export default function Settings (props : Props) : JSX.Element {
                 checked={
                   strategy === EvaluationStrategy.APPLICATIVE
                 }
-                
                 onChange={
                   () => change({ ...settings, strategy : EvaluationStrategy.APPLICATIVE })
                 }
