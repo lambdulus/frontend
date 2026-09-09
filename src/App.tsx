@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 
 import './App.css'
+import './styles/MiniMode.css'
 
 import  { loadAppStateFromStorage
         , updateAppStateToStorage
@@ -22,6 +23,19 @@ import { UntypedLambdaState, UntypedLambdaSettings, EvaluationStrategy, UntypedL
 import { MacroTable } from '@lambdulus/core'
 import { Theme, ThemeContext } from './contexts/Theme'
 import { SettingsContext } from './contexts/Settings'
+
+// Experiment (easter egg, uncommitted): viewport width below which the
+// app collapses to the stripped mini mode. The knob to tune while
+// playing with small screens; delete it with MiniMode.css and the
+// mini branch in render to revert.
+export const MINI_MODE_WIDTH : number = 375
+
+export function miniMode () : boolean {
+  if (typeof window.matchMedia !== 'function') {
+    return false
+  }
+  return window.matchMedia(`(max-width: ${MINI_MODE_WIDTH - 1}px)`).matches
+}
 
 
 export default class App extends Component<{}, AppState> {
@@ -220,6 +234,44 @@ export default class App extends Component<{}, AppState> {
 
   componentDidMount () : void {
     this.createNotebookFromURL()
+    window.addEventListener('resize', this.syncMiniMode)
+    this.ensureMiniBox()
+  }
+
+  componentWillUnmount () : void {
+    window.removeEventListener('resize', this.syncMiniMode)
+  }
+
+  // Mini mode follows the viewport live (rotating a phone can cross
+  // the line either way); instance field like the tour flag, never
+  // persisted.
+  private miniMode : boolean = miniMode()
+
+  private syncMiniMode = () : void => {
+    const mini : boolean = miniMode()
+
+    if (mini !== this.miniMode) {
+      this.miniMode = mini
+
+      if (mini) {
+        this.ensureMiniBox()
+      }
+
+      this.forceUpdate()
+    }
+  }
+
+  // Experiment: mini mode always has its box to show — whatever the
+  // notebook kept, or one fresh empty editor. Persisted like any other
+  // box, so it survives reloads.
+  private ensureMiniBox () : void {
+    const notebook : NotebookState | undefined = this.state.notebooks[this.state.activeNotebookIndex]
+
+    if (this.miniMode && notebook !== undefined && notebook.boxList.length === 0 && notebook.locked !== true) {
+      const settings : UntypedLambdaSettings =
+        (notebook.settings[UNTYPED_LAMBDA_CODE_NAME] as UntypedLambdaSettings | undefined) ?? defaultSettings
+      this.updateNotebook({ boxList : [ createNewUntypedLambdaExpression(settings) ], activeBoxIndex : 0 })
+    }
   }
 
   // TODO: all of this needs to be moved to more apropriate component
@@ -343,43 +395,61 @@ export default class App extends Component<{}, AppState> {
         <SettingsContext.Provider value={ settings }>
 
           <div id='app' className={ darkmode ? 'dark' : 'light' } data-accent={ this.accentPreview ?? accent } data-box-style={ this.boxStylePreview ?? boxStyle }>
-            <div id="bad-screen-message">
-              Lambdulus only runs on screens at least 900 pixels wide.
-            </div>
-            <TopBar
-              notebooks={ notebooks }
-              activeNotebookIndex={ activeNotebookIndex }
-              theme={ theme }
-              accent={ accent }
-              boxStyle={ boxStyle }
-              confirmBoxDelete={ confirmBoxDelete ?? true }
-              onConfirmBoxDeleteChange={ this.updateConfirmBoxDelete }
-              settings={ settings }
-              onAccentChange={ this.updateAccent }
-              onAccentPreview={ this.previewAccent }
-              onBoxStylePreview={ this.previewBoxStyle }
-              onBoxStyleChange={ this.updateBoxStyle }
-              onNotebookSelect={ this.selectNotebook }
-              onNotebookAdd={ this.addNotebook }
-              onNotebookRemove={ this.removeNotebook }
-              onImport={ this.importNotebook }
-              onClearNotebook={ this.clearNotebook }
-              onResetWorkspace={ this.resetWorkspace }
-              onDarkModeChange={ this.toggleTheme }
-              onSettingsChange={ this.updateSettings }
-              onZenModeChange={ this.setZenMode }
-              onTourOpen={ this.openTour }
-            />
+            {
+              // Experiment (easter egg, uncommitted): stripped mini mode —
+              // the active box in forced zen, no top bar, and (via
+              // MiniMode.css) no way to add boxes. Same state path as the
+              // real UI, so nothing here can rot the workspace.
+              this.miniMode ?
+                <div className='mini-mode'>
+                  <Notebook
+                    state={{ ...notebook, zenMode : true }}
+                    updateNotebook={ this.updateNotebook }
+                    confirmBoxDelete={ confirmBoxDelete ?? true }
+                    onConfirmBoxDeleteChange={ this.updateConfirmBoxDelete }
+                  />
+                </div>
+              :
+                <React.Fragment>
+                  <TopBar
+                    notebooks={ notebooks }
+                    activeNotebookIndex={ activeNotebookIndex }
+                    theme={ theme }
+                    accent={ accent }
+                    boxStyle={ boxStyle }
+                    confirmBoxDelete={ confirmBoxDelete ?? true }
+                    onConfirmBoxDeleteChange={ this.updateConfirmBoxDelete }
+                    settings={ settings }
+                    onAccentChange={ this.updateAccent }
+                    onAccentPreview={ this.previewAccent }
+                    onBoxStylePreview={ this.previewBoxStyle }
+                    onBoxStyleChange={ this.updateBoxStyle }
+                    onNotebookSelect={ this.selectNotebook }
+                    onNotebookAdd={ this.addNotebook }
+                    onNotebookRemove={ this.removeNotebook }
+                    onImport={ this.importNotebook }
+                    onClearNotebook={ this.clearNotebook }
+                    onResetWorkspace={ this.resetWorkspace }
+                    onDarkModeChange={ this.toggleTheme }
+                    onSettingsChange={ this.updateSettings }
+                    onZenModeChange={ this.setZenMode }
+                    onTourOpen={ this.openTour }
+                  />
 
-            <Notebook
-              state={ notebook }
-              updateNotebook={ this.updateNotebook }
-              confirmBoxDelete={ confirmBoxDelete ?? true }
-              onConfirmBoxDeleteChange={ this.updateConfirmBoxDelete }
-            />
+                  <Notebook
+                    state={ notebook }
+                    updateNotebook={ this.updateNotebook }
+                    confirmBoxDelete={ confirmBoxDelete ?? true }
+                    onConfirmBoxDeleteChange={ this.updateConfirmBoxDelete }
+                  />
+                </React.Fragment>
+            }
 
             {
-              this.tourOpen ?
+              // Experiment: the walkme never opens down here — skipped,
+              // not stopped, so the first-run state survives untouched
+              // for real widths.
+              this.tourOpen && ! this.miniMode ?
                 <Tour
                   initialStep={ loadTourState()?.step ?? 'welcome' }
                   onClose={ this.closeTour }
@@ -463,7 +533,13 @@ export default class App extends Component<{}, AppState> {
 
   resetWorkspace () : void {
     if (window.confirm(RESET_WORKSPACE_CONFIRMATION)) {
-      const notebooks : Array<NotebookState> = [ createManualNotebook(), createEmptyNotebook('Notebook') ]
+      // The Manual is protected and special: cleaning the workspace
+      // never touches it — only everything else starts over. Locked
+      // notebooks cannot be deleted, so the Manual is always findable;
+      // a fresh one only fills the impossible gap of it missing.
+      const manual : NotebookState =
+        this.state.notebooks.find((notebook : NotebookState) => notebook.locked === true) ?? createManualNotebook()
+      const notebooks : Array<NotebookState> = [ manual, createEmptyNotebook('Notebook') ]
 
       this.setState({
         notebooks,

@@ -1,0 +1,87 @@
+/* Experiment (easter egg, uncommitted): the stripped mini mode below
+   MINI_MODE_WIDTH (see App.tsx) — the active box in forced zen, no top
+   bar, no way to add boxes. Delete this file and the mini branch in
+   the App render to revert. */
+
+/* No top bar above, so the page padding shrinks to the content —
+   symmetric top and bottom, so the card lands flush on both ends. */
+.mini-mode .mainSpace {
+  padding-top: 20px;
+  padding-left: 12px;
+  padding-right: 12px;
+  padding-bottom: 20px;
+}
+
+/* Fluid shrink below the 375 line: 14px there, tapering with the
+   viewport, floored where glyphs stop being glyphs. Paddings ride the
+   type in em, so fixed px gutters never eat the card — it keeps
+   breathing room until way too tiny. */
+.mini-mode {
+  font-size: max(10px, 3.733vw);
+}
+
+.mini-mode .boxContainer {
+  padding: 1em 0.8em 1.2em;
+}
+
+/* The floating add-box is the one zen furniture mini mode drops: no
+   new boxes down here, the box at hand is the whole app. */
+.mini-mode .zen-add {
+  display: none;
+}
+
+/* The map is already gone below 1372px; belt and braces in case the
+   mini knob ever climbs above it. */
+.mini-mode .box-map {
+  display: none;
+}
+
+/* No macro table down here: one box to read and step, and the panel
+   never behaved in the stripped layout — reverted to a plain hide. */
+.mini-mode .macro-dock {
+  display: none;
+}
+
+/* Run-only down here: stepping through reductions and exercise boxes
+   want the room this mode refuses to give. */
+.mini-mode .debug-controls--step,
+.mini-mode .open-as-exercise {
+  display: none;
+}
+
+/* Without the top bar the zen clamp keeps too much air — and since the
+   em paddings above shrank the box chrome, the old subtraction leaves
+   a gap at the bottom. Exact arithmetic instead (content-box, so the
+   chrome adds on): page 20 + 20, box 1em + 1.2em of its own 1.1em
+   type plus the 2px border. The card lands flush, square on square. */
+.mini-mode .mainSpace.zen .boxContainer {
+  height: calc(100vh - 40px - 2.2em - 2px);
+}
+
+/* Classic boxes keep fixed px gutters (and a single bottom border),
+   so they get their own subtraction: page 40, chrome 44 + 1. */
+#app[data-box-style='classic'] .mini-mode .mainSpace.zen .boxContainer {
+  height: calc(100vh - 85px);
+}
+
+/* Three lines of editor is plenty down here: the wrapper section
+   carries the height prop as inline style, so this needs the
+   hammer — and Monaco runs automaticLayout, so it re-lays itself
+   out at the forced height instead of clipping (cursor stays
+   visible, longer input still scrolls inside). */
+.mini-mode .editorContainer .editor > div > section {
+  height: 57px !important;
+}
+
+/* The pinned endpoint steps carry 12px of air each (the initial step
+   top and bottom, the current one on top). Halve it here so the
+   history sits a touch higher and the card fits a 250x250 square. */
+.mini-mode li.activeStep,
+.mini-mode .box-current-step,
+.mini-mode .box-initial-step {
+  margin-top: 6px;
+}
+
+.mini-mode .box-initial-step {
+  margin-bottom: 6px;
+}

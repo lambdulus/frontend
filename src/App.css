@@ -23,25 +23,7 @@ body {
   min-height: 100vh;
 }
 
-#bad-screen-message {
-  display: none;
-  background-color: var(--surface);
-  color: var(--text);
-  height: 100vh;
-  width: 100vw;
-  position: fixed;
-  text-align: center;
-  font-size: 2em;
-  padding-top: 40vh;
-  z-index: 99999;
-}
 
-/* Maximum aspect ratio */
-@media screen and (max-width: 899px) {
-  #bad-screen-message {
-    display: block;
-  }
-}
 
 .boxContainer {
   position: relative;
@@ -367,6 +349,22 @@ body {
   z-index: 60;
 }
 
+/* The zen picker floats over box content, so its options carry the
+   card fill — transparent rows would let the box show through. A
+   theme-aware surface, not flat white, so dark-mode text stays
+   readable. */
+.zen-add .add-box--group {
+  background-color: var(--surface);
+}
+
+/* Below 480px the fixed right offset would push the capped button
+   past the left edge, so it docks to the page padding instead. */
+@media (max-width: 480px) {
+  .zen-add {
+    right: 12px;
+  }
+}
+
 /* Paging arrows flanking the anchor line: the same move as the arrow
    keys, sitting between the anchor and its neighbors, centered on
    the map lines. */
@@ -403,6 +401,26 @@ body {
 
   .macro-dock {
     left: calc(-1 * max(22px, (100vw - 850px) / 2 + 22px));
+  }
+}
+
+/* Below the width where even the half map still clears the slim
+   column (1372px), the map steps out entirely instead of shrinking
+   further: unreadable lines overlapping boxes help nobody. Keyboard
+   paging and plain scrolling keep working; zen loses only the map
+   way around, and the floating add-box stays put. */
+@media (max-width: 1371px) {
+  .box-map {
+    display: none;
+  }
+}
+
+/* Below the slim column's own outer width (850px) the fixed column
+   would overflow the viewport, so it goes fluid and the page padding
+   owns the gutters. */
+@media (max-width: 849px) {
+  .mainSpace {
+    max-width: none;
   }
 }
 

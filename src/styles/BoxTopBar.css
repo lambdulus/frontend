@@ -121,6 +121,119 @@
   color: var(--text);
 }
 
+/* Compact box menu toggle: a hamburger folding to an X, riding the
+   bar's right end. Hidden everywhere; the query below shows it where
+   the icon row folds into its popup. */
+.box-top-bar--compact-toggle {
+  display: none;
+  position: relative;
+  flex: 0 0 auto;
+}
+
+.box-top-bar--compact-bar {
+  position: absolute;
+  left: 6px;
+  width: 14px;
+  height: 2px;
+  border-radius: 1px;
+  background-color: currentColor;
+  transition: transform .18s ease-in-out, opacity .15s ease-in-out, top .18s ease-in-out;
+}
+
+.box-top-bar--compact-bar:nth-child(1) {
+  top: 8px;
+}
+
+.box-top-bar--compact-bar:nth-child(2) {
+  top: 12px;
+}
+
+.box-top-bar--compact-bar:nth-child(3) {
+  top: 16px;
+}
+
+.box-top-bar--compact-toggle--open .box-top-bar--compact-bar:nth-child(1) {
+  top: 12px;
+  transform: rotate(45deg);
+}
+
+.box-top-bar--compact-toggle--open .box-top-bar--compact-bar:nth-child(2) {
+  opacity: 0;
+}
+
+.box-top-bar--compact-toggle--open .box-top-bar--compact-bar:nth-child(3) {
+  top: 12px;
+  transform: rotate(-45deg);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .box-top-bar--compact-bar {
+    transition: none;
+  }
+}
+
+/* Below 420px the right-side icons crowd the bar, so they fold under
+   the toggle: closed they are gone entirely, open the very same node
+   drops as a horizontal icon popup over the bar's right end (anchored
+   to the box frame, which stays put). No labels — the icons alone
+   name themselves at this size. */
+@media (max-width: 419px) {
+  .box-top-bar-controls {
+    display: none;
+  }
+
+  .boxContainer:hover .box-top-bar--compact-toggle,
+  .boxContainer.active .box-top-bar--compact-toggle,
+  .boxContainer:focus-within .box-top-bar--compact-toggle {
+    display: inline-flex;
+  }
+
+  .box-top-bar-controls--open {
+    display: flex;
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    z-index: 777;
+    flex-direction: row;
+    gap: 2px;
+    background-color: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    box-shadow: var(--shadow);
+    padding: 6px;
+    opacity: 1;
+    animation: box-compact-in .15s ease-out;
+  }
+
+  .box-top-bar-controls--open .box-top-bar--controls-item {
+    width: 32px;
+    height: 32px;
+  }
+}
+
+@media (hover: none) and (max-width: 419px) {
+  .box-top-bar--compact-toggle {
+    display: inline-flex;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .box-top-bar-controls--open {
+    animation: none;
+  }
+}
+
+@keyframes box-compact-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
 .box-top-bar--menu {
   position: absolute;
   top: 40px;

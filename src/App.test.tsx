@@ -1,10 +1,12 @@
+import { readFileSync } from 'fs';
 import React from 'react';
 import { test, expect, afterEach, vi } from 'vitest';
 import { render, fireEvent, waitFor, cleanup } from '@testing-library/react';
 import App from './App';
 
 afterEach(() => cleanup());
-import { createDefaultAppState, preferredTheme, saveTourState, loadTourState } from './Constants';
+import { createDefaultAppState, preferredTheme, saveTourState, loadTourState, updateAppStateToStorage } from './Constants';
+import { createNewMarkdown } from './markdown-integration/AppTypes';
 import { TOUR_STEPS } from './components/Tour';
 import { defaultSettings, createNewUntypedLambdaExpression } from './untyped-lambda-integration/Constants';
 import { UntypedLambdaType } from './untyped-lambda-integration/Types';
@@ -12,10 +14,54 @@ import { buildBoxShareURL } from './components/BoxTitleBar';
 import { Theme } from './contexts/Theme';
 
 test('renders the app shell (top-level smoke test)', () => {
-  const { getByText } = render(<App />);
-  // #bad-screen-message is always rendered by App, independent of screen state
-  const message = getByText(/Lambdulus only runs on screens at least 900 pixels wide\./i);
-  expect(message).toBeInTheDocument();
+  const { container } = render(<App />);
+  // No screen gate anymore: narrow screens get the stripped mini mode.
+  expect(container.querySelector('#bad-screen-message')).toBeNull();
+  expect(container.querySelector('.top-bar')).not.toBeNull();
+});
+
+test('sub-375px screens get the stripped mini mode', () => {
+  // One box, no top bar, no way to add boxes — the experiment owns
+  // anything narrower than MINI_MODE_WIDTH.
+  const original = window.matchMedia;
+  window.matchMedia = (() => ({ matches : true })) as unknown as typeof window.matchMedia;
+  try {
+    window.localStorage.clear();
+    const { container } = render(<App />);
+    expect(container.querySelector('.mini-mode .mainSpace.zen')).not.toBeNull();
+    expect(container.querySelector('.top-bar')).toBeNull();
+
+    // First run down here: the walkme never opens, and the empty
+    // notebook grows its one box with the editor open.
+    expect(container.querySelector('.tour')).toBeNull();
+    expect(container.querySelectorAll('.mini-mode .box-frame').length).toBe(1);
+
+    // The add-box button stays mounted but stepped out by the mini CSS.
+    const css = readFileSync('src/styles/MiniMode.css', 'utf8');
+    expect(css).toMatch(/\.mini-mode \.zen-add\s*\{[^}]*display\s*:\s*none/);
+    expect(css).toMatch(/\.mini-mode \.mainSpace\s*\{[^}]*padding-top\s*:\s*20px/);
+
+    // No macro table down here: the whole dock steps out, and no
+    // icon replaces it anywhere.
+    expect(css).toMatch(/\.mini-mode \.macro-dock\s*\{[^}]*display\s*:\s*none/);
+    expect(css).not.toMatch(/macros-toggle/);
+
+    // Fluid smaller type, em-riding paddings, and Run-only: no
+    // stepping, no exercise boxes.
+    expect(css).toMatch(/\.mini-mode\s*\{[^}]*font-size\s*:\s*max\(10px, 3\.733vw\)/);
+    expect(css).toMatch(/\.mini-mode \.boxContainer\s*\{[^}]*padding\s*:\s*1em 0\.8em 1\.2em/);
+    expect(css).toMatch(/\.mini-mode \.mainSpace\.zen \.boxContainer\s*\{[^}]*height\s*:\s*calc\(100vh - 40px - 2\.2em - 2px\)/);
+    expect(css).toMatch(/padding-bottom\s*:\s*20px/);
+    expect(css).toMatch(/\.mini-mode \.debug-controls--step[\s\S]*?display\s*:\s*none/);
+    expect(css).toMatch(/\.mini-mode \.open-as-exercise[\s\S]*?display\s*:\s*none/);
+
+    // Three-line editor: the monaco wrapper section is pinned down,
+    // hammer included since the height prop rides inline.
+    expect(css).toMatch(/\.mini-mode \.editorContainer \.editor > div > section\s*\{[^}]*height\s*:\s*57px !important/);
+  }
+  finally {
+    window.matchMedia = original;
+  }
 });
 
 function mockMatchMedia (matches : boolean) {
@@ -195,14 +241,15 @@ test('the tour conducts a lambda box from + to evaluated', async () => {
   // plays out — remembered but never obstructing the clean box.
   await waitFor(() => expect(container.querySelector('.macro-dock--open')).toBeNull());
 
-  // The middle finale only shows: the clearing options open with both
-  // exits, and nothing is pressed behind the user's back.
-  await waitFor(() => expect(container.querySelector('[title="Erase all notebooks and start over with the defaults"]')).not.toBeNull());
+  // Step 11 shows just the button: no panel yet.
+  expect(container.querySelector('[title="Erase all notebooks except the Manual and start over with the defaults"]')).toBeNull();
   expect(container.querySelectorAll('.box-frame').length).toBe(1);
 
-  // The exits walk one by one, settings-cluster style — shown, never pressed.
+  // The exits walk one by one, settings-cluster style — the panel
+  // opens on arrival, shown, never pressed.
   fireEvent.click(nextBtn());
   expect(title()).toBe('Clear notebook');
+  await waitFor(() => expect(container.querySelector('[title="Erase all notebooks except the Manual and start over with the defaults"]')).not.toBeNull());
   expect(container.querySelector('.top-bar--clear-btn:not(.btn-danger)')).not.toBeNull();
   fireEvent.click(nextBtn());
   expect(title()).toBe('Clean entire workspace');
@@ -373,6 +420,37 @@ test('creating a notebook parks the page at the top', () => {
   }
   finally {
     window.scrollTo = originalScrollTo;
+  }
+});
+
+test('cleaning the workspace spares the protected Manual', () => {
+  // The Manual keeps every box the user made; all other notebooks
+  // start over with a fresh empty one.
+  window.localStorage.clear();
+  const fresh = createDefaultAppState();
+  const kept = createNewMarkdown();
+  kept.note = 'do not lose me';
+  kept.editor.content = 'do not lose me';
+  kept.isEditing = false;
+  const manual = { ...fresh.notebooks[0], boxList : [ ...fresh.notebooks[0].boxList, kept ] };
+  updateAppStateToStorage({ ...fresh, notebooks : [ manual, fresh.notebooks[1] ] });
+
+  const confirm = vi.spyOn(window, 'confirm').mockReturnValue(true);
+  try {
+    const { container } = render(<App />);
+    fireEvent.click(container.querySelector('[title="Clearing options"]') as HTMLElement);
+    fireEvent.click(container.querySelector('[title="Erase all notebooks except the Manual and start over with the defaults"]') as HTMLElement);
+
+    const stored = JSON.parse(window.localStorage.getItem('AppState') ?? '{}');
+    expect(stored.notebooks.length).toBe(2);
+    expect(stored.notebooks[0].locked).toBe(true);
+    expect(stored.notebooks[0].boxList.length).toBe(manual.boxList.length);
+    expect(stored.notebooks[0].boxList.some((box : { note?: unknown }) => box.note === 'do not lose me')).toBe(true);
+    expect(stored.notebooks[1].boxList).toEqual([]);
+    expect(stored.activeNotebookIndex).toBe(1);
+  }
+  finally {
+    confirm.mockRestore();
   }
 });
 

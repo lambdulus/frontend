@@ -4,12 +4,13 @@
 
 /* Box-local settings float above the box (anchored to the container,
    which is positioned) instead of squeezing the history: right-docked
-   under the title bar, with their own capped scroll. */
+   under the title bar, with their own capped scroll. Above the macro
+   dock, so the panel always wins their overlap. */
 .box-settings {
   position: absolute;
   top: 60px;
   right: 8px;
-  z-index: 20;
+  z-index: 60;
   width: min(340px, calc(100% - 16px));
   margin: 0;
   padding: 12px 14px 16px;
@@ -19,6 +20,17 @@
   box-shadow: var(--shadow);
   max-height: 40vh;
   overflow-y: auto;
+}
+
+/* Below ~430px the capped panel outgrows the box: its padding adds
+   onto the fixed width, spilling past the left edge. Uncapped and
+   pinned to both sides instead — a fixed 8px gap left and right,
+   whatever the box. */
+@media (max-width: 429px) {
+  .box-settings {
+    width: auto;
+    left: 8px;
+  }
 }
 
 .untyped-lambda-settings-label {

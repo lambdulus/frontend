@@ -34,6 +34,7 @@ function renderDock (macrolistOpen : boolean, setBoxState : (state : UntypedLamb
       isFocused={ true }
       isAnchorBox={ true }
       setBoxState={ setBoxState }
+      makeActive={ () => void 0 }
       addBox={ () => void 0 }
     />
   );
@@ -60,6 +61,7 @@ test('macro dock pill toggles the panel both ways', () => {
       isFocused={ true }
       isAnchorBox={ true }
       setBoxState={ setBoxState }
+      makeActive={ () => void 0 }
       addBox={ () => void 0 }
     />
   );
@@ -134,6 +136,7 @@ function dockElement (open : boolean) : JSX.Element {
       isFocused={ true }
       isAnchorBox={ true }
       setBoxState={ () => void 0 }
+      makeActive={ () => void 0 }
       addBox={ () => void 0 }
     />
   );
