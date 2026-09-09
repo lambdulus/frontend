@@ -84,7 +84,7 @@ test('restart offer sits inline in the panel type scale', () => {
   const label = css.match(/\.untyped-lambda-settings-restart-label\s*\{[^}]*\}/)?.[0] ?? '';
   expect(label).toMatch(/font-size\s*:\s*0\.9em/);
   const button = css.match(/\.untyped-lambda-settings-restart-button\s*\{[^}]*\}/)?.[0] ?? '';
-  expect(button).toMatch(/font-size\s*:\s*0\.9em/);
+  expect(button).toMatch(/font-size\s*:\s*0\.8em/);
   expect(button).toMatch(/border\s*:[^;]*var\(--accent\)/);
   expect(button).not.toMatch(/background-color\s*:\s*var\(--accent\)/);
 });

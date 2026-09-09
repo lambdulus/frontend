@@ -295,10 +295,10 @@ test('deletion toggle reflects the setting and reports unchecking', () => {
     <TopBar { ...baseProps(() => void 0) } confirmBoxDelete={ true } onConfirmBoxDeleteChange={ onConfirmBoxDeleteChange } />
   );
 
-  fireEvent.click(container.querySelector('[title="Accent theme"]') as HTMLElement);
+  fireEvent.click(container.querySelector('[title="Notebook settings"]') as HTMLElement);
   const checkbox = container.querySelector('#top-bar--confirm-delete') as HTMLInputElement;
   expect(checkbox.checked).toBe(true);
-  expect(container.querySelector('.top-bar--delete-confirm label')?.textContent).toBe('Ask before deleting a box');
+  expect(container.querySelector('.top-bar--delete-confirm label')?.textContent).toBe('Confirm before deleting a box');
 
   fireEvent.click(checkbox);
   expect(onConfirmBoxDeleteChange).toHaveBeenCalledWith(false);
@@ -309,6 +309,6 @@ test('deletion toggle renders unchecked when asking is off', () => {
     <TopBar { ...baseProps(() => void 0) } confirmBoxDelete={ false } onConfirmBoxDeleteChange={ () => void 0 } />
   );
 
-  fireEvent.click(container.querySelector('[title="Accent theme"]') as HTMLElement);
+  fireEvent.click(container.querySelector('[title="Notebook settings"]') as HTMLElement);
   expect((container.querySelector('#top-bar--confirm-delete') as HTMLInputElement).checked).toBe(false);
 });

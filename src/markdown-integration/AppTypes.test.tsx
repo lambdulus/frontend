@@ -1,3 +1,4 @@
+import { readFileSync } from 'fs';
 import { test, expect, afterEach } from 'vitest';
 import { render, fireEvent, cleanup } from '@testing-library/react';
 import { createNewMarkdown, onMarkDownBlur, NoteState } from './AppTypes';
@@ -51,4 +52,15 @@ test('preview toggle submits the heading as title', () => {
   expect(updated.length).toBe(1);
   expect(updated[0].isEditing).toBe(false);
   expect(updated[0].title).toBe('Hi');
+});
+
+test('dark code blocks keep light text on the dark surface', () => {
+  // github-markdown-light pins pre text to near-black; the dark
+  // overrides must repaint the text, not just the background.
+  const css = readFileSync('src/styles/Markdown.css', 'utf8');
+  const pre = css.match(/\.dark \.markdown-body pre\s*\{[^}]*\}/)?.[0] ?? '';
+  expect(pre).toMatch(/background-color\s*:\s*var\(--raised\)/);
+  expect(pre).toMatch(/color\s*:\s*var\(--text\)/);
+  const code = css.match(/\.dark \.markdown-body code,[\s\S]*?\}/)?.[0] ?? '';
+  expect(code).toMatch(/color\s*:\s*var\(--text\)/);
 });
