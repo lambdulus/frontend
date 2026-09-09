@@ -1,5 +1,6 @@
 import { AbstractSettings, BoxType, AbstractBoxState } from "../Types"
-import { AST, ASTReduction, ASTReductionType, NormalEvaluator, ApplicativeEvaluator, OptimizeEvaluator, MacroMap } from "@lambdulus/core"
+import { AST, ASTReduction, ASTReductionType, MacroMap } from "@lambdulus/core"
+export type { Evaluator } from "@lambdulus/core"
 
 
 export enum PromptPlaceholder {
@@ -73,7 +74,6 @@ export interface UntypedLambdaState extends AbstractBoxState {
   breakpoints : Array<Breakpoint>
   timeoutID : number | undefined
   timeout : number
-  
   strategy : EvaluationStrategy
   SDE : boolean // Semantics Drive Evaluation (Strategy) -- formerly called Simplified Strategy
   ETA : boolean // Eta conversion as the final evaluation step (opt-in, off by default)
@@ -89,7 +89,6 @@ export interface UntypedLambdaState extends AbstractBoxState {
   // shut across refocus, and old notebooks (field absent) stay shut too.
   macrolistWanted? : boolean
   macrotable : MacroMap
-  
   editor : {
     placeholder : string
     content : string
@@ -112,4 +111,4 @@ export type SettingsEnabled = {
   strategy : boolean
 }
 
-export type Evaluator = NormalEvaluator | ApplicativeEvaluator | OptimizeEvaluator
+

@@ -55,7 +55,6 @@ export default class DebugControls extends PureComponent<Props> {
 
   render () {
     const { isRunning, onStep, onRun } : Props = this.props
-  
     const runMessage : string =
       isRunning ? 'Stop the Evaluation (Press F9)' :  'Evaluate the Expression (Press F9)'
 
@@ -76,8 +75,6 @@ export default class DebugControls extends PureComponent<Props> {
             { isRunning ? <Square size={ 13 } strokeWidth={ 1.75 } /> : <Play size={ 13 } strokeWidth={ 1.75 } /> }
           </button>
         }
-        
-        
         <button
           title='Evaluate Next Step (Press F8)'
           type="button"

@@ -11,7 +11,7 @@ export enum BoxType {
 export interface AbstractBoxState {
   type : BoxType,
   __key : string,
-  title : String,
+  title : string,
   minimized : boolean,
   settingsOpen : boolean,
   readOnly ?: boolean

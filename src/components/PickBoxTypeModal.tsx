@@ -18,13 +18,11 @@ interface Props {
 export default function PickBoxTypeModal (props : Props) : JSX.Element {
   const { addNew } : Props = props
 
-  
   const addLambdaBox = (
     <SettingsContext.Consumer>
       {
         settings => {
           const untLSettings : UntypedLambdaSettings = settings[UNTYPED_CODE_NAME] as UntypedLambdaState
-          
           return  <div className='add-box--group'
                     onClick={ (e) => {
                       e.stopPropagation()

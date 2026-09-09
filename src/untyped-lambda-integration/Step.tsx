@@ -56,7 +56,7 @@ function Step (props : StepProperties) : JSX.Element | null {
       return findSimplifiedReduction(newast, strategy, macrotable)[0]
     }
     else {
-      const evaluator : Evaluator = new (strategyToEvaluator(strategy) as any)(tree)
+      const evaluator : Evaluator = new (strategyToEvaluator(strategy))(tree)
       return evaluator.nextReduction
     }
   })()
@@ -75,7 +75,7 @@ function Step (props : StepProperties) : JSX.Element | null {
     // if it's the normal stuff --> then the tree I used to identify the redex is not the same tree as I am giving to the ReactPrinter
     // for this reason I have to use redex finder which does not mutate the tree under my hands at least until I rewrite
     // the findSimplifiedReduction
-    const evaluator : Evaluator = new (strategyToEvaluator(strategy) as any)(tree)
+    const evaluator : Evaluator = new (strategyToEvaluator(strategy))(tree)
     nextReduction = evaluator.nextReduction
     // TODO: read carefully
     // this definitely needs to be fixed

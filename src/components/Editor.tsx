@@ -37,7 +37,6 @@ interface EditorProperties {
   syntaxError : Error | null
   submitOnEnter : boolean
   shouldReplaceLambda : boolean
-  
   onContent (content : string) : void
   onShiftEnter () : void
   onCtrlEnter () : void
@@ -66,7 +65,6 @@ export default function Editor (props : EditorProperties) : JSX.Element {
   // TODO: Editor should not decide that - it should only implement onEnter onShiftEnter onCtrlEnter
   const onKeyDown = (event : KeyboardEvent<HTMLDivElement>) => {
     if ( ! event.shiftKey && ! event.ctrlKey && event.key === 'Enter') {
-      
       if (submitOnEnter) {
         event.stopPropagation()
         event.preventDefault()

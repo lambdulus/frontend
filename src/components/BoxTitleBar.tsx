@@ -9,8 +9,42 @@ import { NoteState } from '../markdown-integration/AppTypes'
 import EmptyBTB from '../empty-integration/BoxTopBar'
 
 import '../styles/BoxTopBar.css'
-import { resetUntypedLambdaBox, SETTINGS_OPENED_EVENT } from '../untyped-lambda-integration/Constants'
+import { defaultSettings, resetUntypedLambdaBox, SETTINGS_OPENED_EVENT } from '../untyped-lambda-integration/Constants'
 
+
+// Shareable links carry the box's local settings as query params, named
+// exactly like the settings fields. New params stay optional for the
+// parser: years-old links without them fall back to the defaults, so
+// course material keeps working. Zen mode is deliberately not shared:
+// it is a personal preference, not part of the box.
+export function buildBoxShareURL (state : BoxState) : string {
+  const searchParams : URLSearchParams = new URL(window.document.location.toString()).searchParams
+
+  searchParams.set('type', state.type)
+
+  if (state.type === BoxType.UNTYPED_LAMBDA) {
+    const box : UntypedLambdaState = state as UntypedLambdaState
+    const macros = encodeURI(JSON.stringify(box.macrotable))
+    searchParams.set('source', encodeURI(box.ast?.toString() || box.editor.content))
+    searchParams.set('macros', macros)
+  }
+  else {
+    searchParams.set('source', encodeURI((state as any).editor.content)) // todo: fix that `as any`
+  }
+
+  if (state.type === BoxType.UNTYPED_LAMBDA) {
+    const box : UntypedLambdaState = state as UntypedLambdaState
+    searchParams.set('subtype', box.subtype)
+    searchParams.set('strategy', box.strategy)
+    searchParams.set('SDE', box.SDE.toString())
+    searchParams.set('SLI', box.SLI.toString())
+    searchParams.set('ETA', (box.ETA ?? defaultSettings.ETA).toString())
+    searchParams.set('expandStandalones', (box.expandStandalones ?? defaultSettings.expandStandalones).toString())
+    searchParams.set('collapseOldSteps', (box.collapseOldSteps ?? defaultSettings.collapseOldSteps).toString())
+  }
+
+  return window.location.host + '?' + searchParams.toString()
+}
 
 type BoxPlace = 'before' | 'after'
 
@@ -146,7 +180,6 @@ export default class BoxTitleBar extends Component<Props, State> {
                 <Trash2 size={ 15 } strokeWidth={ 1.75 } />
               </div>
           }
-          
           {
             type !== BoxType.MARKDOWN ?
             <div
@@ -199,29 +232,8 @@ export default class BoxTitleBar extends Component<Props, State> {
             onClick={ (e) => {
               e.stopPropagation()
               this.setState({ shareLinkOpen : true })
-              const searchParams : URLSearchParams = new URL(window.document.location.toString()).searchParams
 
-              searchParams.set('type', state.type)
-
-              if (state.type === BoxType.UNTYPED_LAMBDA) {
-                const macros = encodeURI(JSON.stringify((state as UntypedLambdaState).macrotable))
-                searchParams.set('source', encodeURI((state as UntypedLambdaState).ast?.toString() || (state as UntypedLambdaState).editor.content))
-                searchParams.set('macros', macros)
-              }
-              else {
-                searchParams.set('source', encodeURI((state as any).editor.content)) // todo: fix that `as any`
-              }
-
-              if (state.type === BoxType.UNTYPED_LAMBDA) {
-                searchParams.set('subtype', (state as UntypedLambdaState).subtype)
-                searchParams.set('strategy', (state as UntypedLambdaState).strategy)
-                searchParams.set('SDE', (state as UntypedLambdaState).SDE.toString())
-                searchParams.set('SLI', (state as UntypedLambdaState).SLI.toString())
-              }
-
-              const url : string = window.location.host + '?' + searchParams.toString()
-
-              navigator.clipboard.writeText(url)
+              navigator.clipboard.writeText(buildBoxShareURL(state))
 
               setTimeout(() => this.setState({ shareLinkOpen : false, menuOpen : false }), 1500)
 

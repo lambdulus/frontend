@@ -26,7 +26,6 @@ export default function BoxTopBar (props : Props) : JSX.Element {
   return (
     <div className=''>
       <div className='markdown-controls' title='Edit as Markdown'>
-        
         {/* This will be separated into it's own component */}
         <div className='markdown-editing'>
           <span

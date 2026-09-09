@@ -93,7 +93,6 @@ export default class ReactPrinter extends ASTVisitor {
           </span>
         </span>
       )
-      
       this.printMultiLambda(lambda.body, args)
       if (set === true) {
         this.argument = null
@@ -162,7 +161,6 @@ export default class ReactPrinter extends ASTVisitor {
       //   redexFoundFlag = true
       //   debugger
       // }
-      
       //  === 1 && 
       if (this.redexesFound < this.reduction.arity && this.reduction.applications.some((app : Application) => app.identifier === application.identifier)) {
         if (application.left instanceof Macro) {
@@ -170,7 +168,6 @@ export default class ReactPrinter extends ASTVisitor {
         }
 
         this.redexesFound++
-        
         rightClassName += ' extended-redex'
       }
     }
@@ -238,7 +235,6 @@ export default class ReactPrinter extends ASTVisitor {
       </span>
     }
   }
-  
   // TODO: little bit refactored, maybe keep going
   onLambda (lambda: Lambda) : void {
     // TODO: this also seems not so elegant and clean
@@ -295,7 +291,6 @@ export default class ReactPrinter extends ASTVisitor {
       const context : Variable = lambda.argument
 
       // lambda.argument.visit(this)
-      
       // const args : JSX.Element | null = this.rendered
 
       lambda.body.visit(this)
@@ -358,7 +353,6 @@ export default class ReactPrinter extends ASTVisitor {
       this.argument = argument
     }
   }
-  
   // TODO: little bit refactored, maybe keep going
   onChurchNumeral (churchNumber: ChurchNumeral) : void {
     let className : string = 'churchnumeral'
@@ -427,7 +421,6 @@ export default class ReactPrinter extends ASTVisitor {
     }
 
     if (this.reduction instanceof MacroBeta) {
-      
       if (macro.identifier === this.reduction.applications[0].left.identifier) {
         className += ' abstraction'
       }
@@ -463,7 +456,6 @@ export default class ReactPrinter extends ASTVisitor {
       </span>
     )
   }
-  
   onVariable (variable: Variable): void {
     // TODO: same here - not so clean
     let className : string = 'variable'

@@ -109,11 +109,8 @@ export class BoxContainer extends Component<Props, State> {
       addBoxAfter,
       removeBox,
     } : Props = this.props
-  
     const { modalOpen } = this.state
-  
     const boxTypeClassName : string = mapBoxTypeToStr(box.type)
-  
     return (
       <div ref={ this.rootRef }>
         <div
