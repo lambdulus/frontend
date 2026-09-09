@@ -1,9 +1,9 @@
 # Lambdulus Frontend
 
-[![Staging deploy](https://github.com/lambdulus/frontend/actions/workflows/deploy-staging.yml/badge.svg?branch=develop)](https://github.com/lambdulus/frontend/actions/workflows/deploy-staging.yml)
-[![Production deploy](https://github.com/lambdulus/frontend/actions/workflows/deploy.yml/badge.svg?branch=master)](https://github.com/lambdulus/frontend/actions/workflows/deploy.yml)
-[![Staging site](https://github.com/lambdulus/staging/actions/workflows/deploy.yml/badge.svg)](https://github.com/lambdulus/staging/actions/workflows/deploy.yml)
-[![Production site](https://github.com/lambdulus/lambdulus.github.io/actions/workflows/handle-deploy.yml/badge.svg)](https://github.com/lambdulus/lambdulus.github.io/actions/workflows/handle-deploy.yml)
+| Environment | Pipeline (build, test, dispatch) | Site (received and deployed) |
+| ----------- | -------------------------------- | ---------------------------- |
+| Staging | [![Staging deploy](https://github.com/lambdulus/frontend/actions/workflows/deploy-staging.yml/badge.svg?branch=develop)](https://github.com/lambdulus/frontend/actions/workflows/deploy-staging.yml) | [![Staging site](https://github.com/lambdulus/staging/actions/workflows/deploy.yml/badge.svg)](https://github.com/lambdulus/staging/actions/workflows/deploy.yml) |
+| Production | [![Production deploy](https://github.com/lambdulus/frontend/actions/workflows/deploy.yml/badge.svg?branch=master)](https://github.com/lambdulus/frontend/actions/workflows/deploy.yml) | [![Production site](https://github.com/lambdulus/lambdulus.github.io/actions/workflows/handle-deploy.yml/badge.svg)](https://github.com/lambdulus/lambdulus.github.io/actions/workflows/handle-deploy.yml) |
 
 The web notebook for playing with lambda calculus (teaching at FIT CTU).
 Vite + React 18 + TypeScript. The compute engine is `@lambdulus/core`,
