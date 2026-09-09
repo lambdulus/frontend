@@ -122,6 +122,13 @@
   padding: 6px 18px;
   font-size: 0.9em;
   cursor: pointer;
+  transition: background-color .15s ease-in-out, color .15s ease-in-out;
+}
+
+.untyped-lambda-settings-restart-button:hover {
+  background-color: var(--accent);
+  color: var(--accent-ink);
+  border-color: var(--accent);
 }
 
 /* Switch toggles (Simplified here, delete confirmation in the global

@@ -85,6 +85,9 @@ test('restart offer stands alone with breathing room', () => {
   expect(button).toMatch(/font-size\s*:\s*0\.9em/);
   expect(button).toMatch(/border\s*:[^;]*var\(--accent\)/);
   expect(button).not.toMatch(/background-color\s*:\s*var\(--accent\)/);
+  const hover = css.match(/\.untyped-lambda-settings-restart-button:hover\s*\{[^}]*\}/)?.[0] ?? '';
+  expect(hover).toMatch(/background-color\s*:\s*var\(--accent\)/);
+  expect(hover).toMatch(/color\s*:\s*var\(--accent-ink\)/);
 });
 
 test('switch toggles have track, thumb, and on paint', () => {

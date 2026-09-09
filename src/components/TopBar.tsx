@@ -267,7 +267,7 @@ export default function TopBar (props : Props) : JSX.Element {
                   >
                     <span className='untyped-lambda-settings--toggle-thumb' />
                   </button>
-                  <label htmlFor='top-bar--confirm-delete'>
+                  <label className='untyped-lambda-settings-label' htmlFor='top-bar--confirm-delete'>
                     Confirm before deleting a box
                   </label>
                 </span>
