@@ -28,7 +28,6 @@ export default class CreateBox extends Component <Props, State> {
   render () : JSX.Element {
     const { addNew } : Props = this.props
     const { modalOpen } = this.state
-   
     if (this.state.modalOpen === false) {
       return (
         <div className='create-box-plus' onClick={ () => this.setState({ modalOpen : ! modalOpen }) } >
@@ -49,4 +48,3 @@ export default class CreateBox extends Component <Props, State> {
     }
   }
 }
-  

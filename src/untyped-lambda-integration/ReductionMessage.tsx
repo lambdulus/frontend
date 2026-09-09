@@ -56,5 +56,4 @@ export default function ReductionMessage (props : ReductionMessageProperties) : 
   else {
     return null as any
   }
-  
 }

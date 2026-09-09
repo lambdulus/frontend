@@ -7,12 +7,14 @@ import './styles/Settings.css'
 interface Props {
   settings : UntypedLambdaSettings
   settingsEnabled : SettingsEnabled
+  restartNeeded? : boolean
 
   change : (settings : UntypedLambdaSettings) => void
+  onRestart? : () => void
 }
 
 export default function Settings (props : Props) : JSX.Element {
-  const { settings, change, settingsEnabled } : Props = props
+  const { settings, change, settingsEnabled, restartNeeded, onRestart } : Props = props
   const { SLI, expandStandalones, strategy, SDE, ETA, collapseOldSteps } : UntypedLambdaSettings = settings
   const { SLI : SLI_E, expandStandalones : expSt_E, strategy : strat_E } : SettingsEnabled = settingsEnabled
 
@@ -41,7 +43,6 @@ export default function Settings (props : Props) : JSX.Element {
               checked={ SLI }
               disabled={ false } // TODO: tohle bude rozhodne chtit prepsat
               // shape="fill"
-              
               onChange={
                 (e : ChangeEvent<HTMLInputElement>) => // tady nejakej destructuring
                   change({ ...settings, SLI : e.target.checked })
@@ -65,7 +66,6 @@ export default function Settings (props : Props) : JSX.Element {
             checked={ SDE }
             disabled={ false }
             // shape="fill"
-            
             onChange={
               (e : ChangeEvent<HTMLInputElement>) => // tady nejakej destructuring
                 change({ ...settings, SDE : e.target.checked })
@@ -129,7 +129,6 @@ export default function Settings (props : Props) : JSX.Element {
               type='checkbox'
               checked={ expandStandalones }
               disabled={ false } // TODO: tohle bude rozhodne chtit prepsat
-              
               onChange={
                 (e : ChangeEvent<HTMLInputElement>) => {
                   // tady nejakej destructuring
@@ -147,6 +146,7 @@ export default function Settings (props : Props) : JSX.Element {
 
       {
         strat_E ?
+          <React.Fragment>
           <div className='untyped-lambda-settings-strategies'>
             <p className='stratsLabel'>Evaluation Strategies:</p>
 
@@ -177,7 +177,6 @@ export default function Settings (props : Props) : JSX.Element {
                 checked={
                   strategy === EvaluationStrategy.APPLICATIVE
                 }
-                
                 onChange={
                   () => change({ ...settings, strategy : EvaluationStrategy.APPLICATIVE })
                 }
@@ -188,6 +187,23 @@ export default function Settings (props : Props) : JSX.Element {
             </span>
             </span>
           </div>
+          {
+            // The session was stepped under different settings: one wide
+            // button on its own breathing-room row to reparse and
+            // resubmit from scratch with the current ones.
+            restartNeeded === true && onRestart !== undefined ?
+              <div className='untyped-lambda-settings-restart-row'>
+                <button
+                  className='untyped-lambda-settings-restart-button'
+                  onClick={ onRestart }
+                >
+                  Settings changed, restart?
+                </button>
+              </div>
+            :
+              null
+          }
+          </React.Fragment>
         :
           null
     }

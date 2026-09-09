@@ -43,6 +43,7 @@ export default class App extends Component<{}, AppState> {
     this.previewAccent = this.previewAccent.bind(this)
     this.previewBoxStyle = this.previewBoxStyle.bind(this)
     this.updateBoxStyle = this.updateBoxStyle.bind(this)
+    this.updateConfirmBoxDelete = this.updateConfirmBoxDelete.bind(this)
     this.toggleTheme = this.toggleTheme.bind(this)
     this.selectNotebook = this.selectNotebook.bind(this)
     this.addNotebook = this.addNotebook.bind(this)
@@ -243,16 +244,29 @@ export default class App extends Component<{}, AppState> {
         const strategy : string | null = urlSearchParams.get('strategy')
         const SDE : string | null = urlSearchParams.get('SDE')
         const SLI : string | null = urlSearchParams.get('SLI')
-        
         if (source === null || macros == null || subtype === null || strategy === null || SDE === null || SLI === null) {
           return false
         }
+
+        // Newer settings params are optional: years-old links predate
+        // them and fall back to the defaults instead of failing.
+        const ETA : string | null = urlSearchParams.get('ETA')
+        const expandStandalones : string | null = urlSearchParams.get('expandStandalones')
+        const collapseOldSteps : string | null = urlSearchParams.get('collapseOldSteps')
 
         const strat : EvaluationStrategy = EvaluationStrategy.NORMAL === strategy ? EvaluationStrategy.NORMAL : EvaluationStrategy.APPLICATIVE
 
         const sli : boolean = SLI === 'true' ? true : false
 
-        const settings : UntypedLambdaSettings = { ...defaultSettings, strategy : strat, SDE : SDE === 'true' ? true : false, SLI : sli }
+        const settings : UntypedLambdaSettings = {
+          ...defaultSettings,
+          strategy : strat,
+          SDE : SDE === 'true' ? true : false,
+          SLI : sli,
+          ETA : ETA === null ? defaultSettings.ETA : ETA === 'true',
+          expandStandalones : expandStandalones === null ? defaultSettings.expandStandalones : expandStandalones === 'true',
+          collapseOldSteps : collapseOldSteps === null ? defaultSettings.collapseOldSteps : collapseOldSteps === 'true',
+        }
 
         const sub : UntypedLambdaType = subtype === UntypedLambdaType.EMPTY ?
             UntypedLambdaType.EMPTY
@@ -293,7 +307,6 @@ export default class App extends Component<{}, AppState> {
         }
       }
       break
-        
       default:
         break;
     }
@@ -319,7 +332,7 @@ export default class App extends Component<{}, AppState> {
 
   // NOTE: render is OK
   render () {
-    const { notebooks, activeNotebookIndex, theme, accent, boxStyle } = this.state
+    const { notebooks, activeNotebookIndex, theme, accent, boxStyle, confirmBoxDelete } = this.state
     const notebook : NotebookState = notebooks[activeNotebookIndex]
     const { settings } = notebook
 
@@ -339,6 +352,8 @@ export default class App extends Component<{}, AppState> {
               theme={ theme }
               accent={ accent }
               boxStyle={ boxStyle }
+              confirmBoxDelete={ confirmBoxDelete ?? true }
+              onConfirmBoxDeleteChange={ this.updateConfirmBoxDelete }
               settings={ settings }
               onAccentChange={ this.updateAccent }
               onAccentPreview={ this.previewAccent }
@@ -356,7 +371,12 @@ export default class App extends Component<{}, AppState> {
               onTourOpen={ this.openTour }
             />
 
-            <Notebook state={ notebook } updateNotebook={ this.updateNotebook } />
+            <Notebook
+              state={ notebook }
+              updateNotebook={ this.updateNotebook }
+              confirmBoxDelete={ confirmBoxDelete ?? true }
+              onConfirmBoxDeleteChange={ this.updateConfirmBoxDelete }
+            />
 
             {
               this.tourOpen ?
@@ -474,7 +494,7 @@ export default class App extends Component<{}, AppState> {
   }
 
   addNotebook () : void {
-    const { notebooks } = this.state
+    const { notebooks, activeNotebookIndex } = this.state
     const names = notebooks.map((notebook : NotebookState) => notebook.name)
 
     let name : string = 'Notebook'
@@ -484,12 +504,25 @@ export default class App extends Component<{}, AppState> {
       counter++
     }
 
-    const newNotebooks = [ ...notebooks, createEmptyNotebook(name) ]
+    // Zen is uninterrupted focus: a new notebook opened from inside it
+    // stays in it instead of dropping the user out without warning.
+    const fresh : NotebookState = createEmptyNotebook(name)
+    if (notebooks[activeNotebookIndex]?.zenMode === true) {
+      fresh.zenMode = true
+    }
+
+    const newNotebooks = [ ...notebooks, fresh ]
 
     this.setState({
       notebooks : newNotebooks,
       activeNotebookIndex : newNotebooks.length - 1,
     })
+
+    // A fresh notebook is a new document: park the page at the top.
+    // Without this the previous notebook's scroll position carries
+    // over and clamps into the short new content, hiding the title
+    // one line up. Instant: there is no travel to glide through.
+    window.scrollTo({ top : 0, behavior : 'auto' })
 
     updateAppStateToStorage({
       ...this.state,
@@ -545,6 +578,11 @@ export default class App extends Component<{}, AppState> {
     this.boxStylePreview = null
     this.setState({ boxStyle })
     updateAppStateToStorage({ ...this.state, boxStyle })
+  }
+
+  updateConfirmBoxDelete (confirmBoxDelete : boolean) : void {
+    this.setState({ confirmBoxDelete })
+    updateAppStateToStorage({ ...this.state, confirmBoxDelete })
   }
 
 }

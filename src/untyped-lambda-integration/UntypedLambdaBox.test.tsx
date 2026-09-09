@@ -4,7 +4,7 @@ import { act, render, fireEvent, cleanup } from '@testing-library/react';
 import { tokenize, parse, None } from '@lambdulus/core';
 import UntypedLambdaBox from './UntypedLambdaBox';
 import { createNewUntypedLambdaExpression, defaultSettings, CODE_NAME as UNTYPED_CODE_NAME, SETTINGS_OPENED_EVENT } from './Constants';
-import { UntypedLambdaState, UntypedLambdaType, StepValidity } from './Types';
+import { EvaluationStrategy, UntypedLambdaState, UntypedLambdaType, StepValidity } from './Types';
 
 afterEach(() => cleanup());
 
@@ -320,5 +320,202 @@ test('exercise created at an eta-redex is not marked normal', () => {
   }
   finally {
     unmount();
+  }
+});
+
+test('submitting an open macro definition shows the core error', () => {
+  // TEST := x y would capture x under a lambda at the use site; core
+  // rejects the definition with OpenMacroDefinition (name + free vars)
+  // and the box surfaces that message instead of a generic hint.
+  const initial = createNewUntypedLambdaExpression(defaultSettings);
+  initial.editor.content = 'TEST := x y ; (λ x y . x y) TEST';
+
+  const { container, unmount } = render(<Harness initial={ initial } />);
+  try {
+    fireEvent.click(container.querySelector('.open-as-debug') as HTMLElement);
+    const error = lastState().editor.syntaxError;
+    expect(error).not.toBeNull();
+    expect(error?.message).toContain('"TEST"');
+    expect(error?.message).toContain('x, y');
+    expect(container.querySelector('.editorError')).not.toBeNull();
+  }
+  finally {
+    unmount();
+  }
+});
+
+test('submitting closed macros still works, aliases included', () => {
+  const initial = createNewUntypedLambdaExpression(defaultSettings);
+  initial.editor.content = 'ID := (λ x . x) ; ALSO := ID ; ALSO 5';
+
+  const { container, unmount } = render(<Harness initial={ initial } />);
+  try {
+    fireEvent.click(container.querySelector('.open-as-debug') as HTMLElement);
+    expect(lastState().editor.syntaxError).toBeNull();
+    expect(lastState().subtype).toBe(UntypedLambdaType.ORDINARY);
+  }
+  finally {
+    unmount();
+  }
+});
+
+function settingsHarness (initial : UntypedLambdaState) {
+  // Like Harness but with the settings panel openable mid-session: the
+  // state setter escapes so the test can open the panel and flip toggles.
+  let set : (state : UntypedLambdaState) => void = () => void 0;
+  function H () {
+    const [ state, setState ] = useState(initial);
+    set = setState;
+    (globalThis as { __lastState ?: UntypedLambdaState }).__lastState = state;
+    return (
+      <UntypedLambdaBox
+        state={ state }
+        isActive={ true }
+        isFocused={ true }
+        isAnchorBox={ true }
+        setBoxState={ setState }
+        addBox={ () => void 0 }
+      />
+    );
+  }
+  const utils = render(<H />);
+  return { ...utils, setState : (updater : (state : UntypedLambdaState) => UntypedLambdaState) => act(() => set(updater((globalThis as { __lastState ?: UntypedLambdaState }).__lastState as UntypedLambdaState))) };
+}
+
+test('strategy flip after submit offers restart, flip-back retracts it', () => {
+  const initial = createNewUntypedLambdaExpression(defaultSettings);
+  initial.editor.content = '+ 2 3';
+  const { container, unmount, setState, getByLabelText } = settingsHarness(initial);
+  try {
+    fireEvent.click(container.querySelector('.open-as-debug') as HTMLElement);
+    expect(lastState().editor.syntaxError).toBeNull();
+    expect(container.querySelector('.untyped-lambda-settings-restart-row')).toBeNull();
+
+    setState((s) => ({ ...s, settingsOpen : true }));
+    expect(container.querySelector('.untyped-lambda-settings-restart-row')).toBeNull();
+
+    fireEvent.click(getByLabelText('Applicative'));
+    const offer = container.querySelector('.untyped-lambda-settings-restart-row');
+    expect(offer).not.toBeNull();
+    expect(offer?.querySelector('.untyped-lambda-settings-restart-button')?.textContent).toBe('Settings changed, restart?');
+
+    fireEvent.click(getByLabelText('Normal'));
+    expect(container.querySelector('.untyped-lambda-settings-restart-row')).toBeNull();
+  }
+  finally {
+    unmount();
+  }
+});
+
+test('restart resubmits from step zero with the current settings', () => {
+  const initial = createNewUntypedLambdaExpression(defaultSettings);
+  initial.editor.content = '+ 2 3';
+  const { container, unmount, setState, getByLabelText } = settingsHarness(initial);
+  try {
+    fireEvent.click(container.querySelector('.open-as-debug') as HTMLElement);
+    setState((s) => ({ ...s, settingsOpen : true }));
+    fireEvent.click(getByLabelText('Applicative'));
+    expect(container.querySelector('.untyped-lambda-settings-restart-button')).not.toBeNull();
+
+    fireEvent.click(container.querySelector('.untyped-lambda-settings-restart-button') as HTMLElement);
+    const restarted = lastState();
+    expect(restarted.history.length).toBe(1);
+    expect(restarted.history[0].step).toBe(0);
+    expect(restarted.submittedWith?.strategy).toBe(EvaluationStrategy.APPLICATIVE);
+    expect(container.querySelector('.untyped-lambda-settings-restart-row')).toBeNull();
+  }
+  finally {
+    unmount();
+  }
+});
+
+test('enabling eta at normal form reopens stepping without stepping', () => {
+  const initial = createNewUntypedLambdaExpression(defaultSettings);
+  initial.editor.content = '(λ x . y x)';
+  const { container, unmount, setState } = settingsHarness(initial);
+  try {
+    fireEvent.click(container.querySelector('.open-as-debug') as HTMLElement);
+    expect(lastState().history[0].isNormalForm).toBe(true);
+
+    setState((s) => ({ ...s, settingsOpen : true }));
+    fireEvent.click(container.querySelector('.untyped-lambda-settings-ETA input') as HTMLElement);
+
+    const reopened = lastState();
+    expect(reopened.ETA).toBe(true);
+    expect(reopened.history.length).toBe(1);
+    expect(reopened.history[0].isNormalForm).toBe(false);
+  }
+  finally {
+    unmount();
+  }
+});
+
+test('enabling eta at an eta-less normal form changes nothing', () => {
+  const initial = createNewUntypedLambdaExpression(defaultSettings);
+  initial.editor.content = '(λ x . x)';
+  const { container, unmount, setState } = settingsHarness(initial);
+  try {
+    fireEvent.click(container.querySelector('.open-as-debug') as HTMLElement);
+    expect(lastState().history[0].isNormalForm).toBe(true);
+
+    setState((s) => ({ ...s, settingsOpen : true }));
+    fireEvent.click(container.querySelector('.untyped-lambda-settings-ETA input') as HTMLElement);
+
+    const state = lastState();
+    expect(state.ETA).toBe(true);
+    expect(state.history.length).toBe(1);
+    expect(state.history[0].isNormalForm).toBe(true);
+  }
+  finally {
+    unmount();
+  }
+});
+
+test('eta toggle before normal form just applies', () => {
+  const initial = createNewUntypedLambdaExpression(defaultSettings);
+  initial.editor.content = '+ 1 2';
+  const { container, unmount, setState } = settingsHarness(initial);
+  try {
+    fireEvent.click(container.querySelector('.open-as-debug') as HTMLElement);
+    expect(lastState().history[0].isNormalForm).toBe(false);
+
+    setState((s) => ({ ...s, settingsOpen : true }));
+    fireEvent.click(container.querySelector('.untyped-lambda-settings-ETA input') as HTMLElement);
+
+    const state = lastState();
+    expect(state.ETA).toBe(true);
+    expect(state.history.length).toBe(1);
+    expect(state.history[0].isNormalForm).toBe(false);
+  }
+  finally {
+    unmount();
+  }
+});
+
+test('unbalanced input surfaces core paren messages', () => {
+  const missing = createNewUntypedLambdaExpression(defaultSettings);
+  missing.editor.content = '((x)';
+  const first = render(<Harness initial={ missing } />);
+  try {
+    fireEvent.click(first.container.querySelector('.open-as-debug') as HTMLElement);
+    expect(lastState().editor.syntaxError?.message).toBe(
+      'It seems like you forgot to write one or more closing parentheses.'
+    );
+  }
+  finally {
+    first.unmount();
+  }
+
+  const stray = createNewUntypedLambdaExpression(defaultSettings);
+  stray.editor.content = 'x )';
+  const second = render(<Harness initial={ stray } />);
+  try {
+    fireEvent.click(second.container.querySelector('.open-as-debug') as HTMLElement);
+    expect(lastState().editor.syntaxError?.message).toBe(
+      'It seems you have one or more closing parenthesis not matching.'
+    );
+  }
+  finally {
+    second.unmount();
   }
 });

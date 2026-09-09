@@ -44,7 +44,7 @@ export class BoxContainer extends Component<Props, State> {
     }
   }
 
-  getSnapshotBeforeUpdate (prevProps : Props) : number | null {
+  getSnapshotBeforeUpdate (prevProps : Props) : { top : number, height : number } | null {
     // Focus transitions own the page scroll (Notebook seats the newly
     // focused box), so only glue the viewport across plain resizes.
     if (prevProps.isFocusedBox !== this.props.isFocusedBox) {
@@ -60,23 +60,34 @@ export class BoxContainer extends Component<Props, State> {
     }
 
     const el : HTMLDivElement | null = this.rootRef.current
-    return el === null ? null : el.getBoundingClientRect().top
+    if (el === null) {
+      return null
+    }
+    const rect : DOMRect = el.getBoundingClientRect()
+    return { top : rect.top, height : rect.height }
   }
 
-  componentDidUpdate (_prevProps : Props, prevState : State, snapshot : number | null) : void {
+  componentDidUpdate (_prevProps : Props, prevState : State, snapshot : { top : number, height : number } | null) : void {
     // The add-box dialog opens below the button; nudge the page just
     // enough to bring the whole dialog into view.
     if ( ! prevState.modalOpen && this.state.modalOpen && this.modalRef.current !== null) {
       this.modalRef.current.scrollIntoView?.({ block : 'nearest', behavior : 'smooth' })
     }
 
-    // Pin the box where it was on screen: when this box resizes itself
-    // (a settings toggle collapsing the history!), the page would
-    // otherwise jump as clamping and anchoring kick in.
+    // Pin the box where it was on screen, but only across its own
+    // resize (a settings toggle collapsing the history!). Displacement
+    // by content above -- a sibling's new step line pushing this box
+    // down -- belongs to the browser's scroll anchoring: pinning here
+    // would scroll once per box below the change, fighting the native
+    // compensation as a per-step jitter.
     if (snapshot !== null) {
       const el : HTMLDivElement | null = this.rootRef.current
       if (el !== null) {
-        const drift : number = el.getBoundingClientRect().top - snapshot
+        const rect : DOMRect = el.getBoundingClientRect()
+        if (Math.abs(rect.height - snapshot.height) < 0.5) {
+          return
+        }
+        const drift : number = rect.top - snapshot.top
         if (Math.abs(drift) > 0.5) {
           window.scrollBy({ top : drift, behavior : 'auto' })
         }
@@ -98,11 +109,8 @@ export class BoxContainer extends Component<Props, State> {
       addBoxAfter,
       removeBox,
     } : Props = this.props
-  
     const { modalOpen } = this.state
-  
     const boxTypeClassName : string = mapBoxTypeToStr(box.type)
-  
     return (
       <div ref={ this.rootRef }>
         <div

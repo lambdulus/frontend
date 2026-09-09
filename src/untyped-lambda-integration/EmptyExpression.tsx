@@ -74,7 +74,6 @@ export default function EmptyExpression(props : EmptyExpressionProps) : JSX.Elem
                     Debug
                   </span>
                 </button>
-                
                 <button
                   title='Exercise this Expression Yourself (Shift + Enter)'
                   type="button"
@@ -83,7 +82,6 @@ export default function EmptyExpression(props : EmptyExpressionProps) : JSX.Elem
                 >
                   <span className='untyped-lambda--submit-expression--btn-label'>Exercise</span>
                 </button>
-                
               </div>
             </div>
           )

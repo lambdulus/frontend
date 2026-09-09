@@ -1,4 +1,5 @@
 import React from 'react';
+import { readFileSync } from 'fs';
 import { test, expect, vi, afterEach } from 'vitest';
 import { render, fireEvent, cleanup } from '@testing-library/react';
 import Settings from './Settings';
@@ -71,4 +72,52 @@ test('eta toggle reflects the setting and reports turning it on', () => {
 
   fireEvent.click(checkbox);
   expect(change).toHaveBeenCalledWith({ ...baseSettings, ETA : true });
+});
+
+test('restart offer stands alone with breathing room', () => {
+  // One wide outlined button on its own right-aligned row below the
+  // strategies: headroom above, air from the panel edge, no fill.
+  const css = readFileSync('src/untyped-lambda-integration/styles/Settings.css', 'utf8');
+  const row = css.match(/\.untyped-lambda-settings-restart-row\s*\{[^}]*\}/)?.[0] ?? '';
+  expect(row).toMatch(/justify-content\s*:\s*flex-end/);
+  expect(row).toMatch(/margin\s*:\s*40px 8px 0 0/);
+  const button = css.match(/\.untyped-lambda-settings-restart-button\s*\{[^}]*\}/)?.[0] ?? '';
+  expect(button).toMatch(/font-size\s*:\s*0\.9em/);
+  expect(button).toMatch(/border\s*:[^;]*var\(--accent\)/);
+  expect(button).not.toMatch(/background-color\s*:\s*var\(--accent\)/);
+  const hover = css.match(/\.untyped-lambda-settings-restart-button:hover\s*\{[^}]*\}/)?.[0] ?? '';
+  expect(hover).toMatch(/background-color\s*:\s*var\(--accent\)/);
+  expect(hover).toMatch(/color\s*:\s*var\(--accent-ink\)/);
+});
+
+test('switch toggles have track, thumb, and on paint', () => {
+  // The button toggles (Simplified, global delete confirmation) share
+  // these classes; without paint they render as bare browser buttons.
+  // Geometry matches the painted checkbox switches (34x20 track).
+  const css = readFileSync('src/untyped-lambda-integration/styles/Settings.css', 'utf8');
+  const track = css.match(/\.untyped-lambda-settings--toggle\s*\{[^}]*\}/)?.[0] ?? '';
+  expect(track).toMatch(/width\s*:\s*34px/);
+  expect(track).toMatch(/height\s*:\s*20px/);
+  expect(track).toMatch(/border-radius\s*:\s*999px/);
+  const on = css.match(/\.untyped-lambda-settings--toggle-on\s*\{[^}]*\}/)?.[0] ?? '';
+  expect(on).toMatch(/background-color\s*:\s*var\(--accent\)/);
+  const thumb = css.match(/\.untyped-lambda-settings--toggle-thumb\s*\{[^}]*\}/)?.[0] ?? '';
+  expect(thumb).toMatch(/border-radius\s*:\s*50%/);
+  expect(thumb).toMatch(/background-color\s*:\s*var\(--muted\)/);
+});
+
+test('toggle labels nudge up to the track center', () => {
+  // The font metrics sit glyphs a hair below the flex-given center
+  // next to the 20px switches; the shared label class compensates.
+  const css = readFileSync('src/untyped-lambda-integration/styles/Settings.css', 'utf8');
+  const label = css.match(/\.untyped-lambda-settings-label\s*\{[^}]*\}/)?.[0] ?? '';
+  expect(label).toMatch(/transform\s*:\s*translateY\(-1px\)/);
+});
+
+test('strategy pills ignore the label nudge', () => {
+  // The shared label lift would unseat the active pill inside its
+  // segment; symmetric pills opt back out of it.
+  const css = readFileSync('src/untyped-lambda-integration/styles/Settings.css', 'utf8');
+  const pill = css.match(/\.untyped-lambda-settings--strategy-radio-wrapper \.untyped-lambda-settings-label\s*\{[^}]*\}/)?.[0] ?? '';
+  expect(pill).toMatch(/transform\s*:\s*none/);
 });

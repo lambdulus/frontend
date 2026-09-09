@@ -5,11 +5,11 @@ import { BoxType } from '../Types'
 import { UntypedLambdaState, UntypedLambdaType, UntypedLambdaSettings, PromptPlaceholder, StepMessage, StepValidity } from './Types'
 import ExpressionBox from './ExpressionBox'
 import MacroList from './MacroList'
-import { GLOBAL_SETTINGS_ENABLER, strategyToEvaluator, findSimplifiedReduction, toMacroMap, SETTINGS_OPENED_EVENT } from './Constants'
+import { GLOBAL_SETTINGS_ENABLER, strategyToEvaluator, findSimplifiedReduction, toMacroMap, SETTINGS_OPENED_EVENT, coreErrorMessage } from './Constants'
 import ExerciseBox from './ExerciseBox'
 import Settings from './Settings'
 import EmptyExpression from './EmptyExpression'
-import { None, Evaluator, Token, tokenize, parse, AST, OptimizeEvaluator, MacroMap } from '@lambdulus/core'
+import { None, Evaluator, Token, tokenize, parse, AST, OptimizeEvaluator, MacroMap, OpenMacroDefinition } from '@lambdulus/core'
 
 
 interface Props {
@@ -137,7 +137,15 @@ export default class UntypedLambdaBox extends PureComponent<Props, State> {
 
   render () {
     const { state, isActive, isFocused, isAnchorBox, setBoxState, addBox, titleActionsHost } : Props = this.props
-    const { settingsOpen, subtype, macrolistOpen, SLI, expandStandalones, strategy, SDE, ETA, collapseOldSteps, editor, minimized } : UntypedLambdaState = state
+    const { settingsOpen, subtype, macrolistOpen, SLI, expandStandalones, strategy, SDE, ETA, collapseOldSteps, editor, minimized, history, submittedWith } : UntypedLambdaState = state
+
+    // A submitted session stepped under different strategy/SLI/SDE can
+    // restart from scratch with the current ones. ETA never dirties:
+    // it reopens stepping at normal form on its own.
+    const restartNeeded : boolean =
+      (history ?? []).length > 0
+      && submittedWith !== undefined
+      && (submittedWith.strategy !== strategy || submittedWith.SLI !== SLI || submittedWith.SDE !== SDE)
 
 
     const renderBoxContent = () => {
@@ -165,7 +173,6 @@ export default class UntypedLambdaBox extends PureComponent<Props, State> {
               setBoxState={ setBoxState }
             />
           )
-  
         case UntypedLambdaType.ORDINARY:
           return (
             <ExpressionBox
@@ -178,7 +185,6 @@ export default class UntypedLambdaBox extends PureComponent<Props, State> {
               titleActionsHost={ titleActionsHost }
             />
           )
-        
         case UntypedLambdaType.EXERCISE:
           return (
             <ExerciseBox
@@ -201,8 +207,32 @@ export default class UntypedLambdaBox extends PureComponent<Props, State> {
               <Settings
                 settings={ { type : BoxType.UNTYPED_LAMBDA, SLI, expandStandalones, strategy, SDE, ETA : ETA ?? false, collapseOldSteps : collapseOldSteps ?? true } }
                 settingsEnabled={ GLOBAL_SETTINGS_ENABLER }
+                restartNeeded={ restartNeeded }
+                onRestart={ () => this.onSubmitExpression(subtype) }
 
                 change={ (settings : UntypedLambdaSettings) => {
+                  // Enabling ETA at normal form reopens stepping when an
+                  // eta step is possible -- without performing it; the
+                  // user decides. Every other toggle just applies (pre
+                  // normal form the live setting takes effect on its own,
+                  // and disabling at normal form undoes nothing).
+                  if (settings.ETA === true && state.ETA !== true) {
+                    const last = state.history[state.history.length - 1]
+                    if (last !== undefined && last.ast !== null && last.isNormalForm === true) {
+                      const etaEvaluator : Evaluator = new OptimizeEvaluator(last.ast)
+                      if (! (etaEvaluator.nextReduction instanceof None)) {
+                        setBoxState({
+                          ...state,
+                          ...settings,
+                          history : [
+                            ...state.history.slice(0, -1),
+                            { ...last, isNormalForm : false, message : { ...last.message, message : '' } },
+                          ],
+                        })
+                        return
+                      }
+                    }
+                  }
                   setBoxState({
                     ...state,
                     ...settings
@@ -275,12 +305,11 @@ export default class UntypedLambdaBox extends PureComponent<Props, State> {
           return findSimplifiedReduction(astCopy, strategy, macromap)[0]
         }
         else {
-          const evaluator : Evaluator = new (strategyToEvaluator(strategy) as any)(astCopy)
+          const evaluator : Evaluator = new (strategyToEvaluator(strategy))(astCopy)
           return evaluator.nextReduction
         }
       })()
 
-      
       if (nextReduction instanceof None) {
         const etaEvaluator : Evaluator = new OptimizeEvaluator(ast)
 
@@ -297,6 +326,7 @@ export default class UntypedLambdaBox extends PureComponent<Props, State> {
         subtype,
         expression : content,
         macrotable : macromap,
+        submittedWith : { strategy, SDE, ETA, SLI },
         history : [ {
           ast : ast.clone(),
           lastReduction : new None(),
@@ -312,8 +342,13 @@ export default class UntypedLambdaBox extends PureComponent<Props, State> {
         }
       })
     } catch (exception) {
-      let errorMessage : string = "Something is wrong with your expression. Please inspect it closely."
-      console.error((exception as Error).toString())
+      // Core reports open macro definitions as a typed error carrying
+      // the macro name and its free variables -- show it as is.
+      // Anything else falls back to core's own message.
+      let errorMessage : string = exception instanceof OpenMacroDefinition
+        ? exception.message
+        : coreErrorMessage(exception)
+      console.error(coreErrorMessage(exception))
 
       // if (errorMessage === "Error") {
         if (content.match(/:=/g)?.length !== content.match(/;/g)?.length) {

@@ -37,7 +37,6 @@ export class TreeComparator {
     it will also have implemented query methods,
     probably wont be many of them, just few
     **/
-    
     const [ left, right ] : Pair<AST> = this.context
 
     if (left instanceof Lambda && right instanceof Lambda) {

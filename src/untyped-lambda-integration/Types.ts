@@ -1,5 +1,6 @@
 import { AbstractSettings, BoxType, AbstractBoxState } from "../Types"
-import { AST, ASTReduction, ASTReductionType, NormalEvaluator, ApplicativeEvaluator, OptimizeEvaluator, MacroMap } from "@lambdulus/core"
+import { AST, ASTReduction, ASTReductionType, MacroMap } from "@lambdulus/core"
+export type { Evaluator } from "@lambdulus/core"
 
 
 export enum PromptPlaceholder {
@@ -50,6 +51,17 @@ export enum EvaluationStrategy {
   ABSTRACTION = 'Abstraction / Simplified Evaluation'
 }
 
+// The evaluation settings a session was submitted with. A submitted box
+// whose current strategy/SLI/SDE differ was stepped under different
+// rules, so the panel offers a restart. ETA is recorded but never
+// dirties: it has its own at-normal-form behavior.
+export interface SubmittedSettings {
+  strategy : EvaluationStrategy
+  SLI : boolean
+  SDE : boolean
+  ETA : boolean
+}
+
 export interface UntypedLambdaState extends AbstractBoxState {
   __key : string
   type : BoxType
@@ -62,13 +74,13 @@ export interface UntypedLambdaState extends AbstractBoxState {
   breakpoints : Array<Breakpoint>
   timeoutID : number | undefined
   timeout : number
-  
   strategy : EvaluationStrategy
   SDE : boolean // Semantics Drive Evaluation (Strategy) -- formerly called Simplified Strategy
   ETA : boolean // Eta conversion as the final evaluation step (opt-in, off by default)
   SLI : boolean
   expandStandalones : boolean
   collapseOldSteps : boolean
+  submittedWith? : SubmittedSettings
 
   macrolistOpen : boolean
   // The dock the user asked for: set by the dock head and the tour, never
@@ -77,7 +89,6 @@ export interface UntypedLambdaState extends AbstractBoxState {
   // shut across refocus, and old notebooks (field absent) stay shut too.
   macrolistWanted? : boolean
   macrotable : MacroMap
-  
   editor : {
     placeholder : string
     content : string
@@ -100,4 +111,4 @@ export type SettingsEnabled = {
   strategy : boolean
 }
 
-export type Evaluator = NormalEvaluator | ApplicativeEvaluator | OptimizeEvaluator
+

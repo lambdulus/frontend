@@ -11,7 +11,7 @@ export enum BoxType {
 export interface AbstractBoxState {
   type : BoxType,
   __key : string,
-  title : String,
+  title : string,
   minimized : boolean,
   settingsOpen : boolean,
   readOnly ?: boolean
@@ -64,5 +64,6 @@ export interface AppState {
   activeNotebookIndex : number,
   theme : Theme,
   accent : Accent,
-  boxStyle : BoxStyle
+  boxStyle : BoxStyle,
+  confirmBoxDelete : boolean
 }

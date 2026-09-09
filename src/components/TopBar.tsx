@@ -21,11 +21,13 @@ interface Props {
   theme : Theme
   accent : Accent
   boxStyle : BoxStyle
+  confirmBoxDelete : boolean
   settings : GlobalSettings
   onAccentChange (accent : Accent) : void
   onAccentPreview (accent : Accent | null) : void
   onBoxStyleChange (boxStyle : BoxStyle) : void
   onBoxStylePreview (boxStyle : BoxStyle | null) : void
+  onConfirmBoxDeleteChange (confirm : boolean) : void
   onNotebookSelect (index : number) : void
   onNotebookAdd () : void
   onNotebookRemove (index : number) : void
@@ -45,11 +47,13 @@ export default function TopBar (props : Props) : JSX.Element {
     theme,
     accent,
     boxStyle,
+    confirmBoxDelete,
     settings,
     onAccentChange,
     onAccentPreview,
     onBoxStyleChange,
     onBoxStylePreview,
+    onConfirmBoxDeleteChange,
     onNotebookSelect,
     onNotebookAdd,
     onNotebookRemove,
@@ -253,6 +257,20 @@ export default function TopBar (props : Props) : JSX.Element {
                     }
                   }
                 />
+                <p className='top-bar--settings-title'>Deletion</p>
+                <span className='top-bar--delete-confirm'>
+                  <button
+                    id='top-bar--confirm-delete'
+                    className={ `untyped-lambda-settings--toggle ${confirmBoxDelete ? 'untyped-lambda-settings--toggle-on' : 'untyped-lambda-settings--toggle-off'}` }
+                    aria-pressed={ confirmBoxDelete }
+                    onClick={ () => onConfirmBoxDeleteChange(! confirmBoxDelete) }
+                  >
+                    <span className='untyped-lambda-settings--toggle-thumb' />
+                  </button>
+                  <label className='untyped-lambda-settings-label' htmlFor='top-bar--confirm-delete'>
+                    Confirm before deleting a box
+                  </label>
+                </span>
               </div>
             </React.Fragment>
           :

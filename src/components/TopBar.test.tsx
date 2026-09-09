@@ -28,11 +28,13 @@ function baseProps (onZenModeChange : (zenMode : boolean) => void) {
     theme : Theme.Dark,
     accent : 'emerald' as const,
     boxStyle : 'cards' as const,
+    confirmBoxDelete : true,
     settings : {},
     onAccentChange : () => void 0,
     onAccentPreview : () => void 0,
     onBoxStyleChange : () => void 0,
     onBoxStylePreview : () => void 0,
+    onConfirmBoxDeleteChange : () => void 0,
     onNotebookSelect : () => void 0,
     onNotebookAdd : () => void 0,
     onNotebookRemove : () => void 0,
@@ -285,4 +287,33 @@ test('box style section stands off from the accent section', () => {
   // The checked tile rings in accent.
   const picked = css.match(/\.top-bar--boxpreview-option input\[type='radio'\]:checked \+ \.top-bar--boxpreview-tile\s*\{[^}]*\}/)?.[0] ?? '';
   expect(picked).toMatch(/border-color\s*:\s*var\(--accent\)/);
+});
+
+test('deletion toggle reflects the setting and reports unchecking', () => {
+  const onConfirmBoxDeleteChange = vi.fn();
+  const { container } = render(
+    <TopBar { ...baseProps(() => void 0) } confirmBoxDelete={ true } onConfirmBoxDeleteChange={ onConfirmBoxDeleteChange } />
+  );
+
+  fireEvent.click(container.querySelector('[title="Notebook settings"]') as HTMLElement);
+  const toggle = container.querySelector('#top-bar--confirm-delete') as HTMLElement;
+  expect(toggle.getAttribute('aria-pressed')).toBe('true');
+  expect(toggle.className).toMatch(/untyped-lambda-settings--toggle-on/);
+  const rowLabel = container.querySelector('.top-bar--delete-confirm label');
+  expect(rowLabel?.textContent).toBe('Confirm before deleting a box');
+  expect(rowLabel?.className).toMatch(/untyped-lambda-settings-label/);
+
+  fireEvent.click(toggle);
+  expect(onConfirmBoxDeleteChange).toHaveBeenCalledWith(false);
+});
+
+test('deletion toggle renders off when asking is off', () => {
+  const { container } = render(
+    <TopBar { ...baseProps(() => void 0) } confirmBoxDelete={ false } onConfirmBoxDeleteChange={ () => void 0 } />
+  );
+
+  fireEvent.click(container.querySelector('[title="Notebook settings"]') as HTMLElement);
+  const toggle = container.querySelector('#top-bar--confirm-delete') as HTMLElement;
+  expect(toggle.getAttribute('aria-pressed')).toBe('false');
+  expect(toggle.className).toMatch(/untyped-lambda-settings--toggle-off/);
 });

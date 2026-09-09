@@ -53,14 +53,14 @@ test('bare top-bar click seats and focuses the box', () => {
   }
 });
 
-function rect (top : number) : DOMRect {
+function rect (top : number, height : number = 0) : DOMRect {
   return {
     top,
     left : 0,
-    bottom : top,
+    bottom : top + height,
     right : 0,
     width : 0,
-    height : 0,
+    height,
     x : 0,
     y : 0,
     toJSON : () => ({}),
@@ -79,18 +79,48 @@ test('resize pinning glues the box across plain resizes but steps aside across z
   const { container, rerender, unmount } = render(<BoxContainer { ...props(false) } />);
   try {
     const root = container.firstElementChild as HTMLElement;
-    let tops = [ 100, 140 ];
-    root.getBoundingClientRect = () => rect(tops.length > 0 ? (tops.shift() as number) : 140);
+    let frames : Array<[number, number]> = [ [ 100, 200 ], [ 140, 260 ] ];
+    root.getBoundingClientRect = () => {
+      const [ top, height ] = frames.length > 0 ? (frames.shift() as [number, number]) : [ 140, 260 ];
+      return rect(top, height);
+    };
 
-    // Plain resize with the same props: the 40px drift scrolls along.
+    // Plain resize with the same props: the box grew and drifted 40px,
+    // so the page scrolls along to keep it glued.
     rerender(<BoxContainer { ...props(false) } />);
     expect(scrollBy).toHaveBeenCalledTimes(1);
     expect(scrollBy).toHaveBeenCalledWith({ top : 40, behavior : 'auto' });
 
     // Zen flip with the same drift: no pinning, the flip owns scroll.
-    tops = [ 100, 140 ];
+    frames = [ [ 100, 200 ], [ 140, 260 ] ];
     rerender(<BoxContainer { ...props(true) } />);
     expect(scrollBy).toHaveBeenCalledTimes(1);
+  }
+  finally {
+    unmount();
+    window.scrollBy = originalScrollBy;
+  }
+});
+
+test('sibling displacement without self-resize pins nothing', () => {
+  // A sibling's new step line pushes this box down without resizing
+  // it: pinning here scrolled once per box below the change, fighting
+  // the browser's scroll anchoring as a per-step jitter. The native
+  // compensation owns this case, so the pin must stay quiet.
+  const originalScrollBy = window.scrollBy;
+  const scrollBy = vi.fn();
+  window.scrollBy = scrollBy;
+  const { container, rerender, unmount } = render(<BoxContainer { ...props(false) } />);
+  try {
+    const root = container.firstElementChild as HTMLElement;
+    let frames : Array<[number, number]> = [ [ 100, 200 ], [ 140, 200 ] ];
+    root.getBoundingClientRect = () => {
+      const [ top, height ] = frames.length > 0 ? (frames.shift() as [number, number]) : [ 140, 200 ];
+      return rect(top, height);
+    };
+
+    rerender(<BoxContainer { ...props(false) } />);
+    expect(scrollBy).not.toHaveBeenCalled();
   }
   finally {
     unmount();
