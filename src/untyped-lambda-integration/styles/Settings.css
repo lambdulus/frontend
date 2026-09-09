@@ -196,6 +196,9 @@
   font-size: 0.85em;
   color: var(--muted);
   transition: color .15s ease-in-out, background-color .15s ease-in-out;
+  /* No label nudge here: these are symmetric pills, and lifting them
+     unseats the active one inside the segment. */
+  transform: none;
 }
 
 .untyped-lambda-settings--strategy-radio-wrapper input[type='radio']:checked + .untyped-lambda-settings-label {
