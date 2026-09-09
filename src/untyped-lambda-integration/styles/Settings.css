@@ -104,27 +104,27 @@
   border: 1px solid var(--border);
 }
 
-/* Restart offer: right-aligned stack, short label over an accent button. */
+/* Restart offer: right-aligned with the strategy row, short muted label
+   beside an outlined button, all in the panel's label type size. */
 .untyped-lambda-settings-restart {
   margin-left: auto;
   display: inline-flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 2px;
+  align-items: center;
+  gap: 8px;
 }
 
 .untyped-lambda-settings-restart-label {
-  font-size: 0.85em;
+  font-size: 0.9em;
   color: var(--muted);
 }
 
 .untyped-lambda-settings-restart-button {
-  background-color: var(--accent);
-  color: var(--accent-ink);
-  border: none;
+  background-color: transparent;
+  color: var(--text);
+  border: 1px solid var(--accent);
   border-radius: 999px;
-  padding: 3px 12px;
-  font-weight: 600;
+  padding: 2px 12px;
+  font-size: 0.9em;
   cursor: pointer;
 }
 
