@@ -344,7 +344,7 @@ export default class App extends Component<{}, AppState> {
 
           <div id='app' className={ darkmode ? 'dark' : 'light' } data-accent={ this.accentPreview ?? accent } data-box-style={ this.boxStylePreview ?? boxStyle }>
             <div id="bad-screen-message">
-              Lambdulus only runs on screens at least 900 pixels wide.
+              Lambdulus only runs on screens at least 375 pixels wide.
             </div>
             <TopBar
               notebooks={ notebooks }
@@ -463,7 +463,13 @@ export default class App extends Component<{}, AppState> {
 
   resetWorkspace () : void {
     if (window.confirm(RESET_WORKSPACE_CONFIRMATION)) {
-      const notebooks : Array<NotebookState> = [ createManualNotebook(), createEmptyNotebook('Notebook') ]
+      // The Manual is protected and special: cleaning the workspace
+      // never touches it — only everything else starts over. Locked
+      // notebooks cannot be deleted, so the Manual is always findable;
+      // a fresh one only fills the impossible gap of it missing.
+      const manual : NotebookState =
+        this.state.notebooks.find((notebook : NotebookState) => notebook.locked === true) ?? createManualNotebook()
+      const notebooks : Array<NotebookState> = [ manual, createEmptyNotebook('Notebook') ]
 
       this.setState({
         notebooks,

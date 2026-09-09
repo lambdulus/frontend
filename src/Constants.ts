@@ -15,7 +15,8 @@ export const CLEAR_NOTEBOOK_CONFIRMATION : string =
                                           Are you sure?`
 
 export const RESET_WORKSPACE_CONFIRMATION : string =
-`This will erase all of your notebooks and start over with the defaults.
+`This will erase all of your notebooks except the protected Manual
+and start over with the defaults.
 
                                           Are you really sure?`
 
@@ -56,6 +57,13 @@ export function createEmptyNotebook (name : string) : NotebookState {
   }
 }
 
+const NOTES_BOX_CONTENT : string =
+`# Your own notes
+
+This Manual notebook is protected and special: it can never be deleted
+or cleared, and boxes you add here survive cleaning the entire workspace.
+Keep notes about features you discover — add more boxes with the + below.`
+
 export function createManualNotebook () : NotebookState {
   const manualBox : NoteState = {
     ...createNewMarkdown(),
@@ -71,10 +79,23 @@ export function createManualNotebook () : NotebookState {
     },
   }
 
+  const notesBox : NoteState = {
+    ...createNewMarkdown(),
+    title : 'Your notes',
+    note : NOTES_BOX_CONTENT,
+    isEditing : false,
+    editor : {
+      placeholder : '',
+      content : NOTES_BOX_CONTENT,
+      caretPosition : 0,
+      syntaxError : null,
+    },
+  }
+
   return {
     name : 'Manual',
     locked : true,
-    boxList : [ manualBox ],
+    boxList : [ manualBox, notesBox ],
     activeBoxIndex : 0,
     focusedBoxIndex : undefined,
     settings : createDefaultSettings(),

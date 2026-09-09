@@ -20,11 +20,12 @@ interface BoxProperties {
 
   updateBoxState (box : BoxState) : void
   addBoxAfter (box : BoxState) : void
+  makeActive () : void
   titleActionsHost? : React.RefObject<HTMLSpanElement>
 }
 
 export default function Box (props : BoxProperties) : JSX.Element {
-  const { state, isActive, isFocused, isAnchorBox, updateBoxState, addBoxAfter, titleActionsHost } : BoxProperties = props
+  const { state, isActive, isFocused, isAnchorBox, updateBoxState, addBoxAfter, makeActive, titleActionsHost } : BoxProperties = props
   const { type } = state
 
   // const macroTable = useContext(MacroTableContext)
@@ -41,6 +42,7 @@ export default function Box (props : BoxProperties) : JSX.Element {
 
         setBoxState={ updateBoxState }
         addBox={ addBoxAfter }
+        makeActive={ makeActive }
         titleActionsHost={ titleActionsHost }
       />
     )

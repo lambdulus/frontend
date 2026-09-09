@@ -317,3 +317,71 @@ test('deletion toggle renders off when asking is off', () => {
   expect(toggle.getAttribute('aria-pressed')).toBe('false');
   expect(toggle.className).toMatch(/untyped-lambda-settings--toggle-off/);
 });
+
+test('narrow-screen menu folds the actions under a toggle', () => {
+  const { container } = render(<TopBar { ...baseProps(() => void 0) } />);
+  const toggle = container.querySelector('[aria-label="Menu"]') as HTMLElement;
+  const actions = container.querySelector('.top-bar--actions') as HTMLElement;
+
+  // Closed: the plain cluster, no dropdown, no backdrop.
+  expect(actions.classList.contains('top-bar--actions--open')).toBe(false);
+  expect(container.querySelector('.top-bar--backdrop')).toBeNull();
+
+  // Open: the same node drops down, backdrop catches outside clicks.
+  fireEvent.click(toggle);
+  expect(actions.classList.contains('top-bar--actions--open')).toBe(true);
+  expect(toggle.getAttribute('aria-expanded')).toBe('true');
+  expect(container.querySelector('.top-bar--backdrop')).not.toBeNull();
+
+  // Tabs stay in the bar either way.
+  expect(container.querySelector('.top-bar--tabs')).not.toBeNull();
+
+  // Taking an action closes the menu again...
+  fireEvent.click(container.querySelector('[title="Toggle the theme"]') as HTMLElement);
+  expect(actions.classList.contains('top-bar--actions--open')).toBe(false);
+
+  // ...and so does the backdrop.
+  fireEvent.click(toggle);
+  fireEvent.click(container.querySelector('.top-bar--backdrop') as HTMLElement);
+  expect(actions.classList.contains('top-bar--actions--open')).toBe(false);
+});
+
+test('reopening the menu dismisses an open panel', () => {
+  // The menu and the panels share the corner: opening one must never
+  // stack onto the other.
+  const { container } = render(<TopBar { ...baseProps(() => void 0) } />);
+  fireEvent.click(container.querySelector('[title="Notebook settings"]') as HTMLElement);
+  expect(container.querySelector('.top-bar--settings-panel')).not.toBeNull();
+  fireEvent.click(container.querySelector('[aria-label="Menu"]') as HTMLElement);
+  expect(container.querySelector('.top-bar--actions--open')).not.toBeNull();
+  expect(container.querySelector('.top-bar--settings-panel')).toBeNull();
+});
+
+test('menu rows name their icons', () => {
+  // Nine rows, each carrying a label the open menu shows.
+  const { container } = render(<TopBar { ...baseProps(() => void 0) } />);
+  const rows = container.querySelectorAll('.top-bar--actions .top-bar--action, .top-bar--actions .top-bar--zen');
+  expect(rows.length).toBe(9);
+  rows.forEach((row) => {
+    expect(row.querySelector('.top-bar--action-label')?.textContent).toMatch(/\S/);
+  });
+
+  // Hidden in the bar, shown in the open menu.
+  const css = readFileSync('src/styles/TopBar.css', 'utf8');
+  const label = css.match(/\.top-bar--action-label\s*\{[^}]*\}/)?.[0] ?? '';
+  expect(label).toMatch(/display\s*:\s*none/);
+  const media = css.slice(css.search(/@media[^{]*max-width\s*:\s*700px/));
+  expect(media).toMatch(/\.top-bar--actions--open \.top-bar--action-label\s*\{[^}]*display\s*:\s*inline/);
+});
+
+test('below 700px the actions fold under the toggle', () => {
+  // The cluster hides, the hamburger shows and morphs to an X, and
+  // the open node drops down — while the icons keep their size.
+  const css = readFileSync('src/styles/TopBar.css', 'utf8');
+  const media = css.slice(css.search(/@media[^{]*max-width\s*:\s*700px/));
+  expect(media).toMatch(/\.top-bar--menu-toggle\s*\{[^}]*display\s*:\s*inline-flex/);
+  expect(media).toMatch(/\.top-bar--actions\s*\{[^}]*display\s*:\s*none/);
+  expect(media).toMatch(/\.top-bar--actions--open\s*\{[^}]*position\s*:\s*absolute/);
+  expect(media).toMatch(/\.top-bar--actions--open \.top-bar--action[\s\S]*?min-height\s*:\s*40px/);
+  expect(css).toMatch(/\.top-bar--menu-toggle--open \.top-bar--menu-bar:nth-child\(1\)\s*\{[^}]*transform\s*:\s*rotate\(45deg\)/);
+});

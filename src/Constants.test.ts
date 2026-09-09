@@ -1,5 +1,5 @@
 import { test, expect, beforeEach } from 'vitest';
-import { decodeNotebook, loadTourState, saveTourState, defaultTourState } from './Constants';
+import { createManualNotebook, decodeNotebook, loadTourState, saveTourState, defaultTourState } from './Constants';
 import { CODE_NAME as UNTYPED_CODE_NAME } from './untyped-lambda-integration/Constants';
 import { EvaluationStrategy } from './untyped-lambda-integration/Types';
 import { NotebookState } from './Types';
@@ -54,4 +54,16 @@ test('tour storage starts empty, round-trips, rejects garbage', () => {
 
   window.localStorage.setItem('LambdulusTour', JSON.stringify({ step : '', done : true }));
   expect(loadTourState()).toBeNull();
+});
+
+test('the Manual carries a notes box besides the guide', () => {
+  // The protected notebook opens with room for the user's own notes;
+  // both boxes stay put through workspace cleaning (see App).
+  const manual = createManualNotebook();
+  expect(manual.name).toBe('Manual');
+  expect(manual.locked).toBe(true);
+  expect(manual.boxList.length).toBe(2);
+  expect(manual.boxList[0].title).toBe('Manual');
+  expect(manual.boxList[1].title).toBe('Your notes');
+  expect(String((manual.boxList[1] as unknown as { note : unknown }).note)).toMatch(/survive cleaning the entire workspace/);
 });

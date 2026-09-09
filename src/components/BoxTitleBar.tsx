@@ -66,10 +66,14 @@ interface State {
   where : BoxPlace | null
   menuOpen : boolean
   shareLinkOpen : boolean
+  compactOpen : boolean
 }
 
 
 export default class BoxTitleBar extends Component<Props, State> {
+
+  private compactPopupRef : React.RefObject<HTMLDivElement>
+  private compactToggleRef : React.RefObject<HTMLDivElement>
 
   constructor (props : Props) {
     super(props)
@@ -78,6 +82,43 @@ export default class BoxTitleBar extends Component<Props, State> {
       where : null,
       menuOpen : false,
       shareLinkOpen : false,
+      compactOpen : false,
+    }
+
+    this.compactPopupRef = React.createRef<HTMLDivElement>()
+    this.compactToggleRef = React.createRef<HTMLDivElement>()
+    this.setCompact = this.setCompact.bind(this)
+  }
+
+  componentWillUnmount () : void {
+    document.removeEventListener('mousedown', this.onCompactOutside)
+  }
+
+  // Compact box menu (see the media query in BoxTopBar.css): tapping
+  // the toggle opens, tapping an icon or anywhere else closes.
+  setCompact (open : boolean) : void {
+    this.setState({ compactOpen : open })
+
+    if (open) {
+      document.addEventListener('mousedown', this.onCompactOutside)
+    }
+    else {
+      document.removeEventListener('mousedown', this.onCompactOutside)
+    }
+  }
+
+  onCompactOutside = (e : Event) : void => {
+    const target : EventTarget | null = e.target
+    const popup : HTMLDivElement | null = this.compactPopupRef.current
+    const toggle : HTMLDivElement | null = this.compactToggleRef.current
+
+    // Taps on the tour card never count as outside: every Next tap
+    // would otherwise shut the menu a beat before the step sync
+    // re-opens it, flickering through each settings step.
+    const inTour : boolean = target instanceof Element && target.closest('.tour') !== null
+
+    if (!inTour && target instanceof Node && popup !== null && !popup.contains(target) && (toggle === null || !toggle.contains(target))) {
+      this.setCompact(false)
     }
   }
 
@@ -85,7 +126,7 @@ export default class BoxTitleBar extends Component<Props, State> {
     const { state, isActive, updateBoxState, removeBox, seatBox, makeActive, hideTitle, titleActionsHost } : Props = this.props
     const { type, title, minimized } = state
 
-    const { shareLinkOpen } : State = this.state
+    const { shareLinkOpen, compactOpen } : State = this.state
 
     return (
       <div className='boxTopBar'
@@ -167,7 +208,13 @@ export default class BoxTitleBar extends Component<Props, State> {
 
             </div>
         }
-        <div className='box-top-bar-controls'>
+        <div
+          className={ compactOpen ? 'box-top-bar-controls box-top-bar-controls--open' : 'box-top-bar-controls' }
+          ref={ this.compactPopupRef }
+          // Capture, so the items' own stopPropagation never swallows
+          // it: the menu closes first, the tapped action runs after.
+          onClickCapture={ compactOpen ? () => this.setCompact(false) : undefined }
+        >
           {
             state.readOnly ?
               null
@@ -289,6 +336,23 @@ export default class BoxTitleBar extends Component<Props, State> {
                 <Pencil size={ 15 } strokeWidth={ 1.75 } />
               </div>
           }
+        </div>
+
+        { /* Compact box menu toggle: only the media query in
+             BoxTopBar.css ever shows it (below 420px), where the
+             controls above fold into its popup. */ }
+        <div
+          ref={ this.compactToggleRef }
+          className={ compactOpen ? 'box-top-bar--controls-item box-top-bar--compact-toggle box-top-bar--compact-toggle--open' : 'box-top-bar--controls-item box-top-bar--compact-toggle' }
+          title={ compactOpen ? 'Close box actions' : 'Open box actions' }
+          onClick={ (e) => {
+            e.stopPropagation()
+            this.setCompact(! compactOpen)
+          } }
+        >
+          <span className='box-top-bar--compact-bar' aria-hidden='true' />
+          <span className='box-top-bar--compact-bar' aria-hidden='true' />
+          <span className='box-top-bar--compact-bar' aria-hidden='true' />
         </div>
 
         {

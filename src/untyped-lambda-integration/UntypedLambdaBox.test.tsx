@@ -18,6 +18,7 @@ function Harness ({ initial, host } : { initial : UntypedLambdaState, host? : HT
       isFocused={ true }
       isAnchorBox={ true }
       setBoxState={ setState }
+      makeActive={ () => void 0 }
       addBox={ () => void 0 }
       titleActionsHost={ host ? { current : host } : undefined }
     />
@@ -214,6 +215,7 @@ test('a second box panel dismisses the first', () => {
         isFocused={ false }
         isAnchorBox={ false }
         setBoxState={ setState }
+        makeActive={ () => void 0 }
         addBox={ () => void 0 }
       />
     );
@@ -374,6 +376,7 @@ function settingsHarness (initial : UntypedLambdaState) {
         isFocused={ true }
         isAnchorBox={ true }
         setBoxState={ setState }
+        makeActive={ () => void 0 }
         addBox={ () => void 0 }
       />
     );
