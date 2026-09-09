@@ -105,3 +105,11 @@ test('switch toggles have track, thumb, and on paint', () => {
   expect(thumb).toMatch(/border-radius\s*:\s*50%/);
   expect(thumb).toMatch(/background-color\s*:\s*var\(--muted\)/);
 });
+
+test('toggle labels nudge up to the track center', () => {
+  // The font metrics sit glyphs a hair below the flex-given center
+  // next to the 20px switches; the shared label class compensates.
+  const css = readFileSync('src/untyped-lambda-integration/styles/Settings.css', 'utf8');
+  const label = css.match(/\.untyped-lambda-settings-label\s*\{[^}]*\}/)?.[0] ?? '';
+  expect(label).toMatch(/transform\s*:\s*translateY\(-1px\)/);
+});
