@@ -31,10 +31,12 @@
 .dark .markdown-body code,
 .dark .markdown-body tt {
   background-color: var(--raised);
+  color: var(--text);
 }
 
 .dark .markdown-body pre {
   background-color: var(--raised);
+  color: var(--text);
 }
 
 .dark .markdown-body table tr {

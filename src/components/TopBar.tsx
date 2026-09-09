@@ -257,6 +257,18 @@ export default function TopBar (props : Props) : JSX.Element {
                     }
                   }
                 />
+                <p className='top-bar--settings-title'>Deletion</p>
+                <span className='top-bar--delete-confirm'>
+                  <input
+                    id='top-bar--confirm-delete'
+                    type='checkbox'
+                    checked={ confirmBoxDelete }
+                    onChange={ (e) => onConfirmBoxDeleteChange(e.target.checked) }
+                  />
+                  <label htmlFor='top-bar--confirm-delete'>
+                    Confirm before deleting a box
+                  </label>
+                </span>
               </div>
             </React.Fragment>
           :
@@ -358,18 +370,6 @@ export default function TopBar (props : Props) : JSX.Element {
                     )
                   }
                 </div>
-                <p className='top-bar--settings-title'>Deletion</p>
-                <span className='top-bar--delete-confirm'>
-                  <input
-                    id='top-bar--confirm-delete'
-                    type='checkbox'
-                    checked={ confirmBoxDelete }
-                    onChange={ (e) => onConfirmBoxDeleteChange(e.target.checked) }
-                  />
-                  <label htmlFor='top-bar--confirm-delete'>
-                    Ask before deleting a box
-                  </label>
-                </span>
               </div>
             </React.Fragment>
           :
