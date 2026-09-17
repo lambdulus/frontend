@@ -2,9 +2,6 @@ import React from 'react'
 import ReactDOM from 'react-dom/client'
 import './index.css'
 import App from './App'
-import { initAnalytics } from './misc/analytics'
-
-initAnalytics()
 
 const rootElement = document.getElementById('root')
 

@@ -13,7 +13,6 @@ import  { loadAppStateFromStorage
         , createManualNotebook } from './Constants'
 
 import { uniqueKey } from './uniqueKey'
-import { eventPreview, trackEvent } from './misc/analytics'
 
 import TopBar from './components/TopBar'
 import Tour from './components/Tour'
@@ -336,16 +335,6 @@ export default class App extends Component<{}, AppState> {
           const macrotable : MacroTable = JSON.parse(decodeURI(macros))
 
           const box : UntypedLambdaState = createNewUntypedLambdaBoxFromSource(decodeURI(source), settings, sub, macrotable)
-
-          trackEvent('submit_expression', {
-            source : 'link',
-            status : 'valid',
-            strategy : String(strat),
-            expression_length : decodeURI(source).length,
-            expression_preview : eventPreview(decodeURI(source)),
-            normal_form : box.history[0]?.isNormalForm ?? false,
-          })
-
           const notebook : NotebookState = createNewNotebookWithBox('Shared', box, { [UNTYPED_LAMBDA_CODE_NAME] : settings })
           const notebooks : Array<NotebookState> = [ ...this.state.notebooks, notebook ]
 
@@ -365,14 +354,6 @@ export default class App extends Component<{}, AppState> {
           return true
         }
         catch (ex) {
-          trackEvent('submit_expression', {
-            source : 'link',
-            status : 'invalid',
-            strategy : String(strat),
-            expression_length : source.length,
-            expression_preview : eventPreview(source),
-          })
-
           window.history.replaceState(null, '', '/') // TODO: decide if remove or leave
           return false
         }

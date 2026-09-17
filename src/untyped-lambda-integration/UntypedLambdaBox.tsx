@@ -7,7 +7,6 @@ import ExpressionBox from './ExpressionBox'
 import MacroList from './MacroList'
 import { GLOBAL_SETTINGS_ENABLER, strategyToEvaluator, findSimplifiedReduction, toMacroMap, SETTINGS_OPENED_EVENT, coreErrorMessage } from './Constants'
 import ExerciseBox from './ExerciseBox'
-import { eventPreview, trackEvent } from '../misc/analytics'
 import Settings from './Settings'
 import EmptyExpression from './EmptyExpression'
 import { None, Evaluator, Token, tokenize, parse, AST, OptimizeEvaluator, MacroMap, OpenMacroDefinition } from '@lambdulus/core'
@@ -331,15 +330,6 @@ export default class UntypedLambdaBox extends PureComponent<Props, State> {
         }
       }
 
-      trackEvent('submit_expression', {
-        source : 'editor',
-        status : 'valid',
-        strategy : String(strategy),
-        expression_length : expression.length,
-        expression_preview : eventPreview(expression),
-        normal_form : isNormal,
-      })
-
       setBoxState({
         ...state,
         settingsOpen : false,
@@ -379,14 +369,6 @@ export default class UntypedLambdaBox extends PureComponent<Props, State> {
           errorMessage = "There's a semicolon at the end."
         }
       // }
-
-      trackEvent('submit_expression', {
-        source : 'editor',
-        status : 'invalid',
-        strategy : String(strategy),
-        expression_length : content.length,
-        expression_preview : eventPreview(content),
-      })
 
       setBoxState({
         ...state,

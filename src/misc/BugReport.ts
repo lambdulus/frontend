@@ -1,7 +1,6 @@
 import { Accent, BoxState, BoxStyle, BoxType, GlobalSettings, NotebookState } from '../Types'
 import { Theme } from '../contexts/Theme'
 import { UntypedLambdaState } from '../untyped-lambda-integration/Types'
-import { getAnalyticsSessionId, SESSION_ID_PARAM } from './analytics'
 
 // The "Report a bug" icon deep-links to a new issue with the boring
 // parts already filled in: build stamps, browser facts, and a snapshot
@@ -30,7 +29,6 @@ function environmentLines () : Array<string> {
   lines.push(`- App version: ${ env('VITE_VERSION_INFO') }`)
   lines.push(`- Commit: ${ env('VITE_COMMIT') }`)
   lines.push(`- Reported at: ${ new Date().toISOString() }`)
-  lines.push(`- Analytics session: ${ getAnalyticsSessionId() } (match GA4 event parameter \`${ SESSION_ID_PARAM }\` to replay this session)`)
 
   if (typeof window !== 'undefined') {
     lines.push(`- Page: ${ window.location.href }`)
