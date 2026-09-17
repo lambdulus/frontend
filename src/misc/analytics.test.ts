@@ -1,13 +1,14 @@
 import { test, expect, afterEach, vi } from 'vitest'
 
-import { isTrackingEnabled } from './analytics'
+import { getAnalyticsSessionId, isTrackingEnabled } from './analytics'
 
 afterEach(() => {
   vi.resetModules()
-  for (const script of Array.from(document.querySelectorAll('script[src*="plausible.io"]'))) {
-    script.remove()
-  }
-  delete (window as unknown as Record<string, unknown>).plausible
+})
+
+test('session id is stable within the tab session', () => {
+  expect(getAnalyticsSessionId()).toBe(getAnalyticsSessionId())
+  expect(getAnalyticsSessionId().length).toBeGreaterThan(0)
 })
 
 test('tracking runs on the production site only', () => {
@@ -25,39 +26,61 @@ test('init is a no-op where tracking is disabled', async () => {
   // jsdom defaults to http://localhost:3000/ so the production gate fails.
   const { initAnalytics } = await import('./analytics')
   initAnalytics()
-  expect(document.querySelector('script[src*="plausible.io"]')).toBeNull()
+  expect(document.querySelector('script[src*="googletagmanager.com/gtag/js"]')).toBeNull()
 })
 
-test('init injects the Plausible snippet exactly once', async () => {
+test('events are dropped until tracking initializes', async () => {
+  const { trackEvent } = await import('./analytics')
+  trackEvent('submit_expression', { status : 'valid' })
+  expect((window as unknown as Record<string, unknown>).dataLayer).toBeUndefined()
+})
+
+test('events carry the session id once initialized', async () => {
+  const { initAnalytics, trackEvent, getAnalyticsSessionId } = await import('./analytics')
+  initAnalytics(true)
+  trackEvent('submit_expression', { status : 'valid' })
+
+  const dataLayer : Array<unknown> = (window as unknown as Record<string, unknown>).dataLayer as Array<unknown>
+  const events : Array<Array<unknown>> = dataLayer.filter(
+    (entry : unknown) : entry is Array<unknown> => Array.isArray(entry) && entry[0] === 'event'
+  )
+  expect(events).toHaveLength(1)
+
+  const params : Record<string, unknown> = events[0][2] as Record<string, unknown>
+  expect(params.status).toBe('valid')
+  expect(params.app_session_id).toBe(getAnalyticsSessionId())
+
+  for (const script of Array.from(document.querySelectorAll('script[src*="googletagmanager.com/gtag/js"]'))) {
+    script.remove()
+  }
+  delete (window as unknown as Record<string, unknown>).dataLayer
+  delete (window as unknown as Record<string, unknown>).gtag
+})
+
+test('eventPreview is a short single line', async () => {
+  const { eventPreview } = await import('./analytics')
+  expect(eventPreview('(\nXx.  x\n)')).toBe('( Xx. x )')
+  expect(eventPreview('x'.repeat(200))).toHaveLength(100)
+})
+
+test('init injects the gtag snippet exactly once', async () => {
   const { initAnalytics } = await import('./analytics')
   initAnalytics(true)
   initAnalytics(true)
 
   const scripts : Array<HTMLScriptElement> = Array.from(
-    document.querySelectorAll('script[src*="plausible.io"]')
+    document.querySelectorAll('script[src*="googletagmanager.com/gtag/js"]')
   )
   expect(scripts).toHaveLength(1)
-  expect(scripts[0].src).toBe('https://plausible.io/js/script.js')
-  expect(scripts[0].defer).toBe(true)
-  expect(scripts[0].getAttribute('data-domain')).toBe('lambdulus.github.io')
-})
+  expect(scripts[0].src).toContain('id=G-QWLM9KLGNC')
+  expect(scripts[0].async).toBe(true)
 
-test('events are dropped when the snippet is absent', async () => {
-  const { trackEvent } = await import('./analytics')
-  expect(() => trackEvent('submit_expression', { status : 'valid' })).not.toThrow()
-})
+  const dataLayer : unknown = (window as unknown as Record<string, unknown>).dataLayer
+  expect(Array.isArray(dataLayer)).toBe(true)
 
-test('events forward aggregate props to Plausible', async () => {
-  const calls : Array<{ name : string, options : { props : Record<string, string> } }> = []
-  const scope : Record<string, unknown> = window as unknown as Record<string, unknown>
-  scope.plausible = (name : string, options : { props : Record<string, string> }) : void => {
-    calls.push({ name, options })
+  for (const script of scripts) {
+    script.remove()
   }
-
-  const { trackEvent } = await import('./analytics')
-  trackEvent('submit_expression', { source : 'editor', status : 'valid' })
-
-  expect(calls).toHaveLength(1)
-  expect(calls[0].name).toBe('submit_expression')
-  expect(calls[0].options.props).toEqual({ source : 'editor', status : 'valid' })
+  delete (window as unknown as Record<string, unknown>).dataLayer
+  delete (window as unknown as Record<string, unknown>).gtag
 })

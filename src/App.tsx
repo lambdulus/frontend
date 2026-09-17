@@ -13,7 +13,7 @@ import  { loadAppStateFromStorage
         , createManualNotebook } from './Constants'
 
 import { uniqueKey } from './uniqueKey'
-import { trackEvent } from './misc/analytics'
+import { eventPreview, trackEvent } from './misc/analytics'
 
 import TopBar from './components/TopBar'
 import Tour from './components/Tour'
@@ -341,6 +341,9 @@ export default class App extends Component<{}, AppState> {
             source : 'link',
             status : 'valid',
             strategy : String(strat),
+            expression_length : decodeURI(source).length,
+            expression_preview : eventPreview(decodeURI(source)),
+            normal_form : box.history[0]?.isNormalForm ?? false,
           })
 
           const notebook : NotebookState = createNewNotebookWithBox('Shared', box, { [UNTYPED_LAMBDA_CODE_NAME] : settings })
@@ -366,6 +369,8 @@ export default class App extends Component<{}, AppState> {
             source : 'link',
             status : 'invalid',
             strategy : String(strat),
+            expression_length : source.length,
+            expression_preview : eventPreview(source),
           })
 
           window.history.replaceState(null, '', '/') // TODO: decide if remove or leave

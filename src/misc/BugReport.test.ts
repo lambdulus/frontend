@@ -92,10 +92,15 @@ test('long expressions are truncated, special chars survive', () => {
   expect(body).toContain('first 300');
 });
 
-test('diagnostics carry no identifiers or user tracking', () => {
-  const body : string = bodyOf(buildBugReportURL(input('x')));
-  expect(body).not.toMatch(/session/i);
-  expect(body).not.toContain('plausible');
+test('diagnostics carry a stable analytics session id', () => {
+  const first : string = bodyOf(buildBugReportURL(input('x')));
+  const second : string = bodyOf(buildBugReportURL(input('x')));
+
+  const idOf = (body : string) : string | undefined =>
+    body.match(/^- Analytics session: (\S+)/m)?.[1];
+
+  expect(idOf(first)).toBeTruthy();
+  expect(idOf(first)).toBe(idOf(second));
 });
 
 test('empty notebook does not break the link', () => {
