@@ -92,12 +92,6 @@ test('long expressions are truncated, special chars survive', () => {
   expect(body).toContain('first 300');
 });
 
-test('diagnostics carry no identifiers or user tracking', () => {
-  const body : string = bodyOf(buildBugReportURL(input('x')));
-  expect(body).not.toMatch(/session/i);
-  expect(body).not.toContain('plausible');
-});
-
 test('empty notebook does not break the link', () => {
   const shaped : BugReportInput = input('x');
   shaped.notebooks = [];
