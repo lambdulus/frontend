@@ -6,7 +6,6 @@ import { Accent, BoxStyle, GlobalSettings, NotebookState } from '../Types'
 import '../styles/TopBar.css'
 import { decodeNotebook } from '../Constants'
 import { buildBugReportURL } from '../misc/BugReport'
-import { trackEvent } from '../misc/analytics'
 import { Theme } from '../contexts/Theme'
 import UntypedLambdaCalculusSet from '../untyped-lambda-integration/Settings'
 import {
@@ -260,7 +259,7 @@ export default function TopBar (props : Props) : JSX.Element {
             target="_blank"
             rel="noopener noreferrer"
             href={ buildBugReportURL({ notebooks, activeNotebookIndex, theme, accent, boxStyle, settings }) }
-            onClick={ () => { setMenuOpen(false); trackEvent('open_bug_report') } }
+            onClick={ () => setMenuOpen(false) }
           >
             <Bug size={ 17 } strokeWidth={ 1.75 } />
             <span className='top-bar--action-label'>Report a bug</span>

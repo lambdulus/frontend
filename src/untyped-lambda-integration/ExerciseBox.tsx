@@ -22,7 +22,6 @@ import InactiveEvaluator from './InactiveExpression'
 import Expression from './Expression'
 import { PromptPlaceholder, UntypedLambdaState, Evaluator, StepRecord, Breakpoint, UntypedLambdaType, StepMessage, StepValidity } from './Types'
 import { strategyToEvaluator, findSimplifiedReduction, MacroBeta, toMacroMap, tryMacroContraction, coreErrorMessage } from './Constants'
-import { trackEvent } from '../misc/analytics'
 
 
 export interface EvaluationProperties {
@@ -221,12 +220,6 @@ export default class ExerciseBox extends PureComponent<EvaluationProperties> {
         message.message = 'Expression is in normal form.'
       }
 
-      trackEvent('submit_expression', {
-        source : 'exercise',
-        status : 'valid',
-        strategy : String(strategy),
-      })
-
       setBoxState({
         ...state,
         ast,
@@ -257,12 +250,6 @@ export default class ExerciseBox extends PureComponent<EvaluationProperties> {
       if (content.match(/\s*;\s*$/g)) {
         errorMessage = "There's a semicolon at the end."
       }
-      trackEvent('submit_expression', {
-        source : 'exercise',
-        status : 'invalid',
-        strategy : String(strategy),
-      })
-
       setBoxState({
         ...state,
         editor : {
