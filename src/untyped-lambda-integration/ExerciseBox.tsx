@@ -22,7 +22,7 @@ import InactiveEvaluator from './InactiveExpression'
 import Expression from './Expression'
 import { PromptPlaceholder, UntypedLambdaState, Evaluator, StepRecord, Breakpoint, UntypedLambdaType, StepMessage, StepValidity } from './Types'
 import { strategyToEvaluator, findSimplifiedReduction, MacroBeta, toMacroMap, tryMacroContraction, coreErrorMessage } from './Constants'
-import { eventPreview, trackEvent } from '../misc/analytics'
+import { trackEvent } from '../misc/analytics'
 
 
 export interface EvaluationProperties {
@@ -225,9 +225,6 @@ export default class ExerciseBox extends PureComponent<EvaluationProperties> {
         source : 'exercise',
         status : 'valid',
         strategy : String(strategy),
-        expression_length : content.length,
-        expression_preview : eventPreview(content),
-        normal_form : isNormal,
       })
 
       setBoxState({
@@ -264,8 +261,6 @@ export default class ExerciseBox extends PureComponent<EvaluationProperties> {
         source : 'exercise',
         status : 'invalid',
         strategy : String(strategy),
-        expression_length : content.length,
-        expression_preview : eventPreview(content),
       })
 
       setBoxState({
