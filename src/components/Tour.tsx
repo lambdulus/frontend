@@ -160,12 +160,12 @@ export const TOUR_STEPS : Array<TourStep> = [
   {
     id : 'type',
     title : 'Write and evaluate',
-    body : 'Type `(\\ x . x y) a` into the editor — the backslash becomes λ as you type — then press Debug (Ctrl + Enter). Press Next and I will do it for you.',
+    body : 'Type `(\\ x . x y) a` into the editor — the backslash becomes λ as you type — then press Debug (Ctrl + Enter) — or press Next and I will do it for you.',
   },
   {
     id : 'stepping',
     title : 'Step through evaluation',
-    body : 'Evaluated, waiting at its first step. Run walks all the way to the normal form; Step advances once. Try it now — or press `F8` to step, `F9` to run.',
+    body : 'Submitted, waiting for its first step. Run reduces all the way to the normal form; Step advances once. Try it now — or press `F8` to step, `F9` to run.',
     targetInTracked : STEP_SELECTOR,
   },
   {
@@ -186,14 +186,14 @@ export const TOUR_STEPS : Array<TourStep> = [
   {
     id : 'set-sli',
     title : 'Single Letter Names',
-    body : 'Lone letters count as variables, no spaces needed. Flip it and Step again to feel it.',
+    body : 'Lone letters count as variables, no spaces needed.',
     targetInTracked : SLI_ROW,
     dot : 'settings',
   },
   {
     id : 'set-sde',
     title : 'Simplified Evaluation',
-    body : 'This steers stepping by a different strategy — try the same expression with it on and off.',
+    body : 'This steers stepping by a different strategy. It is useful for expressions with arithmetics and other macros.',
     targetInTracked : SDE_ROW,
     dot : 'settings',
   },
@@ -233,7 +233,7 @@ export const TOUR_STEPS : Array<TourStep> = [
   {
     id : 'zen',
     title : 'Zen mode',
-    body : 'One box gets the whole viewport — no siblings, no rails, nothing competing for your eyes. Flip the zen switch up top — or press Next and I will — and feel how quiet calculus gets.',
+    body : 'One box gets the whole viewport — no siblings, no rails, no distractions. Flip the zen switch up top — or press Next and I will — and feel how quiet λ-calculus gets.',
     target : ZEN_SELECTOR,
     advanceOn : ZEN_SELECTOR,
     advanceTo : 'zen-dwell',
@@ -241,19 +241,19 @@ export const TOUR_STEPS : Array<TourStep> = [
   {
     id : 'zen-dwell',
     title : 'Settle into zen',
-    body : 'No sibling boxes, no rails, no panels — just this box and the top bar. Scroll it, keep stepping through the evaluation, feel how quiet calculus gets. When the quiet lands, walk on.',
+    body : 'No distractions — just this box and the top bar. Use `ArrowUp` and `ArrowDown` to change boxes, or scroll / swipe with the cursor over the map strip on the right edge to move between boxes. See what is different, and if you like it — let us keep going.',
     dot : 'zen',
   },
   {
     id : 'cleaning',
     title : 'A clean slate',
-    body : 'The eraser up top holds both exits — let us walk them one by one. Showing only: your boxes stay exactly where they are.',
+    body : 'Next, let us take a look at how to reset the workspace.',
     target : CLEAR_SELECTOR,
   },
   {
     id : 'clean-notebook',
     title : 'Clear notebook',
-    body : 'Clear notebook empties this notebook — every box goes, the notebook itself stays. Showing only: nothing is pressed behind your back.',
+    body : 'Clear notebook empties this notebook — every box goes, the notebook itself stays.',
     target : CLEAR_NOTEBOOK_SELECTOR,
     needsPanel : true,
     dot : 'cleaning',
